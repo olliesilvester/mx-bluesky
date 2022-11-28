@@ -3,14 +3,7 @@ mx_bluesky
 
 |code_ci| |docs_ci| |coverage| |pypi_version| |license|
 
-.. note::
-
-    This project contains template code only. For documentation on how to
-    adopt this skeleton project see
-    https://DiamondLightSource.github.io/mx_bluesky-cli
-
-This is where you should write a short paragraph that describes what your module does,
-how it does it, and why people should use it.
+Contains code for working with Bluesky on MX beamlines at Diamond
 
 ============== ==============================================================
 PyPI           ``pip install mx_bluesky``
@@ -19,19 +12,16 @@ Documentation  https://DiamondLightSource.github.io/mx_bluesky
 Releases       https://github.com/DiamondLightSource/mx_bluesky/releases
 ============== ==============================================================
 
-This is where you should put some images or code snippets that illustrate
-some relevant examples. If it is a library then you might put some
-introductory code here:
+Getting Started
+===============
 
-.. code-block:: python
+To get started with developing this repo at DLS run ```dls_dev_setup.sh``.
 
-    from mx_bluesky import __version__
+We recommend developing with VSCode. You can do this at DLS by running::
 
-    print(f"Hello mx_bluesky {__version__}")
 
-Or if it is a commandline tool then you might put some example commands here::
-
-    $ python -m mx_bluesky --version
+    $ module load vscode
+    $ code .
 
 .. |code_ci| image:: https://github.com/DiamondLightSource/mx_bluesky/actions/workflows/code.yml/badge.svg?branch=main
     :target: https://github.com/DiamondLightSource/mx_bluesky/actions/workflows/code.yml
