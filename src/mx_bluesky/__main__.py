@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 
-from mx_bluesky.example import run_plan
+from mx_bluesky.hdm.hdm_warming import run_plan
 
 from . import __version__
 
