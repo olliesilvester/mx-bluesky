@@ -1,6 +1,6 @@
 import unittest
 
-from mx_bluesky.hdm.nominal_min_max import NominalMinMax, SymmetricNominalMinMax
+from mx_bluesky.util.nominal_min_max import NominalMinMax, SymmetricNominalMinMax
 
 
 def test_nominal_returned_for_in_range_value():
