@@ -45,6 +45,8 @@ GitHub = "https://github.com/DiamondLightSource/mx_bluesky"
 [[project.authors]] # Further authors may be added by duplicating this section
 email = "dominic.oram@diamond.ac.uk"
 name = "Dominic Oram"
+
+[[project.authors]] # Further authors may be added by duplicating this section
 email = "paul.coe@diamond.ac.uk"
 name = "Paul Coe"
 
