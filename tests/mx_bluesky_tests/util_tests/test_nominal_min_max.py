@@ -27,6 +27,7 @@ def test_error_raised_when_bounds_not_in_order():
 
 
 def test_nominal_returned_for_in_symmetric_range_value():
+    # dummy comment
     snmm = SymmetricNominalMinMax(5.1, 4.0)
     result = snmm.get_nominal_if_in_range(8.8)
     expectation = 5.1
