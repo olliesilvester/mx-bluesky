@@ -13,9 +13,7 @@ from functools import lru_cache
 
 import requests
 
-import i24.pv as pv
-from i24 import Detector, Eiger, Pilatus
-from i24.ca import caget, cagetstring
+from ..setup_beamline import Detector, Eiger, Pilatus, caget, cagetstring, pv
 
 try:
     from typing import Literal
