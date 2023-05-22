@@ -12,9 +12,10 @@ import pv_py3 as pv
 import setup_beamline_py3 as sup
 from ca_py3 import caget, caput
 
-sys.path.append("/dls_sw/apps/gw56/ssx-tools/src")
-from i24ssx.dcid import DCID, SSXType
-#from nexgen.beamlines.I24_Eiger_nxs import write_nxs
+from ..dcid import DCID, SSXType
+
+# from nexgen.beamlines.I24_Eiger_nxs import write_nxs
+
 
 lg.basicConfig(
     format="%(asctime)s %(levelname)s:   \t%(message)s",
@@ -42,19 +43,19 @@ def initialise_extruderi24():
     ###################
     # Comment out below line for testing scripts during DCM upgrade DCMUP
     energy = caget(pv.dcm_energy)
-    #energy = "12.4"
+    # energy = "12.4"
     ###################
     det_dist = caget(pv.det_z)
     #######################
     # define visit using the below line
-    #visit = "/dls/i24/data/2022/mx31930-2/"
+    # visit = "/dls/i24/data/2022/mx31930-2/"
     visit = "/dls/i24/data/2023/cm33852-2/"
     lg.info("%s Visit defined %s" % (name, visit))
     #######################
     # define detector using the below line
     # Oct 2021. beta. Do not change from pilatus unless your name is Robin
     det_type = "pilatus"
-    #det_type = "eiger"
+    # det_type = "eiger"
     #######################
     caput(pv.ioc12_gp1, str(visit))
     caput(pv.ioc12_gp2, "test")
@@ -70,32 +71,34 @@ def initialise_extruderi24():
     print("Done Done Done")
     lg.info("%s Initialsation complete" % name)
 
+
 def moveto(place):
     name = inspect.stack()[0][3]
-    lg.info('%s Move to %s' %(name, place))
+    lg.info("%s Move to %s" % (name, place))
 
     det_type = caget(pv.ioc12_gp15)
 
-    if place == 'laseron':
-        lg.info('%s laser on%s'%(name,place))
-        if det_type == 'pilatus':
+    if place == "laseron":
+        lg.info("%s laser on%s" % (name, place))
+        if det_type == "pilatus":
             caput(pv.zebra1_out1_ttl, 60.0)
             caput(pv.zebra1_soft_in_b0, 1.0)
-        elif det_type == 'eiger':
+        elif det_type == "eiger":
             caput(pv.zebra1_out2_ttl, 60.0)
             caput(pv.zebra1_soft_in_b0, 1.0)
 
-    if place == 'laseroff':
-        lg.info('%s laser off%s'%(name,place))
-        if det_type == 'pilatus':
+    if place == "laseroff":
+        lg.info("%s laser off%s" % (name, place))
+        if det_type == "pilatus":
             caput(pv.zebra1_soft_in_b0, 0.0)
             caput(pv.zebra1_out1_ttl, 0.0)
-        elif det_type == 'eiger':
+        elif det_type == "eiger":
             caput(pv.zebra1_soft_in_b0, 0.0)
             caput(pv.zebra1_out2_ttl, 0.0)
 
-    if place == 'enterhutch':
+    if place == "enterhutch":
         caput(pv.det_z, 1480)
+
 
 def write_parameter_file():
     name = inspect.stack()[0][3]
@@ -115,18 +118,20 @@ def write_parameter_file():
     ###energy = '12.400'
     det_dist = caget(pv.ioc12_gp7)
     det_type = caget(pv.ioc12_gp15)
-    if int(caget(pv.ioc12_gp6)) == 1: pump_status = "true" 
-    else: pump_status = "false"
+    if int(caget(pv.ioc12_gp6)) == 1:
+        pump_status = "true"
+    else:
+        pump_status = "false"
     pump_exp = caget(pv.ioc12_gp9)
     pump_delay = caget(pv.ioc12_gp10)
 
-    #If file name ends in a digit this causes processing/pilatus pain. Append an underscore
-    numbers = ('0','1','2','3','4','5','6','7','8','9')
+    # If file name ends in a digit this causes processing/pilatus pain. Append an underscore
+    numbers = ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
     if det_type == "pilatus":
         if filename.endswith(numbers):
-            #Note for future reference. Appending underscore causes more hassle and
-            #high probability of users accidentally overwriting data. Use a dash
-            filename = filename + '-'
+            # Note for future reference. Appending underscore causes more hassle and
+            # high probability of users accidentally overwriting data. Use a dash
+            filename = filename + "-"
             print("Requested filename ends in a number. Appended dash:", filename)
             lg.info("%s Requested filename ends in a number. Appended dash")
 
@@ -192,7 +197,18 @@ def scrape_parameter_file():
             pump_exp = entry[1]
         elif "pump_delay" in entry[0].lower():
             pump_delay = entry[1]
-    return visit, directory, filename, num_imgs, exp_time, det_dist, det_type, pump_status, pump_exp, pump_delay
+    return (
+        visit,
+        directory,
+        filename,
+        num_imgs,
+        exp_time,
+        det_dist,
+        det_type,
+        pump_status,
+        pump_exp,
+        pump_delay,
+    )
 
 
 # def start_i24()
@@ -218,7 +234,7 @@ def run_extruderi24():
         det_type,
         pump_status,
         pump_exp,
-        pump_delay
+        pump_delay,
     ) = scrape_parameter_file()
 
     lg.info("%s Start Time = % s" % (name, start_time))
@@ -237,19 +253,19 @@ def run_extruderi24():
     # Set the abort PV to zero
     caput(pv.ioc12_gp8, 0)
 
-    #For pixel detector
+    # For pixel detector
     filepath = visit + directory
     print("Filepath", filepath)
     print("Filename", filename)
     lg.info("%s Filepath %s" % (name, filepath))
     lg.info("%s Filename %s" % (name, filename))
 
-    #For zebra
+    # For zebra
     ## The below will need to be determined emprically. A value of 0.0 may be ok (????)
     probepumpbuffer = 0.01
     ##
     gate_start = 1.0
-    #Need to check these for pilatus. Added temprary hack in pilatus pump is false below as gate width wrong
+    # Need to check these for pilatus. Added temprary hack in pilatus pump is false below as gate width wrong
     gate_width = float(pump_exp) + float(pump_delay) + float(exp_time)
     gate_step = float(gate_width) + float(probepumpbuffer)
     print("Calculated gate width", gate_width)
@@ -274,31 +290,55 @@ def run_extruderi24():
             lg.info("%s Pump exposure time %s" % (name, pump_exp))
             lg.info("%s Pump delay time %s" % (name, pump_delay))
             sup.pilatus("fastchip", [filepath, filename, num_imgs, exp_time])
-            sup.zebra1("zebratrigger-pilatus", [gate_start, gate_width, num_gates, gate_step, p1_delay, p1_width, p2_delay, p2_width])
-        elif pump_status == "false": 
+            sup.zebra1(
+                "zebratrigger-pilatus",
+                [
+                    gate_start,
+                    gate_width,
+                    num_gates,
+                    gate_step,
+                    p1_delay,
+                    p1_width,
+                    p2_delay,
+                    p2_width,
+                ],
+            )
+        elif pump_status == "false":
             print("Static experiment: no photoexcitation")
             lg.info("%s Static experiment: no photoexcitation" % name)
             sup.pilatus("quickshot", [filepath, filename, num_imgs, exp_time])
             gate_start = 1.0
             gate_width = (float(exp_time) * float(num_imgs)) + float(0.5)
             sup.zebra1("quickshot", [gate_start, gate_width])
-    
+
     elif det_type == "eiger":
-        #Test moving seqID+1 to here
-        caput(pv.eiger_seqID, int(caget(pv.eiger_seqID))+1)
+        # Test moving seqID+1 to here
+        caput(pv.eiger_seqID, int(caget(pv.eiger_seqID)) + 1)
         lg.info("%s Eiger quickshot setup: filepath %s" % (name, filepath))
         lg.info("%s Eiger quickshot setup: filepath %s" % (name, filename))
         lg.info("%s Eiger quickshot setup: number of images %s" % (name, num_imgs))
         lg.info("%s Eiger quickshot setup: exposure time %s" % (name, exp_time))
-        
+
         if pump_status == "true":
             print("pump probe experiment")
             lg.info("%s Pump probe extruder data collection" % name)
             lg.info("%s Pump exposure time %s" % (name, pump_exp))
             lg.info("%s Pump delay time %s" % (name, pump_delay))
             sup.eiger("triggered", [filepath, filename, num_imgs, exp_time])
-            sup.zebra1("zebratrigger-eiger", [gate_start, gate_width, num_gates, gate_step, p1_delay, p1_width, p2_delay, p2_width])
-        elif pump_status == "false": 
+            sup.zebra1(
+                "zebratrigger-eiger",
+                [
+                    gate_start,
+                    gate_width,
+                    num_gates,
+                    gate_step,
+                    p1_delay,
+                    p1_width,
+                    p2_delay,
+                    p2_width,
+                ],
+            )
+        elif pump_status == "false":
             print("Static experiment: no photoexcitation")
             lg.info("%s Static experiment: no photoexcitation" % name)
             gate_start = 1.0
@@ -308,7 +348,6 @@ def run_extruderi24():
     else:
         lg.warning("%s Unknown Detector Type, det_type = %s" % (name, det_type))
         print("Unknown detector type")
-
 
     # Do DCID creation BEFORE arming the detector
     dcid = DCID(
@@ -369,8 +408,6 @@ def run_extruderi24():
         break
     print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
 
-
-
     caput(pv.ioc12_gp8, 1)
     print("\nFast Shutter Closing")
     lg.info("%s Fast shutter closed" % (name))
@@ -391,21 +428,21 @@ def run_extruderi24():
         print("nex gen here")
         print(type(num_imgs))
         write_nxs(
-                visitpath = visit + "/" + directory,
-                filename = filename + "_" + caget(pv.eiger_seqID),
-                exp_type = 'extruder',
-                num_imgs = num_imgs,
-                beam_center = [float(caget(pv.eiger_beamx)), float(caget(pv.eiger_beamy))],
-                det_dist=float(det_dist),
-                start_time=start_time,
-                stop_time=end_time,
-                exp_time=exp_time,
-                transmission= float(caget(pv.pilat_filtertrasm)),
-                wavelength = float(caget(pv.dcm_lambda)),
-                flux=None,
-                pump_status=pump_status,
-                pump_exp=float(pump_exp),
-                pump_delay=float(pump_delay)
+            visitpath=visit + "/" + directory,
+            filename=filename + "_" + caget(pv.eiger_seqID),
+            exp_type="extruder",
+            num_imgs=num_imgs,
+            beam_center=[float(caget(pv.eiger_beamx)), float(caget(pv.eiger_beamy))],
+            det_dist=float(det_dist),
+            start_time=start_time,
+            stop_time=end_time,
+            exp_time=exp_time,
+            transmission=float(caget(pv.pilat_filtertrasm)),
+            wavelength=float(caget(pv.dcm_lambda)),
+            flux=None,
+            pump_status=pump_status,
+            pump_exp=float(pump_exp),
+            pump_delay=float(pump_delay),
         )
 
     sleep(0.5)
@@ -439,7 +476,7 @@ def main(args):
         initialise_extruderi24()
     elif command == "run":
         run_extruderi24()
-    elif command == 'moveto':
+    elif command == "moveto":
         moveto(args[1])
     else:
         print("Unknown arg")
