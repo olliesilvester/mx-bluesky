@@ -15,14 +15,13 @@ from time import sleep
 from typing import Optional
 
 import numpy as np
-import pv_py3 as pv
 import requests
-import setup_beamline_py3 as sup
-from ca_py3 import caget, cagetstring, caput
 from i24ssx_Chip_Manager_py3v1 import moveto
 from i24ssx_Chip_StartUp_py3v1 import get_format, read_parameters, scrape_parameter_file
 
 from ..dcid import DCID, SSXType
+from ..setup_beamline import caget, cagetstring, caput, pv
+from ..setup_beamline import setup_beamline as sup
 
 # Log should now change name daily.
 fh = lg.FileHandler(filename=time.strftime("logs/i24_%Y_%m_%d.log"))

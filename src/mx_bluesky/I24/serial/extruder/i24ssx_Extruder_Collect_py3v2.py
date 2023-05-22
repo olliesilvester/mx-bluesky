@@ -8,11 +8,12 @@ import time
 from datetime import datetime
 from time import sleep
 
-import pv_py3 as pv
-import setup_beamline_py3 as sup
-from ca_py3 import caget, caput
-
 from ..dcid import DCID, SSXType
+from ..setup_beamline import caget, caput, pv
+from ..setup_beamline import setup_beamline as sup
+
+# from ca_py3 import caget, caput
+
 
 # from nexgen.beamlines.I24_Eiger_nxs import write_nxs
 
