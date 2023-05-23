@@ -403,7 +403,3 @@ def get_beam_center(detector: Detector) -> tuple[float, float]:
     beamX = float(caget(detector.pv.beamx)) * detector.pixel_size_mm[0]
     beamY = float(caget(detector.pv.beamy)) * detector.pixel_size_mm[1]
     return (beamX, beamY)
-
-
-def test_beamsize():
-    print("Beam size:", get_beamsize())

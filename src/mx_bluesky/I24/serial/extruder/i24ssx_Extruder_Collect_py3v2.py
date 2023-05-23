@@ -41,13 +41,11 @@ def initialise_extruderi24():
     name = inspect.stack()[0][3]
     print("Initialise Parameters for extruder data collection")
     lg.info("%s I24 extruder initialisation" % name)
-    ###################
+
     # Comment out below line for testing scripts during DCM upgrade DCMUP
-    energy = caget(pv.dcm_energy)
-    # energy = "12.4"
-    ###################
+    energy = caget(pv.dcm_energy)  # energy = "12.4"
     det_dist = caget(pv.det_z)
-    #######################
+
     # define visit using the below line
     # visit = "/dls/i24/data/2022/mx31930-2/"
     visit = "/dls/i24/data/2023/cm33852-2/"
@@ -115,8 +113,7 @@ def write_parameter_file():
     filename = caget(pv.ioc12_gp3)
     num_imgs = caget(pv.ioc12_gp4)
     exp_time = caget(pv.ioc12_gp5)
-    energy = caget(pv.dcm_energy)
-    ###energy = '12.400'
+    energy = caget(pv.dcm_energy)  # energy = '12.400'
     det_dist = caget(pv.ioc12_gp7)
     det_type = caget(pv.ioc12_gp15)
     if int(caget(pv.ioc12_gp6)) == 1:
@@ -126,7 +123,8 @@ def write_parameter_file():
     pump_exp = caget(pv.ioc12_gp9)
     pump_delay = caget(pv.ioc12_gp10)
 
-    # If file name ends in a digit this causes processing/pilatus pain. Append an underscore
+    # If file name ends in a digit this causes processing/pilatus pain.
+    # Append an underscore
     numbers = ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
     if det_type == "pilatus":
         if filename.endswith(numbers):
@@ -262,9 +260,9 @@ def run_extruderi24():
     lg.info("%s Filename %s" % (name, filename))
 
     # For zebra
-    ## The below will need to be determined emprically. A value of 0.0 may be ok (????)
+    # The below will need to be determined emprically. A value of 0.0 may be ok (????)
     probepumpbuffer = 0.01
-    ##
+
     gate_start = 1.0
     # Need to check these for pilatus. Added temprary hack in pilatus pump is false below as gate width wrong
     gate_width = float(pump_exp) + float(pump_delay) + float(exp_time)
@@ -361,7 +359,7 @@ def run_extruderi24():
         exposure_time=exp_time,
     )
 
-    ########## Collect
+    # Collect
     print("\nFast Shutter Opening")
     lg.info("%s Fast shutter opened" % (name))
     caput(pv.zebra1_soft_in_b1, 1)
@@ -448,7 +446,7 @@ def run_extruderi24():
 
     sleep(0.5)
 
-    ############ Clean Up
+    # Clean Up
     # print 'Setting zebra back to normal'
     sup.zebra1("return-to-normal")
     if det_type == "pilatus":
