@@ -20,6 +20,7 @@ import requests
 from ..dcid import DCID, SSXType
 from ..setup_beamline import caget, cagetstring, caput, pv
 from ..setup_beamline import setup_beamline as sup
+from ..write_nexus import call_nexgen
 from .i24ssx_Chip_Manager_py3v1 import moveto
 from .i24ssx_Chip_StartUp_py3v1 import (
     get_format,
@@ -720,87 +721,6 @@ def finish_sacla():
     lg.info("%s pmac_str=!x0y0z0" % name)
     end_time = time.ctime()
     return end_time
-
-
-def call_nexgen(chip_prog_dict, start_time):
-    det_type = str(caget(pv.me14e_gp101))
-    print(f"det_type: {det_type}")
-
-    (
-        chip_name,
-        visit,
-        sub_dir,
-        n_exposures,
-        chip_type,
-        map_type,
-        pump_repeat,
-        pumpexptime,
-        pumpdelay,
-        exptime,
-        dcdetdist,
-        prepumpexptime,
-        det_type,
-    ) = scrape_parameter_file(location="i24")
-
-    filename_prefix = cagetstring(pv.eiger_ODfilenameRBV)
-    meta_h5 = pathlib.Path(visit) / sub_dir / f"{filename_prefix}_meta.h5"
-    t0 = time.time()
-    max_wait = 60  # seconds
-    print(f"Watching for {meta_h5}")
-    while time.time() - t0 < max_wait:
-        if meta_h5.exists():
-            print(f"Found {meta_h5} after {time.time() - t0:.1f} seconds")
-            time.sleep(5)
-            break
-        print(f"Waiting for {meta_h5}")
-        time.sleep(1)
-    if not meta_h5.exists():
-        print(f"Giving up waiting for {meta_h5} after {max_wait} seconds")
-        return False
-
-    total_numb_imgs = datasetsizei24()
-    # filepath = visit + sub_dir
-    # filename = chip_name
-    transmission = (float(caget(pv.pilat_filtertrasm)),)
-    wavelength = float(caget(pv.dcm_lambda))
-
-    if det_type == "eiger":
-        print("nex gen here")
-        currentchipmap = (
-            "/dls_sw/i24/scripts/fastchips/litemaps/currentchip.map"
-            if map_type != 0
-            else "fullchip"
-        )
-        print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-        print(chip_prog_dict)
-
-        access_token = pathlib.Path("/scratch/ssx_nexgen.key").read_text().strip()
-        url = "https://ssx-nexgen.diamond.ac.uk/ssx_eiger/write"
-        headers = {"Authorization": f"Bearer {access_token}"}
-        payload = {
-            "beamline": "i24",
-            "beam_center": [caget(pv.eiger_beamx), caget(pv.eiger_beamy)],
-            "chipmap": currentchipmap,
-            "chip_info": chip_prog_dict,
-            "det_dist": dcdetdist,
-            "exp_time": exptime,
-            "exp_type": "fixed_target",
-            "filename": filename_prefix,
-            "num_imgs": int(total_numb_imgs),
-            "pump_status": bool(float(pump_repeat)),
-            "pump_exp": pumpexptime,
-            "pump_delay": pumpdelay,
-            "transmission": transmission[0],
-            "visitpath": os.fspath(meta_h5.parent),
-            "wavelength": wavelength,
-        }
-        print(f"Sending POST request to {url} with payload:")
-        pprint.pprint(payload)
-        response = requests.post(url, headers=headers, json=payload)
-        print(f"Response: {response.text} (status code: {response.status_code})")
-        # the following will raise an error if the request was unsuccessful
-        return response.status_code == requests.codes.ok
-    return False
 
 
 def main(location="i24"):
