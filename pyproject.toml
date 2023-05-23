@@ -20,6 +20,7 @@ dependencies = [
     "jupyterlab",
     "matplotlib",
     "requests",
+    "opencv-python",
 ]
 dynamic = ["version"]
 license.file = "LICENSE"
