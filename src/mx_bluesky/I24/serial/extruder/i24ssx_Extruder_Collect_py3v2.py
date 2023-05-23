@@ -11,12 +11,7 @@ from time import sleep
 from ..dcid import DCID, SSXType
 from ..setup_beamline import caget, caput, pv
 from ..setup_beamline import setup_beamline as sup
-
-# from ca_py3 import caget, caput
-
-
-# from nexgen.beamlines.I24_Eiger_nxs import write_nxs
-
+from ..write_nexus import call_nexgen
 
 lg.basicConfig(
     format="%(asctime)s %(levelname)s:   \t%(message)s",
@@ -372,6 +367,11 @@ def run_extruderi24():
 
     dcid.notify_start()
 
+    if location == "i24" and det_type == "eiger":
+        success = call_nexgen(None, start_time, "extruder")
+
+    print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+
     aborted = False
     while True:
         # ioc12_gp8 is the ABORT button
@@ -424,25 +424,8 @@ def run_extruderi24():
         caput(pv.eiger_acquire, 0)
         caput(pv.eiger_ODcapture, "Done")
         print(filename + "_" + caget(pv.eiger_seqID))
-        print("nex gen here")
+        # print("nex gen here")
         print(type(num_imgs))
-        write_nxs(
-            visitpath=visit + "/" + directory,
-            filename=filename + "_" + caget(pv.eiger_seqID),
-            exp_type="extruder",
-            num_imgs=num_imgs,
-            beam_center=[float(caget(pv.eiger_beamx)), float(caget(pv.eiger_beamy))],
-            det_dist=float(det_dist),
-            start_time=start_time,
-            stop_time=end_time,
-            exp_time=exp_time,
-            transmission=float(caget(pv.pilat_filtertrasm)),
-            wavelength=float(caget(pv.dcm_lambda)),
-            flux=None,
-            pump_status=pump_status,
-            pump_exp=float(pump_exp),
-            pump_delay=float(pump_delay),
-        )
 
     sleep(0.5)
 
