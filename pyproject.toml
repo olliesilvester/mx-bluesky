@@ -53,6 +53,8 @@ GitHub = "https://github.com/DiamondLightSource/mx_bluesky"
 email = "dominic.oram@diamond.ac.uk"
 name = "Dominic Oram"
 
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.setuptools_scm]
 write_to = "src/mx_bluesky/_version.py"

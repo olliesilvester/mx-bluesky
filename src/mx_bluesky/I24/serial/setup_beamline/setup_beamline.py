@@ -1,7 +1,7 @@
 from time import sleep
 
-import .pv_py3 as pv
-from .ca_py3 import caget, caput
+from . import pv
+from .ca import caget, caput
 
 
 def modechange(action):
