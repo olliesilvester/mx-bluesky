@@ -4,13 +4,17 @@ import pprint
 import time
 
 import requests
-from extruder.i24ssx_Extruder_Collect_py3v2 import scrape_parameter_file as EXscrape
-from fixed_target.i24ssx_Chip_Collect_py3v1 import datasetsizei24
-from fixed_target.i24ssx_Chip_StartUp_py3v1 import scrape_parameter_file as FTscrape
-from setup_beamline import caget, cagetstring, pv
+
+from .setup_beamline import caget, cagetstring, pv
 
 
-def call_nexgen(chip_prog_dict, start_time, expt_type="fixed_target"):
+def call_nexgen(
+    chip_prog_dict,
+    start_time,
+    param_file_tuple,
+    expt_type="fixed_target",
+    total_numb_imgs=None,
+):
     det_type = str(caget(pv.me14e_gp101))
     print(f"det_type: {det_type}")
 
@@ -29,29 +33,27 @@ def call_nexgen(chip_prog_dict, start_time, expt_type="fixed_target"):
             dcdetdist,
             prepumpexptime,
             det_type,
-        ) = FTscrape(
-            location="i24"
-        )  # scrape_parameter_file(location="i24")
+        ) = param_file_tuple
         currentchipmap = (
             "/dls_sw/i24/scripts/fastchips/litemaps/currentchip.map"
             if map_type != 0
             else "fullchip"
         )
-        total_numb_imgs = datasetsizei24()
     elif expt_type == "extruder":
         # chip_prog_dict should be None for extruder (passed as input for now)
         (
             visit,
             sub_dir,
             filename,
-            total_numb_imgs,
+            num_imgs,
             exptime,
             dcdetdist,
             det_type,
             pump_status,
             pumpexptime,
             pumpdelay,
-        ) = EXscrape()
+        ) = param_file_tuple
+        total_numb_imgs = num_imgs
         currentchipmap = None
         pump_repeat = "0" if pump_status == "false" else "1"
 

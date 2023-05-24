@@ -849,8 +849,14 @@ def main(location="i24"):
     # Kick off the StartOfCollect script
     dcid.notify_start()
 
+    param_file_tuple = scrape_parameter_file(location="i24")
     if location == "i24" and det_type == "eiger":
-        success = call_nexgen(chip_prog_dict, start_time)
+        success = call_nexgen(
+            chip_prog_dict,
+            start_time,
+            param_file_tuple,
+            total_numb_imgs=datasetsizei24(),
+        )
 
     print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
     lg.info("%s Data Collection running" % (name))
