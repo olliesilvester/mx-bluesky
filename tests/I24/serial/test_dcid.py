@@ -4,12 +4,13 @@ from mx_bluesky.I24.serial.setup_beamline import Eiger, Pilatus
 
 def test_beamsize():
     beam_size = get_beamsize()
-    print("Beam size: ", beam_size)
     assert type(beam_size) is tuple
 
 
 def test_beam_center():
-    print("Beam center: ", get_beam_center(Eiger()))
+    beam_center = get_beam_center(Eiger())
+    assert type(beam_center) is tuple
+    assert len(beam_center) == 2
 
 
 def test_get_resolution():
