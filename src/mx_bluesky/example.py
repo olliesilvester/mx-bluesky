@@ -7,7 +7,7 @@ class Synchrotron(Device):
     ring_current: EpicsSignal = Component(EpicsSignal, "SR-DI-DCCT-01:SIGNAL")
 
 
-def test_plan(synch: Synchrotron):
+def my_test_plan(synch: Synchrotron):
     current = yield from rd(synch.ring_current)
     print(current)
 
