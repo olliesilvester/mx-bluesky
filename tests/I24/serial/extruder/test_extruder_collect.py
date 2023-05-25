@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import mock_open, patch
 
 from mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2 import (
     initialise_extruderi24,
@@ -21,6 +21,7 @@ def get_test_params():
 )
 def test_scrape_parameter_file():
     res = scrape_parameter_file()
+    assert res[0] == "foo"
     assert len(res) == 10
 
 
