@@ -10,12 +10,14 @@ def test_beamline_raises_error_if_quickshot_and_no_args_list():
         setup_beamline.beamline("quickshot")
 
 
-def test_pilatus_raises_error_if_fastchip_and_no_args_list():
+@patch("mx_bluesky.I24.serial.setup_beamline.setup_beamline.caput")
+def test_pilatus_raises_error_if_fastchip_and_no_args_list(fake_caput):
     with pytest.raises(TypeError):
         setup_beamline.pilatus("fastchip")
 
 
-def test_eiger_raises_error_if_quickshot_and_no_args_list():
+@patch("mx_bluesky.I24.serial.setup_beamline.setup_beamline.caput")
+def test_eiger_raises_error_if_quickshot_and_no_args_list(fake_caput):
     with pytest.raises(TypeError):
         setup_beamline.eiger("quickshot")
 
