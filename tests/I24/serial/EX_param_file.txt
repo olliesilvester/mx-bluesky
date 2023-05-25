@@ -1,0 +1,10 @@
+visit foo
+directory bar
+filename boh
+num_imgs 1
+exp_time 0.1
+det_dist 100
+det_type eig
+pump_probe false
+pump_exp 0
+pump_delay 0

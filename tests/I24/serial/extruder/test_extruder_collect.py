@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import MagicMock, mock_open, patch
 
 from mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2 import (
     initialise_extruderi24,
@@ -6,7 +6,19 @@ from mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2 import (
     scrape_parameter_file,
 )
 
+FAKE_PARAM_FILE = "tests/I24/serial/EX_param_file.txt"
 
+
+def get_test_params():
+    with open(FAKE_PARAM_FILE, "r") as f:
+        params = f.read()
+    return params
+
+
+@patch(
+    "mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.open",
+    mock_open(read_data=get_test_params()),
+)
 def test_scrape_parameter_file():
     res = scrape_parameter_file()
     assert len(res) == 10
