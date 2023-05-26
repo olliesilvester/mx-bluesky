@@ -35,7 +35,8 @@ def scrape_parameter_file(location=None):
     name = inspect.stack()[0][3]
     param_path = "/dls_sw/i24/scripts/fastchips/parameter_files/"
     # param_path = '/localhome/local/Documents/sacla/parameter_files/'
-    f = open(param_path + "parameters.txt", "r").readlines()
+    with open(param_path + "parameters.txt", "r") as filein:
+        f = filein.readlines()
     for line in f:
         entry = line.rstrip().split()
         if "chip_name" in entry[0].lower():
@@ -55,7 +56,6 @@ def scrape_parameter_file(location=None):
         elif "pump_repeat" in entry[0].lower():
             pump_repeat = entry[1]
     if location == "i24":
-        f = open(param_path + "parameters.txt", "r").readlines()
         for line in f:
             entry = line.rstrip().split()
             if "pumpexptime" == entry[0].lower().strip():
