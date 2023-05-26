@@ -34,6 +34,14 @@ def test_pilatus_raises_error_if_fastchip_and_no_args_list(fake_caget, fake_capu
 
 @patch("mx_bluesky.I24.serial.setup_beamline.setup_beamline.caput")
 @patch("mx_bluesky.I24.serial.setup_beamline.setup_beamline.caget")
+def test_pilatus_quickshot(fake_caget, fake_caput):
+    setup_beamline.pilatus("quickshot", ["", "", 1, 0.1])
+    assert fake_caput.call_count == 12
+    assert fake_caget.call_count == 2
+
+
+@patch("mx_bluesky.I24.serial.setup_beamline.setup_beamline.caput")
+@patch("mx_bluesky.I24.serial.setup_beamline.setup_beamline.caget")
 def test_eiger_raises_error_if_quickshot_and_no_args_list(fake_caget, fake_caput):
     with pytest.raises(TypeError):
         setup_beamline.eiger("quickshot")
