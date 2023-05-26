@@ -369,7 +369,7 @@ def run_extruderi24():
     dcid.notify_start()
 
     param_file_tuple = scrape_parameter_file()
-    if location == "i24" and det_type == "eiger":
+    if det_type == "eiger":
         success = call_nexgen(None, start_time, param_file_tuple, "extruder")
 
     print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
