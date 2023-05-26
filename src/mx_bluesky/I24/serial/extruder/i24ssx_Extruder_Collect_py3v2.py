@@ -170,29 +170,28 @@ def scrape_parameter_file():
     param_path = "/dls_sw/i24/scripts/extruder/"
     with open(param_path + "parameters.txt", "r") as filein:
         f = filein.readlines()
-        # f = open(param_path + "parameters.txt", "r").readlines()
-        for line in f:
-            entry = line.rstrip().split()
-            if line.startswith("visit"):
-                visit = entry[1]
-            elif line.startswith("directory"):
-                directory = entry[1]
-            elif line.startswith("filename"):
-                filename = entry[1]
-            elif "num_imgs" in entry[0].lower():
-                num_imgs = entry[1]
-            elif "exp_time" in entry[0].lower():
-                exp_time = entry[1]
-            elif "det_dist" in entry[0].lower():
-                det_dist = entry[1]
-            elif "det_type" in entry[0].lower():
-                det_type = entry[1]
-            elif "pump_probe" in entry[0].lower():
-                pump_status = entry[1]
-            elif "pump_exp" in entry[0].lower():
-                pump_exp = entry[1]
-            elif "pump_delay" in entry[0].lower():
-                pump_delay = entry[1]
+    for line in f:
+        entry = line.rstrip().split()
+        if line.startswith("visit"):
+            visit = entry[1]
+        elif line.startswith("directory"):
+            directory = entry[1]
+        elif line.startswith("filename"):
+            filename = entry[1]
+        elif "num_imgs" in entry[0].lower():
+            num_imgs = entry[1]
+        elif "exp_time" in entry[0].lower():
+            exp_time = entry[1]
+        elif "det_dist" in entry[0].lower():
+            det_dist = entry[1]
+        elif "det_type" in entry[0].lower():
+            det_type = entry[1]
+        elif "pump_probe" in entry[0].lower():
+            pump_status = entry[1]
+        elif "pump_exp" in entry[0].lower():
+            pump_exp = entry[1]
+        elif "pump_delay" in entry[0].lower():
+            pump_delay = entry[1]
     return (
         visit,
         directory,
