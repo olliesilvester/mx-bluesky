@@ -6,18 +6,12 @@ from mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2 import (
     scrape_parameter_file,
 )
 
-FAKE_PARAM_FILE = "tests/I24/serial/EX_param_file.txt"
-
-
-def get_test_params():
-    with open(FAKE_PARAM_FILE, "r") as f:
-        params = f.read()
-    return params
+params = "visit foo \ndirectory bar \nfilename boh \nnum_imgs 1 \nexp_time 0.1 \ndet_dist 100 \ndet_type eig \npump_probe false \npump_exp 0 \npump_delay 0"
 
 
 @patch(
     "mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.open",
-    mock_open(read_data=get_test_params()),
+    mock_open(read_data=params),
 )
 def test_scrape_parameter_file():
     res = scrape_parameter_file()
