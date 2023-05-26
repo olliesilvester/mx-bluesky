@@ -5,9 +5,24 @@ import pytest
 from mx_bluesky.I24.serial.setup_beamline import setup_beamline
 
 
+@patch("mx_bluesky.I24.serial.setup_beamline.setup_beamline.caput")
+def test_beamline_collect(fake_caput):
+    setup_beamline.beamline("collect")
+    assert fake_caput.call_count == 4
+
+
 def test_beamline_raises_error_if_quickshot_and_no_args_list():
     with pytest.raises(TypeError):
         setup_beamline.beamline("quickshot")
+
+
+@patch("mx_bluesky.I24.serial.setup_beamline.setup_beamline.caput")
+@patch("mx_bluesky.I24.serial.setup_beamline.setup_beamline.caget")
+def test_beamline_quickshot(fake_caget, fake_caput):
+    fake_caget.return_value = 100
+    setup_beamline.beamline("quickshot", ["100"])
+    assert fake_caput.call_count == 1
+    assert fake_caget.call_count == 2
 
 
 @patch("mx_bluesky.I24.serial.setup_beamline.setup_beamline.caput")
@@ -25,6 +40,19 @@ def test_eiger_raises_error_if_quickshot_and_no_args_list(fake_caget, fake_caput
 
 
 @patch("mx_bluesky.I24.serial.setup_beamline.setup_beamline.caput")
+@patch("mx_bluesky.I24.serial.setup_beamline.setup_beamline.caget")
+def test_eiger_quickshot(fake_caget, fake_caput):
+    setup_beamline.eiger("quickshot", ["", "", "1", "0.1"])
+    assert fake_caput.call_count == 32
+
+
+@patch("mx_bluesky.I24.serial.setup_beamline.setup_beamline.caput")
 def test_zebra1_return_to_normal(fake_caput):
     setup_beamline.zebra1("return-to-normal")
     assert fake_caput.call_count == 20
+
+
+@patch("mx_bluesky.I24.serial.setup_beamline.setup_beamline.caput")
+def test_zebra1_quickshot(fake_caput):
+    setup_beamline.zebra1("quickshot", [0, 1])
+    assert fake_caput.call_count == 7
