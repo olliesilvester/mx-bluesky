@@ -11,9 +11,9 @@ from time import sleep
 
 import numpy as np
 
-from ..setup_beamline import caget, caput, pv
-from . import i24ssx_Chip_Mapping_py3v1 as mapping
-from . import i24ssx_Chip_StartUp_py3v1 as startup
+from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_Mapping_py3v1 as mapping
+from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_StartUp_py3v1 as startup
+from mx_bluesky.I24.serial.setup_beamline import caget, caput, pv
 
 # Log should now change name daily.
 lg.basicConfig(

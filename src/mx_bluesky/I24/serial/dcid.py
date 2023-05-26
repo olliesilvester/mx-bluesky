@@ -13,7 +13,14 @@ from functools import lru_cache
 
 import requests
 
-from .setup_beamline import Detector, Eiger, Pilatus, caget, cagetstring, pv
+from mx_bluesky.I24.serial.setup_beamline import (
+    Detector,
+    Eiger,
+    Pilatus,
+    caget,
+    cagetstring,
+    pv,
+)
 
 try:
     from typing import Literal

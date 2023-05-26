@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Union
 
-from . import pv
+from mx_bluesky.I24.serial.setup_beamline import pv
 
 
 class Pilatus:

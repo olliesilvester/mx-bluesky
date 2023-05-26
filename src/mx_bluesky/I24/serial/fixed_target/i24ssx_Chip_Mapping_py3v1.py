@@ -10,7 +10,7 @@ import time
 import numpy as np
 from matplotlib import pyplot as plt
 
-from .i24ssx_Chip_StartUp_py3v1 import *
+from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1 import *
 
 # Log should now change name daily.
 lg.basicConfig(

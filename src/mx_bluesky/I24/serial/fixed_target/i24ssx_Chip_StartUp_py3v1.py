@@ -13,7 +13,7 @@ from typing import Dict
 
 import numpy as np
 
-from ..setup_beamline import caget, caput, pv
+from mx_bluesky.I24.serial.setup_beamline import caget, caput, pv
 
 # Log should now change name daily.
 lg.basicConfig(

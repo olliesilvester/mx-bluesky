@@ -5,7 +5,7 @@ import time
 
 import requests
 
-from .setup_beamline import caget, cagetstring, pv
+from mx_bluesky.I24.serial.setup_beamline import caget, cagetstring, pv
 
 
 def call_nexgen(

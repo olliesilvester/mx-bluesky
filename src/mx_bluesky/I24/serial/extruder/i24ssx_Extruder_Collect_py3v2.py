@@ -8,10 +8,10 @@ import time
 from datetime import datetime
 from time import sleep
 
-from ..dcid import DCID, SSXType
-from ..setup_beamline import caget, caput, pv
-from ..setup_beamline import setup_beamline as sup
-from ..write_nexus import call_nexgen
+from mx_bluesky.I24.serial.dcid import DCID, SSXType
+from mx_bluesky.I24.serial.setup_beamline import caget, caput, pv
+from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
+from mx_bluesky.I24.serial.write_nexus import call_nexgen
 
 lg.basicConfig(
     format="%(asctime)s %(levelname)s:   \t%(message)s",

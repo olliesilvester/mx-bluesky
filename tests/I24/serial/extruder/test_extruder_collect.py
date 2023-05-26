@@ -1,6 +1,6 @@
 from unittest.mock import mock_open, patch
 
-from mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2 import (
+from mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2 import (  # run_extruderi24,
     initialise_extruderi24,
     moveto,
     scrape_parameter_file,
@@ -35,3 +35,8 @@ def test_moveto(fake_caput, fake_caget):
     moveto("enterhutch")
     assert fake_caget.call_count == 1
     assert fake_caput.call_count == 1
+
+
+# @patch()
+def test_run_extruder():
+    pass
