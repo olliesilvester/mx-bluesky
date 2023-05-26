@@ -426,7 +426,6 @@ def run_extruderi24():
         caput(pv.eiger_acquire, 0)
         caput(pv.eiger_ODcapture, "Done")
         print(filename + "_" + caget(pv.eiger_seqID))
-        # print("nex gen here")
         print(type(num_imgs))
 
     sleep(0.5)

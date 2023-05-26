@@ -705,9 +705,6 @@ def finish_i24(chip_prog_dict, start_time):
     f.write("Pump delay \t%s\n" % pumpdelay)
     f.close()
 
-    # if det_type == 'eiger':
-    #    success = call_nexgen(chip_prog_dict, start_time)
-
     sleep(0.5)
 
     return end_time
