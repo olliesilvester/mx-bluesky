@@ -1,34 +1,16 @@
-import datetime
-import inspect
-import logging as lg
-import math
-import os
-import re
-import string
-import subprocess
-import sys
-import time
-import tkinter as tk
-from datetime import datetime
-from time import sleep
-from tkinter import Button, Entry, Label, OptionMenu, PhotoImage, Tk
-
-import cv2 as cv
-import numpy as np
-from PIL import Image, ImageTk
-
-from ..setup_beamline import caget, caput, pv
-from . import i24ssx_Chip_Collect_py3v1 as collect
-from . import i24ssx_Chip_Manager_py3v1 as manager
-from . import i24ssx_Chip_Mapping_py3v1 as mapping
-from . import i24ssx_Chip_StartUp_py3v1 as startup
-
+"""
 ###################################################
 #   Move on click gui for fixed targets at I24    #
 ####           Robin Owen 12 Jan 2021          ####
 #  May need to pip install these for it to run    #
 #  opencv-python  Pillow                          #
 ####################################################
+"""
+
+import cv2 as cv
+
+from ..setup_beamline import caput, pv
+from . import i24ssx_Chip_Manager_py3v1 as manager
 
 # Set beam position and scale.
 beamX = 577
@@ -150,7 +132,7 @@ if __name__ == "__main__":
         if k == 101:  # E
             manager.moveto("f2")
         if k == 97:  # A
-            caput(pv.me14e_pmac_str, "\#1hmz\#2hmz\#3hmz")
+            caput(pv.me14e_pmac_str, r"\#1hmz\#2hmz\#3hmz")
             print("Current position set as origin")
         if k == 115:  # S
             manager.fiducial(1)
