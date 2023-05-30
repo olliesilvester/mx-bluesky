@@ -1,7 +1,5 @@
 """
 Fixed target data collection
-
-This version changed to python3 March2020 by RLO
 """
 import inspect
 import logging as lg
@@ -202,7 +200,7 @@ def load_motion_program_data(motion_program_dict, map_type, pump_repeat):
         print("prefix is", prefix)
         # if pump_repeat == '3':
         #    P1432 = 1
-        # s Need to set the correct P variable here
+        # Need to set the correct P variable here
         #    caput(pv.me14e_pmac_str, 'P1432=1')
         # elif pump_repeat == '4':
         #    P1432 = 2
@@ -828,7 +826,7 @@ def main(location="i24"):
 
     param_file_tuple = scrape_parameter_file(location="i24")
     if location == "i24" and det_type == "eiger":
-        _ = call_nexgen(
+        call_nexgen(
             chip_prog_dict,
             start_time,
             param_file_tuple,

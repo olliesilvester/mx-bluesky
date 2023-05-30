@@ -35,20 +35,16 @@ def initialise_extruderi24():
     print("Initialise Parameters for extruder data collection")
     lg.info("%s I24 extruder initialisation" % name)
 
-    # Comment out below line for testing scripts during DCM upgrade DCMUP
-    # energy = caget(pv.dcm_energy)  # energy = "12.4"
-    # det_dist = caget(pv.det_z)
-
     # define visit using the below line
     # visit = "/dls/i24/data/2022/mx31930-2/"
     visit = "/dls/i24/data/2023/cm33852-2/"
     lg.info("%s Visit defined %s" % (name, visit))
-    #
+
     # define detector using the below line
     # Oct 2021. beta. Do not change from pilatus unless your name is Robin
     det_type = "pilatus"
     # det_type = "eiger"
-    #
+
     caput(pv.ioc12_gp1, str(visit))
     caput(pv.ioc12_gp2, "test")
     caput(pv.ioc12_gp3, "testrun")
@@ -106,7 +102,6 @@ def write_parameter_file():
     filename = caget(pv.ioc12_gp3)
     num_imgs = caget(pv.ioc12_gp4)
     exp_time = caget(pv.ioc12_gp5)
-    # energy = caget(pv.dcm_energy)  # energy = '12.400'
     det_dist = caget(pv.ioc12_gp7)
     det_type = caget(pv.ioc12_gp15)
     if int(caget(pv.ioc12_gp6)) == 1:
@@ -364,7 +359,7 @@ def run_extruderi24():
 
     param_file_tuple = scrape_parameter_file()
     if det_type == "eiger":
-        _ = call_nexgen(None, start_time, param_file_tuple, "extruder")
+        call_nexgen(None, start_time, param_file_tuple, "extruder")
 
     print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
 

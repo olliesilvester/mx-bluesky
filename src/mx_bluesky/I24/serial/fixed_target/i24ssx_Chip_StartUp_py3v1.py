@@ -24,7 +24,6 @@ lg.basicConfig(
 
 
 def scrape_parameter_file(location=None):
-    # name = inspect.stack()[0][3]
     param_path = "/dls_sw/i24/scripts/fastchips/parameter_files/"
     # param_path = '/localhome/local/Documents/sacla/parameter_files/'
     with open(param_path + "parameters.txt", "r") as filein:
@@ -224,7 +223,6 @@ def get_format(chip_type):
 
 
 def get_xy(addr, chip_type):
-    # name = inspect.stack()[0][3]
     entry = addr.split("_")[-2:]
     R, C = entry[0][0], entry[0][1]
     r2, c2 = entry[1][0], entry[1][1]
@@ -296,7 +294,6 @@ def pathli(l_in=[], way="typewriter", reverse=False):
 
 
 def zippum(list_1_args, list_2_args):
-    # name = inspect.stack()[0][3]
     list_1, type_1, reverse_1 = list_1_args
     list_2, type_2, reverse_2 = list_2_args
     A_path = pathli(list_1, type_1, reverse_1)

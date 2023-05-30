@@ -1,10 +1,6 @@
 """
 Chip manager for fixed target
 This version changed to python3 March2020 by RLO
-
-Note:
-    - If an import error add python paths to bashrc_local
-    See export PYTHON lines at top of i24user bashrc
 """
 
 import inspect
@@ -133,7 +129,6 @@ def write_parameter_file():
     ############################################
     caput(pv.me14e_gp100, str(visit))
 
-    # directory = caget(pv.me14e_filepath)
     filename = caget(pv.me14e_chip_name)
 
     exptime = caget(pv.me14e_exptime)
@@ -1046,7 +1041,6 @@ def fiducial(point):
 
 
 def scrape_mtr_fiducials(point):
-    # name = inspect.stack()[0][3]
     param_path = "/dls_sw/i24/scripts/fastchips/parameter_files/"
     # param_path = '/localhome/local/Documents/sacla/parameter_files/'
     f = open(param_path + "fiducial_%i.txt" % point, "r")
@@ -1257,7 +1251,6 @@ def cs_maker():
 
 
 def cs_reset():
-    # name = inspect.stack()[0][3]
     cs1 = "#1->-10000X+0Y+0Z"
     cs2 = "#2->+0X+10000Y+0Z"
     cs3 = "#3->0X+0Y+10000Z"
@@ -1274,13 +1267,10 @@ def cs_reset():
 
 
 def pumpprobe_calc():
-    # name = inspect.stack()[0][3]
     exptime = float(caget(pv.me14e_exptime))
-    # nxshots = float(caget(pv.me14e_gp3))
     pumpexptime = float(caget(pv.me14e_gp103))
     movetime = 0.008
     print("X-ray exposure time", exptime)
-    # print 'N X-ray shots', nxshots
     print("Laser dwell time", pumpexptime)
     repeat1 = 2 * 20 * (movetime + (pumpexptime + exptime) / 2)
     repeat2 = 4 * 20 * (movetime + (pumpexptime + exptime) / 2)

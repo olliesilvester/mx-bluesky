@@ -5,8 +5,8 @@ Robin Owen 12 Jan 2021
 
 import cv2 as cv
 
-from ..setup_beamline import caput, pv
-from . import i24ssx_Chip_Manager_py3v1 as manager
+from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_Manager_py3v1 as manager
+from mx_bluesky.I24.serial.setup_beamline import caput, pv
 
 # Set beam position and scale.
 beamX = 577
