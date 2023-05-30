@@ -1,12 +1,19 @@
+"""
+######################################################
+# MANAGER  MANAGER  MANAGER  MANAGER MANAGER MANAGER #
+# This version changed to python3 March2020 by RLO   #
+#                                                    #
+######################################################
+
+If an import error add python paths to bashrc_local
+See export PYTHON lines at top of i24user bashrc
+"""
+
 import inspect
 import logging as lg
-import math
 import os
-import re
-import string
 import sys
 import time
-from datetime import datetime
 from time import sleep
 
 import numpy as np
@@ -21,14 +28,6 @@ lg.basicConfig(
     level=lg.DEBUG,
     filename=time.strftime("logs/i24_%d%B%y.log").lower(),
 )
-######################################################
-# MANAGER  MANAGER  MANAGER  MANAGER MANAGER MANAGER #
-# This version changed to python3 March2020 by RLO   #
-#                                                    #
-######################################################
-
-# If an import error add python paths to bashrc_local
-# See export PYTHON lines at top of i24user bashrc
 
 
 def whereami():
@@ -78,7 +77,7 @@ def initialise():
     caput(pv.me14e_stage_x + ".LLM", -29)
     caput(pv.me14e_stage_y + ".HLM", 30)
     caput(pv.me14e_stage_y + ".LLM", -30)
-    ####caput(pv.me14e_stage_x + '.LLM', -30)
+    # caput(pv.me14e_stage_x + '.LLM', -30)
     caput(pv.me14e_stage_z + ".HLM", 5.1)
     caput(pv.me14e_stage_z + ".LLM", -4.1)
     # caput(pv.me14e_filter  + '.HLM', 45.0)
@@ -96,12 +95,10 @@ def initialise():
     caput(pv.me14e_pmac_str, "m708=100 m709=150")
     caput(pv.me14e_pmac_str, "m808=100 m809=150")
 
-    #############################################
     # define detector using the below line
     # det_type = "pilatus"
     caput(pv.pilat_cbftemplate, 0)
     det_type = "eiger"
-    #############################################
 
     sleep(0.1)
     print("Clearing")
@@ -109,7 +106,7 @@ def initialise():
     for i in range(4, 120):
         # pvar = IOC + '-MO-IOC-01:GP' + str(i)
         pvar = "ME14E-MO-IOC-01:GP" + str(i)
-        val = caput(pvar, 0)
+        caput(pvar, 0)
         sys.stdout.write(".")
         sys.stdout.flush()
 
@@ -138,7 +135,7 @@ def write_parameter_file():
     ############################################
     caput(pv.me14e_gp100, str(visit))
 
-    directory = caget(pv.me14e_filepath)
+    # directory = caget(pv.me14e_filepath)
     filename = caget(pv.me14e_chip_name)
 
     exptime = caget(pv.me14e_exptime)
@@ -164,7 +161,7 @@ def write_parameter_file():
     # historical - use chip_name instead of filename
     chip_name = filename
 
-    #### Hack for sacla3 to bismuth chip type for oxford inner
+    # Hack for sacla3 to bismuth chip type for oxford inner
     if str(chip_type) == "3":
         chip_type = "1"
 
@@ -600,15 +597,15 @@ def load_lite_map():
         'I1': '73', 'I2': '74', 'I3': '75', 'I4': '76', 'I5': '77', 'I6': '78', 'I7': '79', 'I8': '80', 'I9': '81',
     }
     # Oxford_block_dict is wrong (columns and rows need to flip) added in script below to generate it automatically however kept this for backwards compatiability/reference
-    oxford_block_dict = {
-        'A1':'01', 'A2': '02', 'A3': '03', 'A4': '04', 'A5': '05', 'A6': '06', 'A7': '07', 'A8': '08',
-        'B1':'16', 'B2': '15', 'B3': '14', 'B4': '13', 'B5': '12', 'B6': '11', 'B7': '10', 'B8': '09',
-        'C1':'17', 'C2': '18', 'C3': '19', 'C4': '20', 'C5': '21', 'C6': '22', 'C7': '23', 'C8': '24',
-        'D1':'32', 'D2': '31', 'D3': '30', 'D4': '29', 'D5': '28', 'D6': '27', 'D7': '26', 'D8': '25',
-        'E1':'33', 'E2': '34', 'E3': '35', 'E4': '36', 'E5': '37', 'E6': '38', 'E7': '39', 'E8': '40',
-        'F1':'48', 'F2': '47', 'F3': '46', 'F4': '45', 'F5': '44', 'F6': '43', 'F7': '42', 'F8': '41',
-        'G1':'49', 'G2': '50', 'G3': '51', 'G4': '52', 'G5': '53', 'G6': '54', 'G7': '55', 'G8': '56',
-        'H1':'64', 'H2': '63', 'H3': '62', 'H4': '61', 'H5': '60', 'H6': '59', 'H7': '58', 'H8': '57',
+    oxford_block_dict = {   # noqa: F841
+        'A1': '01', 'A2': '02', 'A3': '03', 'A4': '04', 'A5': '05', 'A6': '06', 'A7': '07', 'A8': '08',
+        'B1': '16', 'B2': '15', 'B3': '14', 'B4': '13', 'B5': '12', 'B6': '11', 'B7': '10', 'B8': '09',
+        'C1': '17', 'C2': '18', 'C3': '19', 'C4': '20', 'C5': '21', 'C6': '22', 'C7': '23', 'C8': '24',
+        'D1': '32', 'D2': '31', 'D3': '30', 'D4': '29', 'D5': '28', 'D6': '27', 'D7': '26', 'D8': '25',
+        'E1': '33', 'E2': '34', 'E3': '35', 'E4': '36', 'E5': '37', 'E6': '38', 'E7': '39', 'E8': '40',
+        'F1': '48', 'F2': '47', 'F3': '46', 'F4': '45', 'F5': '44', 'F6': '43', 'F7': '42', 'F8': '41',
+        'G1': '49', 'G2': '50', 'G3': '51', 'G4': '52', 'G5': '53', 'G6': '54', 'G7': '55', 'G8': '56',
+        'H1': '64', 'H2': '63', 'H3': '62', 'H4': '61', 'H5': '60', 'H6': '59', 'H7': '58', 'H8': '57',
     }
     regina_block_dict = {
         'A1': '01', 'A2': '02', 'A3': '03', 'A4': '04', 'A5': '05', 'A6': '06', 'A7': '07',
@@ -641,15 +638,15 @@ def load_lite_map():
         for x, column in enumerate(columns):
             for y, row in enumerate(rows):
                 i = x * 8 + y
-                if i % 8 == 0 and flip == False:
+                if i % 8 == 0 and flip is False:
                     flip = True
                     z = 8 - (y + 1)
-                elif i % 8 == 0 and flip == True:
+                elif i % 8 == 0 and flip is True:
                     flip = False
                     z = y
-                elif flip == False:
+                elif flip is False:
                     z = y
-                elif flip == True:
+                elif flip is True:
                     z = 8 - (y + 1)
                 else:
                     lg.warning("%s Problem in Chip Grid Creation" % name)
@@ -713,10 +710,10 @@ def load_full_map(location="SACLA"):
     fullmap_path = "/localhome/local/Documents/sacla/parameter_files/"
     fullmap_fid = fullmap_path + str(caget(pv.me14e_gp5)) + ".spec"
     print("opening", fullmap_fid)
-    lg.info("%s opening" % (name, fullmap_fid))
+    lg.info("%s opening %s" % (name, fullmap_fid))
     mapping.plot_file(fullmap_fid, chip_type)
     print("\n\n", 10 * "PNG ")
-    mapping.convert_chip_to_hex(full_map_fid, chip_type)
+    mapping.convert_chip_to_hex(fullmap_fid, chip_type)
     os.system(
         "cp %s %s" % (fullmap_fid[:-4] + "full", fullmap_path + "currentchip.full")
     )
@@ -933,7 +930,7 @@ def moveto(place):
         print("flipper in")
         lg.info("%s Flipper In" % (name))
         lg.debug("%s nb need M508=100 M509 =150 somewhere" % name)
-        ##### nb need M508=100 M509 =150 somewhere
+        # nb need M508=100 M509 =150 somewhere
         caput(pv.me14e_pmac_str, "M512=0 M511=1")
 
     elif place == "flipperout":
@@ -1009,7 +1006,7 @@ def scrape_mtr_directions():
 
 def fiducial(point):
     name = inspect.stack()[0][3]
-    scale = 10000.0
+    scale = 10000.0  # noqa: F841
     param_path = "/dls_sw/i24/scripts/fastchips/parameter_files/"
     # param_path = '/localhome/local/Documents/sacla/parameter_files/'
 
@@ -1051,7 +1048,7 @@ def fiducial(point):
 
 
 def scrape_mtr_fiducials(point):
-    name = inspect.stack()[0][3]
+    # name = inspect.stack()[0][3]
     param_path = "/dls_sw/i24/scripts/fastchips/parameter_files/"
     # param_path = '/localhome/local/Documents/sacla/parameter_files/'
     f = open(param_path + "fiducial_%i.txt" % point, "r")
@@ -1262,7 +1259,7 @@ def cs_maker():
 
 
 def cs_reset():
-    name = inspect.stack()[0][3]
+    # name = inspect.stack()[0][3]
     cs1 = "#1->-10000X+0Y+0Z"
     cs2 = "#2->+0X+10000Y+0Z"
     cs3 = "#3->0X+0Y+10000Z"
@@ -1279,9 +1276,9 @@ def cs_reset():
 
 
 def pumpprobe_calc():
-    name = inspect.stack()[0][3]
+    # name = inspect.stack()[0][3]
     exptime = float(caget(pv.me14e_exptime))
-    nxshots = float(caget(pv.me14e_gp3))
+    # nxshots = float(caget(pv.me14e_gp3))
     pumpexptime = float(caget(pv.me14e_gp103))
     movetime = 0.008
     print("X-ray exposure time", exptime)
@@ -1344,7 +1341,7 @@ def main(args):
         initialise()
     elif args[1] == "pvar_test":
         chipid = args[2]
-        pvar_test(chipid)
+        # pvar_test(chipid) # TODO find out what this is supposed to be!!!
     elif args[1] == "moveto":
         moveto(args[2])
     elif args[1] == "fiducial":
