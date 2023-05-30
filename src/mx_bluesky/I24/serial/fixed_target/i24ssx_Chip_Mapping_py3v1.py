@@ -1,16 +1,27 @@
+"""
+######################################################
+# MAPPING  MAPPING  MAPPING  MAPPING MAPPING         #
+# This version changed to python3 March2020 by RLO   #
+#                                                    #
+######################################################
+"""
 import inspect
 import logging as lg
-import math
-import os
-import re
 import string
-import sys
 import time
 
 import numpy as np
 from matplotlib import pyplot as plt
 
-from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1 import *
+from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1 import (
+    check_files,
+    get_format,
+    get_shot_order,
+    get_xy,
+    pathli,
+    scrape_parameter_file,
+    write_file,
+)
 
 # Log should now change name daily.
 lg.basicConfig(
@@ -18,14 +29,6 @@ lg.basicConfig(
     level=lg.DEBUG,
     filename=time.strftime("logs/i24_%d%B%y.log").lower(),
 )
-#### Old logging
-# lg.basicConfig(format='%(asctime)s %(levelname)s:   \t%(message)s',level=lg.DEBUG, filename='i24_march21.log')
-
-######################################################
-# MAPPING  MAPPING  MAPPING  MAPPING MAPPING         #
-# This version changed to python3 March2020 by RLO   #
-#                                                    #
-######################################################
 
 
 def read_file_make_dict(fid, chip_type, switch=False):
@@ -44,7 +47,7 @@ def read_file_make_dict(fid, chip_type, switch=False):
             x, y = get_xy(addr, chip_type)
             a_dict[x, y] = pres
             b_dict[addr] = pres
-    if switch == True:
+    if switch is True:
         return b_dict
     else:
         return a_dict
