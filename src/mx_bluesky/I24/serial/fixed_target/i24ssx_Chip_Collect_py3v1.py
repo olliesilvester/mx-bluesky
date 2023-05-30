@@ -1,9 +1,7 @@
 """
-######################################################
-# COLLECT  COLLECT  COLLECT  COLLECT COLLECT COLLECT #
-# This version changed to python3 March2020 by RLO   #
-#                                                    #
-######################################################
+Fixed target data collection
+
+This version changed to python3 March2020 by RLO
 """
 import inspect
 import logging as lg

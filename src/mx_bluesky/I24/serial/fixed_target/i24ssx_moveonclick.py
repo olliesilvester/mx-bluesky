@@ -1,10 +1,6 @@
 """
-###################################################
-#   Move on click gui for fixed targets at I24    #
-####           Robin Owen 12 Jan 2021          ####
-#  May need to pip install these for it to run    #
-#  opencv-python  Pillow                          #
-####################################################
+Move on click gui for fixed targets at I24
+Robin Owen 12 Jan 2021
 """
 
 import cv2 as cv

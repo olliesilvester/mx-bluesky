@@ -1,12 +1,10 @@
 """
-######################################################
-# MANAGER  MANAGER  MANAGER  MANAGER MANAGER MANAGER #
-# This version changed to python3 March2020 by RLO   #
-#                                                    #
-######################################################
+Chip manager for fixed target
+This version changed to python3 March2020 by RLO
 
-If an import error add python paths to bashrc_local
-See export PYTHON lines at top of i24user bashrc
+Note:
+    - If an import error add python paths to bashrc_local
+    See export PYTHON lines at top of i24user bashrc
 """
 
 import inspect

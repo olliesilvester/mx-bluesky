@@ -1,9 +1,7 @@
 """
-######################################################
-# STARTUP  STARTUP  STARTUP  STARTUP STARTUP STARTUP #
-# This version changed to python3 March2020 by RLO   #
-#                                                    #
-######################################################
+Startup utilities for chip
+
+This version changed to python3 March2020 by RLO
 """
 from __future__ import annotations
 

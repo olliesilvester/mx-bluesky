@@ -1,10 +1,7 @@
 """
-######################################################
-# EXTRUDER COLLECT EXTRUDER COLLECT EXTRUDER COLLECT #
-# This version in python3 new Feb2021 by RLO         #
-# Extruder data collection                           #
-# March 21 added logging and Eiger functionality     #
-######################################################
+Extruder data collection
+This version in python3 new Feb2021 by RLO
+    - March 21 added logging and Eiger functionality
 """
 from __future__ import annotations
 

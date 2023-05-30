@@ -1,9 +1,7 @@
 """
-######################################################
-# MAPPING  MAPPING  MAPPING  MAPPING MAPPING         #
-# This version changed to python3 March2020 by RLO   #
-#                                                    #
-######################################################
+Chip mapping utilities for fixed target
+
+This version changed to python3 March2020 by RLO
 """
 import inspect
 import logging as lg
