@@ -8,9 +8,20 @@ from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1 import (
     scrape_parameter_file,
 )
 
-params_file_str = "visit foo \nsub_dir bar \nchip_name chip \nprotein_name protK \
-    \nn_exposures 1 \nchip_type 1 \nmap_type None \ndcdetdist 100 \ndet_type eig \
-    \nexptime 0.01 \npump_repeat 0 \npumpexptime 0 \nprepumpexptime 0 \npumpdelay 0"
+params_file_str = """visit foo
+sub_dir bar
+chip_name chip
+protein_name protK
+n_exposures 1
+chip_type 1
+map_type None
+dcdetdist 100
+det_type eig
+exptime 0.01
+pump_repeat 0
+pumpexptime 0
+prepumpexptime 0
+pumpdelay 0"""
 
 
 @patch(

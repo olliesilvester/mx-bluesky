@@ -7,9 +7,16 @@ from mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2 import (
     scrape_parameter_file,
 )
 
-params_file_str = "visit foo \ndirectory bar \nfilename boh \nnum_imgs 1  \
-    \nexp_time 0.1 \ndet_dist 100 \ndet_type eiger \npump_probe false \
-    \npump_exp 0 \npump_delay 0"
+params_file_str = """visit foo
+directory bar
+filename boh
+num_imgs 1
+nexp_time 0.1
+det_dist 100
+det_type eiger
+pump_probe false
+pump_exp 0
+pump_delay 0"""
 
 
 @patch(
