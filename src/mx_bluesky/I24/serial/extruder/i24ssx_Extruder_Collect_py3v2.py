@@ -1,7 +1,15 @@
-#!/usr/bin/python
+"""
+######################################################
+# EXTRUDER COLLECT EXTRUDER COLLECT EXTRUDER COLLECT #
+# This version in python3 new Feb2021 by RLO         #
+# Extruder data collection                           #
+# March 21 added logging and Eiger functionality     #
+######################################################
+"""
+from __future__ import annotations
+
 import inspect
 import logging as lg
-import math
 import pathlib
 import sys
 import time
@@ -19,13 +27,6 @@ lg.basicConfig(
     filename=time.strftime("logs/i24_%d%B%y.log").lower(),
 )
 
-######################################################
-# EXTRUDER COLLECT EXTRUDER COLLECT EXTRUDER COLLECT #
-# This version in python3 new Feb2021 by RLO         #
-# Extruder data collection                           #
-# March 21 added logging and Eiger functionality     #
-######################################################
-
 
 def flush_print(text):
     sys.stdout.write(str(text))
@@ -38,19 +39,19 @@ def initialise_extruderi24():
     lg.info("%s I24 extruder initialisation" % name)
 
     # Comment out below line for testing scripts during DCM upgrade DCMUP
-    energy = caget(pv.dcm_energy)  # energy = "12.4"
-    det_dist = caget(pv.det_z)
+    # energy = caget(pv.dcm_energy)  # energy = "12.4"
+    # det_dist = caget(pv.det_z)
 
     # define visit using the below line
     # visit = "/dls/i24/data/2022/mx31930-2/"
     visit = "/dls/i24/data/2023/cm33852-2/"
     lg.info("%s Visit defined %s" % (name, visit))
-    #######################
+    #
     # define detector using the below line
     # Oct 2021. beta. Do not change from pilatus unless your name is Robin
     det_type = "pilatus"
     # det_type = "eiger"
-    #######################
+    #
     caput(pv.ioc12_gp1, str(visit))
     caput(pv.ioc12_gp2, "test")
     caput(pv.ioc12_gp3, "testrun")
@@ -108,7 +109,7 @@ def write_parameter_file():
     filename = caget(pv.ioc12_gp3)
     num_imgs = caget(pv.ioc12_gp4)
     exp_time = caget(pv.ioc12_gp5)
-    energy = caget(pv.dcm_energy)  # energy = '12.400'
+    # energy = caget(pv.dcm_energy)  # energy = '12.400'
     det_dist = caget(pv.ioc12_gp7)
     det_type = caget(pv.ioc12_gp15)
     if int(caget(pv.ioc12_gp6)) == 1:
@@ -206,10 +207,6 @@ def scrape_parameter_file():
     )
 
 
-# def start_i24()
-# def finish_i24()
-
-
 def run_extruderi24():
     print("Starting i24")
     name = inspect.stack()[0][3]
@@ -234,7 +231,7 @@ def run_extruderi24():
 
     lg.info("%s Start Time = % s" % (name, start_time))
 
-    ############ Setting up the beamline
+    # Setting up the beamline
     caput("BL24I-PS-SHTR-01:CON", "Reset")
     print("Reset hutch shutter sleep for 1sec")
     sleep(1.0)
@@ -370,7 +367,7 @@ def run_extruderi24():
 
     param_file_tuple = scrape_parameter_file()
     if det_type == "eiger":
-        success = call_nexgen(None, start_time, param_file_tuple, "extruder")
+        _ = call_nexgen(None, start_time, param_file_tuple, "extruder")
 
     print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
 
@@ -438,7 +435,7 @@ def run_extruderi24():
     elif det_type == "eiger":
         sup.eiger("return-to-normal")
         print(filename + "_" + caget(pv.eiger_seqID))
-        #### Write eiger return to normal next
+        # Write eiger return to normal next
     print("End of Run ")
     print("Close hutch shutter")
     caput("BL24I-PS-SHTR-01:CON", "Close")
