@@ -5,7 +5,7 @@ from mx_bluesky.I24.serial.setup_beamline.ca import caget, caput
 
 
 def modechange(action):
-    ############# Mode Change ###################
+    """Mode Change"""
     # Pin Hand Mount
     if action == "Pin_hand_mount":
         caput(pv.bl_mp_select, "Out")
@@ -532,7 +532,7 @@ def eiger(action, args_list=None):
         caput(pv.eiger_numtriggers, 1)
         caput(pv.eiger_manualtrigger, "Yes")
         sleep(1.0)
-        ### ODIN setup ###
+        # ODIN setup
         print("Setting up Odin")
         caput(pv.eiger_ODfilename, filename)
         caput(pv.eiger_ODfilepath, filepath)
@@ -540,7 +540,7 @@ def eiger(action, args_list=None):
         caput(pv.eiger_ODfilepath, filepath)
         eigerbdrbv = "UInt" + str(caget(pv.eiger_bitdepthrbv))
         caput(pv.eiger_ODdatatype, eigerbdrbv)
-        caput(pv.eiger_ODcompress, "BSL24")  ##
+        caput(pv.eiger_ODcompress, "BSL24")
         sleep(1.0)
         # All done. Now get Odin to wait for data and start Eiger
         print("Done: Odin waiting for data")
@@ -552,7 +552,6 @@ def eiger(action, args_list=None):
         # caput(pv.eiger_acquire, '1')
         # Will now wait for Manual trigger. Add the below line to your DAQ script ###
         # caput(pv.eiger_trigger, 1)
-        #####################
 
     if action == "triggered":
         # Send a trigger for every image. Records while TTL is high
@@ -587,7 +586,7 @@ def eiger(action, args_list=None):
         caput(pv.eiger_ODfilepath, filepath)
         eigerbdrbv = "UInt" + str(caget(pv.eiger_bitdepthrbv))
         caput(pv.eiger_ODdatatype, eigerbdrbv)
-        caput(pv.eiger_ODcompress, "BSL24")  ##
+        caput(pv.eiger_ODcompress, "BSL24")
         sleep(1.0)
         # All done. Now get Odin to wait for data and start Eiger
         print("Done: Odin waiting for data")
@@ -597,9 +596,8 @@ def eiger(action, args_list=None):
         caput(pv.eiger_acquire, "1")
         # sleep(1.0)
         # caput(pv.eiger_acquire, '1')
-        # Will now wait for Manual trigger. Add the below line to your DAQ script #
+        # Will now wait for Manual trigger. Add the below line to your DAQ script
         # caput(pv.eiger_trigger, 1)
-        #####################
 
     # Fixed Target stage (very fast start and stop w/ triggering from GeoBrick
     elif action == "fastchip":
@@ -611,6 +609,7 @@ def eiger(action, args_list=None):
         print("total_numb_imgs", total_numb_imgs)
         print("Exposure time set as", exptime, "s")
         print("Acquire time set as", acqtime, "s")
+        nexpimage = 1.0  # Set it here like for pilatus
         # HEADER INFO HERE
         caput(pv.eiger_filepath, filepath)
         caput(pv.eiger_filename, filename)
@@ -903,7 +902,7 @@ def zebra1(action, args_list=None):
         caput(pv.zebra1_and3_inp2, "1")
         caput(pv.zebra1_out2_ttl, "30")
         caput(pv.zebra1_out3_ttl, "0")
-        caput(pv.zebra1_out4_ttl, "36")  ####61
+        caput(pv.zebra1_out4_ttl, "36")  # 61
         caput(pv.zebra1_pc_enc, "Enc2")
         caput(pv.zebra1_pc_dir, "Positive")
         caput(pv.zebra1_pc_gate_start, "0.0")
