@@ -1,27 +1,25 @@
+"""
+######################################################
+# COLLECT  COLLECT  COLLECT  COLLECT COLLECT COLLECT #
+# This version changed to python3 March2020 by RLO   #
+#                                                    #
+######################################################
+"""
 import inspect
 import logging as lg
-import math
 import os
 import pathlib
-import pprint
-import re
-import string
-import subprocess
 import sys
 import time
-import traceback
 from datetime import datetime
 from time import sleep
-from typing import Optional
 
 import numpy as np
-import requests
 
 from mx_bluesky.I24.serial.dcid import DCID, SSXType
 from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1 import moveto
 from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1 import (
     get_format,
-    read_parameters,
     scrape_parameter_file,
 )
 from mx_bluesky.I24.serial.setup_beamline import caget, cagetstring, caput, pv
@@ -37,15 +35,8 @@ def set_up_logging():
     console = lg.StreamHandler(sys.stdout)
     console.setFormatter(lg.Formatter("%(message)s"))
     lg.basicConfig(handlers=[fh, console])
-    #### Old logging
+    # Old logging
     # lg.basicConfig(format='%(asctime)s %(levelname)s:   \t%(message)s',level=lg.DEBUG, filename='i24_march21.log')
-
-
-######################################################
-# COLLECT  COLLECT  COLLECT  COLLECT COLLECT COLLECT #
-# This version changed to python3 March2020 by RLO   #
-#                                                    #
-######################################################
 
 
 def flush_print(text):
@@ -65,7 +56,7 @@ def get_chip_prog_values(
 ):
     name = inspect.stack()[0][3]
     lg.info("%s" % name)
-    #### Hack for sacla3 to bismuth chip type for oxford inner
+    # Hack for sacla3 to bismuth chip type for oxford inner
     if chip_type in ["0", "1", "5", "7", "8", "10"]:
         (
             xblocks,
@@ -213,7 +204,7 @@ def load_motion_program_data(motion_program_dict, map_type, pump_repeat):
         print("prefix is", prefix)
         # if pump_repeat == '3':
         #    P1432 = 1
-        ############# Need to set the correct P variable here
+        # s Need to set the correct P variable here
         #    caput(pv.me14e_pmac_str, 'P1432=1')
         # elif pump_repeat == '4':
         #    P1432 = 2
@@ -250,7 +241,7 @@ def load_motion_program_data(motion_program_dict, map_type, pump_repeat):
 def get_prog_num(chip_type, map_type, pump_repeat):
     name = inspect.stack()[0][3]
     lg.info("%s Get Program Number" % name)
-    #### Hack for sacla3 to bismuth chip type for oxford inner
+    # Hack for sacla3 to bismuth chip type for oxford inner
     if str(pump_repeat) == "0":
         if str(chip_type) == "3":
             lg.debug("%s\t:Hack for SACLA3 bismuth for oxford inner" % name)
@@ -344,14 +335,13 @@ def datasetsizei24():
         print(chip_format)
         lg.info("%s\t:block_count=%s" % (name, block_count))
         lg.info("%s\t:chip_format=%s" % (name, chip_format))
-        ####################
+
         n_exposures = int(caget(pv.me14e_gp3))
         print(n_exposures)
         lg.info("%s\t:n_exposures=%s" % (name, n_exposures))
-        ############################################
+
         total_numb_imgs = np.prod(chip_format) * block_count * n_exposures
-        ############################################
-        ############################################
+
         # For X-ray pump X-ray probe XPXP comment out total_numb_imgs = line above and uncomment below until double line of #####
         # print('X-ray Pump Probe. XPXP. X-ray Pump Probe. XPXP.')
         # if pump_repeat == '0':
@@ -360,8 +350,6 @@ def datasetsizei24():
         #    total_numb_imgs = np.prod(chip_format) * block_count * n_exposures * 2
         # else:
         #    print('Unknown pump_repeat')
-        ##########################################
-        ###########################################
 
     elif map_type == "2":
         lg.warning("%s\t:Not Set Up For Full Mapping=%s" % (name))
@@ -379,10 +367,11 @@ def datasetsizei24():
 
 
 def datasetsizesacla():
+    name = inspect.stack()[0][3]
     chip_name, sub_dir, n_exposures, chip_type, map_type = scrape_parameter_file(
         location="SACLA"
     )
-    #### Hack for sacla3 to bismuth chip type for oxford inner
+    # Hack for sacla3 to bismuth chip type for oxford inner
 
     if str(chip_type) == "3":
         lg.debug("%s\t:Hack for SACLA3 bismuth for oxford inner" % name)
@@ -413,11 +402,11 @@ def datasetsizesacla():
         lg.info("%s\t:block_count=%s" % (name, block_count))
         print(chip_format)
         lg.info("%s\t:chip_format=%s" % (name, chip_format))
-        ####################
+        #
         n_exposures = caget(pv.me14e_gp3)
         print(n_exposures)
         lg.info("%s\t:n_exposures=%s" % (name, n_exposures))
-        ####################
+        #
         total_numb_imgs = np.prod(chip_format) * block_count  # * n_exposures
         caput(pv.me14e_gp10, total_numb_imgs)
         caput(pv.me14e_pmac_str, "P2402=0")
@@ -476,7 +465,6 @@ def start_i24():
     print("Acquire Region")
     lg.info("%s\t:Acquire Region" % (name))
 
-    #########################################
     # Testing for new zebra triggering
     print("ZEBRA TEST ZEBRA TEST ZEBRA TEST ZEBRA TEST")
 
@@ -485,8 +473,6 @@ def start_i24():
     print("Total number of images:", total_numb_imgs)
     print("Number of exposures:", n_exposures)
     print("num gates is Total images/N exposures:", num_gates)
-
-    #########################################
 
     if det_type == "pilatus":
         print("Detector type is Pilatus")
@@ -517,21 +503,20 @@ def start_i24():
         )
 
         print("Arm Pilatus. Arm Zebra.")
-        ###ZEBRA TEST. Swap the below two lines in/out. Must also swap pc_arm line also.
-        ###sup.zebra1('fastchip')
+        # ZEBRA TEST. Swap the below two lines in/out. Must also swap pc_arm line also.
+        # sup.zebra1('fastchip')
         sup.zebra1("fastchip-zebratrigger-pilatus", [num_gates, n_exposures, exptime])
         caput(pv.pilat_acquire, "1")  # Arm pilatus
         caput(pv.zebra1_pc_arm, "1")  # Arm zebra fastchip-zebratrigger
-        ###caput(pv.zebra1_pc_arm_out, '1')    # Arm zebra fastchip
+        # caput(pv.zebra1_pc_arm_out, '1')    # Arm zebra fastchip
         caput(pv.pilat_filename, filename)
         time.sleep(1.5)
 
     elif det_type == "eiger":
         print("Detector type is Eiger")
 
-        #####################################################################
-        ### TEMPORARY HACK TO DO SINGLE IMAGE PILATUS DATA COLL TO MKDIR ####
-        #####################################################################
+        # FIXME TEMPORARY HACK TO DO SINGLE IMAGE PILATUS DATA COLL TO MKDIR #
+
         print("Single image pilatus data collection to create directory")
         lg.info("%s single image pilatus data collection" % name)
         num_imgs = 1
@@ -548,9 +533,6 @@ def start_i24():
         print("Pilatus data collection DONE DONE DONE")
         sup.pilatus("return to normal")
         print("Single image pilatus data collection DONE")
-
-        #####################################################################
-        #####################################################################
 
         print("Eiger filepath", filepath)
         print("Eiger filename", filename)
@@ -591,7 +573,6 @@ def start_i24():
         lg.warning("%s Unknown Detector Type, det_type = %s" % (name, det_type))
         print("Unknown detector type")
 
-    ######################################
     # Open the hutch shutter
 
     caput("BL24I-PS-SHTR-01:CON", "Reset")
@@ -611,8 +592,9 @@ def start_sacla():
     start_time = time.ctime()
 
     total_numb_imgs = datasetsizesacla()
+    print(total_numb_imgs)
 
-    ###make sure flipper is out
+    # make sure flipper is out
     moveto("flipperout")
     sleep(1)
     moveto("lightout")
@@ -661,7 +643,7 @@ def finish_i24(chip_prog_dict, start_time):
         sup.pilatus("return-to-normal")
         sleep(0.2)
     elif det_type == "eiger":
-        ######### THIS SECTION NEEDS TO BE CHECKED CAREFULLY
+        # THIS SECTION NEEDS TO BE CHECKED CAREFULLY
         print("Finish I24 Eiger")
         caput(pv.zebra1_soft_in_b1, "No")  # Close the fast shutter
         caput(pv.zebra1_pc_arm_out, "0")  # Disarm the zebra
@@ -787,7 +769,7 @@ def main(location="i24"):
     lg.info("%s prepumpexptime = %s" % (name, prepumpexptime))
     lg.info("%s Getting Program Dictionary" % (name))
 
-    ### If alignment type is Oxford inner it is still an Oxford type chip
+    # If alignment type is Oxford inner it is still an Oxford type chip
     if str(chip_type) == "3":
         lg.debug("%s\tMain: Change chip type Oxford Inner to Oxford" % name)
         chip_type = "1"
@@ -848,7 +830,7 @@ def main(location="i24"):
 
     param_file_tuple = scrape_parameter_file(location="i24")
     if location == "i24" and det_type == "eiger":
-        success = call_nexgen(
+        _ = call_nexgen(
             chip_prog_dict,
             start_time,
             param_file_tuple,
