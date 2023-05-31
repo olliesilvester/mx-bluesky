@@ -1,10 +1,11 @@
-import os
-import sys
-
-###############################
+"""
+PVs
 # Last update Jan 2021 by RLO
 # Now with Eiger goodness
-###############################
+"""
+
+import os
+import sys
 
 
 def __show__(name):
@@ -208,7 +209,7 @@ dcm_pitch2 = "BL24I-MO-DCM-01:XTAL2:PITCH"
 dcm_lambda = "BL24I-MO-DCM-01:LAMBDA"
 dcm_energy = "BL24I-MO-DCM-01:ENERGY"
 
-#### OLD Mono. Left for short term reference only 10Nov21
+# OLD Mono. Left for short term reference only 10Nov21
 # dcm_bragg  = 'BL24I-OP-DCM-01:BRAGG'
 # dcm_t2     = 'BL24I-OP-DCM-01:T2'
 # dcm_roll1  = 'BL24I-OP-DCM-01:ROLL1'

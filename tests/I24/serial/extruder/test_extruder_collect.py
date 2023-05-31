@@ -30,10 +30,8 @@ def test_scrape_parameter_file():
 
 
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
-@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
-def test_initialise_extruder(fake_caget, fake_caput):
+def test_initialise_extruder(fake_caput):
     initialise_extruderi24()
-    assert fake_caget.call_count == 2
     assert fake_caput.call_count == 11
 
 
