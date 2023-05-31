@@ -278,27 +278,7 @@ def pilatus(action, args_list=None):
     caput(pv.pilat_beamy, 1307)
     sleep(0.1)
 
-    # fast grid scans to replace GDA
-    if action == "pmcgrid":
-        [filepath, filename, total_numb_imgs, exptime] = args_list
-        rampath = filepath.replace("dls/i24/data", "ramdisk")
-        acqtime = exptime - 0.001
-        print("filepath was set as", filepath)
-        print("Rampath set as", rampath)
-        print("Filename set as", filename)
-        print("total_numb_imgs", total_numb_imgs)
-        print("Exposure time set as", exptime, "s")
-        print("Acquire time set as", acqtime, "s")
-        caput(pv.pilat_filepath, rampath + filename + "/")
-        caput(pv.pilat_filename, filename)
-        caput(pv.pilat_numimages, str(total_numb_imgs))
-        caput(pv.pilat_acquiretime, str(acqtime))
-        caput(pv.pilat_acquireperiod, str(exptime))
-        caput(pv.pilat_imagemode, "Continuous")
-        caput(pv.pilat_triggermode, "Mult. Trigger")
-        caput(pv.pilat_delaytime, 0)
-
-    elif action == "zlayer":
+    if action == "zlayer":
         [filepath, filename, total_numb_imgs, exptime] = args_list
         rampath = filepath.replace("dls/i24/data", "ramdisk")
         acqtime = exptime - 0.001
@@ -321,7 +301,6 @@ def pilatus(action, args_list=None):
     elif action == "fastchip":
         [filepath, filename, total_numb_imgs, exptime] = args_list
         rampath = filepath.replace("dls/i24/data", "ramdisk")
-        nexpimage = 1.0
         acqtime = float(exptime) - 0.001
         print("filepath was set as", filepath)
         print("Rampath set as", rampath)
@@ -340,82 +319,6 @@ def pilatus(action, args_list=None):
         caput(pv.pilat_imagemode, "Single")
         caput(pv.pilat_triggermode, "Mult. Trigger")
         caput(pv.pilat_delaytime, 0)
-
-    # Fixed Target stage (very fast start and stop w/ multi-triggering
-    # from function generator
-
-    elif action == "fastchip-hatrx":
-        [filepath, filename, total_numb_imgs, exptime] = args_list
-        rampath = filepath.replace("dls/i24/data", "ramdisk")
-        acqtime = 0.001
-        nexpimage = 4.0
-        print("filepath was set as", filepath)
-        print("Rampath set as", rampath)
-        print("Filename set as", filename)
-        print("total_numb_imgs", total_numb_imgs)
-        print("Exposure time set as", exptime, "s")
-        print("Acquire time set as", acqtime, "s")
-        caput(pv.pilat_startangle, 0.0)
-        caput(pv.pilat_angleincr, 0.0)
-        caput(pv.pilat_filepath, rampath + "/")
-        caput(pv.pilat_filename, filename)
-        caput(pv.pilat_numimages, str(total_numb_imgs))
-        caput(pv.pilat_acquiretime, str(acqtime))
-        caput(pv.pilat_acquireperiod, str(exptime))
-        caput(pv.pilat_imagemode, "Multiple")
-        caput(pv.pilat_triggermode, "Mult. Trigger")
-        caput(pv.pilat_numexpimage, nexpimage)
-        caput(pv.pilat_delaytime, 0)
-
-    # Originally designed for small oscillation grids
-    elif action == "back-and-forth":
-        [filepath, filename, total_numb_imgs, exptime] = args_list
-        rampath = filepath.replace("dls/i24/data", "ramdisk")
-        acqtime = exptime - 0.01
-        print("filepath was set as", filepath)
-        print("Rampath set as", rampath)
-        print("Filename set as", filename)
-        print("total_numb_imgs", total_numb_imgs)
-        print("Exposure time set as", exptime, "s")
-        print("Acquire time set as", acqtime, "s")
-        caput(pv.pilat_filepath, rampath)
-        caput(pv.pilat_filename, filename)
-        caput(pv.pilat_numimages, str(total_numb_imgs))
-        caput(pv.pilat_acquiretime, str(acqtime))
-        caput(pv.pilat_acquireperiod, str(exptime))
-        caput(pv.pilat_imagemode, "Multiple")
-        caput(pv.pilat_triggermode, "Ext. Trigger")
-        caput(pv.pilat_delaytime, 0.000)  # 0.030
-
-    # Collect multiple images from a non-moving target
-    elif action == "grid-collect":
-        [filepath, filename, total_numb_imgs, exptime] = args_list
-        rampath = filepath.replace("dls/i24/data", "ramdisk")
-        acqtime = exptime - 0.001
-        print("filepath was set as", filepath)
-        print("Rampath set as", rampath)
-        print("Filename set as", filename)
-        print("total_numb_imgs", total_numb_imgs)
-        print("Exposure time set as", exptime, "s")
-        print("Acquire time set as", acqtime, "s")
-        caput(pv.pilat_filepath, rampath)
-        sleep(0.1)
-        print("xx")
-        caput(pv.pilat_filename, filename)
-        sleep(0.1)
-        print("xxx")
-        # caput(pv.pilat_file_num, 1)
-        # Delay time needs checking
-        caput(pv.pilat_delaytime, 0.03)
-        # Read timeout needs to be number of images * Acq time + ??
-        caput(pv.pilat_numimages, str(total_numb_imgs))
-        caput(pv.pilat_acquiretime, str(acqtime))
-        caput(pv.pilat_acquireperiod, str(exptime))
-        caput(pv.pilat_triggermode, "Ext. Trigger")
-        # Template should be %s%s%04d.cbf normally
-        # set to %s%s06d.cbf for collection
-        print("Have you set template to 06d?")
-        # caput(pv.pilat_filename_template, '')
 
     # Quick set of images no coordinated motion
     elif action == "quickshot":
@@ -598,32 +501,6 @@ def eiger(action, args_list=None):
         # caput(pv.eiger_acquire, '1')
         # Will now wait for Manual trigger. Add the below line to your DAQ script
         # caput(pv.eiger_trigger, 1)
-
-    # Fixed Target stage (very fast start and stop w/ triggering from GeoBrick
-    elif action == "fastchip":
-        [filepath, filename, total_numb_imgs, exptime] = args_list
-        # acqtime = float(exptime) - 0.0000001
-        print("Filepath set as", filepath)
-        # print('Rampath set as', rampath)
-        print("Filename set as", filename)
-        print("total_numb_imgs", total_numb_imgs)
-        print("Exposure time set as", exptime, "s")
-        print("Acquire time set as", acqtime, "s")
-        nexpimage = 1.0  # Set it here like for pilatus
-        # HEADER INFO HERE
-        caput(pv.eiger_filepath, filepath)
-        caput(pv.eiger_filename, filename)
-        caput(pv.eiger_numimages, str(total_numb_imgs))
-        caput(pv.eiger_acquiretime, str(acqtime))
-        caput(pv.eiger_acquireperiod, str(exptime))
-        caput(
-            pv.eiger_numexpimage, str(nexpimage)
-        )  # NOT SET HERE!!! N_exposures... I guess it comes from edm?
-        caput(pv.eiger_imagemode, "Multiple")
-        caput(pv.eiger_triggermode, "External Series")
-        # Things GDA does for eiger grids (that aren't already above)
-        # eigerFan.forwardstream = True
-        # odin.hdf5.advanced.acquistionID=str(data_coll_ID)
 
     # Put it all back to GDA acceptable defaults
     # NEEDS VERIFYING FOR EIGER

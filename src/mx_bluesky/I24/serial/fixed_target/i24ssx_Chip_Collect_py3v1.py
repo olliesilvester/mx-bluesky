@@ -480,7 +480,6 @@ def start_i24():
         lg.info("%s Fastchip Pilatus setup: exposure time %s" % (name, exptime))
 
         sup.pilatus("fastchip", [filepath, filename, total_numb_imgs, exptime])
-        # sup.pilatus('fastchip-hatrx', [filepath, filename, total_numb_imgs, exptime])
 
         # DCID process depends on detector PVs being set up already
         dcid = DCID(
