@@ -498,12 +498,9 @@ def start_i24():
         )
 
         print("Arm Pilatus. Arm Zebra.")
-        # ZEBRA TEST. Swap the below two lines in/out. Must also swap pc_arm line also.
-        # sup.zebra1('fastchip')
-        sup.zebra1("fastchip-zebratrigger-pilatus", [num_gates, n_exposures, exptime])
+        sup.zebra1("fastchip-pilatus", [num_gates, n_exposures, exptime])
         caput(pv.pilat_acquire, "1")  # Arm pilatus
-        caput(pv.zebra1_pc_arm, "1")  # Arm zebra fastchip-zebratrigger
-        # caput(pv.zebra1_pc_arm_out, '1')    # Arm zebra fastchip
+        caput(pv.zebra1_pc_arm, "1")  # Arm zebra fastchip-pilatus
         caput(pv.pilat_filename, filename)
         time.sleep(1.5)
 
@@ -554,11 +551,6 @@ def start_i24():
         )
 
         print("Arm Zebra.")
-        # TO GET DOSE SERIES TO WORK
-        # Choose the correct pair of lines
-        # sup.zebra1("fastchip-eiger")
-        # caput(pv.zebra1_pc_arm_out, '1')    # Arm zebra
-
         sup.zebra1("fastchip-zebratrigger-eiger", [num_gates, n_exposures, exptime])
         caput(pv.zebra1_pc_arm, "1")  # Arm zebra fastchip-zebratrigger
 

@@ -53,7 +53,6 @@ def modechange(action):
         caput(pv.bs_mp_select, "Data Collection")
         sleep(2.3)
         caput(pv.bl_mp_select, "In")
-        # caput(pv.cstrm_p1701, 1)
         print("Pin Data Collection Done")
 
     # Pin Room Tempreature Data Collection
@@ -70,12 +69,10 @@ def modechange(action):
         caput(pv.vgon_pinzs, 0)
         caput(pv.fluo_trans, "OUT")
         sleep(0.1)
-        # caput(pv.bs_mp_select, 'Rotatable')
         caput(pv.bs_roty, 0)
         sleep(2.6)
         caput(pv.bl_mp_select, "In")
         caput(pv.bs_mp_select, "Data Collection")
-        # caput(pv.cstrm_p1701, 1)
         print("RT Data Collection Done")
 
     # Tray Hand Mount
@@ -88,7 +85,6 @@ def modechange(action):
         sleep(1)
         caput(pv.aptr1_mp_select, "Manual Mounting")
         caput(pv.bs_mp_select, "Tray Mount")
-        # caput(pv.bs_roty, 180) #Commented out by RLO 8Aug18 - NEEDS TESTING
         while caget(pv.ttab_x + ".RBV") > 3:
             sleep(1)
         print("Tray Hand Mount Done")
@@ -194,31 +190,13 @@ def beamline(action, args_list=None):
         for arg in args_list:
             print(arg)
 
-    # Not sure when this is used
-    if action == "safe-mount":
-        caput(pv.fluo_trans, "OUT")
-        caput(pv.aptr1_mp_select, "Out")
-
-    elif action == "fluorescence-collect":
-        caput(pv.fluo_trans, "IN")
-        caput(pv.aptr1_mp_select, "In")
-        caput(pv.bs_mp_select, "Data Collection Far")
-        print("Waiting for Fluorescence Detector")
-        while caget(pv.fluo_in_limit) != "OFF":
-            print(".", end=" ")
-            sleep(0.25)
-
-    elif action == "collect":
+    if action == "collect":
         caput(pv.aptr1_mp_select, "In")
         caput(pv.bl_mp_select, "Out")
         sleep(3)
         caput(pv.bs_mp_select, "Data Collection")
         caput(pv.bs_roty, 0)
         sleep(4)
-
-    elif action == "grid-collect":
-        caput(pv.det_z, 500)
-        caput(pv.bl_mp_select, "Out")
 
     elif action == "quickshot":
         det_dist = args_list[0]
@@ -248,12 +226,6 @@ def beamline(action, args_list=None):
         while caget(pv.fluo_in_limit) != "OFF":
             print(".", end=" ")
             sleep(0.25)
-
-    elif action == "return-to-normal":
-        print("Return to Normal")
-        print(80 * "!")
-        modechange("Tray_switch2pin")
-        print(80 * "!")
 
     else:
         print("Unknown action for beamline method", action)
@@ -451,8 +423,6 @@ def eiger(action, args_list=None):
         # If detector fails to arm first time can try twice with a sleep inbetween
         print("Arming Eiger")
         caput(pv.eiger_acquire, "1")
-        # sleep(1.0)
-        # caput(pv.eiger_acquire, '1')
         # Will now wait for Manual trigger. Add the below line to your DAQ script ###
         # caput(pv.eiger_trigger, 1)
 
@@ -461,8 +431,6 @@ def eiger(action, args_list=None):
         print("Eiger triggered")
         [filepath, filename, num_imgs, exptime] = args_list
         print("Filepath set as", filepath)
-        # rampath = filepath.replace('dls/i24/data','ramdisk')
-        # print('Rampath set as', rampath)
         filename = filename + "_" + str(caget(pv.eiger_seqID))
         caput(pv.eiger_ODfilepath, filepath)
         sleep(0.1)
@@ -497,18 +465,14 @@ def eiger(action, args_list=None):
         # If detector fails to arm first time can try twice with a sleep inbetween
         print("Arming Eiger")
         caput(pv.eiger_acquire, "1")
-        # sleep(1.0)
-        # caput(pv.eiger_acquire, '1')
         # Will now wait for Manual trigger. Add the below line to your DAQ script
         # caput(pv.eiger_trigger, 1)
 
     # Put it all back to GDA acceptable defaults
-    # NEEDS VERIFYING FOR EIGER
     elif action == "return-to-normal":
         caput(pv.eiger_manualtrigger, "No")
         # caput(pv.eiger_seqID, int(caget(pv.eiger_seqID))+1)
         print("Not Sure what else to do in here yet")
-    # print(filename, caget(pv.eiger_seqID)
     print("***** leaving Eiger")
     sleep(0.1)
     return 0
@@ -588,26 +552,6 @@ def zebra1(action, args_list=None):
         caput(pv.zebra1_out3_ttl, "52")
         caput(pv.zebra1_out4_ttl, "35")
 
-    elif action == "fastchip":
-        caput(pv.zebra1_soft_in_b0, "0")
-        caput(pv.zebra1_pc_gate_sel, "External")
-        caput(pv.zebra1_pc_pulse_sel, "External")
-        caput(pv.zebra1_and3_inp1, "61")
-        caput(pv.zebra1_and3_inp2, "7")
-        caput(pv.zebra1_out2_ttl, "34")
-        caput(pv.zebra1_pc_gate_inp, "61")
-        caput(pv.zebra1_pc_pulse_inp, "7")
-
-    elif action == "fastchip-eiger":
-        caput(pv.zebra1_soft_in_b0, "0")
-        caput(pv.zebra1_pc_gate_sel, "External")
-        caput(pv.zebra1_pc_pulse_sel, "External")
-        caput(pv.zebra1_and3_inp1, "61")
-        caput(pv.zebra1_and3_inp2, "7")  # should be 7. Change to 62 for testing
-        caput(pv.zebra1_out1_ttl, "34")
-        caput(pv.zebra1_pc_gate_inp, "61")
-        caput(pv.zebra1_pc_pulse_inp, "7")
-
     elif action == "quickshot":
         [gate_start, gate_width] = args_list
         # Trig Source is soft SOFT_IN2
@@ -621,7 +565,7 @@ def zebra1(action, args_list=None):
         caput(pv.zebra1_pc_gate_inp, "61")
         sleep(0.1)
 
-    elif action == "fastchip-zebratrigger-pilatus":
+    elif action == "fastchip-pilatus":
         [num_gates, n_exposures, exptime] = args_list
         caput(pv.zebra1_soft_in_b0, "0")
         caput(pv.zebra1_pc_gate_sel, "External")
@@ -638,7 +582,7 @@ def zebra1(action, args_list=None):
         caput(pv.zebra1_pc_pulse_width, pulse_width)
         caput(pv.zebra1_pc_pulse_max, n_exposures)
 
-    elif action == "fastchip-zebratrigger-eiger":
+    elif action == "fastchip-eiger":
         [num_gates, n_exposures, exptime] = args_list
         caput(pv.zebra1_soft_in_b0, "0")
         caput(pv.zebra1_pc_gate_sel, "External")
