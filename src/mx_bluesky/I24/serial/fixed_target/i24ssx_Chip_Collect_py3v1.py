@@ -551,8 +551,8 @@ def start_i24():
         )
 
         print("Arm Zebra.")
-        sup.zebra1("fastchip-zebratrigger-eiger", [num_gates, n_exposures, exptime])
-        caput(pv.zebra1_pc_arm, "1")  # Arm zebra fastchip-zebratrigger
+        sup.zebra1("fastchip-eiger", [num_gates, n_exposures, exptime])
+        caput(pv.zebra1_pc_arm, "1")  # Arm zebra fastchip-eiger
 
         time.sleep(1.5)
 

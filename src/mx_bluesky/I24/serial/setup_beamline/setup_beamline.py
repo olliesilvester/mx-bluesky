@@ -671,24 +671,3 @@ def geobrick(action, args_list=None):
         caput(pv.step10_pmac_str, "I5450 = 1")
     print("***** leaving geobrick")
     return 1
-
-
-def returntonormal():
-    print("\n***** Entering Return To Normal")
-    print("returntonormal - ")
-    caput(pv.zebra1_disarm, 1)
-    caput(pv.shtr_ctrl2, "Close")
-    caput(pv.shtr_ctrl1, "Auto")
-    zebra1("return-to-normal")
-    beamline("Tray_switch2pin")
-    pilatus("return-to-normal")
-    xspress3("return-to-normal")
-    print("***** leaving returntonormal")
-
-
-def main():
-    print("Hello World!")
-
-
-if __name__ == "__main__":
-    main()
