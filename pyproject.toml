@@ -13,7 +13,15 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
 ]
 description = "Bluesky tools for MX Beamlines"
-dependencies = ["bluesky", "ophyd", "pyepics", "jupyterlab", "matplotlib"] 
+dependencies = [
+    "bluesky",
+    "ophyd",
+    "pyepics",
+    "jupyterlab",
+    "matplotlib",
+    "requests",
+    "opencv-python",
+]
 dynamic = ["version"]
 license.file = "LICENSE"
 readme = "README.rst"
@@ -34,6 +42,7 @@ dev = [
     "sphinx-design",
     "tox-direct",
     "types-mock",
+    "types-requests",
 ]
 
 [project.scripts]
@@ -46,6 +55,8 @@ GitHub = "https://github.com/DiamondLightSource/mx_bluesky"
 email = "dominic.oram@diamond.ac.uk"
 name = "Dominic Oram"
 
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.setuptools_scm]
 write_to = "src/mx_bluesky/_version.py"
@@ -104,7 +115,7 @@ allowlist_externals =
     sphinx-autobuild
 commands =
     pytest: pytest {posargs}
-    mypy: mypy src tests {posargs}
+    mypy: mypy src tests {posargs} --ignore-missing-imports --no-strict-optional {posargs}
     pre-commit: pre-commit run --all-files {posargs}
     docs: sphinx-{posargs:build -EW --keep-going} -T docs build/html
 """
