@@ -3,6 +3,22 @@ from time import sleep
 from mx_bluesky.I24.serial.setup_beamline import pv
 from mx_bluesky.I24.serial.setup_beamline.ca import caget, caput
 
+from mx_bluesky.I24.serial.setup_beamline.pv_abstract import Eiger, Pilatus
+
+
+class UnknownDetectorType(Exception):
+    pass
+
+
+def get_detector_type():
+    det_y = caget(pv.det_y)
+    if float(det_y) < Eiger.det_y_threshold:
+        return "eiger"
+    elif float(det_y) > Pilatus.det_y_threshold:
+        return "pilatus"
+    else:
+        raise UnknownDetectorType("Detector not found.")
+
 
 def modechange(action):
     """Mode Change"""
