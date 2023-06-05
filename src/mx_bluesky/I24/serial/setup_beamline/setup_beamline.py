@@ -12,7 +12,7 @@ class UnknownDetectorType(Exception):
 
 def get_detector_type():
     det_y = caget(pv.det_y)
-    if float(det_y) < Eiger.det_y_threshold:
+    if float(det_y) > Eiger.det_y_threshold:
         return "eiger"
     elif float(det_y) > Pilatus.det_y_threshold:
         return "pilatus"
