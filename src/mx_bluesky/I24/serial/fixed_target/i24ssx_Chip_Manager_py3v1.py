@@ -4,7 +4,7 @@ This version changed to python3 March2020 by RLO
 """
 
 import inspect
-import logging as lg
+import logging
 import os
 import sys
 import time
@@ -12,16 +12,18 @@ from time import sleep
 
 import numpy as np
 
+from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_Mapping_py3v1 as mapping
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_StartUp_py3v1 as startup
 from mx_bluesky.I24.serial.setup_beamline import caget, caput, pv
 
-# Log should now change name daily.
-lg.basicConfig(
-    format="%(asctime)s %(levelname)s:   \t%(message)s",
-    level=lg.DEBUG,
-    filename=time.strftime("logs/i24_%d%B%y.log").lower(),
-)
+logger = logging.getLogger("I24ssx.chip_manager")
+
+
+def setup_logging():
+    # Log should now change name daily.
+    logfile = time.strftime("i24_%Y_%m_%d.log").lower()
+    log.config(logfile)
 
 
 def whereami():
@@ -34,26 +36,15 @@ def whereami():
         IOC = "ME14E"
     print("location is ", location)
     print("ioc is", ioc)
-    lg.info("%s location and visit: %s" % (location, ioc))
+    logger.info("%s location and visit: %s" % (location, ioc))
 
     return location, ioc, IOC
 
 
 def initialise():
-    # location, ioc, IOC = whereami()
-    # caput(getattr(pv, ioc + "_stage_x") + '.HLM', 22)
-    # caget(getattr(pv, ioc + "_stage_x") + '.RBV'))
-
     # commented out filter lines 230719 as this stage not connected
     name = inspect.stack()[0][3]
-    lg.info("%s Setting VMAX VELO ACCL HHL LLM" % name)
-    # location = 'i24'
-    # if location == 'i24':
-    #    ioc = 'me14e'
-    #    IOC = 'ME14E'
-    # print('yeeeeaaaaaahh')
-    # print('location is', location)
-    # print('ioc is', ioc)
+    logger.info("%s Setting VMAX VELO ACCL HHL LLM" % name)
 
     caput(pv.me14e_stage_x + ".VMAX", 20)
     caput(pv.me14e_stage_y + ".VMAX", 20)
@@ -96,7 +87,7 @@ def initialise():
 
     sleep(0.1)
     print("Clearing")
-    lg.info("%s Clearing General Purpose PVs 1-120" % name)
+    logger.info("%s Clearing General Purpose PVs 1-120" % name)
     for i in range(4, 120):
         # pvar = IOC + '-MO-IOC-01:GP' + str(i)
         pvar = "ME14E-MO-IOC-01:GP" + str(i)
@@ -108,7 +99,7 @@ def initialise():
     caput(pv.me14e_gp101, str(det_type))
 
     print("\n", "Initialisation Complete")
-    lg.info("%s Complete" % name)
+    logger.info("%s Complete" % name)
 
 
 def write_parameter_file():
@@ -117,7 +108,7 @@ def write_parameter_file():
     param_path = "/dls_sw/i24/scripts/fastchips/parameter_files/"
     # param_path = '/localhome/local/Documents/sacla/parameter_files/'
     param_fid = "parameters.txt"
-    lg.info("%s Writing Parameter File \n%s" % (name, param_path + param_fid))
+    logger.info("%s Writing Parameter File \n%s" % (name, param_path + param_fid))
     print("Writing Parameter File\n", param_path + param_fid)
 
     ############################################
@@ -150,7 +141,7 @@ def write_parameter_file():
             # high probability of users accidentally overwriting data. Use a dash
             filename = filename + "-"
             print("Requested filename ends in a number. Appended dash:", filename)
-            lg.info("%s Requested filename ends in a number. Appended dash")
+            logger.info("%s Requested filename ends in a number. Appended dash")
     # historical - use chip_name instead of filename
     chip_name = filename
 
@@ -179,17 +170,17 @@ def write_parameter_file():
     f.write("det_type \t%s\n" % det_type)
     f.close()
 
-    lg.info("%s visit: %s" % (name, visit))
-    lg.info("%s filename: %s" % (name, chip_name))
-    lg.info("%s protein_name: %s" % (name, protein_name))
-    lg.info("%s n_exposures: %s" % (name, n_exposures))
-    lg.info("%s chip_type: %s" % (name, chip_type))
-    lg.info("%s map_type: %s" % (name, map_type))
-    lg.info("%s pump_repeat: %s" % (name, pump_repeat))
-    lg.info("%s pumpexptime: %s" % (name, pumpexptime))
-    lg.info("%s pumpdelay: %s" % (name, pumpdelay))
-    lg.info("%s prepumpexptime: %s" % (name, prepumpexptime))
-    lg.info("%s detector type: %s" % (name, det_type))
+    logger.info("%s visit: %s" % (name, visit))
+    logger.info("%s filename: %s" % (name, chip_name))
+    logger.info("%s protein_name: %s" % (name, protein_name))
+    logger.info("%s n_exposures: %s" % (name, n_exposures))
+    logger.info("%s chip_type: %s" % (name, chip_type))
+    logger.info("%s map_type: %s" % (name, map_type))
+    logger.info("%s pump_repeat: %s" % (name, pump_repeat))
+    logger.info("%s pumpexptime: %s" % (name, pumpexptime))
+    logger.info("%s pumpdelay: %s" % (name, pumpdelay))
+    logger.info("%s prepumpexptime: %s" % (name, prepumpexptime))
+    logger.info("%s detector type: %s" % (name, det_type))
 
     print("visit:", visit)
     print("filename:", chip_name)
@@ -242,7 +233,7 @@ def define_current_chip(chipid):
     """
     chip_type = caget(pv.me14e_gp1)
     print(chip_type, chipid)
-    lg.info("%s chip_type:%s chipid:%s" % (name, chip_type, chipid))
+    logger.info("%s chip_type:%s chipid:%s" % (name, chip_type, chipid))
     if chipid == "toronto":
         caput(pv.me14e_gp1, 0)
     elif chipid == "oxford":
@@ -261,13 +252,13 @@ def define_current_chip(chipid):
     param_path = "/dls_sw/i24/scripts/fastchips/parameter_files/"
     # param_path = '/localhome/local/Documents/sacla/parameter_files/'
     f = open(param_path + chipid + ".pvar", "r")
-    lg.info("%s Opening %s%s.pvar" % (name, param_path, chipid))
+    logger.info("%s Opening %s%s.pvar" % (name, param_path, chipid))
     for line in f.readlines():
         if line.startswith("#"):
             continue
         line_from_file = line.rstrip("\n")
         print(line_from_file)
-        lg.info("%s %s" % (name, line_from_file))
+        logger.info("%s %s" % (name, line_from_file))
         caput(pv.me14e_pmac_str, line_from_file)
 
     print(10 * "Done ")
@@ -278,27 +269,27 @@ def save_screen_map():
     litemap_path = "/dls_sw/i24/scripts/fastchips/litemaps/"
     # litemap_path = '/localhome/local/Documents/sacla/parameter_files/'
     print("\n\nSaving", litemap_path + "currentchip.map")
-    lg.info("%s Saving %s currentchip.map" % (name, litemap_path))
+    logger.info("%s Saving %s currentchip.map" % (name, litemap_path))
     f = open(litemap_path + "currentchip.map", "w")
     print("Printing only blocks with block_val == 1")
-    lg.info("%s Printing only blocks with block_val == 1" % name)
+    logger.info("%s Printing only blocks with block_val == 1" % name)
     for x in range(1, 82):
         block_str = "ME14E-MO-IOC-01:GP%i" % (x + 10)
         block_val = int(caget(block_str))
         if block_val == 1:
             print(block_str, block_val)
-            lg.info("%s %s %s" % (name, block_str, block_val))
+            logger.info("%s %s %s" % (name, block_str, block_val))
         line = "%02dstatus    P3%02d1 \t%s\n" % (x, x, block_val)
         f.write(line)
     f.close()
     print(10 * "Done ")
-    lg.info("%s %s" % (name, 10 * "Done"))
+    logger.info("%s %s" % (name, 10 * "Done"))
     return 0
 
 
 def upload_parameters(chipid):
     name = inspect.stack()[0][3]
-    lg.info("%s Uploading Parameters to the GeoBrick" % (name))
+    logger.info("%s Uploading Parameters to the GeoBrick" % (name))
     if chipid == "toronto":
         caput(pv.me14e_gp1, 0)
         width = 9
@@ -322,8 +313,8 @@ def upload_parameters(chipid):
     f = open(litemap_path + "currentchip.map", "r")
     print("chipid", chipid)
     print(width)
-    lg.info("%s chipid %s" % (name, chipid))
-    lg.info("%s width %s" % (name, width))
+    logger.info("%s chipid %s" % (name, chipid))
+    logger.info("%s width %s" % (name, width))
     x = 1
     for line in f.readlines()[: width**2]:
         cols = line.split()
@@ -345,10 +336,10 @@ def upload_parameters(chipid):
         sleep(0.02)
     print()
     # print 'Setting Mapping Type to Lite'
-    lg.warning("%s Automatic Setting Mapping Type to Lite has been disabled" % name)
+    logger.warning("%s Automatic Setting Mapping Type to Lite has been disabled" % name)
     # caput(pv.me14e_gp2, 1)
     print(10 * "Done ")
-    lg.info("%s %s" % (name, 10 * "Done"))
+    logger.info("%s %s" % (name, 10 * "Done"))
 
 
 def upload_full():
@@ -363,17 +354,17 @@ def upload_full():
             pmac_list.append(f.pop(0).rstrip("\n"))
         writeline = " ".join(pmac_list)
         print(writeline)
-        lg.info("%s %s" % (name, writeline))
+        logger.info("%s %s" % (name, writeline))
         caput(pv.me14e_pmac_str, writeline)
         sleep(0.02)
 
     print(10 * "Done ")
-    lg.info("%s %s" % (name, 10 * "Done"))
+    logger.info("%s %s" % (name, 10 * "Done"))
 
 
 def load_stock_map(map_choice):
     name = inspect.stack()[0][3]
-    lg.info("%s Adjusting Lite Map EDM Screen" % name)
+    logger.info("%s Adjusting Lite Map EDM Screen" % name)
     print("Please wait, adjusting lite map")
     #
     r33 = [19, 18, 17, 26, 31, 32, 33, 24, 25]
@@ -558,16 +549,16 @@ def load_stock_map(map_choice):
     map_dict["half2"] = half2
 
     print("Clearing")
-    lg.info("%s Clearing GP 10-74" % name)
+    logger.info("%s Clearing GP 10-74" % name)
     for i in range(1, 65):
         pvar = "ME14E-MO-IOC-01:GP" + str(i + 10)
         caput(pvar, 0)
         sys.stdout.write(".")
         sys.stdout.flush()
     print("\nMap cleared")
-    lg.info("%s Cleared Map" % name)
+    logger.info("%s Cleared Map" % name)
     print("Loading map_choice", map_choice)
-    lg.info("%s Loading Map Choice %s" % (name, map_choice))
+    logger.info("%s Loading Map Choice %s" % (name, map_choice))
     for i in map_dict[map_choice]:
         pvar = "ME14E-MO-IOC-01:GP" + str(i + 10)
         caput(pvar, 1)
@@ -617,11 +608,11 @@ def load_lite_map():
     # fmt: on
     chip_type = caget(pv.me14e_gp1)
     if chip_type == 0:
-        lg.info("%s Toronto Block Order" % name)
+        logger.info("%s Toronto Block Order" % name)
         print("Toronto Block Order")
         block_dict = toronto_block_dict
     elif chip_type == 1 or chip_type == 3 or chip_type == 10:
-        lg.info("%s Oxford Block Order" % name)
+        logger.info("%s Oxford Block Order" % name)
         print("Oxford Block Order")
         # block_dict = oxford_block_dict
         rows = ["A", "B", "C", "D", "E", "F", "G", "H"]
@@ -642,7 +633,7 @@ def load_lite_map():
                 elif flip is True:
                     z = 8 - (y + 1)
                 else:
-                    lg.warning("%s Problem in Chip Grid Creation" % name)
+                    logger.warning("%s Problem in Chip Grid Creation" % name)
                     print("something is wrong with chip grid creation")
                     break
                 button_name = str(row) + str(column)
@@ -653,11 +644,11 @@ def load_lite_map():
         block_dict = btn_names
     elif chip_type == 2:
         print("Hamburg Block Order")
-        lg.info("%s Hamburg Block Order" % name)
+        logger.info("%s Hamburg Block Order" % name)
         block_dict = hamburg_block_dict
     elif chip_type == 5:
         print("Regina Block Order")
-        lg.info("%s Regina Block Order" % name)
+        logger.info("%s Regina Block Order" % name)
         block_dict = regina_block_dict
 
     # litemap_path = '/dls_sw/i24/scripts/fastchips/litemaps/'
@@ -665,8 +656,8 @@ def load_lite_map():
     litemap_fid = str(caget(pv.me14e_gp5)) + ".lite"
     print("Please wait, loading LITE map")
     print("Opening", litemap_path + litemap_fid)
-    lg.info("%s Loading Lite Map" % name)
-    lg.info("%s Opening %s" % (name, litemap_path + litemap_fid))
+    logger.info("%s Loading Lite Map" % name)
+    logger.info("%s Opening %s" % (name, litemap_path + litemap_fid))
     f = open(litemap_path + litemap_fid, "r")
     for line in f.readlines():
         entry = line.split()
@@ -674,7 +665,7 @@ def load_lite_map():
         yesno = entry[1]
         block_num = block_dict[block_name]
         pvar = "ME14E-MO-IOC-01:GP" + str(int(block_num) + 10)
-        lg.info("%s %s %s %s" % (name, block_name, yesno, pvar))
+        logger.info("%s %s %s %s" % (name, block_name, yesno, pvar))
         print(block_name, yesno, pvar)
         caput(pvar, yesno)
     print(10 * "Done ")
@@ -703,14 +694,14 @@ def load_full_map(location="SACLA"):
     fullmap_path = "/localhome/local/Documents/sacla/parameter_files/"
     fullmap_fid = fullmap_path + str(caget(pv.me14e_gp5)) + ".spec"
     print("opening", fullmap_fid)
-    lg.info("%s opening %s" % (name, fullmap_fid))
+    logger.info("%s opening %s" % (name, fullmap_fid))
     mapping.plot_file(fullmap_fid, chip_type)
     print("\n\n", 10 * "PNG ")
     mapping.convert_chip_to_hex(fullmap_fid, chip_type)
     os.system(
         "cp %s %s" % (fullmap_fid[:-4] + "full", fullmap_path + "currentchip.full")
     )
-    lg.info(
+    logger.info(
         "%s cp %s %s"
         % (name, fullmap_fid[:-4] + "full", fullmap_path + "currentchip.full")
     )
@@ -719,13 +710,13 @@ def load_full_map(location="SACLA"):
 
 def moveto(place):
     name = inspect.stack()[0][3]
-    lg.info("%s Move to %s" % (name, place))
+    logger.info("%s Move to %s" % (name, place))
     print(5 * (place + " "))
     chip_type = int(caget(pv.me14e_gp1))
     print("CHIP TYPE", chip_type)
     if chip_type == 0:
         print("Toronto Move")
-        lg.info("%s Toronto Move" % (name))
+        logger.info("%s Toronto Move" % (name))
         if place == "origin":
             caput(pv.me14e_stage_x, 0.0)
             caput(pv.me14e_stage_y, 0.0)
@@ -738,7 +729,7 @@ def moveto(place):
 
     elif chip_type == 1:
         print("Oxford Move")
-        lg.info("%s Oxford Move" % (name))
+        logger.info("%s Oxford Move" % (name))
         if place == "origin":
             caput(pv.me14e_stage_x, 0.0)
             caput(pv.me14e_stage_y, 0.0)
@@ -751,7 +742,7 @@ def moveto(place):
 
     elif chip_type == 2:
         print("Hamburg Move")
-        lg.info("%s Hamburg Move" % (name))
+        logger.info("%s Hamburg Move" % (name))
         if place == "origin":
             caput(pv.me14e_stage_x, 0.0)
             caput(pv.me14e_stage_y, 0.0)
@@ -766,7 +757,7 @@ def moveto(place):
 
     elif chip_type == 3:
         print("Oxford Inner Move")
-        lg.info("%s Oxford Inner Move" % (name))
+        logger.info("%s Oxford Inner Move" % (name))
         if place == "origin":
             caput(pv.me14e_stage_x, 0.0)
             caput(pv.me14e_stage_y, 0.0)
@@ -779,7 +770,7 @@ def moveto(place):
 
     elif chip_type == 5:
         print("Regina Move")
-        lg.info("%s Regina Move" % (name))
+        logger.info("%s Regina Move" % (name))
         if place == "origin":
             caput(pv.me14e_stage_x, 0.0)
             caput(pv.me14e_stage_y, 0.0)
@@ -792,7 +783,7 @@ def moveto(place):
 
     elif chip_type == 6:
         print("Custom Move")
-        lg.info("%s Custom Chip Move" % (name))
+        logger.info("%s Custom Chip Move" % (name))
         if place == "origin":
             caput(pv.me14e_stage_x, 0.0)
             caput(pv.me14e_stage_y, 0.0)
@@ -805,7 +796,7 @@ def moveto(place):
 
     elif chip_type == 7:
         print("Heidelberg4 Move")
-        lg.info("%s Heidelberg4 Chip Move" % (name))
+        logger.info("%s Heidelberg4 Chip Move" % (name))
         if place == "origin":
             caput(pv.me14e_stage_x, 0.0)
             caput(pv.me14e_stage_y, 0.0)
@@ -818,7 +809,7 @@ def moveto(place):
 
     elif chip_type == 8:
         print("Heidelberg6 Move")
-        lg.info("%s Heidelberg6 Chip Move" % (name))
+        logger.info("%s Heidelberg6 Chip Move" % (name))
         if place == "origin":
             caput(pv.me14e_stage_x, 0.0)
             caput(pv.me14e_stage_y, 0.0)
@@ -831,7 +822,7 @@ def moveto(place):
 
     elif chip_type == 9:
         print("Minichip Move")
-        lg.info("%s Minichip Move" % (name))
+        logger.info("%s Minichip Move" % (name))
         if place == "origin":
             caput(pv.me14e_stage_x, 0.0)
             caput(pv.me14e_stage_y, 0.0)
@@ -844,7 +835,7 @@ def moveto(place):
 
     elif chip_type == 10:
         print("Oxford 6 by 6 blocks Move")
-        lg.info("%s Oxford 6 by 6 blocks Move" % (name))
+        logger.info("%s Oxford 6 by 6 blocks Move" % (name))
         if place == "origin":
             caput(pv.me14e_stage_x, 0.0)
             caput(pv.me14e_stage_y, 0.0)
@@ -857,22 +848,22 @@ def moveto(place):
 
     else:
         print("Unknown chip_type move")
-        lg.warning("%s Unknown chip_type move" % name)
+        logger.warning("%s Unknown chip_type move" % name)
 
     # Non Chip Specific Move
     if place == "zero":
-        lg.info("%s moving to %s" % (name, place))
+        logger.info("%s moving to %s" % (name, place))
         caput(pv.me14e_pmac_str, "!x0y0z0")
 
     elif place == "yag":
-        lg.info("%s moving %s" % (name, place))
+        logger.info("%s moving %s" % (name, place))
         caput(pv.me14e_stage_x, 1.0)
         caput(pv.me14e_stage_y, 1.0)
         caput(pv.me14e_stage_z, 1.0)
 
     elif place == "load_position":
         print("load position")
-        lg.info("%s %s" % (name, place))
+        logger.info("%s %s" % (name, place))
         # caput(pv.me14e_filter, 20)
         # caput(pv.me14e_stage_x, -15.0)
         # caput(pv.me14e_stage_y, 25.0)
@@ -887,7 +878,7 @@ def moveto(place):
 
     elif place == "collect_position":
         print("collect position")
-        lg.info("%s %s" % (name, place))
+        logger.info("%s %s" % (name, place))
         caput(pv.me14e_filter, 20)
         caput(pv.me14e_stage_x, 0.0)
         caput(pv.me14e_stage_y, 0.0)
@@ -899,7 +890,7 @@ def moveto(place):
 
     elif place == "microdrop_position":
         print("microdrop align position")
-        lg.info("%s %s" % (name, place))
+        logger.info("%s %s" % (name, place))
         # caput(pv.me14e_filter, 20)
         caput(pv.me14e_stage_x, 6.0)
         caput(pv.me14e_stage_y, -7.8)
@@ -911,24 +902,24 @@ def moveto(place):
 
     elif place == "lightin":
         print("light in")
-        lg.info("%s Light In" % (name))
+        logger.info("%s Light In" % (name))
         caput(pv.me14e_filter, 24)
 
     elif place == "lightout":
         print("light out")
-        lg.info("%s Light Out" % (name))
+        logger.info("%s Light Out" % (name))
         caput(pv.me14e_filter, -24)
 
     elif place == "flipperin":
         print("flipper in")
-        lg.info("%s Flipper In" % (name))
-        lg.debug("%s nb need M508=100 M509 =150 somewhere" % name)
+        logger.info("%s Flipper In" % (name))
+        logger.debug("%s nb need M508=100 M509 =150 somewhere" % name)
         # nb need M508=100 M509 =150 somewhere
         caput(pv.me14e_pmac_str, "M512=0 M511=1")
 
     elif place == "flipperout":
         print("flipper out")
-        lg.info("%s Flipper out" % (name))
+        logger.info("%s Flipper out" % (name))
         caput(pv.me14e_pmac_str, " M512=1 M511=1")
 
     elif place == "laser1on":
@@ -954,24 +945,24 @@ def moveto(place):
         led_burn_time = caget(pv.me14e_gp103)
         print("Laser 1  on")
         print("Burn time is", led_burn_time, "s")
-        lg.info("Laser 1 on")
-        lg.info("burntime %s s" % (led_burn_time))
+        logger.info("Laser 1 on")
+        logger.info("burntime %s s" % (led_burn_time))
         caput(pv.me14e_pmac_str, " M712=1 M711=1")
         sleep(int(float(led_burn_time)))
         print("Laser 1 off")
-        lg.info("Laser 1 off")
+        logger.info("Laser 1 off")
         caput(pv.me14e_pmac_str, " M712=0 M711=1")
 
     elif place == "laser2burn":
         led_burn_time = caget(pv.me14e_gp109)
         print("Laser 2 on")
         print("Burn time is", led_burn_time, "s")
-        lg.info("Laser 2 on")
-        lg.info("burntime %s s" % (led_burn_time))
+        logger.info("Laser 2 on")
+        logger.info("burntime %s s" % (led_burn_time))
         caput(pv.me14e_pmac_str, " M812=1 M811=1")
         sleep(int(float(led_burn_time)))
         print("laser 2 off")
-        lg.info("Laser 2 off")
+        logger.info("Laser 2 off")
         caput(pv.me14e_pmac_str, " M812=0 M811=1")
 
 
@@ -991,7 +982,7 @@ def scrape_mtr_directions():
         else:
             continue
     f.close()
-    lg.info(
+    logger.info(
         "%s mt1_dir %s mtr2_dir %s mtr3_dir %s" % (name, mtr1_dir, mtr2_dir, mtr3_dir)
     )
     return mtr1_dir, mtr2_dir, mtr3_dir
@@ -1025,11 +1016,13 @@ def fiducial(point):
     print("MTR3\t%1.4f\t%i\t%i\t%1.4f" % (rbv_3, raw_3, mtr3_dir, f_z))
     print("Writing Fiducial File", 20 * ("%s " % point))
 
-    lg.info("%s Writing Fiducial File %sfiducial_%s.txt" % (name, param_path, point))
-    lg.info("%s MTR\tRBV\tRAW\tCorr\tf_value" % (name))
-    lg.info("%s MTR1\t%1.4f\t%i\t%i\t%1.4f" % (name, rbv_1, raw_1, mtr1_dir, f_x))
-    lg.info("%s MTR2\t%1.4f\t%i\t%i\t%1.4f" % (name, rbv_2, raw_2, mtr2_dir, f_y))
-    lg.info("%s MTR3\t%1.4f\t%i\t%i\t%1.4f" % (name, rbv_3, raw_3, mtr3_dir, f_y))
+    logger.info(
+        "%s Writing Fiducial File %sfiducial_%s.txt" % (name, param_path, point)
+    )
+    logger.info("%s MTR\tRBV\tRAW\tCorr\tf_value" % (name))
+    logger.info("%s MTR1\t%1.4f\t%i\t%i\t%1.4f" % (name, rbv_1, raw_1, mtr1_dir, f_x))
+    logger.info("%s MTR2\t%1.4f\t%i\t%i\t%1.4f" % (name, rbv_2, raw_2, mtr2_dir, f_y))
+    logger.info("%s MTR3\t%1.4f\t%i\t%i\t%1.4f" % (name, rbv_3, raw_3, mtr3_dir, f_y))
 
     f = open(param_path + "fiducial_%s.txt" % point, "w")
     f.write("MTR\tRBV\tRAW\tCorr\tf_value\n")
@@ -1068,7 +1061,7 @@ def cs_maker():
     fiducial_dict[9] = [2.375, 2.375]
     fiducial_dict[10] = [18.25, 18.25]
     print(chip_type, fiducial_dict[chip_type])
-    lg.info(
+    logger.info(
         "%s chip type is %s with size %s" % (name, chip_type, fiducial_dict[chip_type])
     )
 
@@ -1106,30 +1099,30 @@ def cs_maker():
     Sz = -1 * ((Sz1 + Sz2) / 2)
     Cz = np.sqrt((1 - Sz**2))
     print("Sz1 , %1.4f, %1.4f" % (Sz1, np.degrees(np.arcsin(Sz1))))
-    lg.info("%s Sz1 , %1.4f, %1.4f" % (name, Sz1, np.degrees(np.arcsin(Sz1))))
+    logger.info("%s Sz1 , %1.4f, %1.4f" % (name, Sz1, np.degrees(np.arcsin(Sz1))))
     print("Sz2 , %1.4f, %1.4f" % (Sz2, np.degrees(np.arcsin(Sz2))))
-    lg.info("%s Sz2 , %1.4f, %1.4f" % (name, Sz2, np.degrees(np.arcsin(Sz2))))
+    logger.info("%s Sz2 , %1.4f, %1.4f" % (name, Sz2, np.degrees(np.arcsin(Sz2))))
     print("Sz ,  %1.4f, %1.4f" % (Sz, np.degrees(np.arcsin(Sz))))
-    lg.info("%s Sz , %1.4f, %1.4f" % (name, Sz, np.degrees(np.arcsin(Sz))))
+    logger.info("%s Sz , %1.4f, %1.4f" % (name, Sz, np.degrees(np.arcsin(Sz))))
     print("Cz ,  %1.4f, %1.4f\n" % (Cz, np.degrees(np.arccos(Cz))))
-    lg.info("%s Cz , %1.4f, %1.4f" % (name, Cz, np.degrees(np.arcsin(Cz))))
+    logger.info("%s Cz , %1.4f, %1.4f" % (name, Cz, np.degrees(np.arcsin(Cz))))
     # Rotation Around Y #
     # Sy = f1_z /  fiducial_dict[chip_type][0]
     Sy = 1 * f1_z / fiducial_dict[chip_type][0]
     Cy = np.sqrt((1 - Sy**2))
     print("Sy , %1.4f, %1.4f" % (Sy, np.degrees(np.arcsin(Sy))))
-    lg.info("%s Sy , %1.4f, %1.4f" % (name, Sy, np.degrees(np.arcsin(Sy))))
+    logger.info("%s Sy , %1.4f, %1.4f" % (name, Sy, np.degrees(np.arcsin(Sy))))
     print("Cy , %1.4f, %1.4f\n" % (Cy, np.degrees(np.arccos(Cy))))
-    lg.info("%s Cy , %1.4f, %1.4f" % (name, Cy, np.degrees(np.arcsin(Cy))))
+    logger.info("%s Cy , %1.4f, %1.4f" % (name, Cy, np.degrees(np.arcsin(Cy))))
     # Rotation Around X #
     # If stages upsidedown (I24) change sign of Sx
     Sx = -1 * f2_z / fiducial_dict[chip_type][1]
     # Sx =  f2_z /  fiducial_dict[chip_type][1]
     Cx = np.sqrt((1 - Sx**2))
     print("Sx , %1.4f, %1.4f" % (Sx, np.degrees(np.arcsin(Sx))))
-    lg.info("%s Sx , %1.4f, %1.4f" % (name, Sx, np.degrees(np.arcsin(Sx))))
+    logger.info("%s Sx , %1.4f, %1.4f" % (name, Sx, np.degrees(np.arcsin(Sx))))
     print("Cx , %1.4f, %1.4f\n" % (Cx, np.degrees(np.arccos(Cx))))
-    lg.info("%s Cx , %1.4f, %1.4f" % (name, Cx, np.degrees(np.arcsin(Cx))))
+    logger.info("%s Cx , %1.4f, %1.4f" % (name, Cx, np.degrees(np.arcsin(Cx))))
 
     # Crucifix 1:   In normal orientation on I24 4 oct 2022
     scalex, scaley, scalez = 10018.0, 9999.5, 10000.0
@@ -1184,19 +1177,21 @@ def cs_maker():
     # skew = 0.02
 
     print("Skew being used is: %1.4f" % skew)
-    lg.info("%s Skew being used is: %1.4f" % (name, skew))
+    logger.info("%s Skew being used is: %1.4f" % (name, skew))
     s1 = np.degrees(np.arcsin(Sz1))
     s2 = np.degrees(np.arcsin(Sz2))
     rot = np.degrees(np.arcsin((Sz1 + Sz2) / 2))
     calc_skew = (s1 - rot) - (s2 - rot)
     print("s1:%1.4f s2:%1.4f rot:%1.4f" % (s1, s2, rot))
-    lg.info("%s s1:%1.4f s2:%1.4f rot:%1.4f" % (name, s1, s2, rot))
+    logger.info("%s s1:%1.4f s2:%1.4f rot:%1.4f" % (name, s1, s2, rot))
     print("Calculated rotation from current fiducials is: %1.4f" % rot)
-    lg.info("%s Calculated rotation from current fiducials is: %1.4f" % (name, rot))
+    logger.info("%s Calculated rotation from current fiducials is: %1.4f" % (name, rot))
     print("Calculated skew from current fiducials is: %1.4f" % calc_skew)
-    lg.info("%s Calculated Skew from current fiducials is: %1.4f" % (name, calc_skew))
+    logger.info(
+        "%s Calculated Skew from current fiducials is: %1.4f" % (name, calc_skew)
+    )
     print("Calculated skew has been known to have the wrong sign")
-    lg.info("%s Calculated Skew has been known to have the wrong sign")
+    logger.info("%s Calculated Skew has been known to have the wrong sign")
 
     # skew = calc_skew
     sinD = np.sin((skew / 2) * (np.pi / 180))
@@ -1210,11 +1205,11 @@ def cs_maker():
     cs2 = "#2->%+1.3fX%+1.3fY%+1.3fZ" % (new_x2factor, new_y2factor, z2factor)
     cs3 = "#3->%+1.3fX%+1.3fY%+1.3fZ" % (x3factor, y3factor, z3factor)
     print("\n".join([cs1, cs2, cs3]))
-    lg.info("%s %s" % (name, "\n".join([cs1, cs2, cs3])))
+    logger.info("%s %s" % (name, "\n".join([cs1, cs2, cs3])))
     print(
         "These should be 1. This is the sum of the squares of the factors divided by their scale"
     )
-    lg.info(
+    logger.info(
         "%s These should be 1. This is the sum of the squares of the factors divided by their scale"
         % (name)
     )
@@ -1224,9 +1219,9 @@ def cs_maker():
     print(sqfact1)
     print(sqfact2)
     print(sqfact3)
-    lg.info("%s %1.4f \n %1.4f \n %1.4f" % (name, sqfact1, sqfact2, sqfact3))
+    logger.info("%s %1.4f \n %1.4f \n %1.4f" % (name, sqfact1, sqfact2, sqfact3))
     print("Long wait, please be patient")
-    lg.info("%s Long wait, please be patient" % (name))
+    logger.info("%s Long wait, please be patient" % (name))
     caput(pv.me14e_pmac_str, "!x0y0z0")
     sleep(2.5)
     caput(pv.me14e_pmac_str, "&2")
@@ -1238,7 +1233,7 @@ def cs_maker():
     caput(pv.me14e_pmac_str, "#1hmz#2hmz#3hmz")
     sleep(0.1)
     print(5 * "chip_type", type(chip_type))
-    lg.info("%s Chip_type is %s" % (name, chip_type))
+    logger.info("%s Chip_type is %s" % (name, chip_type))
     # NEXT THREE LINES COMMENTED OUT FOR CS TESTS 5 JUNE
     if str(chip_type) == "1":
         caput(pv.me14e_pmac_str, "!x0.4y0.4")
@@ -1304,27 +1299,30 @@ def block_check():
                 block_start_list = scrape_pvar_file("sacla3_oxford.pvar")
             for entry in block_start_list:
                 if int(caget(pv.me14e_gp9)) != 0:
-                    lg.warning("%s Block Check Aborted" % (name))
+                    logger.warning("%s Block Check Aborted" % (name))
                     print(50 * "Aborted")
                     sleep(1.0)
                     break
                 block, x, y = entry
                 print(block, x, y)
-                lg.info("%s %s %s %s" % (name, block, x, y))
+                logger.info("%s %s %s %s" % (name, block, x, y))
                 caput(pv.me14e_pmac_str, "!x%sy%s" % (x, y))
                 time.sleep(0.4)
         else:
             print("Block Check Aborted due to GP 9 not equalling 0")
-            lg.warning("%s Block Check Aborted due to GP 9 not equalling 0" % (name))
+            logger.warning(
+                "%s Block Check Aborted due to GP 9 not equalling 0" % (name)
+            )
             break
         break
     print(10 * "Done ")
 
 
 def main(args):
+    setup_logging()
     name = inspect.stack()[0][3]
     print(args)
-    lg.info("%s \n\n%s" % (name, args))
+    logger.info("%s \n\n%s" % (name, args))
     if args[1] == "initialise":
         initialise()
     elif args[1] == "pvar_test":
@@ -1365,7 +1363,7 @@ def main(args):
 
     else:
         print("Unknown Command")
-        lg.warning("Unknown Command" % name)
+        logger.warning("Unknown Command" % name)
 
 
 if __name__ == "__main__":

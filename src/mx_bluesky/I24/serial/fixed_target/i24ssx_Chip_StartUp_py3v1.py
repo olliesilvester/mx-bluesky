@@ -6,7 +6,7 @@ This version changed to python3 March2020 by RLO
 from __future__ import annotations
 
 import inspect
-import logging as lg
+import logging
 import os
 import pathlib
 import string
@@ -15,12 +15,15 @@ from typing import Dict
 
 import numpy as np
 
-# Log should now change name daily.
-lg.basicConfig(
-    format="%(asctime)s %(levelname)s:   \t%(message)s",
-    level=lg.DEBUG,
-    filename=time.strftime("logs/i24_%d%B%y.log").lower(),
-)
+from mx_bluesky.I24.serial import log
+
+logger = logging.getLogger("I24ssx.chip_startup")
+
+
+def setup_logging():
+    # Log should now change name daily.
+    logfile = time.strftime("i24_%Y_%m_%d.log").lower()
+    log.config(logfile)
 
 
 def scrape_parameter_file(location=None):
@@ -153,7 +156,7 @@ def fiducials(chip_type):
         fiducial_list = []
 
     else:
-        lg.warning("%s Unknown chip_type, %s, in fiducials" % (name, chip_type))
+        logger.warning("%s Unknown chip_type, %s, in fiducials" % (name, chip_type))
         print("Unknown chip_type in fiducials")
     return fiducial_list
 
@@ -216,7 +219,7 @@ def get_format(chip_type):
         b2b_vert = 0.800
         chip_format = [6, 6, 20, 20]
     else:
-        lg.warning("%s Unknown chip_type, %s, in fiducials" % (name, chip_type))
+        logger.warning("%s Unknown chip_type, %s, in fiducials" % (name, chip_type))
         print("unknown chip type")
     cell_format = chip_format + [w2w, b2b_horz, b2b_vert]
     return cell_format
@@ -285,10 +288,10 @@ def pathli(l_in=[], way="typewriter", reverse=False):
                 for rep in range(25):
                     long_list.append(entry)
         else:
-            lg.warning("%s no known path, way =  %s" % (name, way))
+            logger.warning("%s no known path, way =  %s" % (name, way))
             print("no known path")
     else:
-        lg.warning("%s no list" % (name))
+        logger.warning("%s no list" % (name))
         print("no list")
     return long_list
 
@@ -325,7 +328,7 @@ def get_alphanumeric(chip_type):
         for window in window_list:
             alphanumeric_list.append(block + "_" + window)
     print(len(alphanumeric_list))
-    lg.info("%s length of alphanumeric list = %s" % (name, len(alphanumeric_list)))
+    logger.info("%s length of alphanumeric list = %s" % (name, len(alphanumeric_list)))
     return alphanumeric_list
 
 
@@ -364,13 +367,13 @@ def get_shot_order(chip_type):
                 switch = 0
 
     print(len(collect_list))
-    lg.info("%s length of collect list = %s" % (name, len(collect_list)))
+    logger.info("%s length of collect list = %s" % (name, len(collect_list)))
     return collect_list
 
 
 def write_file(location="i24", suffix=".addr", order="alphanumeric"):
     name = inspect.stack()[0][3]
-    lg.info("%s" % name)
+    logger.info("%s" % name)
     if location == "i24":
         (
             chip_name,
@@ -390,7 +393,7 @@ def write_file(location="i24", suffix=".addr", order="alphanumeric"):
         chip_name, sub_dir, n_exposures, chip_type, map_type = scrape_parameter_file()
         a_directory = "/localhome/local/Documents/sacla/"
     else:
-        lg.warning("%s Unknown location, %s" % (name, location))
+        logger.warning("%s Unknown location, %s" % (name, location))
         print("Unknown location in write_file")
     chip_file_path = a_directory + "chips/" + sub_dir + "/" + chip_name + suffix
 
@@ -417,7 +420,7 @@ def write_file(location="i24", suffix=".addr", order="alphanumeric"):
         #  list_of_lines.append(line)
         g.write(line)
     g.close()
-    lg.info("%s" % name)
+    logger.info("%s" % name)
 
 
 def check_files(location, suffix_list):
@@ -444,7 +447,7 @@ def check_files(location, suffix_list):
         a_directory = "/localhome/local/Documents/sacla/"
 
     else:
-        lg.warning("%s Unknown location, %s" % (name, location))
+        logger.warning("%s Unknown location, %s" % (name, location))
         print("Unknown location in write_file")
     chip_file_path = a_directory + "chips/" + sub_dir + "/" + chip_name
 
@@ -461,7 +464,7 @@ def check_files(location, suffix_list):
             # hack / fix
             # os.rename(full_fid, timestamp_fid)
             print("Already exists ... moving old file:", timestamp_fid)
-            lg.info("%s File Already Exists\n -->%s" % (name, timestamp_fid))
+            logger.info("%s File Already Exists\n -->%s" % (name, timestamp_fid))
     return 1
 
 
@@ -532,32 +535,33 @@ def write_headers(location, suffix_list):
             )
         g.close()
     else:
-        lg.warning("%s Unknown location, %s" % (name, location))
+        logger.warning("%s Unknown location, %s" % (name, location))
         print("Unknown location in write_headers")
 
 
 def run():
+    setup_logging()
     name = inspect.stack()[0][3]
-    lg.info("%s Run Startup" % name)
+    logger.info("%s Run Startup" % name)
     print("Run StartUp")
-    lg.info("%s" % name)
+    logger.info("%s" % name)
     check_files("i24", [".addr", ".shot"])
     print("Checked files")
-    lg.info("%s Checked Files" % name)
+    logger.info("%s Checked Files" % name)
     write_headers("i24", [".addr", ".shot"])
     print("Written headers")
-    lg.info("%s Written Headers" % name)
+    logger.info("%s Written Headers" % name)
     # write_file('SACLA', suffix='.addr', order='alphanumeric')
     # write_file('SACLA', suffix='.shot', order='shot')
     print("Written files")
-    lg.info("%s Writing to Files has been disabled. Headers Only" % name)
+    logger.info("%s Writing to Files has been disabled. Headers Only" % name)
     # Makes a file with random crystal positions
     check_files("i24", ["rando.spec"])
     write_headers("i24", ["rando.spec"])
     # write_file('SACLA', suffix='rando.spec', order='shot')
 
     print(10 * "Done ")
-    lg.info("%s Done" % name)
+    logger.info("%s Done" % name)
 
 
 if __name__ == "__main__":

@@ -4,13 +4,14 @@ Chip mapping utilities for fixed target
 This version changed to python3 March2020 by RLO
 """
 import inspect
-import logging as lg
+import logging
 import string
 import time
 
 import numpy as np
 from matplotlib import pyplot as plt
 
+from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1 import (
     check_files,
     get_format,
@@ -21,17 +22,18 @@ from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1 import (
     write_file,
 )
 
-# Log should now change name daily.
-lg.basicConfig(
-    format="%(asctime)s %(levelname)s:   \t%(message)s",
-    level=lg.DEBUG,
-    filename=time.strftime("logs/i24_%d%B%y.log").lower(),
-)
+logger = logging.getLogger("I24ssx.chip_mapping")
+
+
+def setup_logging():
+    # Log should now change name daily.
+    logfile = time.strftime("i24_%Y_%m_%d.log").lower()
+    log.config(logfile)
 
 
 def read_file_make_dict(fid, chip_type, switch=False):
     name = inspect.stack()[0][3]
-    lg.info("%s" % name)
+    logger.info("%s" % name)
     f = open(fid, "r")
     a_dict = {}
     b_dict = {}
@@ -53,7 +55,7 @@ def read_file_make_dict(fid, chip_type, switch=False):
 
 def plot_file(fid, chip_type):
     name = inspect.stack()[0][3]
-    lg.info("%s" % name)
+    logger.info("%s" % name)
     chip_dict = read_file_make_dict(fid, chip_type)
     x_list, y_list, z_list = [], [], []
     for k in sorted(chip_dict.keys()):
@@ -89,7 +91,7 @@ def plot_file(fid, chip_type):
 
 def get_hamburg_order():
     name = inspect.stack()[0][3]
-    lg.info("%s" % (name))
+    logger.info("%s" % (name))
     blk_num = 3
     caps = [
         "A",
@@ -169,7 +171,7 @@ def get_hamburg_order():
                 switch = 0
 
     print(len(collect_list))
-    lg.info("%s length of collect_list = %s" % (name, len(collect_list)))
+    logger.info("%s length of collect_list = %s" % (name, len(collect_list)))
     g = open("collect_list.txt", "w")
     for x in collect_list:
         g.write("%s\n" % x)
@@ -180,7 +182,7 @@ def get_hamburg_order():
 
 def convert_chip_to_hex(fid, chip_type):
     name = inspect.stack()[0][3]
-    lg.info("%s" % name)
+    logger.info("%s" % name)
     chip_dict = read_file_make_dict(fid, chip_type, True)
     chip_format = get_format(chip_type)
     check_files(["%s.full" % chip_type])
@@ -188,18 +190,18 @@ def convert_chip_to_hex(fid, chip_type):
     # Normal
     if chip_type in ["0", "1", "5"]:
         shot_order_list = get_shot_order(chip_type)
-        lg.info("%s Shot Order List: \n" % (name))
-        lg.info("%s" % shot_order_list[:14])
-        lg.info("%s" % shot_order_list[-14:])
+        logger.info("%s Shot Order List: \n" % (name))
+        logger.info("%s" % shot_order_list[:14])
+        logger.info("%s" % shot_order_list[-14:])
         print(shot_order_list[:14])
         print(shot_order_list[-14:])
         for i, k in enumerate(shot_order_list):
             if i % 20 == 0:
                 print()
-                lg.info("\n")
+                logger.info("\n")
             else:
                 print(k, end=" ")
-                lg.info("%s" % k)
+                logger.info("%s" % k)
         sorted_pres_list = []
         for addr in shot_order_list:
             sorted_pres_list.append(chip_dict[addr])
@@ -233,7 +235,7 @@ def convert_chip_to_hex(fid, chip_type):
             print(i, right_list, end=" ")
             print("".join(str(x) for x in right_list), end=" ")
             print(line)
-            lg.info(
+            logger.info(
                 "%s %s \n"
                 % (
                     name,
@@ -243,24 +245,24 @@ def convert_chip_to_hex(fid, chip_type):
                     + 4 * "0",
                 )
             )
-            lg.info("%s %s %s \n" % (name, i, right_list))
-            lg.info("%s %s\n" % (name, "".join(str(x) for x in right_list)))
-            lg.info("%s %s \n" % (name, line))
+            logger.info("%s %s %s \n" % (name, i, right_list))
+            logger.info("%s %s\n" % (name, "".join(str(x) for x in right_list)))
+            logger.info("%s %s \n" % (name, line))
             if (i + 1) % windows_per_block == 0:
                 print("\n", 40 * (" %i" % ((i / windows_per_block) + 2)))
-                lg.info("\n %s" % (40 * (" %i" % ((i / windows_per_block) + 2))))
+                logger.info("\n %s" % (40 * (" %i" % ((i / windows_per_block) + 2))))
         print(hex_length)
-        lg.info("%s hex_length: %s" % (name, hex_length))
+        logger.info("%s hex_length: %s" % (name, hex_length))
     # NICHT Normal
     else:
-        lg.info("%s Dealing with Hamburg \n" % (name))
+        logger.info("%s Dealing with Hamburg \n" % (name))
         print("Dealing with Hamburg")
         shot_order_list = get_hamburg_order()
         print(shot_order_list[:14])
         print(shot_order_list[-14:])
-        lg.info("%s Shot Order List: \n" % (name))
-        lg.info("%s" % shot_order_list[:14])
-        lg.info("%s" % shot_order_list[-14:])
+        logger.info("%s Shot Order List: \n" % (name))
+        logger.info("%s" % shot_order_list[:14])
+        logger.info("%s" % shot_order_list[-14:])
         sorted_pres_list = []
         for addr in shot_order_list:
             sorted_pres_list.append(chip_dict[addr])
@@ -287,8 +289,8 @@ def convert_chip_to_hex(fid, chip_type):
                     g.write(writeline + "\n")
                     print(line, "".join(str(x) for x in bite), end=" ")
                     print(("{0:0>7X}").format(int("".join(str(x) for x in bite), 2)))
-                    lg.info("%s %s \n" % (line, "".join(str(x) for x in bite)))
-                    lg.info(
+                    logger.info("%s %s \n" % (line, "".join(str(x) for x in bite)))
+                    logger.info(
                         "%s \n"
                         % (("{0:0>7X}").format(int("".join(str(x) for x in bite), 2)))
                     )
@@ -315,8 +317,8 @@ def convert_chip_to_hex(fid, chip_type):
                     g.write(writeline + "\n")
                     print(line, "".join(str(x) for x in bite), end=" ")
                     print(("{0:0>7X}").format(int("".join(str(x) for x in bite), 2)))
-                    lg.info("%s %s \n" % (line, "".join(str(x) for x in bite)))
-                    lg.info(
+                    logger.info("%s %s \n" % (line, "".join(str(x) for x in bite)))
+                    logger.info(
                         "%s \n"
                         % (("{0:0>7X}").format(int("".join(str(x) for x in bite), 2)))
                     )
@@ -328,8 +330,9 @@ def convert_chip_to_hex(fid, chip_type):
 
 
 def main():
+    setup_logging()
     name = inspect.stack()[0][3]
-    lg.info("%s" % name)
+    logger.info("%s" % name)
     (
         chip_name,
         visit,
@@ -343,10 +346,10 @@ def main():
     write_file(suffix=".spec", order="shot")
 
     param_path = "/dls_sw/i24/scripts/fastchips/parameter_files/"
-    lg.info("%s PARAMETER PATH = %s" % (name, param_path))
+    logger.info("%s PARAMETER PATH = %s" % (name, param_path))
     print("param_path", param_path)
     fid = param_path + chip_name + ".spec"
-    lg.info("%s FID = %s" % (name, fid))
+    logger.info("%s FID = %s" % (name, fid))
     print("FID", fid)
 
     plot_file(fid, chip_type)
