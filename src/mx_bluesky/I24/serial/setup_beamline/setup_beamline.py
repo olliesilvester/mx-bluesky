@@ -2,7 +2,6 @@ from time import sleep
 
 from mx_bluesky.I24.serial.setup_beamline import pv
 from mx_bluesky.I24.serial.setup_beamline.ca import caget, caput
-
 from mx_bluesky.I24.serial.setup_beamline.pv_abstract import Eiger, Pilatus
 
 
