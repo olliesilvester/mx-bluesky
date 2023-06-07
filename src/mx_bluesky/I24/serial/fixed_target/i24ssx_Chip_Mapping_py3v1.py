@@ -5,7 +5,6 @@ This version changed to python3 March2020 by RLO
 """
 import inspect
 import logging
-import string
 import time
 
 import numpy as np
@@ -17,7 +16,6 @@ from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1 import (
     get_format,
     get_shot_order,
     get_xy,
-    pathli,
     scrape_parameter_file,
     write_file,
 )
@@ -84,96 +82,6 @@ def plot_file(fid, chip_type):
     check_files(["%s.png" % chip_type])
     plt.savefig("%s.png" % fid[:-5], dpi=200, bbox_inches="tight", pad_inches=0.05)
     return 1
-
-
-def get_hamburg_order():
-    name = inspect.stack()[0][3]
-    logger.info("%s" % (name))
-    blk_num = 3
-    caps = [
-        "A",
-        "B",
-        "C",
-        "C",
-        "B",
-        "A",
-        "A",
-        "B",
-        "C",
-        "C",
-        "B",
-        "A",
-        "A",
-        "B",
-        "C",
-        "C",
-        "B",
-        "A",
-    ]
-    nums = [
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "1",
-        "2",
-        "2",
-        "2",
-        "2",
-        "2",
-        "2",
-        "3",
-        "3",
-        "3",
-        "3",
-        "3",
-        "3",
-    ]
-    lowercase_list = list(string.ascii_lowercase + string.ascii_uppercase + "0")
-
-    block_list = []
-    for a, b in zip(caps, nums):
-        block_list.append(a + b)
-
-    A_path = pathli(lowercase_list, "expand28", 0)
-    B_path = pathli(lowercase_list[:28], "snake53", 0)
-    window_dn = []
-    for a, b in zip(A_path, B_path):
-        window_dn.append(a + b)
-
-    A_path = pathli(lowercase_list, "expand25", 1)
-    B_path = pathli(lowercase_list[28:], "snake53", 0)
-    window_up = []
-    for a, b in zip(A_path, B_path):
-        window_up.append(a + b)
-
-    switch = 0
-    count = 0
-    collect_list = []
-    for block in block_list:
-        if switch == 0:
-            for window in window_dn:
-                collect_list.append(block + "_" + window)
-            count += 1
-            if count == blk_num:
-                count = 0
-                switch = 1
-        else:
-            for window in window_up:
-                collect_list.append(block + "_" + window)
-            count += 1
-            if count == blk_num:
-                count = 0
-                switch = 0
-
-    print(len(collect_list))
-    logger.info("%s length of collect_list = %s" % (name, len(collect_list)))
-    with open("collect_list.txt", "w") as g:
-        for x in collect_list:
-            g.write("%s\n" % x)
-
-    return collect_list
 
 
 def convert_chip_to_hex(fid, chip_type):
@@ -251,90 +159,8 @@ def convert_chip_to_hex(fid, chip_type):
                     )
             print(hex_length)
             logger.info("%s hex_length: %s" % (name, hex_length))
-        # NICHT Normal
         else:
-            logger.info("%s Dealing with Hamburg \n" % (name))
-            print("Dealing with Hamburg")
-            shot_order_list = get_hamburg_order()
-            print(shot_order_list[:14])
-            print(shot_order_list[-14:])
-            logger.info("%s Shot Order List: \n" % (name))
-            logger.info("%s" % shot_order_list[:14])
-            logger.info("%s" % shot_order_list[-14:])
-            sorted_pres_list = []
-            for addr in shot_order_list:
-                sorted_pres_list.append(chip_dict[addr])
-            even_odd = 0
-            i = 0
-            for col in range(6):
-                if col % 2 == 0:
-                    for line in range(159):
-                        chomp = []
-                        for x in range(28):
-                            chomp.append(sorted_pres_list.pop(0))
-                        if even_odd % 2 == 0:
-                            bite = chomp
-                        else:
-                            bite = chomp[::-1]
-                        even_odd += 1
-                        if even_odd == 53:
-                            even_odd = 0
-                        hex_string = ("{0:0>7X}").format(
-                            int("".join(str(x) for x in bite), 2)
-                        )
-                        pvar = 5001 + i
-                        writeline = "P%s=$%s" % (pvar, hex_string)
-                        g.write(writeline + "\n")
-                        print(line, "".join(str(x) for x in bite), end=" ")
-                        print(
-                            ("{0:0>7X}").format(int("".join(str(x) for x in bite), 2))
-                        )
-                        logger.info("%s %s \n" % (line, "".join(str(x) for x in bite)))
-                        logger.info(
-                            "%s \n"
-                            % (
-                                ("{0:0>7X}").format(
-                                    int("".join(str(x) for x in bite), 2)
-                                )
-                            )
-                        )
-                        i += 1
-                    print()
-                else:
-                    for line in range(159):
-                        chomp = []
-                        for x in range(25):
-                            chomp.append(sorted_pres_list.pop(0))
-                        if even_odd % 2 == 0:
-                            bite = chomp
-                        else:
-                            bite = chomp[::-1]
-                        bite += ["0", "0", "0"]
-                        even_odd += 1
-                        if even_odd == 53:
-                            even_odd = 0
-                        hex_string = ("{0:0>7X}").format(
-                            int("".join(str(x) for x in bite), 2)
-                        )
-                        pvar = 5001 + i
-                        writeline = "P%s=$%s" % (pvar, hex_string)
-                        g.write(writeline + "\n")
-                        print(line, "".join(str(x) for x in bite), end=" ")
-                        print(
-                            ("{0:0>7X}").format(int("".join(str(x) for x in bite), 2))
-                        )
-                        logger.info("%s %s \n" % (line, "".join(str(x) for x in bite)))
-                        logger.info(
-                            "%s \n"
-                            % (
-                                ("{0:0>7X}").format(
-                                    int("".join(str(x) for x in bite), 2)
-                                )
-                            )
-                        )
-                        i += 1
-                    print()
-                print("----------------------------------")
+            logger.warning("Chip type unknown")
     return 0
 
 

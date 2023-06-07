@@ -27,21 +27,6 @@ def setup_logging():
     log.config(logfile)
 
 
-def whereami():
-    location = "i24"
-    if location == "i24":
-        ioc = "me14e"
-        IOC = "ME14E"
-    elif location == "i19":
-        ioc = "me16e"
-        IOC = "ME14E"
-    print("location is ", location)
-    print("ioc is", ioc)
-    logger.info("%s location and visit: %s" % (location, ioc))
-
-    return location, ioc, IOC
-
-
 def initialise():
     # commented out filter lines 230719 as this stage not connected
     name = inspect.stack()[0][3]
@@ -230,16 +215,6 @@ def define_current_chip(chipid):
         caput(pv.me14e_gp1, 0)
     elif chipid == "oxford":
         caput(pv.me14e_gp1, 1)
-    elif chipid == "hamburg":
-        caput(pv.me14e_gp1, 2)
-    elif chipid == "hamburgfull":
-        caput(pv.me14e_gp1, 2)
-    elif chipid == "bismuth1":
-        caput(pv.me14e_gp1, 3)
-    elif chipid == "bismuth2":
-        caput(pv.me14e_gp1, 4)
-    elif chipid == "regina":
-        caput(pv.me14e_gp1, 5)
 
     param_path = "/dls_sw/i24/scripts/fastchips/parameter_files/"
     # param_path = '/localhome/local/Documents/sacla/parameter_files/'
@@ -287,18 +262,6 @@ def upload_parameters(chipid):
     elif chipid == "oxford":
         caput(pv.me14e_gp1, 1)
         width = 8
-    elif chipid == "hamburg":
-        caput(pv.me14e_gp1, 2)
-        width = 3
-    elif chipid == "bismuth1":
-        caput(pv.me14e_gp1, 3)
-        width = 1
-    elif chipid == "bismuth2":
-        caput(pv.me14e_gp1, 4)
-        width = 7
-    elif chipid == "regina":
-        caput(pv.me14e_gp1, 5)
-        width = 7
     litemap_path = "/dls_sw/i24/scripts/fastchips/litemaps/"
     # litemap_path = '/localhome/local/Documents/sacla/parameter_files/'
     with open(litemap_path + "currentchip.map", "r") as f:
@@ -581,20 +544,6 @@ def load_lite_map():
         'G1': '49', 'G2': '50', 'G3': '51', 'G4': '52', 'G5': '53', 'G6': '54', 'G7': '55', 'G8': '56',
         'H1': '64', 'H2': '63', 'H3': '62', 'H4': '61', 'H5': '60', 'H6': '59', 'H7': '58', 'H8': '57',
     }
-    regina_block_dict = {
-        'A1': '01', 'A2': '02', 'A3': '03', 'A4': '04', 'A5': '05', 'A6': '06', 'A7': '07',
-        'B1': '14', 'B2': '13', 'B3': '12', 'B4': '11', 'B5': '10', 'B6': '09', 'B7': '08',
-        'C1': '15', 'C2': '16', 'C3': '17', 'C4': '18', 'C5': '19', 'C6': '20', 'C7': '21',
-        'D1': '28', 'D2': '27', 'D3': '26', 'D4': '25', 'D5': '24', 'D6': '23', 'D7': '22',
-        'E1': '29', 'E2': '30', 'E3': '31', 'E4': '32', 'E5': '33', 'E6': '34', 'E7': '35',
-        'F1': '42', 'F2': '41', 'F3': '40', 'F4': '39', 'F5': '38', 'F6': '37', 'F7': '36',
-        'G1': '43', 'G2': '44', 'G3': '45', 'G4': '46', 'G5': '47', 'G6': '48', 'G7': '49',
-    }
-    hamburg_block_dict = {
-        'A1': '01', 'A2': '02', 'A3': '03',
-        'B1': '06', 'B2': '05', 'B3': '04',
-        'C1': '07', 'C2': '08', 'C3': '09',
-    }
     # fmt: on
     chip_type = caget(pv.me14e_gp1)
     if chip_type == 0:
@@ -632,14 +581,6 @@ def load_lite_map():
                 btn_names[button_name] = label
                 # print button_name, btn_names[button_name]
         block_dict = btn_names
-    elif chip_type == 2:
-        print("Hamburg Block Order")
-        logger.info("%s Hamburg Block Order" % name)
-        block_dict = hamburg_block_dict
-    elif chip_type == 5:
-        print("Regina Block Order")
-        logger.info("%s Regina Block Order" % name)
-        block_dict = regina_block_dict
 
     # litemap_path = '/dls_sw/i24/scripts/fastchips/litemaps/'
     litemap_path = "/localhome/local/Documents/sacla/parameter_files/"
@@ -731,21 +672,6 @@ def moveto(place):
             caput(pv.me14e_stage_x, 0.0)
             caput(pv.me14e_stage_y, 25.40)
 
-    elif chip_type == 2:
-        print("Hamburg Move")
-        logger.info("%s Hamburg Move" % (name))
-        if place == "origin":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f1":
-            # caput(pv.me14e_stage_x, +17.16)
-            caput(pv.me14e_stage_x, +24.968)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f2":
-            caput(pv.me14e_stage_x, 0.0)
-            # caput(pv.me14e_stage_y, -26.49)
-            caput(pv.me14e_stage_y, +24.968)
-
     elif chip_type == 3:
         print("Oxford Inner Move")
         logger.info("%s Oxford Inner Move" % (name))
@@ -759,19 +685,6 @@ def moveto(place):
             caput(pv.me14e_stage_x, 0.0)
             caput(pv.me14e_stage_y, 24.60)
 
-    elif chip_type == 5:
-        print("Regina Move")
-        logger.info("%s Regina Move" % (name))
-        if place == "origin":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f1":
-            caput(pv.me14e_stage_x, +17.175)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f2":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, +17.175)
-
     elif chip_type == 6:
         print("Custom Move")
         logger.info("%s Custom Chip Move" % (name))
@@ -784,45 +697,6 @@ def moveto(place):
         if place == "f2":
             caput(pv.me14e_stage_x, 0.0)
             caput(pv.me14e_stage_y, 25.40)
-
-    elif chip_type == 7:
-        print("Heidelberg4 Move")
-        logger.info("%s Heidelberg4 Chip Move" % (name))
-        if place == "origin":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f1":
-            caput(pv.me14e_stage_x, 19.135)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f2":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 9.635)
-
-    elif chip_type == 8:
-        print("Heidelberg6 Move")
-        logger.info("%s Heidelberg6 Chip Move" % (name))
-        if place == "origin":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f1":
-            caput(pv.me14e_stage_x, 19.525)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f2":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 9.335)
-
-    elif chip_type == 9:
-        print("Minichip Move")
-        logger.info("%s Minichip Move" % (name))
-        if place == "origin":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f1":
-            caput(pv.me14e_stage_x, 2.375)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f2":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 2.375)
 
     elif chip_type == 10:
         print("Oxford 6 by 6 blocks Move")
