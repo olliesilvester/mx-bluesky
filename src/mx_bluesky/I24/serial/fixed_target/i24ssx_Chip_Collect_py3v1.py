@@ -26,6 +26,17 @@ from mx_bluesky.I24.serial.write_nexus import call_nexgen
 
 logger = logging.getLogger("I24ssx.fixed_target")
 
+usage = "%(prog)s [options]"
+parser = argparse.ArgumentParser(usage=usage, description=__doc__)
+parser.add_argument(
+    "-l",
+    "--loc",
+    type=str,
+    choices=["i24", "SACLA"],
+    default="i24",
+    help="Location of collection.",
+)
+
 
 def setup_logging():
     # Log should now change name daily.
@@ -881,19 +892,5 @@ def main():
     logger.info("%s End Time = %s" % (name, end_time))
 
 
-usage = "%(prog)s [options]"
-parser = argparse.ArgumentParser(usage=usage, description=__doc__)
-parser.add_argument(
-    "-l",
-    "--loc",
-    type=str,
-    choices=["i24", "SACLA"],
-    default="i24",
-    help="Location of collection.",
-)
-
-main()
-
-# if __name__ == "__main__":
-# main(location='SACLA')
-# main(location="i24")
+if __name__ == "__main__":
+    main()
