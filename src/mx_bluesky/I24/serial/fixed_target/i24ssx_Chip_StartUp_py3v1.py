@@ -112,10 +112,10 @@ def fiducials(chip_type):
     name = inspect.stack()[0][3]
     if chip_type == "0":
         corners_list = []
-        for R in string.letters[26:35]:
+        for R in string.ascii_letters[26:35]:
             for C in [str(num) for num in range(1, 10)]:
-                for r in string.letters[:12]:
-                    for c in string.letters[:12]:
+                for r in string.ascii_letters[:12]:
+                    for c in string.ascii_letters[:12]:
                         addr = "_".join([R + C, r + c])
                         if r + c in ["aa", "la", "ll"]:
                             corners_list.append(addr)
