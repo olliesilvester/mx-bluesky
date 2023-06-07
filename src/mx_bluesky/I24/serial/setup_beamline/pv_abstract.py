@@ -13,6 +13,7 @@ from mx_bluesky.I24.serial.setup_beamline import pv
 
 class Pilatus:
     id = 58
+    name = "pilatus"
 
     # fast, slow / width, height
     image_size_pixels = (2463, 2527)
@@ -38,6 +39,7 @@ class Pilatus:
 
 class Eiger:
     id = 94
+    name = "eiger"
 
     pixel_size_mm = (0.075, 0.075)
     image_size_pixels = (3108, 3262)

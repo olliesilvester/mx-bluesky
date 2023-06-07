@@ -8,7 +8,7 @@ from mx_bluesky.I24.serial.setup_beamline import setup_beamline
 @patch("mx_bluesky.I24.serial.setup_beamline.setup_beamline.caget")
 def test_get_detector_type(fake_caget):
     fake_caget.return_value = 205
-    assert setup_beamline.get_detector_type() == "eiger"
+    assert setup_beamline.get_detector_type().name == "eiger"
 
 
 @patch("mx_bluesky.I24.serial.setup_beamline.setup_beamline.caput")
