@@ -404,22 +404,20 @@ def write_file(location="i24", suffix=".addr", order="alphanumeric"):
     elif order == "shot":
         addr_list = get_shot_order(chip_type)
 
-    # list_of_lines = []
-    g = open(chip_file_path, "a")
-    for addr in addr_list:
-        xtal_name = "_".join([chip_name, addr])
-        (x, y) = get_xy(xtal_name, chip_type)
-        if addr in fiducial_list:
-            pres = "0"
-        else:
-            if "rand" in suffix:
-                pres = str(np.random.randint(2))
+    with open(chip_file_path, "a") as g:
+        for addr in addr_list:
+            xtal_name = "_".join([chip_name, addr])
+            (x, y) = get_xy(xtal_name, chip_type)
+            if addr in fiducial_list:
+                pres = "0"
             else:
-                pres = "-1"
-        line = "\t".join([xtal_name, str(x), str(y), "0.0", pres]) + "\n"
-        #  list_of_lines.append(line)
-        g.write(line)
-    g.close()
+                if "rand" in suffix:
+                    pres = str(np.random.randint(2))
+                else:
+                    pres = "-1"
+            line = "\t".join([xtal_name, str(x), str(y), "0.0", pres]) + "\n"
+            g.write(line)
+
     logger.info("%s" % name)
 
 
@@ -495,45 +493,43 @@ def write_headers(location, suffix_list):
     if location == "i24":
         for suffix in suffix_list:
             full_fid = chip_file_path + suffix
-            g = open(full_fid, "w")
-            g.write(
-                "#23456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\n#\n"
-            )
-            g.write("#&i24\tchip_name    = %s\n" % chip_name)
-            g.write("#&i24\tvisit        = %s\n" % visit)
-            g.write("#&i24\tsub_dir      = %s\n" % sub_dir)
-            g.write("#&i24\tn_exposures  = %s\n" % n_exposures)
-            g.write("#&i24\tchip_type    = %s\n" % chip_type)
-            g.write("#&i24\tmap_type     = %s\n" % map_type)
-            g.write("#&i24\tpump_repeat  = %s\n" % pump_repeat)
-            g.write("#&i24\tpumpexptime  = %s\n" % pumpexptime)
-            g.write("#&i24\texptime      = %s\n" % exptime)
-            g.write("#&i24\tdcdetdist    = %s\n" % dcdetdist)
-            g.write("#&i24\tprepumpexptime  = %s\n" % prepumpexptime)
-            g.write("#&i24\tdet_Type     = %s\n" % det_type)
-            g.write("#\n")
-            g.write(
-                "#XtalAddr      XCoord  YCoord  ZCoord  Present Shot  Spare04 Spare03 Spare02 Spare01\n"
-            )
-        g.close()
+            with open(full_fid, "w") as g:
+                g.write(
+                    "#23456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\n#\n"
+                )
+                g.write("#&i24\tchip_name    = %s\n" % chip_name)
+                g.write("#&i24\tvisit        = %s\n" % visit)
+                g.write("#&i24\tsub_dir      = %s\n" % sub_dir)
+                g.write("#&i24\tn_exposures  = %s\n" % n_exposures)
+                g.write("#&i24\tchip_type    = %s\n" % chip_type)
+                g.write("#&i24\tmap_type     = %s\n" % map_type)
+                g.write("#&i24\tpump_repeat  = %s\n" % pump_repeat)
+                g.write("#&i24\tpumpexptime  = %s\n" % pumpexptime)
+                g.write("#&i24\texptime      = %s\n" % exptime)
+                g.write("#&i24\tdcdetdist    = %s\n" % dcdetdist)
+                g.write("#&i24\tprepumpexptime  = %s\n" % prepumpexptime)
+                g.write("#&i24\tdet_Type     = %s\n" % det_type)
+                g.write("#\n")
+                g.write(
+                    "#XtalAddr      XCoord  YCoord  ZCoord  Present Shot  Spare04 Spare03 Spare02 Spare01\n"
+                )
 
     elif location == "SACLA":
         for suffix in suffix_list:
             full_fid = chip_file_path + suffix
-            g = open(full_fid, "w")
-            g.write(
-                "#23456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\n#\n"
-            )
-            g.write("#&SACLA\tchip_name    = %s\n" % chip_name)
-            g.write("#&SACLA\tsub_dir      = %s\n" % sub_dir)
-            g.write("#&SACLA\tn_exposures  = %s\n" % n_exposures)
-            g.write("#&SACLA\tchip_type    = %s\n" % chip_type)
-            g.write("#&SACLA\tmap_type     = %s\n" % map_type)
-            g.write("#\n")
-            g.write(
-                "#XtalAddr      XCoord  YCoord  ZCoord  Present Shot  Spare04 Spare03 Spare02 Spare01\n"
-            )
-        g.close()
+            with open(full_fid, "w") as g:
+                g.write(
+                    "#23456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\n#\n"
+                )
+                g.write("#&SACLA\tchip_name    = %s\n" % chip_name)
+                g.write("#&SACLA\tsub_dir      = %s\n" % sub_dir)
+                g.write("#&SACLA\tn_exposures  = %s\n" % n_exposures)
+                g.write("#&SACLA\tchip_type    = %s\n" % chip_type)
+                g.write("#&SACLA\tmap_type     = %s\n" % map_type)
+                g.write("#\n")
+                g.write(
+                    "#XtalAddr      XCoord  YCoord  ZCoord  Present Shot  Spare04 Spare03 Spare02 Spare01\n"
+                )
     else:
         logger.warning("%s Unknown location, %s" % (name, location))
         print("Unknown location in write_headers")
