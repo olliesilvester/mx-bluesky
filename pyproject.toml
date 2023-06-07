@@ -47,8 +47,6 @@ dev = [
 
 [project.scripts]
 mx_bluesky = "mx_bluesky.__main__:main"
-extruder_collect = "mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2:main"
-chip_collect = "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1:main"
 
 [project.urls]
 GitHub = "https://github.com/DiamondLightSource/mx_bluesky"
