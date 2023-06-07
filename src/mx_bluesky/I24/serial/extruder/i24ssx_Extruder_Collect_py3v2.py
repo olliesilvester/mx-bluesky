@@ -37,15 +37,12 @@ def initialise_extruderi24():
     print("Initialise Parameters for extruder data collection")
     logger.info("%s I24 extruder initialisation" % name)
 
-    # define visit using the below line
-    # visit = "/dls/i24/data/2022/mx31930-2/"
-    visit = "/dls/i24/data/2023/cm33852-2/"
+    visit = caget(pv.ioc12_gp1)
     logger.info("%s Visit defined %s" % (name, visit))
 
     # Define detector in use
     det_type = sup.get_detector_type()
 
-    caput(pv.ioc12_gp1, str(visit))
     caput(pv.ioc12_gp2, "test")
     caput(pv.ioc12_gp3, "testrun")
     caput(pv.ioc12_gp4, "100")

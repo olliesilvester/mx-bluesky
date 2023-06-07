@@ -30,14 +30,17 @@ def test_scrape_parameter_file():
     assert len(res) == 10
 
 
+@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
 @patch(
     "mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sup.get_detector_type"
 )
-def test_initialise_extruder(fake_det, fake_caput):
+def test_initialise_extruder(fake_det, fake_caput, fake_caget):
+    fake_caget.return_value = "/path/to/visit"
     fake_det.return_value = Eiger()
     initialise_extruderi24()
-    assert fake_caput.call_count == 11
+    assert fake_caput.call_count == 10
+    assert fake_caget.call_count == 1
 
 
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
