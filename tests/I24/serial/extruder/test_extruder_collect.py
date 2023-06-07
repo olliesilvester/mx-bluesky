@@ -45,10 +45,28 @@ def test_initialise_extruder(fake_det, fake_caput, fake_caget):
 
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
-def test_moveto(fake_caget, fake_caput):
+def test_moveto_enterhutch(fake_caget, fake_caput):
     moveto("enterhutch")
     assert fake_caget.call_count == 1
     assert fake_caput.call_count == 1
+
+
+@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
+@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
+def test_moveto_laseron_for_eiger(fake_caget, fake_caput):
+    fake_caget.return_value = "eiger"
+    moveto("laseron")
+    assert fake_caget.call_count == 1
+    assert fake_caput.call_count == 2
+
+
+@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
+@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
+def test_moveto_laseroff_for_pilatus(fake_caget, fake_caput):
+    fake_caget.return_value = "pilatus"
+    moveto("laseroff")
+    assert fake_caget.call_count == 1
+    assert fake_caput.call_count == 2
 
 
 @patch(
