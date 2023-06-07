@@ -1,6 +1,7 @@
 """
 Fixed target data collection
 """
+import argparse
 import inspect
 import logging
 import os
@@ -679,8 +680,11 @@ def finish_sacla():
     return end_time
 
 
-def main(location="i24"):
+def main():
     setup_logging()
+    args = parser.parse_args()
+
+    location = args.loc
     print("Location is", location, "Starting")
     # ABORT BUTTON
     name = inspect.stack()[0][3]
@@ -877,6 +881,19 @@ def main(location="i24"):
     logger.info("%s End Time = %s" % (name, end_time))
 
 
-if __name__ == "__main__":
-    # main(location='SACLA')
-    main(location="i24")
+usage = "%(prog)s [options]"
+parser = argparse.ArgumentParser(usage=usage, description=__doc__)
+parser.add_argument(
+    "-l",
+    "--loc",
+    type=str,
+    choices=["i24", "SACLA"],
+    default="i24",
+    help="Location of collection.",
+)
+
+main()
+
+# if __name__ == "__main__":
+# main(location='SACLA')
+# main(location="i24")

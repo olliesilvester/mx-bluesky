@@ -5,6 +5,7 @@ This version in python3 new Feb2021 by RLO
 """
 from __future__ import annotations
 
+import argparse
 import inspect
 import logging
 import pathlib
@@ -441,20 +442,41 @@ def run_extruderi24():
     return 1
 
 
-def main(args):
+usage = "%(prog)s command [options]"
+parser = argparse.ArgumentParser(usage=usage, description=__doc__)
+subparsers = parser.add_subparsers(
+    help="Choose command.",
+    required=True,
+    dest="sub-command",
+)
+
+parser_init = subparsers.add_parser(
+    "initialise",
+    description="Initialise extruder on beamline I24.",
+)
+parser_init.set_defaults(func=initialise_extruderi24)
+parser_run = subparsers.add_parser(
+    "run",
+    description="Run extruder on I24.",
+)
+parser_run.set_defaults(func=run_extruderi24)
+parser_mv = subparsers.add_parser(
+    "moveto",
+    description="Move extruder to requested setting on I24.",
+)
+parser_mv.add_argument(
+    "place",
+    type=str,
+    choices=["laseron", "laseroff", "enterhutch"],
+    help="Requested setting.",
+)
+parser_mv.set_defaults(func=moveto)
+
+
+def main():
     setup_logging()
-    command = args[0]
-    print(args)
-    print("done")
-    if command == "initialise":
-        initialise_extruderi24()
-    elif command == "run":
-        run_extruderi24()
-    elif command == "moveto":
-        moveto(args[1])
-    else:
-        print("Unknown arg")
+    args = parser.parse_args()
+    args.func(args)
 
 
-if __name__ == "__main__":
-    main(sys.argv[1:])
+main()
