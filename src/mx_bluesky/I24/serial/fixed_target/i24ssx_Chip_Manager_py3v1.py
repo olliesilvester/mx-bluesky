@@ -147,22 +147,20 @@ def write_parameter_file():
     #    param_path + param_fid,
     #    os.path.join([visit, "processing", protein_name, chip_name]),
     # ]
-    f = open(param_path + param_fid, "w")
-
-    f.write("visit \t\t%s\n" % visit)
-    f.write("chip_name \t%s\n" % chip_name)
-    f.write("protein_name \t%s\n" % protein_name)
-    f.write("n_exposures \t%s\n" % n_exposures)
-    f.write("chip_type \t%s\n" % chip_type)
-    f.write("map_type \t%s\n" % map_type)
-    f.write("pump_repeat \t%s\n" % pump_repeat)
-    f.write("pumpexptime \t%s\n" % pumpexptime)
-    f.write("pumpdelay \t%s\n" % pumpdelay)
-    f.write("prepumpexptime \t%s\n" % prepumpexptime)
-    f.write("exptime \t%s\n" % exptime)
-    f.write("dcdetdist \t%s\n" % dcdetdist)
-    f.write("det_type \t%s\n" % det_type)
-    f.close()
+    with open(param_path + param_fid, "w") as f:
+        f.write("visit \t\t%s\n" % visit)
+        f.write("chip_name \t%s\n" % chip_name)
+        f.write("protein_name \t%s\n" % protein_name)
+        f.write("n_exposures \t%s\n" % n_exposures)
+        f.write("chip_type \t%s\n" % chip_type)
+        f.write("map_type \t%s\n" % map_type)
+        f.write("pump_repeat \t%s\n" % pump_repeat)
+        f.write("pumpexptime \t%s\n" % pumpexptime)
+        f.write("pumpdelay \t%s\n" % pumpdelay)
+        f.write("prepumpexptime \t%s\n" % prepumpexptime)
+        f.write("exptime \t%s\n" % exptime)
+        f.write("dcdetdist \t%s\n" % dcdetdist)
+        f.write("det_type \t%s\n" % det_type)
 
     logger.info("%s visit: %s" % (name, visit))
     logger.info("%s filename: %s" % (name, chip_name))
@@ -193,11 +191,12 @@ def write_parameter_file():
 
 def scrape_pvar_file(fid):
     block_start_list = []
-    dir = (
+    pvar_dir = (
         "/dls_sw/work/R3.14.12.3/ioc/ME14E/ME14E-MO-IOC-01/ME14E-MO-IOC-01App/scripts/"
     )
-    f = open(dir + fid, "r")
-    for line in f.readlines():
+    with open(pvar_dir + fid, "r") as f:
+        lines = f.readlines()
+    for line in lines:
         line = line.rstrip()
         if line.startswith("#"):
             continue
@@ -213,7 +212,6 @@ def scrape_pvar_file(fid):
             x = entry[0].split("=")[1]
             y = entry[1].split("=")[1]
             block_start_list.append([block_num, x, y])
-    f.close()
     return block_start_list
 
 
@@ -245,15 +243,15 @@ def define_current_chip(chipid):
 
     param_path = "/dls_sw/i24/scripts/fastchips/parameter_files/"
     # param_path = '/localhome/local/Documents/sacla/parameter_files/'
-    f = open(param_path + chipid + ".pvar", "r")
-    logger.info("%s Opening %s%s.pvar" % (name, param_path, chipid))
-    for line in f.readlines():
-        if line.startswith("#"):
-            continue
-        line_from_file = line.rstrip("\n")
-        print(line_from_file)
-        logger.info("%s %s" % (name, line_from_file))
-        caput(pv.me14e_pmac_str, line_from_file)
+    with open(param_path + chipid + ".pvar", "r") as f:
+        logger.info("%s Opening %s%s.pvar" % (name, param_path, chipid))
+        for line in f.readlines():
+            if line.startswith("#"):
+                continue
+            line_from_file = line.rstrip("\n")
+            print(line_from_file)
+            logger.info("%s %s" % (name, line_from_file))
+            caput(pv.me14e_pmac_str, line_from_file)
 
     print(10 * "Done ")
 
@@ -264,18 +262,17 @@ def save_screen_map():
     # litemap_path = '/localhome/local/Documents/sacla/parameter_files/'
     print("\n\nSaving", litemap_path + "currentchip.map")
     logger.info("%s Saving %s currentchip.map" % (name, litemap_path))
-    f = open(litemap_path + "currentchip.map", "w")
-    print("Printing only blocks with block_val == 1")
-    logger.info("%s Printing only blocks with block_val == 1" % name)
-    for x in range(1, 82):
-        block_str = "ME14E-MO-IOC-01:GP%i" % (x + 10)
-        block_val = int(caget(block_str))
-        if block_val == 1:
-            print(block_str, block_val)
-            logger.info("%s %s %s" % (name, block_str, block_val))
-        line = "%02dstatus    P3%02d1 \t%s\n" % (x, x, block_val)
-        f.write(line)
-    f.close()
+    with open(litemap_path + "currentchip.map", "w") as f:
+        print("Printing only blocks with block_val == 1")
+        logger.info("%s Printing only blocks with block_val == 1" % name)
+        for x in range(1, 82):
+            block_str = "ME14E-MO-IOC-01:GP%i" % (x + 10)
+            block_val = int(caget(block_str))
+            if block_val == 1:
+                print(block_str, block_val)
+                logger.info("%s %s %s" % (name, block_str, block_val))
+            line = "%02dstatus    P3%02d1 \t%s\n" % (x, x, block_val)
+            f.write(line)
     print(10 * "Done ")
     logger.info("%s %s" % (name, 10 * "Done"))
     return 0
@@ -304,34 +301,32 @@ def upload_parameters(chipid):
         width = 7
     litemap_path = "/dls_sw/i24/scripts/fastchips/litemaps/"
     # litemap_path = '/localhome/local/Documents/sacla/parameter_files/'
-    f = open(litemap_path + "currentchip.map", "r")
-    print("chipid", chipid)
-    print(width)
-    logger.info("%s chipid %s" % (name, chipid))
-    logger.info("%s width %s" % (name, width))
-    x = 1
-    for line in f.readlines()[: width**2]:
-        cols = line.split()
-        pvar = cols[1]
-        value = cols[2]
-        s = pvar + "=" + value
-        if value != "1":
-            s2 = pvar + "   "
-            sys.stdout.write(s2)
-        else:
-            sys.stdout.write(s + " ")
-        sys.stdout.flush()
-        if x == width:
-            print()
-            x = 1
-        else:
-            x += 1
-        caput(pv.me14e_pmac_str, s)
-        sleep(0.02)
-    print()
-    # print 'Setting Mapping Type to Lite'
+    with open(litemap_path + "currentchip.map", "r") as f:
+        print("chipid", chipid)
+        print(width)
+        logger.info("%s chipid %s" % (name, chipid))
+        logger.info("%s width %s" % (name, width))
+        x = 1
+        for line in f.readlines()[: width**2]:
+            cols = line.split()
+            pvar = cols[1]
+            value = cols[2]
+            s = pvar + "=" + value
+            if value != "1":
+                s2 = pvar + "   "
+                sys.stdout.write(s2)
+            else:
+                sys.stdout.write(s + " ")
+            sys.stdout.flush()
+            if x == width:
+                print()
+                x = 1
+            else:
+                x += 1
+            caput(pv.me14e_pmac_str, s)
+            sleep(0.02)
+
     logger.warning("%s Automatic Setting Mapping Type to Lite has been disabled" % name)
-    # caput(pv.me14e_gp2, 1)
     print(10 * "Done ")
     logger.info("%s %s" % (name, 10 * "Done"))
 
@@ -340,7 +335,8 @@ def upload_full():
     name = inspect.stack()[0][3]
     fullmap_path = "/dls_sw/i24/scripts/fastchips/fullmaps/"
     # fullmap_path = '/localhome/local/Documents/sacla/parameter_files/'
-    f = open(fullmap_path + "currentchip.full", "r").readlines()
+    with open(fullmap_path + "currentchip.full", "r") as fh:
+        f = fh.readlines()
 
     for x in range(len(f) / 2):
         pmac_list = []
@@ -652,8 +648,9 @@ def load_lite_map():
     print("Opening", litemap_path + litemap_fid)
     logger.info("%s Loading Lite Map" % name)
     logger.info("%s Opening %s" % (name, litemap_path + litemap_fid))
-    f = open(litemap_path + litemap_fid, "r")
-    for line in f.readlines():
+    with open(litemap_path + litemap_fid, "r") as fh:
+        f = fh.readlines()
+    for line in f:
         entry = line.split()
         block_name = entry[0]
         yesno = entry[1]
@@ -964,9 +961,10 @@ def scrape_mtr_directions():
     name = inspect.stack()[0][3]
     param_path = "/dls_sw/i24/scripts/fastchips/parameter_files/"
     # param_path = '/localhome/local/Documents/sacla/parameter_files/'
-    f = open(param_path + "motor_direction.txt", "r")
+    with open(param_path + "motor_direction.txt", "r") as f:
+        lines = f.readlines()
     mtr1_dir, mtr2_dir, mtr3_dir = 1, 1, 1
-    for line in f.readlines():
+    for line in lines:
         if line.startswith("mtr1"):
             mtr1_dir = float(int(line.split("=")[1]))
         elif line.startswith("mtr2"):
@@ -975,7 +973,6 @@ def scrape_mtr_directions():
             mtr3_dir = float(int(line.split("=")[1]))
         else:
             continue
-    f.close()
     logger.info(
         "%s mt1_dir %s mtr2_dir %s mtr3_dir %s" % (name, mtr1_dir, mtr2_dir, mtr3_dir)
     )
@@ -1018,24 +1015,22 @@ def fiducial(point):
     logger.info("%s MTR2\t%1.4f\t%i\t%i\t%1.4f" % (name, rbv_2, raw_2, mtr2_dir, f_y))
     logger.info("%s MTR3\t%1.4f\t%i\t%i\t%1.4f" % (name, rbv_3, raw_3, mtr3_dir, f_y))
 
-    f = open(param_path + "fiducial_%s.txt" % point, "w")
-    f.write("MTR\tRBV\tRAW\tCorr\tf_value\n")
-    f.write("MTR1\t%1.4f\t%i\t%i\t%1.4f\n" % (rbv_1, raw_1, mtr1_dir, f_x))
-    f.write("MTR2\t%1.4f\t%i\t%i\t%1.4f\n" % (rbv_2, raw_2, mtr2_dir, f_y))
-    f.write("MTR3\t%1.4f\t%i\t%i\t%1.4f" % (rbv_3, raw_3, mtr3_dir, f_z))
-    f.close()
+    with open(param_path + "fiducial_%s.txt" % point, "w") as f:
+        f.write("MTR\tRBV\tRAW\tCorr\tf_value\n")
+        f.write("MTR1\t%1.4f\t%i\t%i\t%1.4f\n" % (rbv_1, raw_1, mtr1_dir, f_x))
+        f.write("MTR2\t%1.4f\t%i\t%i\t%1.4f\n" % (rbv_2, raw_2, mtr2_dir, f_y))
+        f.write("MTR3\t%1.4f\t%i\t%i\t%1.4f" % (rbv_3, raw_3, mtr3_dir, f_z))
     print(10 * "Done ")
 
 
 def scrape_mtr_fiducials(point):
     param_path = "/dls_sw/i24/scripts/fastchips/parameter_files/"
     # param_path = '/localhome/local/Documents/sacla/parameter_files/'
-    f = open(param_path + "fiducial_%i.txt" % point, "r")
-    f_lines = f.readlines()[1:]
+    with open(param_path + "fiducial_%i.txt" % point, "r") as f:
+        f_lines = f.readlines()[1:]
     f_x = float(f_lines[0].rsplit()[4])
     f_y = float(f_lines[1].rsplit()[4])
     f_z = float(f_lines[2].rsplit()[4])
-    f.close()
     return f_x, f_y, f_z
 
 

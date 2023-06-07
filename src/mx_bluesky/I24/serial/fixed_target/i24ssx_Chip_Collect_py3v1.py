@@ -323,12 +323,12 @@ def datasetsizei24():
     elif map_type == "1":
         chip_format = get_format(chip_type)[2:4]
         block_count = 0
-        f = open("/dls_sw/i24/scripts/fastchips/litemaps/currentchip.map", "r")
-        for line in f.readlines():
-            entry = line.split()
-            if entry[2] == "1":
-                block_count += 1
-        f.close()
+        with open("/dls_sw/i24/scripts/fastchips/litemaps/currentchip.map", "r") as f:
+            for line in f.readlines():
+                entry = line.split()
+                if entry[2] == "1":
+                    block_count += 1
+
         print("block_count", block_count)
         print(chip_format)
         logger.info("%s\t:block_count=%s" % (name, block_count))
@@ -389,13 +389,14 @@ def datasetsizesacla():
     elif map_type == "1" or map_type == "3":
         chip_format = get_format(chip_type)[2:4]
         block_count = 0
-        # f = open('/localhome/local/Documents/sacla/parameter_files/currentchip.map', 'r')
-        f = open("/dls_sw/i24/scripts/fastchips/parameter_files/currentchip.map", "r")
-        for line in f.readlines():
-            entry = line.split()
-            if entry[2] == "1":
-                block_count += 1
-        f.close()
+        # or '/localhome/local/Documents/sacla/parameter_files/currentchip.map'
+        with open(
+            "/dls_sw/i24/scripts/fastchips/parameter_files/currentchip.map", "r"
+        ) as f:
+            for line in f.readlines():
+                entry = line.split()
+                if entry[2] == "1":
+                    block_count += 1
         print("block_count", block_count)
         logger.info("%s\t:block_count=%s" % (name, block_count))
         print(chip_format)
@@ -660,21 +661,20 @@ def finish_i24(chip_prog_dict, start_time):
 
     os.makedirs(userlog_path, exist_ok=True)
 
-    f = open(userlog_path + userlog_fid, "w")
-    f.write("Fixed Target Data Collection Parameters\n")
-    f.write("Data directory \t%s\n" % filepath)
-    f.write("Filename \t%s\n" % filename)
-    f.write("Shots per pos \t%s\n" % n_exposures)
-    f.write("Total N images \t%s\n" % total_numb_imgs)
-    f.write("Exposure time \t%s\n" % exptime)
-    f.write("Det distance \t%s\n" % dcdetdist)
-    f.write("Transmission \t%s\n" % transmission)
-    f.write("Wavelength \t%s\n" % wavelength)
-    f.write("Detector type \t%s\n" % det_type)
-    f.write("Pump status \t%s\n" % pump_repeat)
-    f.write("Pump exp time \t%s\n" % pumpexptime)
-    f.write("Pump delay \t%s\n" % pumpdelay)
-    f.close()
+    with open(userlog_path + userlog_fid, "w") as f:
+        f.write("Fixed Target Data Collection Parameters\n")
+        f.write("Data directory \t%s\n" % filepath)
+        f.write("Filename \t%s\n" % filename)
+        f.write("Shots per pos \t%s\n" % n_exposures)
+        f.write("Total N images \t%s\n" % total_numb_imgs)
+        f.write("Exposure time \t%s\n" % exptime)
+        f.write("Det distance \t%s\n" % dcdetdist)
+        f.write("Transmission \t%s\n" % transmission)
+        f.write("Wavelength \t%s\n" % wavelength)
+        f.write("Detector type \t%s\n" % det_type)
+        f.write("Pump status \t%s\n" % pump_repeat)
+        f.write("Pump exp time \t%s\n" % pumpexptime)
+        f.write("Pump delay \t%s\n" % pumpdelay)
 
     sleep(0.5)
 
