@@ -77,10 +77,7 @@ def plot_file(fid, chip_type):
         left=0.03, bottom=0.03, right=0.97, top=0.97, wspace=0, hspace=0
     )
     ax1 = fig.add_subplot(111, aspect="equal", axisbg="0.3")
-    # ax1.scatter(xr, yr, c=zr, s=8, alpha=1, marker='s', linewidth=0.1, cmap='autumn')
     ax1.scatter(xr, yr, c=zr, s=8, alpha=1, marker="s", linewidth=0.1, cmap="winter")
-    # ax1.set_xticks([2.2*x for x in range(11)])
-    # ax1.set_yticks([2.5*x for x in range(11)])
     ax1.set_xlim(-1, 26)
     ax1.set_ylim(-1, 26)
     ax1.invert_yaxis()
