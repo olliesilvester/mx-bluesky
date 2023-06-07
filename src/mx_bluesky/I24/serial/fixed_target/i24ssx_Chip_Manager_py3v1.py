@@ -112,14 +112,7 @@ def write_parameter_file():
     logger.info("%s Writing Parameter File \n%s" % (name, param_path + param_fid))
     print("Writing Parameter File\n", param_path + param_fid)
 
-    ############################################
-    # define visit here. Press set parameters to update GUI
-    visit = "/dls/i24/data/2023/mx31850-14/"
-    # visit = '/dls/i24/data/2023/cm33852-2/'
-    # visit = '/dls/i24/data/2023/nr27313-182/'
-    # visit = '/dls/i24/data/2023/mx31850-5/'
-    ############################################
-    caput(pv.me14e_gp100, str(visit))
+    visit = caget(pv.me14e_gp100)
 
     filename = caget(pv.me14e_chip_name)
 
