@@ -42,10 +42,8 @@ def initialise_extruderi24():
     visit = "/dls/i24/data/2023/cm33852-2/"
     logger.info("%s Visit defined %s" % (name, visit))
 
-    # define detector using the below line
-    # Oct 2021. beta. Do not change from pilatus unless your name is Robin
-    det_type = "pilatus"
-    # det_type = "eiger"
+    # Define detector in use
+    det_type = sup.get_detector_type()
 
     caput(pv.ioc12_gp1, str(visit))
     caput(pv.ioc12_gp2, "test")
@@ -56,7 +54,7 @@ def initialise_extruderi24():
     caput(pv.ioc12_gp8, 0)  # status PV do not reuse gp8 for something else
     caput(pv.ioc12_gp9, 0)
     caput(pv.ioc12_gp10, 0)
-    caput(pv.ioc12_gp15, str(det_type))
+    caput(pv.ioc12_gp15, det_type.name)
     caput(pv.pilat_cbftemplate, 0)
     print("Done Done Done")
     logger.info("%s Initialsation complete" % name)

@@ -13,6 +13,7 @@ from mx_bluesky.I24.serial.setup_beamline import pv
 
 class Pilatus:
     id = 58
+    name = "pilatus"
 
     # fast, slow / width, height
     image_size_pixels = (2463, 2527)
@@ -20,6 +21,9 @@ class Pilatus:
     image_size_mm = tuple(
         round(a * b, 3) for a, b in zip(image_size_pixels, pixel_size_mm)
     )
+
+    det_y_threshold = 50.0
+    det_y_target = 0.0
 
     class pv:
         detector_distance = pv.pilat_detdist
@@ -35,6 +39,7 @@ class Pilatus:
 
 class Eiger:
     id = 94
+    name = "eiger"
 
     pixel_size_mm = (0.075, 0.075)
     image_size_pixels = (3108, 3262)
@@ -42,6 +47,9 @@ class Eiger:
     image_size_mm = tuple(
         round(a * b, 3) for a, b in zip(image_size_pixels, pixel_size_mm)
     )
+
+    det_y_threshold = 200.0
+    det_y_target = 220.0
 
     class pv:
         detector_distance = pv.eiger_detdist

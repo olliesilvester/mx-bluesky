@@ -16,6 +16,7 @@ from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_Mapping_py3v1 as mapping
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_StartUp_py3v1 as startup
 from mx_bluesky.I24.serial.setup_beamline import caget, caput, pv
+from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
 
 logger = logging.getLogger("I24ssx.chip_manager")
 
@@ -80,10 +81,10 @@ def initialise():
     caput(pv.me14e_pmac_str, "m708=100 m709=150")
     caput(pv.me14e_pmac_str, "m808=100 m809=150")
 
-    # define detector using the below line
-    # det_type = "pilatus"
+    # Define detector in use
+    det_type = sup.get_detector_type()
+
     caput(pv.pilat_cbftemplate, 0)
-    det_type = "eiger"
 
     sleep(0.1)
     print("Clearing")
@@ -96,7 +97,7 @@ def initialise():
         sys.stdout.flush()
 
     caput(pv.me14e_gp100, "press set params to read visit")
-    caput(pv.me14e_gp101, str(det_type))
+    caput(pv.me14e_gp101, det_type.name)
 
     print("\n", "Initialisation Complete")
     logger.info("%s Complete" % name)
