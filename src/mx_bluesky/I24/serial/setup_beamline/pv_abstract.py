@@ -66,6 +66,9 @@ class Eiger:
         beamy = pv.eiger_beamy
 
 
+Detector = Union[Pilatus, Eiger]
+
+
 # Experiment types
 
 
@@ -84,7 +87,7 @@ class Extruder:
 
     class spec_pv:
         num_imgs = pv.ioc12_gp4
-        pump_status = pv.ioc12_gp6  # if 1, true
+        pump_status = pv.ioc12_gp6
 
 
 class FixedTarget:
@@ -108,6 +111,4 @@ class FixedTarget:
         prepump_exp = pv.me14e_gp109
 
 
-#
-Detector = Union[Pilatus, Eiger]
 ExperimentType = Union[Extruder, FixedTarget]
