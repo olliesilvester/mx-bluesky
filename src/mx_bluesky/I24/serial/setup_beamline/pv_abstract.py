@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from typing import Union
 
+from mx_bluesky.I24.serial.parameters import SSXType
 from mx_bluesky.I24.serial.setup_beamline import pv
 
 # Detectors
@@ -69,7 +70,7 @@ class Eiger:
 
 
 class Extruder:
-    name = "extruder-collect"
+    expt_type = SSXType.EXTRUDER
 
     class pv:
         visit = pv.ioc12_gp1
@@ -87,7 +88,7 @@ class Extruder:
 
 
 class FixedTarget:
-    name = "chip-collect"
+    expt_type = SSXType.FIXED
 
     class pv:
         visit = pv.me14e_gp100
