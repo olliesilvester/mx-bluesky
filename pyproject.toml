@@ -21,6 +21,7 @@ dependencies = [
     "matplotlib",
     "requests",
     "opencv-python",
+    "pydantic",
 ]
 dynamic = ["version"]
 license.file = "LICENSE"
@@ -62,6 +63,7 @@ where = ["src"]
 write_to = "src/mx_bluesky/_version.py"
 
 [tool.mypy]
+plugins = ["pydantic.mypy"]
 ignore_missing_imports = true # Ignore missing stubs in imported modules
 
 [tool.isort]
