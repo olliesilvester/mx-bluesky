@@ -11,7 +11,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from pathlib import Path
 
 from mx_bluesky.I24.serial.parameters.constants import PARAM_FILE_PATH
@@ -22,15 +21,6 @@ from mx_bluesky.I24.serial.setup_beamline import (
     FixedTarget,
     caget,
 )
-
-
-@dataclass
-class GeneralParams:
-    visit: Path
-    directory: Path
-    filename: str
-    exp_time: float
-    det_dist: float
 
 
 class ExperimentParameters:
@@ -76,7 +66,11 @@ class ExtruderParameters(ExperimentParameters):
     def write_to_file(self, filepath: Path | str = PARAM_FILE_PATH):
         if not isinstance(filepath, Path):
             filepath = Path(filepath)
-        pass
+
+        params = self.read_parameters()
+        with open(filepath / self.PARAM_FILE_NAME, "w") as fh:
+            for k, v in params.items():
+                fh.write(f"{k} \t\t{v}\n")
 
 
 class FixedTargetParameters(ExperimentParameters):
@@ -101,7 +95,7 @@ class FixedTargetParameters(ExperimentParameters):
         if not isinstance(filepath, Path):
             filepath = Path(filepath)
 
-        # params = self.get_parameters()
+        params = self.read_parameters()
         with open(filepath / self.PARAM_FILE_NAME, "w") as fh:
-            for k, v in self.read_parameters().items():
+            for k, v in params.items():
                 fh.write(f"{k} \t\t{v}\n")
