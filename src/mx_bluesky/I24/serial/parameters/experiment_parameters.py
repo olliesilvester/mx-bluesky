@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict
@@ -28,10 +29,15 @@ class GeneralParameters(DataClassJsonMixin):
     def __post_init__(self):
         if not isinstance(self.visit, Path):
             self.visit = Path(self.visit)
+        if self.det_type == "pilatus":
+            # If file name ends in a digit this causes processing/pilatus pain.
+            m = re.search(r"\d+$", self.filename)
+            if m is not None:
+                self.filename = self.filename + "-"
 
     @property
     def collection_path(self):
-        return self.visit / self.directory / self.filename
+        return self.visit / self.directory
 
 
 @dataclass
