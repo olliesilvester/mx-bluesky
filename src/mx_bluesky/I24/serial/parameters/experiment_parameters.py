@@ -1,19 +1,10 @@
-# write, scrape and whatever all go in here
-# Parameters in common: general setup(visit, filename), pp(aside frm pump repeat I
-# guess), detector(type, dist)
-# Need something for the chip map stuff
-
-# Something to write file (although I'd rather avoid the write-read steps and just set)
-
-# Also needs to write the userlog file at the end with a summary or something
-# in visit/processing/directory/filename_params.txt
-# (once all the parameters are in order this might be trivial)
-
 from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict
+
+from dataclasses_json import DataClassJsonMixin
 
 from mx_bluesky.I24.serial.parameters.constants import PARAM_FILE_PATH
 from mx_bluesky.I24.serial.setup_beamline import (
@@ -26,7 +17,7 @@ from mx_bluesky.I24.serial.setup_beamline import (
 
 
 @dataclass
-class GeneralParameters:
+class GeneralParameters(DataClassJsonMixin):
     visit: Path | str
     directory: Path | str
     filename: str
@@ -44,7 +35,7 @@ class GeneralParameters:
 
 
 @dataclass
-class PumpProbeParameters:
+class PumpProbeParameters(DataClassJsonMixin):
     pump_exp: float
     pump_delay: float
     pump_status: bool = False
@@ -63,7 +54,7 @@ def read_parameters(expt: ExperimentType, det_type: Detector) -> Dict[str, Any]:
         det_type=det_type.name,
         det_dist=float(caget(expt.pv.det_dist)),
     )
-    params.update(**general.__dict__)
+    params.update(**general.to_dict())
 
     if isinstance(expt, Extruder):
         params["num_imgs"] = float(caget(expt.spec_pv.num_imgs))
@@ -82,7 +73,7 @@ def read_parameters(expt: ExperimentType, det_type: Detector) -> Dict[str, Any]:
             pump_repeat=caget(expt.spec_pv.pump_repeat),
             prepump_exp=float(caget(expt.spec_pv.prepump_exp)),
         )
-    params.update(**pp.__dict__)
+    params.update(**pp.to_dict())
     return params
 
 
