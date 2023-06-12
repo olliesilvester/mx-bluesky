@@ -15,7 +15,7 @@ from time import sleep
 
 from mx_bluesky.I24.serial.dcid import DCID
 from mx_bluesky.I24.serial.parameters import SSXType
-from mx_bluesky.I24.serial.setup_beamline import caget, caput, pv
+from mx_bluesky.I24.serial.setup_beamline import Extruder, caget, caput, pv
 from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
 from mx_bluesky.I24.serial.write_nexus import call_nexgen
 
@@ -44,16 +44,16 @@ def initialise_extruderi24():
     # Define detector in use
     det_type = sup.get_detector_type()
 
-    caput(pv.ioc12_gp1, str(visit))
-    caput(pv.ioc12_gp2, "test")
-    caput(pv.ioc12_gp3, "testrun")
-    caput(pv.ioc12_gp4, "100")
-    caput(pv.ioc12_gp5, "0.01")
-    caput(pv.ioc12_gp6, 0)
+    caput(Extruder.pv.visit, str(visit))
+    caput(Extruder.pv.directory, "test")
+    caput(Extruder.pv.filename, "testrun")
+    caput(Extruder.spec_pv.num_imgs, "100")
+    caput(Extruder.pv.exp_time, "0.01")
+    caput(Extruder.spec_pv.pump_status, 0)
     caput(pv.ioc12_gp8, 0)  # status PV do not reuse gp8 for something else
-    caput(pv.ioc12_gp9, 0)
-    caput(pv.ioc12_gp10, 0)
-    caput(pv.ioc12_gp15, det_type.name)
+    caput(Extruder.pv.pump_exp, 0)
+    caput(Extruder.pv.pump_delay, 0)
+    caput(Extruder.pv.det_type, det_type.name)
     caput(pv.pilat_cbftemplate, 0)
     print("Done Done Done")
     lg.info("%s Initialsation complete" % name)
