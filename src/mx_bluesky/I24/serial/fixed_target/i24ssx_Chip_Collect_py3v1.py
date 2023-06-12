@@ -4,10 +4,10 @@ Fixed target data collection
 import inspect
 import logging as lg
 import os
-import pathlib
 import sys
 import time
 from datetime import datetime
+from pathlib import Path
 from time import sleep
 
 import numpy as np
@@ -18,8 +18,14 @@ from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1 import (
     get_format,
     scrape_parameter_file,
 )
-from mx_bluesky.I24.serial.parameters import SSXType
-from mx_bluesky.I24.serial.setup_beamline import caget, cagetstring, caput, pv
+from mx_bluesky.I24.serial.parameters import SSXType, read_parameters
+from mx_bluesky.I24.serial.setup_beamline import (
+    FixedTarget,
+    caget,
+    cagetstring,
+    caput,
+    pv,
+)
 from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
 from mx_bluesky.I24.serial.write_nexus import call_nexgen
 
@@ -286,24 +292,13 @@ def get_prog_num(chip_type, map_type, pump_repeat):
         print("Unknown Pump Delay")
 
 
-def datasetsizei24():
+def datasetsizei24(params):
     # Calculates how many images will be collected based on map type and N repeats
     name = inspect.stack()[0][3]
-    (
-        chip_name,
-        visit,
-        sub_dir,
-        n_exposures,
-        chip_type,
-        map_type,
-        pump_repeat,
-        pumpexptime,
-        pumpdelay,
-        exptime,
-        dcdetdist,
-        prepumpexptime,
-        det_type,
-    ) = scrape_parameter_file(location="i24")
+
+    n_exposures = params["n_exposures"]
+    chip_type = params["chip_type"]
+    map_type = params["map_type"]
 
     if map_type == "0":
         chip_format = get_format(chip_type)[:4]
@@ -419,7 +414,7 @@ def datasetsizesacla():
     return total_numb_imgs
 
 
-def start_i24():
+def start_i24(params, filepath):
     """Returns a tuple of (start_time, dcid)"""
     print("Starting i24")
     name = inspect.stack()[0][3]
@@ -428,36 +423,20 @@ def start_i24():
     # run_num = caget(pv.pilat_filenumber)
     # print(80*'-', run_num)
     # lg.info('%s run_num = %s'%(name,run_num))
-    (
-        chip_name,
-        visit,
-        sub_dir,
-        n_exposures,
-        chip_type,
-        map_type,
-        pump_repeat,
-        pumpexptime,
-        pumpdelay,
-        exptime,
-        dcdetdist,
-        prepumpexptime,
-        det_type,
-    ) = scrape_parameter_file(location="i24")
 
     lg.info("%s Set up beamline" % (name))
     sup.beamline("collect")
-    sup.beamline("quickshot", [dcdetdist])
+    sup.beamline("quickshot", [params["det_dist"]])
     lg.info("%s Set up beamline DONE" % (name))
 
-    total_numb_imgs = datasetsizei24()
+    total_numb_imgs = datasetsizei24(params)
 
-    filepath = visit + sub_dir
-    filename = chip_name
+    filename = params["filename"]
 
     lg.info("%s Filepath %s" % (name, filepath))
     lg.info("%s Filename %s" % (name, filename))
     lg.info("%s Total number images %s" % (name, total_numb_imgs))
-    lg.info("%s Exposure time %s" % (name, exptime))
+    lg.info("%s Exposure time %s" % (name, params["exp_time"]))
 
     print("Acquire Region")
     lg.info("%s\t:Acquire Region" % (name))
@@ -465,51 +444,58 @@ def start_i24():
     # Testing for new zebra triggering
     print("ZEBRA TEST ZEBRA TEST ZEBRA TEST ZEBRA TEST")
 
-    num_gates = int(total_numb_imgs) / int(n_exposures)
+    num_gates = int(total_numb_imgs) / params["n_exposures"]
 
     print("Total number of images:", total_numb_imgs)
-    print("Number of exposures:", n_exposures)
+    print("Number of exposures:", params["n_exposures"])
     print("num gates is Total images/N exposures:", num_gates)
 
-    if det_type == "pilatus":
+    if params["det_type"] == "pilatus":
         print("Detector type is Pilatus")
         lg.info("%s Fastchip Pilatus setup: filepath %s" % (name, filepath))
         lg.info("%s Fastchip Pilatus setup: filepath %s" % (name, filename))
         lg.info(
             "%s Fastchip Pilatus setup: number of images %s" % (name, total_numb_imgs)
         )
-        lg.info("%s Fastchip Pilatus setup: exposure time %s" % (name, exptime))
+        lg.info(
+            "%s Fastchip Pilatus setup: exposure time %s" % (name, params["exp_time"])
+        )
 
-        sup.pilatus("fastchip", [filepath, filename, total_numb_imgs, exptime])
+        sup.pilatus(
+            "fastchip", [filepath, filename, total_numb_imgs, params["exp_time"]]
+        )
         # sup.pilatus('fastchip-hatrx', [filepath, filename, total_numb_imgs, exptime])
 
         # DCID process depends on detector PVs being set up already
         dcid = DCID(
             emit_errors=False,
             ssx_type=SSXType.FIXED,
-            visit=pathlib.Path(visit).name,
+            visit=params["visit"].name,
             image_dir=filepath,
             start_time=start_time,
             num_images=total_numb_imgs,
-            exposure_time=exptime,
-            detector=det_type,
-            shots_per_position=int(n_exposures),
-            pump_exposure_time=float(pumpexptime),
-            pump_delay=float(pumpdelay),
-            pump_status=int(pump_repeat),
+            exposure_time=params["exp_time"],
+            detector=params["det_type"],
+            shots_per_position=params["n_exposures"],
+            pump_exposure_time=params["pump_exp"],
+            pump_delay=params["pump_delay"],
+            pump_status=int(params["pump_repeat"]),
         )
 
         print("Arm Pilatus. Arm Zebra.")
         # ZEBRA TEST. Swap the below two lines in/out. Must also swap pc_arm line also.
         # sup.zebra1('fastchip')
-        sup.zebra1("fastchip-zebratrigger-pilatus", [num_gates, n_exposures, exptime])
+        sup.zebra1(
+            "fastchip-zebratrigger-pilatus",
+            [num_gates, params["n_exposures"], params["exp_time"]],
+        )
         caput(pv.pilat_acquire, "1")  # Arm pilatus
         caput(pv.zebra1_pc_arm, "1")  # Arm zebra fastchip-zebratrigger
         # caput(pv.zebra1_pc_arm_out, '1')    # Arm zebra fastchip
         caput(pv.pilat_filename, filename)
         time.sleep(1.5)
 
-    elif det_type == "eiger":
+    elif params["det_type"] == "eiger":
         print("Detector type is Eiger")
 
         # FIXME TEMPORARY HACK TO DO SINGLE IMAGE PILATUS DATA COLL TO MKDIR #
@@ -517,7 +503,9 @@ def start_i24():
         print("Single image pilatus data collection to create directory")
         lg.info("%s single image pilatus data collection" % name)
         num_imgs = 1
-        sup.pilatus("quickshot-internaltrig", [filepath, filename, num_imgs, exptime])
+        sup.pilatus(
+            "quickshot-internaltrig", [filepath, filename, num_imgs, params["exp_time"]]
+        )
         print("Sleep 2s for pilatus to arm")
         sleep(2)
         print("Done. Collecting")
@@ -539,20 +527,25 @@ def start_i24():
         lg.info(
             "%s Triggered Eiger setup: number of images %s" % (name, total_numb_imgs)
         )
-        lg.info("%s Triggered Eiger setup: exposure time %s" % (name, exptime))
+        lg.info(
+            "%s Triggered Eiger setup: exposure time %s" % (name, params["exp_time"])
+        )
 
-        sup.eiger("triggered", [filepath, filename, total_numb_imgs, exptime])
+        sup.eiger(
+            "triggered", [filepath, filename, total_numb_imgs, params["exp_time"]]
+        )
 
         # DCID process depends on detector PVs being set up already
         dcid = DCID(
             emit_errors=False,
             ssx_type=SSXType.FIXED,
-            visit=pathlib.Path(visit).name,
+            visit=params["visit"].name,
             image_dir=filepath,
             start_time=start_time,
             num_images=total_numb_imgs,
-            exposure_time=exptime,
-            detector=det_type,
+            exposure_time=params["exp_time"],
+            detector=params["det_type"],
+            shots_per_position=params["n_exposures"],
         )
 
         print("Arm Zebra.")
@@ -561,13 +554,18 @@ def start_i24():
         # sup.zebra1("fastchip-eiger")
         # caput(pv.zebra1_pc_arm_out, '1')    # Arm zebra
 
-        sup.zebra1("fastchip-zebratrigger-eiger", [num_gates, n_exposures, exptime])
+        sup.zebra1(
+            "fastchip-zebratrigger-eiger",
+            [num_gates, params["n_exposures"], params["exp_time"]],
+        )
         caput(pv.zebra1_pc_arm, "1")  # Arm zebra fastchip-zebratrigger
 
         time.sleep(1.5)
 
     else:
-        lg.warning("%s Unknown Detector Type, det_type = %s" % (name, det_type))
+        lg.warning(
+            "%s Unknown Detector Type, det_type = %s" % (name, params["det_type"])
+        )
         print("Unknown detector type")
 
     # Open the hutch shutter
@@ -599,32 +597,15 @@ def start_sacla():
     return start_time
 
 
-def finish_i24(chip_prog_dict, start_time):
+def finish_i24(params, filepath, chip_prog_dict, start_time):
     name = inspect.stack()[0][3]
     det_type = str(caget(pv.me14e_gp101))
 
     print("Finishing I24")
     lg.info("%s Finishing I24, Detector Type %s" % (name, det_type))
 
-    (
-        chip_name,
-        visit,
-        sub_dir,
-        n_exposures,
-        chip_type,
-        map_type,
-        pump_repeat,
-        pumpexptime,
-        pumpdelay,
-        exptime,
-        dcdetdist,
-        prepumpexptime,
-        det_type,
-    ) = scrape_parameter_file(location="i24")
-
-    total_numb_imgs = datasetsizei24()
-    filepath = visit + sub_dir
-    filename = chip_name
+    total_numb_imgs = datasetsizei24(params)
+    filename = params["filename"]
     transmission = (float(caget(pv.pilat_filtertrasm)),)
     wavelength = float(caget(pv.dcm_lambda))
 
@@ -663,7 +644,7 @@ def finish_i24(chip_prog_dict, start_time):
 
     # Write a record of what was collected to the processing directory
     print("Writing user log")
-    userlog_path = visit + "processing/" + sub_dir + "/"
+    userlog_path = params["visit"] / Path("processing") / params["directory"]
     userlog_fid = filename + "_parameters.txt"
 
     os.makedirs(userlog_path, exist_ok=True)
@@ -672,16 +653,16 @@ def finish_i24(chip_prog_dict, start_time):
     f.write("Fixed Target Data Collection Parameters\n")
     f.write("Data directory \t%s\n" % filepath)
     f.write("Filename \t%s\n" % filename)
-    f.write("Shots per pos \t%s\n" % n_exposures)
+    f.write("Shots per pos \t%s\n" % params["n_exposures"])
     f.write("Total N images \t%s\n" % total_numb_imgs)
-    f.write("Exposure time \t%s\n" % exptime)
-    f.write("Det distance \t%s\n" % dcdetdist)
+    f.write("Exposure time \t%s\n" % params["exp_time"])
+    f.write("Det distance \t%s\n" % params["det_dist"])
     f.write("Transmission \t%s\n" % transmission)
     f.write("Wavelength \t%s\n" % wavelength)
     f.write("Detector type \t%s\n" % det_type)
-    f.write("Pump status \t%s\n" % pump_repeat)
-    f.write("Pump exp time \t%s\n" % pumpexptime)
-    f.write("Pump delay \t%s\n" % pumpdelay)
+    f.write("Pump status \t%s\n" % params["pump_repeat"])
+    f.write("Pump exp time \t%s\n" % params["pump_exp"])
+    f.write("Pump delay \t%s\n" % params["pump_delay"])
     f.close()
 
     sleep(0.5)
@@ -708,21 +689,24 @@ def main(location="i24"):
     caput(pv.me14e_gp9, 0)
 
     if location == "i24":
+        params, filepath = read_parameters(FixedTarget, sup.get_detector_type())
         (
-            chip_name,
             visit,
             sub_dir,
-            n_exposures,
+            chip_name,
+            exptime,
+            det_type,
+            dcdetdist,
             chip_type,
             map_type,
-            pump_repeat,
+            n_exposures,
             pumpexptime,
             pumpdelay,
-            exptime,
-            dcdetdist,
+            pump_status,
+            pump_repeat,
             prepumpexptime,
             det_type,
-        ) = scrape_parameter_file(location="i24")
+        ) = params.values()
         print("exptime", exptime)
         print("pump_repeat", pump_repeat)
         print("pumpexptime", pumpexptime)
@@ -791,7 +775,7 @@ def main(location="i24"):
     load_motion_program_data(chip_prog_dict, map_type, pump_repeat)
 
     if location == "i24":
-        start_time, dcid = start_i24()
+        start_time, dcid = start_i24(params, filepath)
     elif location == "SACLA":
         start_time = start_sacla()
     else:
@@ -825,12 +809,11 @@ def main(location="i24"):
     # Kick off the StartOfCollect script
     dcid.notify_start()
 
-    param_file_tuple = scrape_parameter_file(location="i24")
     if location == "i24" and det_type == "eiger":
         call_nexgen(
             chip_prog_dict,
             start_time,
-            param_file_tuple,
+            params,
             total_numb_imgs=datasetsizei24(),
         )
 
@@ -885,7 +868,7 @@ def main(location="i24"):
         caput(pv.eiger_ODcapture, "Done")
 
     if location == "i24":
-        end_time = finish_i24(chip_prog_dict, start_time)
+        end_time = finish_i24(params, filepath, chip_prog_dict, start_time)
         dcid.collection_complete(end_time, aborted=aborted)
         dcid.notify_end()
 

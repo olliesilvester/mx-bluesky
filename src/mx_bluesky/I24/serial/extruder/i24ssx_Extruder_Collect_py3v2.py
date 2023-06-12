@@ -14,7 +14,7 @@ from datetime import datetime
 from time import sleep
 
 from mx_bluesky.I24.serial.dcid import DCID
-from mx_bluesky.I24.serial.parameters import SSXType
+from mx_bluesky.I24.serial.parameters import SSXType, read_parameters
 from mx_bluesky.I24.serial.setup_beamline import Extruder, caget, caput, pv
 from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
 from mx_bluesky.I24.serial.write_nexus import call_nexgen
@@ -206,19 +206,19 @@ def run_extruderi24():
     start_time = datetime.now()
     print("Start time", start_time.ctime())
 
-    write_parameter_file()
+    params, filepath = read_parameters(Extruder, sup.get_detector_type())
     (
         visit,
         directory,
         filename,
-        num_imgs,
         exp_time,
-        det_dist,
         det_type,
-        pump_status,
+        det_dist,
+        num_imgs,
         pump_exp,
         pump_delay,
-    ) = scrape_parameter_file()
+        pump_status,
+    ) = params.values()
 
     lg.info("%s Start Time = % s" % (name, start_time))
 
@@ -237,7 +237,7 @@ def run_extruderi24():
     caput(pv.ioc12_gp8, 0)
 
     # For pixel detector
-    filepath = visit + directory
+    # filepath = visit + directory
     print("Filepath", filepath)
     print("Filename", filename)
     lg.info("%s Filepath %s" % (name, filepath))
@@ -356,9 +356,8 @@ def run_extruderi24():
 
     dcid.notify_start()
 
-    param_file_tuple = scrape_parameter_file()
     if det_type == "eiger":
-        call_nexgen(None, start_time, param_file_tuple, "extruder")
+        call_nexgen(None, start_time, params, "extruder")
 
     print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
 

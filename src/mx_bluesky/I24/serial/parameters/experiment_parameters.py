@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Tuple
 
 from dataclasses_json import DataClassJsonMixin
 
@@ -49,7 +49,9 @@ class PumpProbeParameters(DataClassJsonMixin):
     prepump_exp: float | None = None
 
 
-def read_parameters(expt: ExperimentType, det_type: Detector) -> Dict[str, Any]:
+def read_parameters(
+    expt: ExperimentType, det_type: Detector
+) -> Tuple[Dict[str, Any], Path]:
     # There's probably a better way but it will do for now
     params: Dict[str, Any] = {}
     general = GeneralParameters(
@@ -60,6 +62,7 @@ def read_parameters(expt: ExperimentType, det_type: Detector) -> Dict[str, Any]:
         det_type=det_type.name,
         det_dist=float(caget(expt.pv.det_dist)),
     )
+    filepath = general.collection_path
     params.update(**general.to_dict())
 
     if isinstance(expt, Extruder):
@@ -80,7 +83,7 @@ def read_parameters(expt: ExperimentType, det_type: Detector) -> Dict[str, Any]:
             prepump_exp=float(caget(expt.spec_pv.prepump_exp)),
         )
     params.update(**pp.to_dict())
-    return params
+    return params, filepath
 
 
 def write_params_to_file(

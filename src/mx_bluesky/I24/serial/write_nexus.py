@@ -11,7 +11,7 @@ from mx_bluesky.I24.serial.setup_beamline import caget, cagetstring, pv
 def call_nexgen(
     chip_prog_dict,
     start_time,
-    param_file_tuple,
+    params,
     expt_type="fixed_target",
     total_numb_imgs=None,
 ):
@@ -20,20 +20,22 @@ def call_nexgen(
 
     if expt_type == "fixed_target":
         (
-            chip_name,
             visit,
             sub_dir,
-            n_exposures,
+            filename,
+            exptime,
+            det_type,
+            dcdetdist,
             chip_type,
             map_type,
-            pump_repeat,
+            n_exposures,
             pumpexptime,
             pumpdelay,
-            exptime,
-            dcdetdist,
+            pump_status,
+            pump_repeat,
             prepumpexptime,
             det_type,
-        ) = param_file_tuple
+        ) = params.values()
         currentchipmap = (
             "/dls_sw/i24/scripts/fastchips/litemaps/currentchip.map"
             if map_type != 0
@@ -45,14 +47,14 @@ def call_nexgen(
             visit,
             sub_dir,
             filename,
-            num_imgs,
             exptime,
-            dcdetdist,
             det_type,
-            pump_status,
+            dcdetdist,
+            num_imgs,
             pumpexptime,
             pumpdelay,
-        ) = param_file_tuple
+            pump_status,
+        ) = params.values()
         total_numb_imgs = num_imgs
         currentchipmap = None
         pump_repeat = "0" if pump_status == "false" else "1"
