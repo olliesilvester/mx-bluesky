@@ -21,6 +21,7 @@ from mx_bluesky.I24.serial.setup_beamline import caget, caput, pv
 from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
 from mx_bluesky.I24.serial.write_nexus import call_nexgen
 
+usage = "%(prog)s command [options]"
 logger = logging.getLogger("I24ssx.extruder")
 
 
@@ -34,7 +35,7 @@ def flush_print(text):
     sys.stdout.flush()
 
 
-def initialise_extruderi24():
+def initialise_extruderi24(args):
     name = inspect.stack()[0][3]
     print("Initialise Parameters for extruder data collection")
     logger.info("%s I24 extruder initialisation" % name)
@@ -59,7 +60,8 @@ def initialise_extruderi24():
     logger.info("%s Initialsation complete" % name)
 
 
-def moveto(place):
+def moveto(args):
+    place = args.place
     name = inspect.stack()[0][3]
     logger.info("%s Move to %s" % (name, place))
 
@@ -200,7 +202,7 @@ def scrape_parameter_file(param_path: Path | str = PARAM_FILE_PATH):
     )
 
 
-def run_extruderi24():
+def run_extruderi24(args):
     print("Starting i24")
     name = inspect.stack()[0][3]
     logger.info("%s" % name)
@@ -445,42 +447,37 @@ def run_extruderi24():
     return 1
 
 
-usage = "%(prog)s command [options]"
-parser = argparse.ArgumentParser(usage=usage, description=__doc__)
-subparsers = parser.add_subparsers(
-    help="Choose command.",
-    required=True,
-    dest="sub-command",
-)
-
-parser_init = subparsers.add_parser(
-    "initialise",
-    description="Initialise extruder on beamline I24.",
-)
-parser_init.set_defaults(func=initialise_extruderi24)
-parser_run = subparsers.add_parser(
-    "run",
-    description="Run extruder on I24.",
-)
-parser_run.set_defaults(func=run_extruderi24)
-parser_mv = subparsers.add_parser(
-    "moveto",
-    description="Move extruder to requested setting on I24.",
-)
-parser_mv.add_argument(
-    "place",
-    type=str,
-    choices=["laseron", "laseroff", "enterhutch"],
-    help="Requested setting.",
-)
-parser_mv.set_defaults(func=moveto)
-
-
-def main():
+if __name__ == "__main__":
     setup_logging()
+
+    parser = argparse.ArgumentParser(usage=usage, description=__doc__)
+    subparsers = parser.add_subparsers(
+        help="Choose command.",
+        required=True,
+        dest="sub-command",
+    )
+
+    parser_init = subparsers.add_parser(
+        "initialise",
+        description="Initialise extruder on beamline I24.",
+    )
+    parser_init.set_defaults(func=initialise_extruderi24)
+    parser_run = subparsers.add_parser(
+        "run",
+        description="Run extruder on I24.",
+    )
+    parser_run.set_defaults(func=run_extruderi24)
+    parser_mv = subparsers.add_parser(
+        "moveto",
+        description="Move extruder to requested setting on I24.",
+    )
+    parser_mv.add_argument(
+        "place",
+        type=str,
+        choices=["laseron", "laseroff", "enterhutch"],
+        help="Requested setting.",
+    )
+    parser_mv.set_defaults(func=moveto)
+
     args = parser.parse_args()
     args.func(args)
-
-
-if __name__ == "__main__":
-    main()

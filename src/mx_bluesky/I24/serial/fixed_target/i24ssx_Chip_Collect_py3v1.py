@@ -29,15 +29,6 @@ from mx_bluesky.I24.serial.write_nexus import call_nexgen
 logger = logging.getLogger("I24ssx.fixed_target")
 
 usage = "%(prog)s [options]"
-parser = argparse.ArgumentParser(usage=usage, description=__doc__)
-parser.add_argument(
-    "-l",
-    "--loc",
-    type=str,
-    choices=["i24", "SACLA"],
-    default="i24",
-    help="Location of collection.",
-)
 
 
 def setup_logging():
@@ -693,10 +684,7 @@ def finish_sacla():
     return end_time
 
 
-def main():
-    setup_logging()
-    args = parser.parse_args()
-
+def main(args):
     location = args.loc
     print("Location is", location, "Starting")
     # ABORT BUTTON
@@ -895,4 +883,17 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    setup_logging()
+
+    parser = argparse.ArgumentParser(usage=usage, description=__doc__)
+    parser.add_argument(
+        "-l",
+        "--loc",
+        type=str,
+        choices=["i24", "SACLA"],
+        default="i24",
+        help="Location of collection.",
+    )
+
+    args = parser.parse_args()
+    main(args)
