@@ -388,7 +388,6 @@ def write_file(
 ):
     name = inspect.stack()[0][3]
     logger.info("%s" % name)
-    a_directory = PARAM_FILE_PATH_FT
     if location == "i24":
         (
             chip_name,
@@ -403,10 +402,12 @@ def write_file(
             dcdetdist,
             prepumpexptime,
         ) = scrape_parameter_file("i24", param_file_path)
+        a_directory = Path("/dls_sw/i24/scripts/fastchips/")
     elif location == "SACLA":
         chip_name, sub_dir, n_exposures, chip_type, map_type = scrape_parameter_file(
             param_path=param_file_path
         )
+        a_directory = Path("/localhome/local/Documents/sacla/")
     else:
         logger.warning("%s Unknown location, %s" % (name, location))
         print("Unknown location in write_file")
@@ -442,7 +443,6 @@ def check_files(
     param_file_path: Path | str = PARAM_FILE_PATH_FT,
 ):
     name = inspect.stack()[0][3]
-    a_directory = PARAM_FILE_PATH_FT
     if location == "i24":
         (
             chip_name,
@@ -459,10 +459,12 @@ def check_files(
             prepumpexptime,
             det_type,
         ) = scrape_parameter_file("i24", param_path=param_file_path)
+        a_directory = Path("/dls_sw/i24/scripts/fastchips/")
     elif location == "SACLA":
         chip_name, sub_dir, n_exposures, chip_type, map_type = scrape_parameter_file(
             param_path=param_file_path
         )
+        a_directory = Path("/localhome/local/Documents/sacla/")
 
     else:
         logger.warning("%s Unknown location, %s" % (name, location))
@@ -489,7 +491,6 @@ def write_headers(
     location: str, suffix_list: List[str], param_file_path=PARAM_FILE_PATH_FT
 ):
     name = inspect.stack()[0][3]
-    a_directory = PARAM_FILE_PATH_FT
     if location == "i24":
         (
             chip_name,
@@ -506,10 +507,12 @@ def write_headers(
             prepumpexptime,
             det_type,
         ) = scrape_parameter_file("i24", param_path=PARAM_FILE_PATH_FT)
+        a_directory = Path("/dls_sw/i24/scripts/fastchips/")
     elif location == "SACLA":
         chip_name, sub_dir, n_exposures, chip_type, map_type = scrape_parameter_file(
             param_path=PARAM_FILE_PATH_FT
         )
+        a_directory = Path("/localhome/local/Documents/sacla/")
     chip_file_path = a_directory / f"chips/{sub_dir}/{chip_name}"
 
     if location == "i24":
