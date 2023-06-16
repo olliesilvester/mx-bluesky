@@ -1,4 +1,7 @@
+import argparse
 from unittest.mock import mock_open, patch
+
+import pytest
 
 from mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2 import (
     initialise_extruderi24,
@@ -18,6 +21,18 @@ det_type eiger
 pump_probe false
 pump_exp 0
 pump_delay 0"""
+
+
+@pytest.fixture
+def dummy_parser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "place",
+        type=str,
+        choices=["laseron", "laseroff", "enterhutch"],
+        help="Requested setting.",
+    )
+    yield parser
 
 
 @patch(
@@ -45,26 +60,29 @@ def test_initialise_extruder(fake_det, fake_caput, fake_caget):
 
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
-def test_moveto_enterhutch(fake_caget, fake_caput):
-    moveto("enterhutch")
+def test_moveto_enterhutch(fake_caget, fake_caput, dummy_parser):
+    fake_args = dummy_parser.parse_args(["enterhutch"])
+    moveto(fake_args)
     assert fake_caget.call_count == 1
     assert fake_caput.call_count == 1
 
 
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
-def test_moveto_laseron_for_eiger(fake_caget, fake_caput):
+def test_moveto_laseron_for_eiger(fake_caget, fake_caput, dummy_parser):
     fake_caget.return_value = "eiger"
-    moveto("laseron")
+    fake_args = dummy_parser.parse_args(["laseron"])
+    moveto(fake_args)
     assert fake_caget.call_count == 1
     assert fake_caput.call_count == 2
 
 
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
-def test_moveto_laseroff_for_pilatus(fake_caget, fake_caput):
+def test_moveto_laseroff_for_pilatus(fake_caget, fake_caput, dummy_parser):
     fake_caget.return_value = "pilatus"
-    moveto("laseroff")
+    fake_args = dummy_parser.parse_args(["laseroff"])
+    moveto(fake_args)
     assert fake_caget.call_count == 1
     assert fake_caput.call_count == 2
 

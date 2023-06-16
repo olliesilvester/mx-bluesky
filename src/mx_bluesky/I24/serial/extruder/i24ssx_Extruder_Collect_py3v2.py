@@ -35,7 +35,7 @@ def flush_print(text):
     sys.stdout.flush()
 
 
-def initialise_extruderi24(args):
+def initialise_extruderi24(args=None):
     name = inspect.stack()[0][3]
     print("Initialise Parameters for extruder data collection")
     logger.info("%s I24 extruder initialisation" % name)
@@ -202,7 +202,7 @@ def scrape_parameter_file(param_path: Path | str = PARAM_FILE_PATH):
     )
 
 
-def run_extruderi24(args):
+def run_extruderi24(args=None):
     print("Starting i24")
     name = inspect.stack()[0][3]
     logger.info("%s" % name)
