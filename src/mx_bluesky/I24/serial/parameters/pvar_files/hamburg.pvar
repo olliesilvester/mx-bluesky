@@ -1,0 +1,18 @@
+# Clear
+P3000..3999=0
+# Switch all blocks on
+P3011,9,10=1
+# Set all the x columns
+P3012,3,10=0
+P3042,3,10=8.580
+P3072,3,10=17.160
+# Y-start pvar, number of down columns, 10*2*3
+# [x*2.5 for x in range(3)]
+P3013,2,60=0.0
+P3023,2,60=8.580
+P3033,2,60=17.160
+# [(52*0.150) + (x*8.580) for x in range(3)] 
+# Y-start
+P3044=24.96
+P3054=16.38
+P3064=7.80
