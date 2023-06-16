@@ -8,6 +8,7 @@ import logging
 import os
 import sys
 import time
+from pathlib import Path
 from time import sleep
 
 import numpy as np
@@ -15,6 +16,12 @@ import numpy as np
 from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_Mapping_py3v1 as mapping
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_StartUp_py3v1 as startup
+from mx_bluesky.I24.serial.parameters.constants import (
+    FULLMAP_PATH,
+    LITEMAP_PATH,
+    PARAM_FILE_PATH_FT,
+    PVAR_FILE_PATH,
+)
 from mx_bluesky.I24.serial.setup_beamline import caget, caput, pv
 from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
 
@@ -88,14 +95,15 @@ def initialise():
     logger.info("%s Complete" % name)
 
 
-def write_parameter_file():
+def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
     name = inspect.stack()[0][3]
 
-    param_path = "/dls_sw/i24/scripts/fastchips/parameter_files/"
-    # param_path = '/localhome/local/Documents/sacla/parameter_files/'
+    if not isinstance(param_path, Path):
+        param_path = Path(param_path)
+
     param_fid = "parameters.txt"
-    logger.info("%s Writing Parameter File \n%s" % (name, param_path + param_fid))
-    print("Writing Parameter File\n", param_path + param_fid)
+    logger.info("%s Writing Parameter File \n%s" % (name, param_path / param_fid))
+    print("Writing Parameter File\n", param_path / param_fid)
 
     visit = caget(pv.me14e_gp100)
 
@@ -128,11 +136,7 @@ def write_parameter_file():
     if str(chip_type) == "3":
         chip_type = "1"
 
-    # filenames = [
-    #    param_path + param_fid,
-    #    os.path.join([visit, "processing", protein_name, chip_name]),
-    # ]
-    with open(param_path + param_fid, "w") as f:
+    with open(param_path / param_fid, "w") as f:
         f.write("visit \t\t%s\n" % visit)
         f.write("chip_name \t%s\n" % chip_name)
         f.write("protein_name \t%s\n" % protein_name)
@@ -174,12 +178,12 @@ def write_parameter_file():
     print("\n", "Write parameter file done", "\n")
 
 
-def scrape_pvar_file(fid):
+def scrape_pvar_file(fid: str, pvar_dir: Path | str = PVAR_FILE_PATH):
     block_start_list = []
-    pvar_dir = (
-        "/dls_sw/work/R3.14.12.3/ioc/ME14E/ME14E-MO-IOC-01/ME14E-MO-IOC-01App/scripts/"
-    )
-    with open(pvar_dir + fid, "r") as f:
+    if not isinstance(pvar_dir, Path):
+        pvar_dir = Path(pvar_dir)
+
+    with open(pvar_dir / fid, "r") as f:
         lines = f.readlines()
     for line in lines:
         line = line.rstrip()
@@ -200,7 +204,7 @@ def scrape_pvar_file(fid):
     return block_start_list
 
 
-def define_current_chip(chipid):
+def define_current_chip(chipid: str, param_path: Path | str = PVAR_FILE_PATH):
     name = inspect.stack()[0][3]
     load_stock_map("Just The First Block")
     """
@@ -216,9 +220,10 @@ def define_current_chip(chipid):
     elif chipid == "oxford":
         caput(pv.me14e_gp1, 1)
 
-    param_path = "/dls_sw/i24/scripts/fastchips/parameter_files/"
-    # param_path = '/localhome/local/Documents/sacla/parameter_files/'
-    with open(param_path + chipid + ".pvar", "r") as f:
+    if not isinstance(param_path, Path):
+        param_path = Path(param_path)
+
+    with open(param_path / f"{chipid}.pvar", "r") as f:
         logger.info("%s Opening %s%s.pvar" % (name, param_path, chipid))
         for line in f.readlines():
             if line.startswith("#"):
@@ -231,13 +236,14 @@ def define_current_chip(chipid):
     print(10 * "Done ")
 
 
-def save_screen_map():
+def save_screen_map(litemap_path: Path | str = LITEMAP_PATH):
     name = inspect.stack()[0][3]
-    litemap_path = "/dls_sw/i24/scripts/fastchips/litemaps/"
-    # litemap_path = '/localhome/local/Documents/sacla/parameter_files/'
-    print("\n\nSaving", litemap_path + "currentchip.map")
+    if not isinstance(litemap_path, Path):
+        litemap_path = Path(litemap_path)
+
+    print("\n\nSaving", litemap_path / "currentchip.map")
     logger.info("%s Saving %s currentchip.map" % (name, litemap_path))
-    with open(litemap_path + "currentchip.map", "w") as f:
+    with open(litemap_path / "currentchip.map", "w") as f:
         print("Printing only blocks with block_val == 1")
         logger.info("%s Printing only blocks with block_val == 1" % name)
         for x in range(1, 82):
@@ -253,7 +259,7 @@ def save_screen_map():
     return 0
 
 
-def upload_parameters(chipid):
+def upload_parameters(chipid: str, litemap_path: Path | str = LITEMAP_PATH):
     name = inspect.stack()[0][3]
     logger.info("%s Uploading Parameters to the GeoBrick" % (name))
     if chipid == "toronto":
@@ -262,9 +268,10 @@ def upload_parameters(chipid):
     elif chipid == "oxford":
         caput(pv.me14e_gp1, 1)
         width = 8
-    litemap_path = "/dls_sw/i24/scripts/fastchips/litemaps/"
-    # litemap_path = '/localhome/local/Documents/sacla/parameter_files/'
-    with open(litemap_path + "currentchip.map", "r") as f:
+    if not isinstance(litemap_path, Path):
+        litemap_path = Path(litemap_path)
+
+    with open(litemap_path / "currentchip.map", "r") as f:
         print("chipid", chipid)
         print(width)
         logger.info("%s chipid %s" % (name, chipid))
@@ -294,16 +301,17 @@ def upload_parameters(chipid):
     logger.info("%s %s" % (name, 10 * "Done"))
 
 
-def upload_full():
+def upload_full(fullmap_path: Path | str = FULLMAP_PATH):
     name = inspect.stack()[0][3]
-    fullmap_path = "/dls_sw/i24/scripts/fastchips/fullmaps/"
-    # fullmap_path = '/localhome/local/Documents/sacla/parameter_files/'
-    with open(fullmap_path + "currentchip.full", "r") as fh:
+    if not isinstance(fullmap_path, Path):
+        fullmap_path = Path(fullmap_path)
+
+    with open(fullmap_path / "currentchip.full", "r") as fh:
         f = fh.readlines()
 
-    for x in range(len(f) / 2):
+    for _ in range(len(f) // 2):
         pmac_list = []
-        for i in range(2):
+        for _ in range(2):
             pmac_list.append(f.pop(0).rstrip("\n"))
         writeline = " ".join(pmac_list)
         print(writeline)
@@ -518,7 +526,7 @@ def load_stock_map(map_choice):
     print(10 * "Done ")
 
 
-def load_lite_map():
+def load_lite_map(litemap_path: Path | str = LITEMAP_PATH):
     name = inspect.stack()[0][3]
     load_stock_map("clear")
     # fmt: off
@@ -582,14 +590,15 @@ def load_lite_map():
                 # print button_name, btn_names[button_name]
         block_dict = btn_names
 
-    # litemap_path = '/dls_sw/i24/scripts/fastchips/litemaps/'
-    litemap_path = "/localhome/local/Documents/sacla/parameter_files/"
+    if not isinstance(litemap_path, Path):
+        litemap_path = Path(litemap_path)
+
     litemap_fid = str(caget(pv.me14e_gp5)) + ".lite"
     print("Please wait, loading LITE map")
-    print("Opening", litemap_path + litemap_fid)
+    print("Opening", litemap_path / litemap_fid)
     logger.info("%s Loading Lite Map" % name)
-    logger.info("%s Opening %s" % (name, litemap_path + litemap_fid))
-    with open(litemap_path + litemap_fid, "r") as fh:
+    logger.info("%s Opening %s" % (name, litemap_path / litemap_fid))
+    with open(litemap_path / litemap_fid, "r") as fh:
         f = fh.readlines()
     for line in f:
         entry = line.split()
@@ -603,7 +612,7 @@ def load_lite_map():
     print(10 * "Done ")
 
 
-def load_full_map(location="SACLA"):
+def load_full_map(location: str = "SACLA", fullmap_path: Path | str = FULLMAP_PATH):
     name = inspect.stack()[0][3]
     if location == "i24":
         (
@@ -622,20 +631,22 @@ def load_full_map(location="SACLA"):
             chip_type,
             map_type,
         ) = startup.scrape_parameter_file(location)
-    # fullmap_path = '/dls_sw/i24/scripts/fastchips/fullmaps/'
-    fullmap_path = "/localhome/local/Documents/sacla/parameter_files/"
-    fullmap_fid = fullmap_path + str(caget(pv.me14e_gp5)) + ".spec"
+    if not isinstance(fullmap_path, Path):
+        fullmap_path = Path(fullmap_path)
+
+    fullmap_fid = fullmap_path / f"{str(caget(pv.me14e_gp5))}.spec"
     print("opening", fullmap_fid)
     logger.info("%s opening %s" % (name, fullmap_fid))
     mapping.plot_file(fullmap_fid, chip_type)
     print("\n\n", 10 * "PNG ")
     mapping.convert_chip_to_hex(fullmap_fid, chip_type)
     os.system(
-        "cp %s %s" % (fullmap_fid[:-4] + "full", fullmap_path + "currentchip.full")
+        "cp %s %s"
+        % (fullmap_fid.with_suffix(".full"), fullmap_path / "currentchip.full")
     )
     logger.info(
         "%s cp %s %s"
-        % (name, fullmap_fid[:-4] + "full", fullmap_path + "currentchip.full")
+        % (name, fullmap_fid.with_suffix(".full"), fullmap_path / "currentchip.full")
     )
     print(10 * "Done ", "\n")
 
