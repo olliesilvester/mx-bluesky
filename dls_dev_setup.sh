@@ -1,4 +1,4 @@
-module load python/3.10
+#module load python/3.10
 
 if [ -d "./.venv" ]
 then

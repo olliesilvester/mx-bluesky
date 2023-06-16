@@ -8,14 +8,15 @@ from __future__ import annotations
 import argparse
 import inspect
 import logging
-import pathlib
 import sys
 import time
 from datetime import datetime
+from pathlib import Path
 from time import sleep
 
 from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.dcid import DCID, SSXType
+from mx_bluesky.I24.serial.parameters.constants import PARAM_FILE_PATH_EX
 from mx_bluesky.I24.serial.setup_beamline import caget, caput, pv
 from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
 from mx_bluesky.I24.serial.write_nexus import call_nexgen
@@ -86,14 +87,15 @@ def moveto(place):
         caput(pv.det_z, 1480)
 
 
-def write_parameter_file():
+def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_EX):
     name = inspect.stack()[0][3]
 
-    param_path = "/dls_sw/i24/scripts/extruder/"
+    if not isinstance(param_path, Path):
+        param_path = Path(param_path)
     param_fid = "parameters.txt"
 
-    logger.info("%s Writing Parameter File \n%s" % (name, param_path + param_fid))
-    print("\nWriting Parameter File   ", param_path + param_fid)
+    logger.info("%s Writing Parameter File \n%s" % (name, param_path / param_fid))
+    print("\nWriting Parameter File   ", param_path / param_fid)
 
     visit = caget(pv.ioc12_gp1)
     directory = caget(pv.ioc12_gp2)
@@ -120,7 +122,7 @@ def write_parameter_file():
             print("Requested filename ends in a number. Appended dash:", filename)
             logger.info("%s Requested filename ends in a number. Appended dash")
 
-    with open(param_path + param_fid, "w") as f:
+    with open(param_path / param_fid, "w") as f:
         f.write("visit \t\t%s\n" % visit)
         f.write("directory \t%s\n" % directory)
         f.write("filename \t%s\n" % filename)
@@ -156,9 +158,11 @@ def write_parameter_file():
     print("pump_delay:", pump_delay)
 
 
-def scrape_parameter_file():
-    param_path = "/dls_sw/i24/scripts/extruder/"
-    with open(param_path + "parameters.txt", "r") as filein:
+def scrape_parameter_file(param_path: Path | str = PARAM_FILE_PATH_EX):
+    if not isinstance(param_path, Path):
+        param_path = Path(param_path)
+
+    with open(param_path / "parameters.txt", "r") as filein:
         f = filein.readlines()
     for line in f:
         entry = line.rstrip().split()
@@ -336,7 +340,7 @@ def run_extruderi24():
     dcid = DCID(
         emit_errors=False,
         ssx_type=SSXType.EXTRUDER,
-        visit=pathlib.Path(visit).name,
+        visit=Path(visit).name,
         image_dir=filepath,
         start_time=start_time,
         num_images=num_imgs,
