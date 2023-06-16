@@ -2,6 +2,7 @@
 Chip manager for fixed target
 This version changed to python3 March2020 by RLO
 """
+from __future__ import annotations
 
 import inspect
 import logging
