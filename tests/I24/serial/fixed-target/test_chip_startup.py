@@ -1,6 +1,7 @@
 from unittest.mock import mock_open, patch
 
 from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1 import (
+    check_files,
     fiducials,
     get_format,
     scrape_parameter_file,
@@ -42,3 +43,12 @@ def test_get_format():
     # oxford chip
     fmt = get_format("1")
     assert fmt == [8, 8, 20, 20, 0.125, 0.800, 0.800]
+
+
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1.os")
+@patch(
+    "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1.open",
+    mock_open(read_data=params_file_str),
+)
+def test_check_files(mock_os):
+    check_files("i24", [".a", ".b"])
