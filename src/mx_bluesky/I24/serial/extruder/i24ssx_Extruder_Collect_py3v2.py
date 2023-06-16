@@ -16,7 +16,7 @@ from time import sleep
 
 from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.dcid import DCID, SSXType
-from mx_bluesky.I24.serial.parameters.constants import PARAM_FILE_PATH_EX
+from mx_bluesky.I24.serial.parameters.constants import PARAM_FILE_PATH
 from mx_bluesky.I24.serial.setup_beamline import caget, caput, pv
 from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
 from mx_bluesky.I24.serial.write_nexus import call_nexgen
@@ -87,7 +87,7 @@ def moveto(place):
         caput(pv.det_z, 1480)
 
 
-def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_EX):
+def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH):
     name = inspect.stack()[0][3]
 
     if not isinstance(param_path, Path):
@@ -158,7 +158,7 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_EX):
     print("pump_delay:", pump_delay)
 
 
-def scrape_parameter_file(param_path: Path | str = PARAM_FILE_PATH_EX):
+def scrape_parameter_file(param_path: Path | str = PARAM_FILE_PATH):
     if not isinstance(param_path, Path):
         param_path = Path(param_path)
 
