@@ -8,14 +8,15 @@ from __future__ import annotations
 import inspect
 import logging
 import os
-import pathlib
 import string
 import time
-from typing import Dict
+from pathlib import Path
+from typing import Dict, List
 
 import numpy as np
 
 from mx_bluesky.I24.serial import log
+from mx_bluesky.I24.serial.parameters.constants import PARAM_FILE_PATH_FT
 
 logger = logging.getLogger("I24ssx.chip_startup")
 
@@ -26,10 +27,13 @@ def setup_logging():
     log.config(logfile)
 
 
-def scrape_parameter_file(location=None):
-    param_path = "/dls_sw/i24/scripts/fastchips/parameter_files/"
-    # param_path = '/localhome/local/Documents/sacla/parameter_files/'
-    with open(param_path + "parameters.txt", "r") as filein:
+def scrape_parameter_file(
+    location: str | None = None, param_path: Path | str = PARAM_FILE_PATH_FT
+):
+    if not isinstance(param_path, Path):
+        param_path = Path(param_path)
+
+    with open(param_path / "parameters.txt", "r") as filein:
         f = filein.readlines()
     for line in f:
         entry = line.rstrip().split()
@@ -84,7 +88,9 @@ def scrape_parameter_file(location=None):
         return chip_name, sub_dir, n_exposures, chip_type, map_type
 
 
-def read_parameters(filename: str | None = None) -> Dict[str, str]:
+def read_parameters(
+    param_path: Path | str = PARAM_FILE_PATH_FT, filename: str | None = None
+) -> Dict[str, str]:
     """
     Read the parameter file into a lookup dictionary.
 
@@ -98,9 +104,12 @@ def read_parameters(filename: str | None = None) -> Dict[str, str]:
     Returns:
         A dictionary with a string entry for every key in the file.
     """
-    data = pathlib.Path(
-        "/dls_sw/i24/scripts/fastchips/parameter_files/parameters.txt"
-    ).read_text()
+    if not isinstance(param_path, Path):
+        param_path = Path(param_path)
+    if filename is None:
+        filename = "parameters.txt"
+    datafile = param_path / filename
+    data = datafile.read_text()
     args = {}
     for line in data.splitlines():
         key, value = line.split(maxsplit=1)
@@ -371,9 +380,15 @@ def get_shot_order(chip_type):
     return collect_list
 
 
-def write_file(location="i24", suffix=".addr", order="alphanumeric"):
+def write_file(
+    location="i24",
+    suffix=".addr",
+    order="alphanumeric",
+    param_file_path=PARAM_FILE_PATH_FT,
+):
     name = inspect.stack()[0][3]
     logger.info("%s" % name)
+    a_directory = PARAM_FILE_PATH_FT
     if location == "i24":
         (
             chip_name,
@@ -387,15 +402,15 @@ def write_file(location="i24", suffix=".addr", order="alphanumeric"):
             exptime,
             dcdetdist,
             prepumpexptime,
-        ) = scrape_parameter_file("i24")
-        a_directory = "/dls_sw/i24/scripts/fastchips/"
+        ) = scrape_parameter_file("i24", param_file_path)
     elif location == "SACLA":
-        chip_name, sub_dir, n_exposures, chip_type, map_type = scrape_parameter_file()
-        a_directory = "/localhome/local/Documents/sacla/"
+        chip_name, sub_dir, n_exposures, chip_type, map_type = scrape_parameter_file(
+            param_path=param_file_path
+        )
     else:
         logger.warning("%s Unknown location, %s" % (name, location))
         print("Unknown location in write_file")
-    chip_file_path = a_directory + "chips/" + sub_dir + "/" + chip_name + suffix
+    chip_file_path = a_directory / f"chips/{sub_dir}/{chip_name}{suffix}"
 
     fiducial_list = fiducials(chip_type)
     if order == "alphanumeric":
@@ -421,8 +436,13 @@ def write_file(location="i24", suffix=".addr", order="alphanumeric"):
     logger.info("%s" % name)
 
 
-def check_files(location, suffix_list):
+def check_files(
+    location: str,
+    suffix_list: List[str],
+    param_file_path: Path | str = PARAM_FILE_PATH_FT,
+):
     name = inspect.stack()[0][3]
+    a_directory = PARAM_FILE_PATH_FT
     if location == "i24":
         (
             chip_name,
@@ -438,36 +458,38 @@ def check_files(location, suffix_list):
             dcdetdist,
             prepumpexptime,
             det_type,
-        ) = scrape_parameter_file("i24")
-        a_directory = "/dls_sw/i24/scripts/fastchips/"
+        ) = scrape_parameter_file("i24", param_path=param_file_path)
     elif location == "SACLA":
-        chip_name, sub_dir, n_exposures, chip_type, map_type = scrape_parameter_file()
-        a_directory = "/localhome/local/Documents/sacla/"
+        chip_name, sub_dir, n_exposures, chip_type, map_type = scrape_parameter_file(
+            param_path=param_file_path
+        )
 
     else:
         logger.warning("%s Unknown location, %s" % (name, location))
         print("Unknown location in write_file")
-    chip_file_path = a_directory + "chips/" + sub_dir + "/" + chip_name
+    chip_file_path = a_directory / f"chips/{sub_dir}/{chip_name}"
 
     try:
         os.stat(chip_file_path)
     except Exception:
         os.makedirs(chip_file_path)
     for suffix in suffix_list:
-        full_fid = chip_file_path + suffix
-        if os.path.isfile(full_fid):
+        full_fid = chip_file_path.with_suffix(suffix)
+        if full_fid.is_file():
             time_str = time.strftime("%Y%m%d_%H%M%S_")
-            timestamp_fid = full_fid.replace(chip_name, time_str + "_" + chip_name)
+            timestamp_fid = full_fid.parent / f"{time_str}_{chip_name}{full_fid.suffix}"
             print("FIX ME")
             # hack / fix
-            # os.rename(full_fid, timestamp_fid)
             print("Already exists ... moving old file:", timestamp_fid)
             logger.info("%s File Already Exists\n -->%s" % (name, timestamp_fid))
     return 1
 
 
-def write_headers(location, suffix_list):
+def write_headers(
+    location: str, suffix_list: List[str], param_file_path=PARAM_FILE_PATH_FT
+):
     name = inspect.stack()[0][3]
+    a_directory = PARAM_FILE_PATH_FT
     if location == "i24":
         (
             chip_name,
@@ -483,16 +505,16 @@ def write_headers(location, suffix_list):
             dcdetdist,
             prepumpexptime,
             det_type,
-        ) = scrape_parameter_file("i24")
-        a_directory = "/dls_sw/i24/scripts/fastchips/"
+        ) = scrape_parameter_file("i24", param_path=PARAM_FILE_PATH_FT)
     elif location == "SACLA":
-        chip_name, sub_dir, n_exposures, chip_type, map_type = scrape_parameter_file()
-        a_directory = "/localhome/local/Documents/sacla/"
-    chip_file_path = a_directory + "chips/" + sub_dir + "/" + chip_name
+        chip_name, sub_dir, n_exposures, chip_type, map_type = scrape_parameter_file(
+            param_path=PARAM_FILE_PATH_FT
+        )
+    chip_file_path = a_directory / f"chips/{sub_dir}/{chip_name}"
 
     if location == "i24":
         for suffix in suffix_list:
-            full_fid = chip_file_path + suffix
+            full_fid = chip_file_path.with_suffix(suffix)
             with open(full_fid, "w") as g:
                 g.write(
                     "#23456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\n#\n"
@@ -516,7 +538,7 @@ def write_headers(location, suffix_list):
 
     elif location == "SACLA":
         for suffix in suffix_list:
-            full_fid = chip_file_path + suffix
+            full_fid = chip_file_path.with_suffix(suffix)
             with open(full_fid, "w") as g:
                 g.write(
                     "#23456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\n#\n"

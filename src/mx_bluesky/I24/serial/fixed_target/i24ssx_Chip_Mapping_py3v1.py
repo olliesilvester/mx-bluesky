@@ -19,6 +19,7 @@ from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1 import (
     scrape_parameter_file,
     write_file,
 )
+from mx_bluesky.I24.serial.parameters.constants import PARAM_FILE_PATH_FT
 
 logger = logging.getLogger("I24ssx.chip_mapping")
 
@@ -180,10 +181,9 @@ def main():
     check_files([".spec"])
     write_file(suffix=".spec", order="shot")
 
-    param_path = "/dls_sw/i24/scripts/fastchips/parameter_files/"
-    logger.info("%s PARAMETER PATH = %s" % (name, param_path))
-    print("param_path", param_path)
-    fid = param_path + chip_name + ".spec"
+    logger.info("%s PARAMETER PATH = %s" % (name, PARAM_FILE_PATH_FT))
+    print("param_path", PARAM_FILE_PATH_FT)
+    fid = PARAM_FILE_PATH_FT / f"{chip_name}.spec"
     logger.info("%s FID = %s" % (name, fid))
     print("FID", fid)
 

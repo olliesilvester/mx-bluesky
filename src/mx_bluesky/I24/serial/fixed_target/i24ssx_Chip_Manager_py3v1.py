@@ -842,20 +842,21 @@ def moveto(place):
         caput(pv.me14e_pmac_str, " M812=0 M811=1")
 
 
-def scrape_mtr_directions():
+def scrape_mtr_directions(param_path: Path | str = PARAM_FILE_PATH_FT):
     name = inspect.stack()[0][3]
-    param_path = "/dls_sw/i24/scripts/fastchips/parameter_files/"
-    # param_path = '/localhome/local/Documents/sacla/parameter_files/'
-    with open(param_path + "motor_direction.txt", "r") as f:
+    if not isinstance(param_path, Path):
+        param_path = Path(param_path)
+
+    with open(param_path / "motor_direction.txt", "r") as f:
         lines = f.readlines()
-    mtr1_dir, mtr2_dir, mtr3_dir = 1, 1, 1
+    mtr1_dir, mtr2_dir, mtr3_dir = 1.0, 1.0, 1.0
     for line in lines:
         if line.startswith("mtr1"):
-            mtr1_dir = float(int(line.split("=")[1]))
+            mtr1_dir = float(line.split("=")[1])
         elif line.startswith("mtr2"):
-            mtr2_dir = float(int(line.split("=")[1]))
+            mtr2_dir = float(line.split("=")[1])
         elif line.startswith("mtr3"):
-            mtr3_dir = float(int(line.split("=")[1]))
+            mtr3_dir = float(line.split("=")[1])
         else:
             continue
     logger.info(
@@ -864,13 +865,13 @@ def scrape_mtr_directions():
     return mtr1_dir, mtr2_dir, mtr3_dir
 
 
-def fiducial(point):
+def fiducial(point: int, param_path: Path | str = PARAM_FILE_PATH_FT):
     name = inspect.stack()[0][3]
     scale = 10000.0  # noqa: F841
-    param_path = "/dls_sw/i24/scripts/fastchips/parameter_files/"
-    # param_path = '/localhome/local/Documents/sacla/parameter_files/'
+    if not isinstance(param_path, Path):
+        param_path = Path(param_path)
 
-    mtr1_dir, mtr2_dir, mtr3_dir = scrape_mtr_directions()
+    mtr1_dir, mtr2_dir, mtr3_dir = scrape_mtr_directions(param_path)
 
     rbv_1 = float(caget(pv.me14e_stage_x + ".RBV"))
     rbv_2 = float(caget(pv.me14e_stage_y + ".RBV"))
@@ -900,7 +901,7 @@ def fiducial(point):
     logger.info("%s MTR2\t%1.4f\t%i\t%i\t%1.4f" % (name, rbv_2, raw_2, mtr2_dir, f_y))
     logger.info("%s MTR3\t%1.4f\t%i\t%i\t%1.4f" % (name, rbv_3, raw_3, mtr3_dir, f_y))
 
-    with open(param_path + "fiducial_%s.txt" % point, "w") as f:
+    with open(param_path / f"fiducial_{point}txt", "w") as f:
         f.write("MTR\tRBV\tRAW\tCorr\tf_value\n")
         f.write("MTR1\t%1.4f\t%i\t%i\t%1.4f\n" % (rbv_1, raw_1, mtr1_dir, f_x))
         f.write("MTR2\t%1.4f\t%i\t%i\t%1.4f\n" % (rbv_2, raw_2, mtr2_dir, f_y))
@@ -908,10 +909,11 @@ def fiducial(point):
     print(10 * "Done ")
 
 
-def scrape_mtr_fiducials(point):
-    param_path = "/dls_sw/i24/scripts/fastchips/parameter_files/"
-    # param_path = '/localhome/local/Documents/sacla/parameter_files/'
-    with open(param_path + "fiducial_%i.txt" % point, "r") as f:
+def scrape_mtr_fiducials(point: int, param_path: Path | str = PARAM_FILE_PATH_FT):
+    if not isinstance(param_path, Path):
+        param_path = Path(param_path)
+
+    with open(param_path / f"fiducial_{point}.txt", "r") as f:
         f_lines = f.readlines()[1:]
     f_x = float(f_lines[0].rsplit()[4])
     f_y = float(f_lines[1].rsplit()[4])
