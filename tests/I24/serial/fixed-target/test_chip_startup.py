@@ -45,6 +45,11 @@ def test_get_format():
     assert fmt == [8, 8, 20, 20, 0.125, 0.800, 0.800]
 
 
+def test_get_format_for_custom_chip():
+    fmt = get_format("6")
+    assert fmt == [1, 1, 20, 20, 0.1, 0, 0]
+
+
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1.os")
 @patch(
     "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1.open",

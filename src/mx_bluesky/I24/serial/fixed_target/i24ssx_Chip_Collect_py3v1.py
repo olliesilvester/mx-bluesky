@@ -22,6 +22,7 @@ from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1 import (
     get_format,
     scrape_parameter_file,
 )
+from mx_bluesky.I24.serial.parameters.constants import LITEMAP_PATH
 from mx_bluesky.I24.serial.setup_beamline import caget, cagetstring, caput, pv
 from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
 from mx_bluesky.I24.serial.write_nexus import call_nexgen
@@ -316,7 +317,7 @@ def datasetsizei24():
     elif map_type == "1":
         chip_format = get_format(chip_type)[2:4]
         block_count = 0
-        with open("/dls_sw/i24/scripts/fastchips/litemaps/currentchip.map", "r") as f:
+        with open(LITEMAP_PATH / "currentchip.map", "r") as f:
             for line in f.readlines():
                 entry = line.split()
                 if entry[2] == "1":
