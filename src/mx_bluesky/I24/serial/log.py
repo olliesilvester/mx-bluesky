@@ -58,7 +58,7 @@ def _get_logging_file_path() -> Path:
     return logging_path
 
 
-def config(logfile: str | None = None, write_mode: str = "a"):
+def config(logfile: str | None = None, write_mode: str = "a", delayed: bool = False):
     """
     Configure the logging.
 
@@ -75,7 +75,7 @@ def config(logfile: str | None = None, write_mode: str = "a"):
             "%(asctime)s %(levelname)s:   \t%(message)s",
             datefmt="%d-%m-%Y %I:%M:%S",
         )
-        FH = logging.FileHandler(logs, mode=write_mode, encoding="utf-8")
+        FH = logging.FileHandler(logs, mode=write_mode, encoding="utf-8", delay=delayed)
         FH.setLevel(logging.DEBUG)
         FH.setFormatter(fileFormatter)
         logger.addHandler(FH)

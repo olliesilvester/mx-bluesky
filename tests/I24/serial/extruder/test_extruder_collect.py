@@ -50,7 +50,8 @@ def test_scrape_parameter_file():
 @patch(
     "mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sup.get_detector_type"
 )
-def test_initialise_extruder(fake_det, fake_caput, fake_caget):
+@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.logger")
+def test_initialise_extruder(fake_log, fake_det, fake_caput, fake_caget):
     fake_caget.return_value = "/path/to/visit"
     fake_det.return_value = Eiger()
     initialise_extruderi24()
