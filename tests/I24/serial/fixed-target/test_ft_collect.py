@@ -6,6 +6,7 @@ from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1 import (
     datasetsizei24,
     get_chip_prog_values,
     get_prog_num,
+    start_i24,
 )
 
 params = {
@@ -49,14 +50,6 @@ def test_datasetsizei24_for_one_block_and_two_exposures(
     assert tot_num_imgs == 800
 
 
-@patch(
-    "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.scrape_parameter_file"
-)
-def test_start_i24(fake_params):
-    fake_params.return_value = tuple(params.values())
-    pass
-
-
 def test_get_chip_prog_values():
     chip_dict = get_chip_prog_values(
         "1",
@@ -84,3 +77,24 @@ def test_get_chip_prog_values():
 )
 def test_get_prog_number(chip_type, map_type, pump_repeat, expected_prog):
     assert get_prog_num(chip_type, map_type, pump_repeat) == expected_prog
+
+
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.datasetsizei24")
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.DCID")
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.caput")
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.caget")
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.sup")
+@patch(
+    "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.scrape_parameter_file"
+)
+def test_start_i24_with_eiger(
+    fake_params, fake_sup, fake_caget, fake_caput, fake_dcid, fake_size
+):
+    fake_size.return_value = 800
+    fake_params.return_value = tuple(params.values())
+    start_i24()
+    assert fake_sup.beamline.call_count == 2
+    assert fake_sup.eiger.call_count == 1
+    # Pilatus gets called for hack to create directory
+    assert fake_sup.pilatus.call_count == 2
+    assert fake_dcid.call_count == 1
