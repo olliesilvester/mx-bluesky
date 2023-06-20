@@ -1,9 +1,60 @@
+from unittest.mock import mock_open, patch
+
 import pytest
 
 from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1 import (
+    datasetsizei24,
     get_chip_prog_values,
     get_prog_num,
 )
+
+params = {
+    "chip_name": "chip",
+    "visit": "foo",
+    "sub_dir": "bar",
+    "n_exposures": 1,
+    "chip_type": "1",
+    "map_type": "1",
+    "pump_repeat": "0",
+    "pumpexptime": 0,
+    "pumpdelay": 0,
+    "exptime": 0.01,
+    "dcdetdist": 100,
+    "prepumpexptime": 0,
+    "det_type": "eiger",
+}
+
+
+chipmap_str = """01status    P3011       1
+02status    P3021       0
+03status    P3031       0
+04status    P3041       0"""
+
+
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.caput")
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.caget")
+@patch(
+    "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.scrape_parameter_file"
+)
+def test_datasetsizei24_for_one_block_and_two_exposures(
+    fake_params, fake_caget, fake_caput
+):
+    fake_params.return_value = tuple(params.values())
+    fake_caget.return_value = 2
+    with patch(
+        "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.open",
+        mock_open(read_data=chipmap_str),
+    ):
+        tot_num_imgs = datasetsizei24()
+    assert tot_num_imgs == 800
+
+
+@patch(
+    "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.scrape_parameter_file"
+)
+def test_start_i24(fake_params):
+    fake_params.return_value = tuple(params.values())
+    pass
 
 
 def test_get_chip_prog_values():
