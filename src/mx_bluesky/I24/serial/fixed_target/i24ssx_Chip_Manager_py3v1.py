@@ -310,9 +310,9 @@ def upload_full(fullmap_path: Path | str = FULLMAP_PATH):
     with open(fullmap_path / "currentchip.full", "r") as fh:
         f = fh.readlines()
 
-    for _ in range(len(f) // 2):
+    for i in range(len(f) // 2):
         pmac_list = []
-        for _ in range(2):
+        for j in range(2):
             pmac_list.append(f.pop(0).rstrip("\n"))
         writeline = " ".join(pmac_list)
         print(writeline)
@@ -1240,7 +1240,7 @@ def main(args):
 
     else:
         print("Unknown Command")
-        logger.warning("Unknown Command" % name)
+        logger.warning("%s Unknown Command" % name)
 
 
 if __name__ == "__main__":
