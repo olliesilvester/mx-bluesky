@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import inspect
 import logging
-import os
+import shutil
 import sys
 import time
 from pathlib import Path
@@ -639,12 +639,9 @@ def load_full_map(location: str = "SACLA", fullmap_path: Path | str = FULLMAP_PA
     mapping.plot_file(fullmap_fid, chip_type)
     print("\n\n", 10 * "PNG ")
     mapping.convert_chip_to_hex(fullmap_fid, chip_type)
-    os.system(
-        "cp %s %s"
-        % (fullmap_fid.with_suffix(".full"), fullmap_path / "currentchip.full")
-    )
+    shutil.copy2(fullmap_fid.with_suffix(".full"), fullmap_path / "currentchip.full")
     logger.info(
-        "%s cp %s %s"
+        "%s copying %s to %s"
         % (name, fullmap_fid.with_suffix(".full"), fullmap_path / "currentchip.full")
     )
     print(10 * "Done ", "\n")
