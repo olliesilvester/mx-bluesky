@@ -902,7 +902,7 @@ def fiducial(point: int, param_path: Path | str = PARAM_FILE_PATH_FT):
     logger.info("%s MTR2\t%1.4f\t%i\t%i\t%1.4f" % (name, rbv_2, raw_2, mtr2_dir, f_y))
     logger.info("%s MTR3\t%1.4f\t%i\t%i\t%1.4f" % (name, rbv_3, raw_3, mtr3_dir, f_y))
 
-    with open(param_path / f"fiducial_{point}txt", "w") as f:
+    with open(param_path / f"fiducial_{point}.txt", "w") as f:
         f.write("MTR\tRBV\tRAW\tCorr\tf_value\n")
         f.write("MTR1\t%1.4f\t%i\t%i\t%1.4f\n" % (rbv_1, raw_1, mtr1_dir, f_x))
         f.write("MTR2\t%1.4f\t%i\t%i\t%1.4f\n" % (rbv_2, raw_2, mtr2_dir, f_y))
