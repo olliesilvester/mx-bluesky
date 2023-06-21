@@ -1,4 +1,7 @@
+import argparse
 from unittest.mock import mock_open, patch
+
+import pytest
 
 from mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2 import (
     initialise_extruderi24,
@@ -20,6 +23,18 @@ pump_exp 0
 pump_delay 0"""
 
 
+@pytest.fixture
+def dummy_parser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "place",
+        type=str,
+        choices=["laseron", "laseroff", "enterhutch"],
+        help="Requested setting.",
+    )
+    yield parser
+
+
 @patch(
     "mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.open",
     mock_open(read_data=params_file_str),
@@ -30,22 +45,47 @@ def test_scrape_parameter_file():
     assert len(res) == 10
 
 
+@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
 @patch(
     "mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sup.get_detector_type"
 )
-def test_initialise_extruder(fake_det, fake_caput):
+@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.logger")
+def test_initialise_extruder(fake_log, fake_det, fake_caput, fake_caget):
+    fake_caget.return_value = "/path/to/visit"
     fake_det.return_value = Eiger()
     initialise_extruderi24()
-    assert fake_caput.call_count == 11
+    assert fake_caput.call_count == 10
+    assert fake_caget.call_count == 1
 
 
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
-def test_moveto(fake_caget, fake_caput):
-    moveto("enterhutch")
+def test_moveto_enterhutch(fake_caget, fake_caput, dummy_parser):
+    fake_args = dummy_parser.parse_args(["enterhutch"])
+    moveto(fake_args)
     assert fake_caget.call_count == 1
     assert fake_caput.call_count == 1
+
+
+@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
+@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
+def test_moveto_laseron_for_eiger(fake_caget, fake_caput, dummy_parser):
+    fake_caget.return_value = "eiger"
+    fake_args = dummy_parser.parse_args(["laseron"])
+    moveto(fake_args)
+    assert fake_caget.call_count == 1
+    assert fake_caput.call_count == 2
+
+
+@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
+@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
+def test_moveto_laseroff_for_pilatus(fake_caget, fake_caput, dummy_parser):
+    fake_caget.return_value = "pilatus"
+    fake_args = dummy_parser.parse_args(["laseroff"])
+    moveto(fake_args)
+    assert fake_caget.call_count == 1
+    assert fake_caput.call_count == 2
 
 
 @patch(
