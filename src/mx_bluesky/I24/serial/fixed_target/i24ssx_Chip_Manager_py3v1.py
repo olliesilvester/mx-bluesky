@@ -29,6 +29,12 @@ from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
 logger = logging.getLogger("I24ssx.chip_manager")
 
 
+def _coerce_to_path(path: Path | str) -> Path:
+    if not isinstance(path, Path):
+        return Path(path)
+    return path
+
+
 def setup_logging():
     # Log should now change name daily.
     logfile = time.strftime("i24_%Y_%m_%d.log").lower()
@@ -99,8 +105,7 @@ def initialise():
 def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
     name = inspect.stack()[0][3]
 
-    if not isinstance(param_path, Path):
-        param_path = Path(param_path)
+    param_path = _coerce_to_path(param_path)
 
     param_fid = "parameters.txt"
     logger.info("%s Writing Parameter File \n%s" % (name, param_path / param_fid))
@@ -181,8 +186,7 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
 
 def scrape_pvar_file(fid: str, pvar_dir: Path | str = PVAR_FILE_PATH):
     block_start_list = []
-    if not isinstance(pvar_dir, Path):
-        pvar_dir = Path(pvar_dir)
+    pvar_dir = _coerce_to_path(pvar_dir)
 
     with open(pvar_dir / fid, "r") as f:
         lines = f.readlines()
@@ -221,8 +225,7 @@ def define_current_chip(chipid: str, param_path: Path | str = PVAR_FILE_PATH):
     elif chipid == "oxford":
         caput(pv.me14e_gp1, 1)
 
-    if not isinstance(param_path, Path):
-        param_path = Path(param_path)
+    param_path = _coerce_to_path(param_path)
 
     with open(param_path / f"{chipid}.pvar", "r") as f:
         logger.info("%s Opening %s%s.pvar" % (name, param_path, chipid))
@@ -239,8 +242,7 @@ def define_current_chip(chipid: str, param_path: Path | str = PVAR_FILE_PATH):
 
 def save_screen_map(litemap_path: Path | str = LITEMAP_PATH):
     name = inspect.stack()[0][3]
-    if not isinstance(litemap_path, Path):
-        litemap_path = Path(litemap_path)
+    litemap_path = _coerce_to_path(litemap_path)
 
     print("\n\nSaving", litemap_path / "currentchip.map")
     logger.info("%s Saving %s currentchip.map" % (name, litemap_path))
@@ -269,8 +271,7 @@ def upload_parameters(chipid: str, litemap_path: Path | str = LITEMAP_PATH):
     elif chipid == "oxford":
         caput(pv.me14e_gp1, 1)
         width = 8
-    if not isinstance(litemap_path, Path):
-        litemap_path = Path(litemap_path)
+    litemap_path = _coerce_to_path(litemap_path)
 
     with open(litemap_path / "currentchip.map", "r") as f:
         print("chipid", chipid)
@@ -304,8 +305,7 @@ def upload_parameters(chipid: str, litemap_path: Path | str = LITEMAP_PATH):
 
 def upload_full(fullmap_path: Path | str = FULLMAP_PATH):
     name = inspect.stack()[0][3]
-    if not isinstance(fullmap_path, Path):
-        fullmap_path = Path(fullmap_path)
+    fullmap_path = _coerce_to_path(fullmap_path)
 
     with open(fullmap_path / "currentchip.full", "r") as fh:
         f = fh.readlines()
@@ -591,8 +591,7 @@ def load_lite_map(litemap_path: Path | str = LITEMAP_PATH):
                 # print button_name, btn_names[button_name]
         block_dict = btn_names
 
-    if not isinstance(litemap_path, Path):
-        litemap_path = Path(litemap_path)
+    litemap_path = _coerce_to_path(litemap_path)
 
     litemap_fid = str(caget(pv.me14e_gp5)) + ".lite"
     print("Please wait, loading LITE map")
@@ -632,8 +631,7 @@ def load_full_map(location: str = "SACLA", fullmap_path: Path | str = FULLMAP_PA
             chip_type,
             map_type,
         ) = startup.scrape_parameter_file(location)
-    if not isinstance(fullmap_path, Path):
-        fullmap_path = Path(fullmap_path)
+    fullmap_path = _coerce_to_path(fullmap_path)
 
     fullmap_fid = fullmap_path / f"{str(caget(pv.me14e_gp5))}.spec"
     print("opening", fullmap_fid)
@@ -845,8 +843,7 @@ def moveto(place):
 
 def scrape_mtr_directions(param_path: Path | str = PARAM_FILE_PATH_FT):
     name = inspect.stack()[0][3]
-    if not isinstance(param_path, Path):
-        param_path = Path(param_path)
+    param_path = _coerce_to_path(param_path)
 
     with open(param_path / "motor_direction.txt", "r") as f:
         lines = f.readlines()
@@ -869,8 +866,7 @@ def scrape_mtr_directions(param_path: Path | str = PARAM_FILE_PATH_FT):
 def fiducial(point: int, param_path: Path | str = PARAM_FILE_PATH_FT):
     name = inspect.stack()[0][3]
     scale = 10000.0  # noqa: F841
-    if not isinstance(param_path, Path):
-        param_path = Path(param_path)
+    param_path = _coerce_to_path(param_path)
 
     mtr1_dir, mtr2_dir, mtr3_dir = scrape_mtr_directions(param_path)
 
@@ -911,8 +907,7 @@ def fiducial(point: int, param_path: Path | str = PARAM_FILE_PATH_FT):
 
 
 def scrape_mtr_fiducials(point: int, param_path: Path | str = PARAM_FILE_PATH_FT):
-    if not isinstance(param_path, Path):
-        param_path = Path(param_path)
+    param_path = _coerce_to_path(param_path)
 
     with open(param_path / f"fiducial_{point}.txt", "r") as f:
         f_lines = f.readlines()[1:]

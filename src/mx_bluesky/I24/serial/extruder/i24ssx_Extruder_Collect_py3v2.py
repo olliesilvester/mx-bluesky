@@ -35,6 +35,12 @@ def flush_print(text):
     sys.stdout.flush()
 
 
+def _coerce_to_path(path: Path | str) -> Path:
+    if not isinstance(path, Path):
+        return Path(path)
+    return path
+
+
 def initialise_extruderi24(args=None):
     name = inspect.stack()[0][3]
     print("Initialise Parameters for extruder data collection")
@@ -92,8 +98,7 @@ def moveto(args):
 def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH):
     name = inspect.stack()[0][3]
 
-    if not isinstance(param_path, Path):
-        param_path = Path(param_path)
+    param_path = _coerce_to_path(param_path)
     param_fid = "parameters.txt"
 
     logger.info("%s Writing Parameter File \n%s" % (name, param_path / param_fid))
@@ -161,8 +166,7 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH):
 
 
 def scrape_parameter_file(param_path: Path | str = PARAM_FILE_PATH):
-    if not isinstance(param_path, Path):
-        param_path = Path(param_path)
+    param_path = _coerce_to_path(param_path)
 
     with open(param_path / "parameters.txt", "r") as filein:
         f = filein.readlines()
