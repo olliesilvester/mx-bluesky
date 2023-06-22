@@ -31,7 +31,7 @@ pumpdelay 0"""
     mock_open(read_data=params_file_str),
 )
 def test_scrape_parameter_file():
-    res = scrape_parameter_file(location="i24")
+    res = scrape_parameter_file()
     assert res[0] == "chip"
     assert len(res) == 13
 
