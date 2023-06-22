@@ -53,7 +53,6 @@ def test_datasetsizei24_for_one_block_and_two_exposures(
 def test_get_chip_prog_values():
     chip_dict = get_chip_prog_values(
         "1",
-        "i24",
         "0",
         0,
         0,
