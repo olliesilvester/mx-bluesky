@@ -27,9 +27,7 @@ def setup_logging():
     log.config(logfile)
 
 
-def scrape_parameter_file(
-    location: str | None = None, param_path: Path | str = PARAM_FILE_PATH_FT
-):
+def scrape_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
     if not isinstance(param_path, Path):
         param_path = Path(param_path)
 
@@ -53,39 +51,36 @@ def scrape_parameter_file(
             map_type = entry[1]
         elif "pump_repeat" in entry[0].lower():
             pump_repeat = entry[1]
-    if location == "i24":
-        for line in f:
-            entry = line.rstrip().split()
-            if "pumpexptime" == entry[0].lower().strip():
-                pumpexptime = entry[1]
-            if "exptime" in entry[0].lower():
-                exptime = entry[1]
-            if "dcdetdist" in entry[0].lower():
-                dcdetdist = entry[1]
-            if "prepumpexptime" in entry[0].lower():
-                prepumpexptime = entry[1]
-            if "pumpdelay" in entry[0].lower():
-                pumpdelay = entry[1]
-            if "det_type" in entry[0].lower():
-                det_type = entry[1]
-        return (
-            chip_name,
-            visit,
-            sub_dir,
-            n_exposures,
-            chip_type,
-            map_type,
-            pump_repeat,
-            pumpexptime,
-            pumpdelay,
-            exptime,
-            dcdetdist,
-            prepumpexptime,
-            det_type,
-        )
 
-    else:
-        return chip_name, sub_dir, n_exposures, chip_type, map_type
+    for line in f:
+        entry = line.rstrip().split()
+        if "pumpexptime" == entry[0].lower().strip():
+            pumpexptime = entry[1]
+        if "exptime" in entry[0].lower():
+            exptime = entry[1]
+        if "dcdetdist" in entry[0].lower():
+            dcdetdist = entry[1]
+        if "prepumpexptime" in entry[0].lower():
+            prepumpexptime = entry[1]
+        if "pumpdelay" in entry[0].lower():
+            pumpdelay = entry[1]
+        if "det_type" in entry[0].lower():
+            det_type = entry[1]
+    return (
+        chip_name,
+        visit,
+        sub_dir,
+        n_exposures,
+        chip_type,
+        map_type,
+        pump_repeat,
+        pumpexptime,
+        pumpdelay,
+        exptime,
+        dcdetdist,
+        prepumpexptime,
+        det_type,
+    )
 
 
 def read_parameters(
@@ -401,13 +396,8 @@ def write_file(
             exptime,
             dcdetdist,
             prepumpexptime,
-        ) = scrape_parameter_file("i24", param_file_path)
+        ) = scrape_parameter_file(param_file_path)
         a_directory = Path("/dls_sw/i24/scripts/fastchips/")
-    elif location == "SACLA":
-        chip_name, sub_dir, n_exposures, chip_type, map_type = scrape_parameter_file(
-            param_path=param_file_path
-        )
-        a_directory = Path("/localhome/local/Documents/sacla/")
     else:
         logger.warning("%s Unknown location, %s" % (name, location))
         print("Unknown location in write_file")
@@ -458,14 +448,8 @@ def check_files(
             dcdetdist,
             prepumpexptime,
             det_type,
-        ) = scrape_parameter_file("i24", param_path=param_file_path)
+        ) = scrape_parameter_file(param_path=param_file_path)
         a_directory = Path("/dls_sw/i24/scripts/fastchips/")
-    elif location == "SACLA":
-        chip_name, sub_dir, n_exposures, chip_type, map_type = scrape_parameter_file(
-            param_path=param_file_path
-        )
-        a_directory = Path("/localhome/local/Documents/sacla/")
-
     else:
         logger.warning("%s Unknown location, %s" % (name, location))
         print("Unknown location in write_file")
@@ -506,16 +490,10 @@ def write_headers(
             dcdetdist,
             prepumpexptime,
             det_type,
-        ) = scrape_parameter_file("i24", param_path=PARAM_FILE_PATH_FT)
+        ) = scrape_parameter_file(param_path=PARAM_FILE_PATH_FT)
         a_directory = Path("/dls_sw/i24/scripts/fastchips/")
-    elif location == "SACLA":
-        chip_name, sub_dir, n_exposures, chip_type, map_type = scrape_parameter_file(
-            param_path=PARAM_FILE_PATH_FT
-        )
-        a_directory = Path("/localhome/local/Documents/sacla/")
-    chip_file_path = a_directory / f"chips/{sub_dir}/{chip_name}"
+        chip_file_path = a_directory / f"chips/{sub_dir}/{chip_name}"
 
-    if location == "i24":
         for suffix in suffix_list:
             full_fid = chip_file_path.with_suffix(suffix)
             with open(full_fid, "w") as g:
@@ -538,23 +516,6 @@ def write_headers(
                 g.write(
                     "#XtalAddr      XCoord  YCoord  ZCoord  Present Shot  Spare04 Spare03 Spare02 Spare01\n"
                 )
-
-    elif location == "SACLA":
-        for suffix in suffix_list:
-            full_fid = chip_file_path.with_suffix(suffix)
-            with open(full_fid, "w") as g:
-                g.write(
-                    "#23456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\n#\n"
-                )
-                g.write("#&SACLA\tchip_name    = %s\n" % chip_name)
-                g.write("#&SACLA\tsub_dir      = %s\n" % sub_dir)
-                g.write("#&SACLA\tn_exposures  = %s\n" % n_exposures)
-                g.write("#&SACLA\tchip_type    = %s\n" % chip_type)
-                g.write("#&SACLA\tmap_type     = %s\n" % map_type)
-                g.write("#\n")
-                g.write(
-                    "#XtalAddr      XCoord  YCoord  ZCoord  Present Shot  Spare04 Spare03 Spare02 Spare01\n"
-                )
     else:
         logger.warning("%s Unknown location, %s" % (name, location))
         print("Unknown location in write_headers")
@@ -572,14 +533,11 @@ def run():
     write_headers("i24", [".addr", ".shot"])
     print("Written headers")
     logger.info("%s Written Headers" % name)
-    # write_file('SACLA', suffix='.addr', order='alphanumeric')
-    # write_file('SACLA', suffix='.shot', order='shot')
     print("Written files")
     logger.info("%s Writing to Files has been disabled. Headers Only" % name)
     # Makes a file with random crystal positions
     check_files("i24", ["rando.spec"])
     write_headers("i24", ["rando.spec"])
-    # write_file('SACLA', suffix='rando.spec', order='shot')
 
     print(10 * "Done ")
     logger.info("%s Done" % name)

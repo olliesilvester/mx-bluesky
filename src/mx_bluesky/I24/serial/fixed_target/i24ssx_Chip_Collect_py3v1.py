@@ -286,7 +286,7 @@ def datasetsizei24():
         dcdetdist,
         prepumpexptime,
         det_type,
-    ) = scrape_parameter_file(location="i24")
+    ) = scrape_parameter_file()
 
     if map_type == "0":
         chip_format = get_format(chip_type)[:4]
@@ -369,7 +369,7 @@ def start_i24():
         dcdetdist,
         prepumpexptime,
         det_type,
-    ) = scrape_parameter_file(location="i24")
+    ) = scrape_parameter_file()
 
     logger.info("%s Set up beamline" % (name))
     sup.beamline("collect")
@@ -521,7 +521,7 @@ def finish_i24(chip_prog_dict, start_time):
         dcdetdist,
         prepumpexptime,
         det_type,
-    ) = scrape_parameter_file(location="i24")
+    ) = scrape_parameter_file()
 
     total_numb_imgs = datasetsizei24()
     filepath = visit + sub_dir
@@ -694,7 +694,7 @@ def main(args):
     # Kick off the StartOfCollect script
     dcid.notify_start()
 
-    param_file_tuple = scrape_parameter_file(location="i24")
+    param_file_tuple = scrape_parameter_file()
     if det_type == "eiger":
         call_nexgen(
             chip_prog_dict,
