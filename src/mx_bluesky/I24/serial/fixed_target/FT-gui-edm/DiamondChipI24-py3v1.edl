@@ -1791,7 +1791,7 @@ buttonLabel "Custom Chip"
 numPvs 4
 numDsps 1
 displayFileName {
-  0 "sacla3_MappingLite-heidelberg_v7.edl"
+  0 "CustomChip_py3v1.edl"
 }
 endObjectProperties
 
