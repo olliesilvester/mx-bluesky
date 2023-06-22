@@ -1149,8 +1149,10 @@ def block_check():
             chip_type = int(caget(pv.me14e_gp1))
             if chip_type == 9:
                 block_start_list = scrape_pvar_file("minichip_oxford.pvar")
-            if chip_type == 10:
+            elif chip_type == 10:
                 block_start_list = scrape_pvar_file("oxford6x6.pvar")
+            else:
+                raise ValueError("Invalid chip type")
             for entry in block_start_list:
                 if int(caget(pv.me14e_gp9)) != 0:
                     logger.warning("%s Block Check Aborted" % (name))
