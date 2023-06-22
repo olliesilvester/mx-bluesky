@@ -3,7 +3,6 @@ Fixed target data collection
 """
 from __future__ import annotations
 
-import argparse
 import inspect
 import logging
 import os
@@ -589,11 +588,11 @@ def finish_i24(chip_prog_dict, start_time):
     return end_time
 
 
-def main(args):
+def main():
     # ABORT BUTTON
     name = inspect.stack()[0][3]
     logger.info("%s" % name)
-    logger.info("%s Location is %s \n Starting" % (name, args.loc))
+    logger.info("%s Location is I24 \n Starting" % name)
     caput(pv.me14e_gp9, 0)
 
     (
@@ -663,13 +662,7 @@ def main(args):
     logger.info("%s Loading Motion Program Data" % (name))
     load_motion_program_data(chip_prog_dict, map_type, pump_repeat)
 
-    if args.loc == "i24":
-        start_time, dcid = start_i24()
-    else:
-        logger.warning(
-            "%s This does nothing location not I24 \n location = %s" % (name, args.loc)
-        )
-        print("Something went wrong. Location not specified")
+    start_time, dcid = start_i24()
 
     print("Moving to Start")
     logger.info("%s Moving to start" % (name))
@@ -764,15 +757,4 @@ def main(args):
 if __name__ == "__main__":
     setup_logging()
 
-    parser = argparse.ArgumentParser(usage=usage, description=__doc__)
-    parser.add_argument(
-        "-l",
-        "--loc",
-        type=str,
-        choices=["i24"],
-        default="i24",
-        help="Location of collection.",
-    )
-
-    args = parser.parse_args()
-    main(args)
+    main()
