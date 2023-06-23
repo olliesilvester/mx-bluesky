@@ -216,9 +216,7 @@ def define_current_chip(chipid: str, param_path: Path | str = PVAR_FILE_PATH):
     chip_type = caget(pv.me14e_gp1)
     print(chip_type, chipid)
     logger.info("%s chip_type:%s chipid:%s" % (name, chip_type, chipid))
-    if chipid == "toronto":
-        caput(pv.me14e_gp1, 0)
-    elif chipid == "oxford":
+    if chipid == "oxford":
         caput(pv.me14e_gp1, 1)
 
     param_path = _coerce_to_path(param_path)
@@ -261,10 +259,7 @@ def save_screen_map(litemap_path: Path | str = LITEMAP_PATH):
 def upload_parameters(chipid: str, litemap_path: Path | str = LITEMAP_PATH):
     name = inspect.stack()[0][3]
     logger.info("%s Uploading Parameters to the GeoBrick" % (name))
-    if chipid == "toronto":
-        caput(pv.me14e_gp1, 0)
-        width = 9
-    elif chipid == "oxford":
+    if chipid == "oxford":
         caput(pv.me14e_gp1, 1)
         width = 8
     litemap_path = _coerce_to_path(litemap_path)
@@ -527,17 +522,6 @@ def load_lite_map(litemap_path: Path | str = LITEMAP_PATH):
     name = inspect.stack()[0][3]
     load_stock_map("clear")
     # fmt: off
-    toronto_block_dict = {
-        'A1': '01', 'A2': '02', 'A3': '03', 'A4': '04', 'A5': '05', 'A6': '06', 'A7': '07', 'A8': '08', 'A9': '09',
-        'B1': '18', 'B2': '17', 'B3': '16', 'B4': '15', 'B5': '14', 'B6': '13', 'B7': '12', 'B8': '11', 'B9': '10',
-        'C1': '19', 'C2': '20', 'C3': '21', 'C4': '22', 'C5': '23', 'C6': '24', 'C7': '25', 'C8': '26', 'C9': '27',
-        'D1': '36', 'D2': '35', 'D3': '34', 'D4': '33', 'D5': '32', 'D6': '31', 'D7': '30', 'D8': '29', 'D9': '28',
-        'E1': '37', 'E2': '38', 'E3': '39', 'E4': '40', 'E5': '41', 'E6': '42', 'E7': '43', 'E8': '44', 'E9': '45',
-        'F1': '54', 'F2': '53', 'F3': '52', 'F4': '51', 'F5': '50', 'F6': '49', 'F7': '48', 'F8': '47', 'F9': '46',
-        'G1': '55', 'G2': '56', 'G3': '57', 'G4': '58', 'G5': '59', 'G6': '60', 'G7': '61', 'G8': '62', 'G9': '63',
-        'H1': '72', 'H2': '71', 'H3': '70', 'H4': '69', 'H5': '68', 'H6': '67', 'H7': '66', 'H8': '65', 'H9': '64',
-        'I1': '73', 'I2': '74', 'I3': '75', 'I4': '76', 'I5': '77', 'I6': '78', 'I7': '79', 'I8': '80', 'I9': '81',
-    }
     # Oxford_block_dict is wrong (columns and rows need to flip) added in script below to generate it automatically however kept this for backwards compatiability/reference
     oxford_block_dict = {   # noqa: F841
         'A1': '01', 'A2': '02', 'A3': '03', 'A4': '04', 'A5': '05', 'A6': '06', 'A7': '07', 'A8': '08',
@@ -551,11 +535,7 @@ def load_lite_map(litemap_path: Path | str = LITEMAP_PATH):
     }
     # fmt: on
     chip_type = caget(pv.me14e_gp1)
-    if chip_type == 0:
-        logger.info("%s Toronto Block Order" % name)
-        print("Toronto Block Order")
-        block_dict = toronto_block_dict
-    elif chip_type == 1 or chip_type == 3 or chip_type == 10:
+    if chip_type == 1 or chip_type == 3 or chip_type == 10:
         logger.info("%s Oxford Block Order" % name)
         print("Oxford Block Order")
         # block_dict = oxford_block_dict
@@ -634,26 +614,14 @@ def load_full_map(fullmap_path: Path | str = FULLMAP_PATH):
     print(10 * "Done ", "\n")
 
 
-def moveto(place):
+def moveto(place: str):
     name = inspect.stack()[0][3]
     logger.info("%s Move to %s" % (name, place))
     print(5 * (place + " "))
     chip_type = int(caget(pv.me14e_gp1))
     print("CHIP TYPE", chip_type)
-    if chip_type == 0:
-        print("Toronto Move")
-        logger.info("%s Toronto Move" % (name))
-        if place == "origin":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f1":
-            caput(pv.me14e_stage_x, +18.975)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f2":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, +21.375)
 
-    elif chip_type == 1:
+    if chip_type == 1:
         print("Oxford Move")
         logger.info("%s Oxford Move" % (name))
         if place == "origin":
@@ -691,19 +659,6 @@ def moveto(place):
         if place == "f2":
             caput(pv.me14e_stage_x, 0.0)
             caput(pv.me14e_stage_y, 25.40)
-
-    elif chip_type == 10:
-        print("Oxford 6 by 6 blocks Move")
-        logger.info("%s Oxford 6 by 6 blocks Move" % (name))
-        if place == "origin":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f1":
-            caput(pv.me14e_stage_x, 18.25)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f2":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 18.25)
 
     else:
         print("Unknown chip_type move")
@@ -1147,10 +1102,9 @@ def block_check():
     while True:
         if int(caget(pv.me14e_gp9)) == 0:
             chip_type = int(caget(pv.me14e_gp1))
+            # Possible bug: this seems to be missing the chips in use.
             if chip_type == 9:
                 block_start_list = scrape_pvar_file("minichip_oxford.pvar")
-            elif chip_type == 10:
-                block_start_list = scrape_pvar_file("oxford6x6.pvar")
             else:
                 raise ValueError("Invalid chip type")
             for entry in block_start_list:
