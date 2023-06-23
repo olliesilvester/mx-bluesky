@@ -3,7 +3,6 @@ Fixed target data collection
 """
 from __future__ import annotations
 
-import argparse
 import inspect
 import logging
 import os
@@ -17,10 +16,10 @@ import numpy as np
 
 from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.dcid import DCID
-from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1 import moveto
-from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1 import (
+
+# from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1 import moveto
+from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1 import (  # scrape_parameter_file,
     get_format,
-    scrape_parameter_file,
 )
 from mx_bluesky.I24.serial.parameters import SSXType, read_parameters
 from mx_bluesky.I24.serial.parameters.constants import LITEMAP_PATH
@@ -52,7 +51,6 @@ def flush_print(text):
 
 def get_chip_prog_values(
     chip_type,
-    location,
     pump_repeat,
     pumpexptime,
     pumpdelay,
@@ -62,7 +60,6 @@ def get_chip_prog_values(
 ):
     name = inspect.stack()[0][3]
     logger.info("%s" % name)
-    # Hack for sacla3 to bismuth chip type for oxford inner
     if chip_type in ["0", "1", "5", "7", "8", "10"]:
         (
             xblocks,
@@ -92,10 +89,6 @@ def get_chip_prog_values(
             xblocks = 6
         else:
             xblocks = 3
-
-    elif chip_type == "3":
-        logger.debug("%s\t:Hack for SACLA3 bismuth for oxford inner" % name)
-        chip_type = "1"
 
     elif chip_type == "4":
         print("This is a Bismuth Chip")
@@ -151,7 +144,7 @@ def get_chip_prog_values(
         "Y_NUM_STEPS": [12, y_num_steps],
         "X_STEP_SIZE": [13, x_step_size],
         "Y_STEP_SIZE": [14, y_step_size],
-        "DWELL_TIME": [15, exptime],  # SACLA 15ms + 1ms
+        "DWELL_TIME": [15, exptime],
         "X_START": [16, 0],
         "Y_START": [17, 0],
         "Z_START": [18, 0],
@@ -168,11 +161,10 @@ def get_chip_prog_values(
         "PUMP_IN_PROBE": [38, pump_in_probe],
     }
 
-    if location == "i24":
-        chip_dict["DWELL_TIME"][1] = 1000 * float(exptime)
-        chip_dict["LASER_DWELL"][1] = 1000 * float(pumpexptime)
-        chip_dict["LASERTWO_DWELL"][1] = 1000 * float(prepumpexptime)
-        chip_dict["LASER_DELAY"][1] = 1000 * float(pumpdelay)
+    chip_dict["DWELL_TIME"][1] = 1000 * float(exptime)
+    chip_dict["LASER_DWELL"][1] = 1000 * float(pumpexptime)
+    chip_dict["LASERTWO_DWELL"][1] = 1000 * float(prepumpexptime)
+    chip_dict["LASER_DELAY"][1] = 1000 * float(pumpdelay)
 
     return chip_dict
 
@@ -236,11 +228,7 @@ def load_motion_program_data(motion_program_dict, map_type, pump_repeat):
 def get_prog_num(chip_type, map_type, pump_repeat):
     name = inspect.stack()[0][3]
     logger.info("%s Get Program Number" % name)
-    # Hack for sacla3 to bismuth chip type for oxford inner
     if str(pump_repeat) == "0":
-        if str(chip_type) == "3":
-            logger.debug("%s\t:Hack for SACLA3 bismuth for oxford inner" % name)
-            chip_type = "1"
         if chip_type in ["0", "1", "2", "5", "10"]:
             if map_type == "0":
                 logger.info("%s\t:Map Type = None" % name)
@@ -291,7 +279,6 @@ def get_prog_num(chip_type, map_type, pump_repeat):
 def datasetsizei24(params):
     # Calculates how many images will be collected based on map type and N repeats
     name = inspect.stack()[0][3]
-
     n_exposures = params["n_exposures"]
     chip_type = params["chip_type"]
     map_type = params["map_type"]
@@ -350,63 +337,6 @@ def datasetsizei24(params):
     print("Total number of images", total_numb_imgs, "\n\n\n")
     caput(pv.me14e_gp10, total_numb_imgs)
     logger.info("%s\t:----->Total number of images = %s" % (name, total_numb_imgs))
-
-    return total_numb_imgs
-
-
-def datasetsizesacla():
-    name = inspect.stack()[0][3]
-    chip_name, sub_dir, n_exposures, chip_type, map_type = scrape_parameter_file(
-        location="SACLA"
-    )
-    # Hack for sacla3 to bismuth chip type for oxford inner
-
-    if str(chip_type) == "3":
-        logger.debug("%s\t:Hack for SACLA3 bismuth for oxford inner" % name)
-        chip_type = "1"
-    if map_type == "0":
-        chip_format = get_format(chip_type)[:4]
-        total_numb_imgs = np.prod(chip_format)
-        if str(chip_type) == "6":
-            xs = int(caget(pv.me14e_gp6))
-            ys = int(caget(pv.me14e_gp7))
-            print(xs, ys, type(xs), type(ys))
-            total_numb_imgs = xs * ys
-        caput(pv.me14e_gp10, total_numb_imgs)
-        caput(pv.me14e_pmac_str, "P2402=0")
-        print("Total number of images", total_numb_imgs)
-
-    elif map_type == "1" or map_type == "3":
-        chip_format = get_format(chip_type)[2:4]
-        block_count = 0
-        # or '/localhome/local/Documents/sacla/parameter_files/currentchip.map'
-        with open(
-            "/dls_sw/i24/scripts/fastchips/parameter_files/currentchip.map", "r"
-        ) as f:
-            for line in f.readlines():
-                entry = line.split()
-                if entry[2] == "1":
-                    block_count += 1
-        print("block_count", block_count)
-        logger.info("%s\t:block_count=%s" % (name, block_count))
-        print(chip_format)
-        logger.info("%s\t:chip_format=%s" % (name, chip_format))
-        #
-        n_exposures = caget(pv.me14e_gp3)
-        print(n_exposures)
-        logger.info("%s\t:n_exposures=%s" % (name, n_exposures))
-        #
-        total_numb_imgs = np.prod(chip_format) * block_count  # * n_exposures
-        caput(pv.me14e_gp10, total_numb_imgs)
-        caput(pv.me14e_pmac_str, "P2402=0")
-        print("Total number of images", total_numb_imgs)
-
-    elif map_type == "2":
-        logger.warning("%s Not Set Up For Full Mapping" % name)
-        print("FIX ME, Im not set up for full mapping ")
-    else:
-        logger.warning("%s Unknown Map Type, map_type = %s" % (name, map_type))
-        print("Unknown map type")
 
     return total_numb_imgs
 
@@ -570,23 +500,6 @@ def start_i24(params, filepath):
     return start_time.ctime(), dcid
 
 
-def start_sacla():
-    print("Starting SACLA")
-    name = inspect.stack()[0][3]
-    logger.info("%s Starting SACLA" % name)
-    start_time = time.ctime()
-
-    total_numb_imgs = datasetsizesacla()
-    print(total_numb_imgs)
-
-    # make sure flipper is out
-    moveto("flipperout")
-    sleep(1)
-    moveto("lightout")
-    sleep(3)
-    return start_time
-
-
 def finish_i24(params, filepath, chip_prog_dict, start_time):
     name = inspect.stack()[0][3]
     det_type = str(caget(pv.me14e_gp101))
@@ -596,6 +509,7 @@ def finish_i24(params, filepath, chip_prog_dict, start_time):
 
     total_numb_imgs = datasetsizei24(params)
     filename = params["filename"]
+
     transmission = (float(caget(pv.pilat_filtertrasm)),)
     wavelength = float(caget(pv.dcm_lambda))
 
@@ -659,64 +573,42 @@ def finish_i24(params, filepath, chip_prog_dict, start_time):
     return end_time
 
 
-def finish_sacla():
-    print("Finishing SACLA")
-    name = inspect.stack()[0][3]
-    logger.info("%s Finishing SACLA" % name)
-    caput(pv.me14e_pmac_str, "!x0y0z0")
-    logger.info("%s pmac_str=!x0y0z0" % name)
-    end_time = time.ctime()
-    return end_time
-
-
-def main(args):
-    location = args.loc
-    print("Location is", location, "Starting")
+def main():
     # ABORT BUTTON
     name = inspect.stack()[0][3]
     logger.info("%s" % name)
-    logger.info("%s Location is %s \n Starting" % (name, location))
+    logger.info("%s Location is I24 \n Starting" % name)
     caput(pv.me14e_gp9, 0)
 
-    if location == "i24":
-        params, filepath = read_parameters(FixedTarget, sup.get_detector_type())
-        (
-            visit,
-            sub_dir,
-            chip_name,
-            exptime,
-            det_type,
-            dcdetdist,
-            chip_type,
-            map_type,
-            n_exposures,
-            pumpexptime,
-            pumpdelay,
-            pump_status,
-            pump_repeat,
-            prepumpexptime,
-            det_type,
-        ) = params.values()
-        print("exptime", exptime)
-        print("pump_repeat", pump_repeat)
-        print("pumpexptime", pumpexptime)
-        print("pumpdelay", pumpdelay)
-        print("visit", visit)
-        print("dcdetdist", dcdetdist)
-        print("n_exposures", n_exposures)
-        print("det_type", det_type)
-        logger.info("%s exptime = %s" % (name, exptime))
-        logger.info("%s visit = %s" % (name, visit))
-        logger.info("%s dcdetdist = %s" % (name, dcdetdist))
-    else:
-        (
-            chip_name,
-            sub_dir,
-            n_exposures,
-            chip_type,
-            map_type,
-            prepumpexptime,
-        ) = scrape_parameter_file(location="SACLA")
+    params, filepath = read_parameters(FixedTarget, sup.get_detector_type())
+    (
+        visit,
+        sub_dir,
+        chip_name,
+        exptime,
+        det_type,
+        dcdetdist,
+        chip_type,
+        map_type,
+        n_exposures,
+        pumpexptime,
+        pumpdelay,
+        pump_status,
+        pump_repeat,
+        prepumpexptime,
+        det_type,
+    ) = params.values()
+    print("exptime", exptime)
+    print("pump_repeat", pump_repeat)
+    print("pumpexptime", pumpexptime)
+    print("pumpdelay", pumpdelay)
+    print("visit", visit)
+    print("dcdetdist", dcdetdist)
+    print("n_exposures", n_exposures)
+    print("det_type", det_type)
+    logger.info("%s exptime = %s" % (name, exptime))
+    logger.info("%s visit = %s" % (name, visit))
+    logger.info("%s dcdetdist = %s" % (name, dcdetdist))
 
     print("\n\nChip name is", chip_name)
     print("sub_dir", sub_dir)
@@ -745,36 +637,20 @@ def main(args):
         logger.debug("%s\tMain: Change chip type Oxford Inner to Oxford" % name)
         chip_type = "1"
 
-    if location == "i24":
-        chip_prog_dict = get_chip_prog_values(
-            chip_type,
-            location,
-            pump_repeat,
-            pumpexptime,
-            pumpdelay,
-            prepumpexptime,
-            exptime=exptime,
-            n_exposures=n_exposures,
-        )
-    else:
-        chip_prog_dict = get_chip_prog_values(
-            chip_type, location, n_exposures=n_exposures
-        )
+    chip_prog_dict = get_chip_prog_values(
+        chip_type,
+        pump_repeat,
+        pumpexptime,
+        pumpdelay,
+        prepumpexptime,
+        exptime=exptime,
+        n_exposures=n_exposures,
+    )
     print("Loading Motion Program Data")
     logger.info("%s Loading Motion Program Data" % (name))
     load_motion_program_data(chip_prog_dict, map_type, pump_repeat)
 
-    if location == "i24":
-        start_time, dcid = start_i24(params, filepath)
-    elif location == "SACLA":
-        start_time = start_sacla()
-    else:
-        logger.warning(
-            "%s This does nothing location not I24 or SACLA \n location = %s"
-            % (name, location)
-        )
-        logger.debug("%s Put something here... start_time = start_sacla()" % (name))
-        print("Something went wrong. Location not specified")
+    start_time, dcid = start_i24(params, filepath)
 
     print("Moving to Start")
     logger.info("%s Moving to start" % (name))
@@ -799,7 +675,7 @@ def main(args):
     # Kick off the StartOfCollect script
     dcid.notify_start()
 
-    if location == "i24" and det_type == "eiger":
+    if det_type == "eiger":
         call_nexgen(
             chip_prog_dict,
             start_time,
@@ -854,13 +730,9 @@ def main(args):
         caput(pv.eiger_acquire, 0)
         caput(pv.eiger_ODcapture, "Done")
 
-    if location == "i24":
-        end_time = finish_i24(params, filepath, chip_prog_dict, start_time)
-        dcid.collection_complete(end_time, aborted=aborted)
-        dcid.notify_end()
-
-    if location == "SACLA":
-        end_time = finish_sacla()
+    end_time = finish_i24(params, filepath, chip_prog_dict, start_time)
+    dcid.collection_complete(end_time, aborted=aborted)
+    dcid.notify_end()
 
     logger.info("%s Chip name = %s sub_dir = %s" % (name, chip_name, sub_dir))
     print("Start time:", start_time)
@@ -872,15 +744,4 @@ def main(args):
 if __name__ == "__main__":
     setup_logging()
 
-    parser = argparse.ArgumentParser(usage=usage, description=__doc__)
-    parser.add_argument(
-        "-l",
-        "--loc",
-        type=str,
-        choices=["i24", "SACLA"],
-        default="i24",
-        help="Location of collection.",
-    )
-
-    args = parser.parse_args()
-    main(args)
+    main()

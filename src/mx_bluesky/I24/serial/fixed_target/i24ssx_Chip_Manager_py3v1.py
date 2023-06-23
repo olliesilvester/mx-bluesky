@@ -138,10 +138,6 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
     # historical - use chip_name instead of filename
     chip_name = filename
 
-    # Hack for sacla3 to bismuth chip type for oxford inner
-    if str(chip_type) == "3":
-        chip_type = "1"
-
     with open(param_path / param_fid, "w") as f:
         f.write("visit \t\t%s\n" % visit)
         f.write("chip_name \t%s\n" % chip_name)
@@ -612,25 +608,16 @@ def load_lite_map(litemap_path: Path | str = LITEMAP_PATH):
     print(10 * "Done ")
 
 
-def load_full_map(location: str = "SACLA", fullmap_path: Path | str = FULLMAP_PATH):
+def load_full_map(fullmap_path: Path | str = FULLMAP_PATH):
     name = inspect.stack()[0][3]
-    if location == "i24":
-        (
-            chip_name,
-            visit,
-            sub_dir,
-            n_exposures,
-            chip_type,
-            map_type,
-        ) = startup.scrape_parameter_file(location)
-    else:
-        (
-            chip_name,
-            sub_dir,
-            n_exposures,
-            chip_type,
-            map_type,
-        ) = startup.scrape_parameter_file(location)
+    (
+        chip_name,
+        visit,
+        sub_dir,
+        n_exposures,
+        chip_type,
+        map_type,
+    ) = startup.scrape_parameter_file()
     fullmap_path = _coerce_to_path(fullmap_path)
 
     fullmap_fid = fullmap_path / f"{str(caget(pv.me14e_gp5))}.spec"
@@ -1162,10 +1149,10 @@ def block_check():
             chip_type = int(caget(pv.me14e_gp1))
             if chip_type == 9:
                 block_start_list = scrape_pvar_file("minichip_oxford.pvar")
-            if chip_type == 10:
+            elif chip_type == 10:
                 block_start_list = scrape_pvar_file("oxford6x6.pvar")
             else:
-                block_start_list = scrape_pvar_file("sacla3_oxford.pvar")
+                raise ValueError("Invalid chip type")
             for entry in block_start_list:
                 if int(caget(pv.me14e_gp9)) != 0:
                     logger.warning("%s Block Check Aborted" % (name))
