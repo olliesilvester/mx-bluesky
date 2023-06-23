@@ -40,7 +40,7 @@ font "helvetica-medium-r-14.0"
 buttonLabel "Load Map File"
 numCmds 1
 command {
-  0 "python /dls_sw/work/R3.14.12.3/ioc/ME14E/ME14E-MO-IOC-01/ME14E-MO-IOC-01App/scripts/sacla2_Chip_Manager1_v4.py load_lite_map"
+  0 "python /dls_sw/work/R3.14.12.3/ioc/ME14E/ME14E-MO-IOC-01/ME14E-MO-IOC-01App/scripts/Chip_Manager_v5.py load_lite_map"
 }
 endObjectProperties
 
