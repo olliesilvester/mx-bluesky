@@ -6,27 +6,32 @@ This version changed to python3 March2020 by RLO
 from __future__ import annotations
 
 import inspect
-import logging as lg
+import logging
 import os
-import pathlib
 import string
 import time
-from typing import Dict
+from pathlib import Path
+from typing import Dict, List
 
 import numpy as np
 
-# Log should now change name daily.
-lg.basicConfig(
-    format="%(asctime)s %(levelname)s:   \t%(message)s",
-    level=lg.DEBUG,
-    filename=time.strftime("logs/i24_%d%B%y.log").lower(),
-)
+from mx_bluesky.I24.serial import log
+from mx_bluesky.I24.serial.parameters.constants import PARAM_FILE_PATH_FT
+
+logger = logging.getLogger("I24ssx.chip_startup")
 
 
-def scrape_parameter_file(location=None):
-    param_path = "/dls_sw/i24/scripts/fastchips/parameter_files/"
-    # param_path = '/localhome/local/Documents/sacla/parameter_files/'
-    with open(param_path + "parameters.txt", "r") as filein:
+def setup_logging():
+    # Log should now change name daily.
+    logfile = time.strftime("i24_%Y_%m_%d.log").lower()
+    log.config(logfile)
+
+
+def scrape_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
+    if not isinstance(param_path, Path):
+        param_path = Path(param_path)
+
+    with open(param_path / "parameters.txt", "r") as filein:
         f = filein.readlines()
     for line in f:
         entry = line.rstrip().split()
@@ -46,42 +51,41 @@ def scrape_parameter_file(location=None):
             map_type = entry[1]
         elif "pump_repeat" in entry[0].lower():
             pump_repeat = entry[1]
-    if location == "i24":
-        for line in f:
-            entry = line.rstrip().split()
-            if "pumpexptime" == entry[0].lower().strip():
-                pumpexptime = entry[1]
-            if "exptime" in entry[0].lower():
-                exptime = entry[1]
-            if "dcdetdist" in entry[0].lower():
-                dcdetdist = entry[1]
-            if "prepumpexptime" in entry[0].lower():
-                prepumpexptime = entry[1]
-            if "pumpdelay" in entry[0].lower():
-                pumpdelay = entry[1]
-            if "det_type" in entry[0].lower():
-                det_type = entry[1]
-        return (
-            chip_name,
-            visit,
-            sub_dir,
-            n_exposures,
-            chip_type,
-            map_type,
-            pump_repeat,
-            pumpexptime,
-            pumpdelay,
-            exptime,
-            dcdetdist,
-            prepumpexptime,
-            det_type,
-        )
 
-    else:
-        return chip_name, sub_dir, n_exposures, chip_type, map_type
+    for line in f:
+        entry = line.rstrip().split()
+        if "pumpexptime" == entry[0].lower().strip():
+            pumpexptime = entry[1]
+        if "exptime" in entry[0].lower():
+            exptime = entry[1]
+        if "dcdetdist" in entry[0].lower():
+            dcdetdist = entry[1]
+        if "prepumpexptime" in entry[0].lower():
+            prepumpexptime = entry[1]
+        if "pumpdelay" in entry[0].lower():
+            pumpdelay = entry[1]
+        if "det_type" in entry[0].lower():
+            det_type = entry[1]
+    return (
+        chip_name,
+        visit,
+        sub_dir,
+        n_exposures,
+        chip_type,
+        map_type,
+        pump_repeat,
+        pumpexptime,
+        pumpdelay,
+        exptime,
+        dcdetdist,
+        prepumpexptime,
+        det_type,
+    )
 
 
-def read_parameters(filename: str | None = None) -> Dict[str, str]:
+def read_parameters(
+    param_path: Path | str = PARAM_FILE_PATH_FT, filename: str | None = None
+) -> Dict[str, str]:
     """
     Read the parameter file into a lookup dictionary.
 
@@ -95,9 +99,12 @@ def read_parameters(filename: str | None = None) -> Dict[str, str]:
     Returns:
         A dictionary with a string entry for every key in the file.
     """
-    data = pathlib.Path(
-        "/dls_sw/i24/scripts/fastchips/parameter_files/parameters.txt"
-    ).read_text()
+    if not isinstance(param_path, Path):
+        param_path = Path(param_path)
+    if filename is None:
+        filename = "parameters.txt"
+    datafile = param_path / filename
+    data = datafile.read_text()
     args = {}
     for line in data.splitlines():
         key, value = line.split(maxsplit=1)
@@ -109,10 +116,10 @@ def fiducials(chip_type):
     name = inspect.stack()[0][3]
     if chip_type == "0":
         corners_list = []
-        for R in string.letters[26:35]:
+        for R in string.ascii_letters[26:35]:
             for C in [str(num) for num in range(1, 10)]:
-                for r in string.letters[:12]:
-                    for c in string.letters[:12]:
+                for r in string.ascii_letters[:12]:
+                    for c in string.ascii_letters[:12]:
                         addr = "_".join([R + C, r + c])
                         if r + c in ["aa", "la", "ll"]:
                             corners_list.append(addr)
@@ -153,7 +160,7 @@ def fiducials(chip_type):
         fiducial_list = []
 
     else:
-        lg.warning("%s Unknown chip_type, %s, in fiducials" % (name, chip_type))
+        logger.warning("%s Unknown chip_type, %s, in fiducials" % (name, chip_type))
         print("Unknown chip_type in fiducials")
     return fiducial_list
 
@@ -216,7 +223,7 @@ def get_format(chip_type):
         b2b_vert = 0.800
         chip_format = [6, 6, 20, 20]
     else:
-        lg.warning("%s Unknown chip_type, %s, in fiducials" % (name, chip_type))
+        logger.warning("%s Unknown chip_type, %s, in fiducials" % (name, chip_type))
         print("unknown chip type")
     cell_format = chip_format + [w2w, b2b_horz, b2b_vert]
     return cell_format
@@ -285,10 +292,10 @@ def pathli(l_in=[], way="typewriter", reverse=False):
                 for rep in range(25):
                     long_list.append(entry)
         else:
-            lg.warning("%s no known path, way =  %s" % (name, way))
+            logger.warning("%s no known path, way =  %s" % (name, way))
             print("no known path")
     else:
-        lg.warning("%s no list" % (name))
+        logger.warning("%s no list" % (name))
         print("no list")
     return long_list
 
@@ -325,7 +332,7 @@ def get_alphanumeric(chip_type):
         for window in window_list:
             alphanumeric_list.append(block + "_" + window)
     print(len(alphanumeric_list))
-    lg.info("%s length of alphanumeric list = %s" % (name, len(alphanumeric_list)))
+    logger.info("%s length of alphanumeric list = %s" % (name, len(alphanumeric_list)))
     return alphanumeric_list
 
 
@@ -364,13 +371,18 @@ def get_shot_order(chip_type):
                 switch = 0
 
     print(len(collect_list))
-    lg.info("%s length of collect list = %s" % (name, len(collect_list)))
+    logger.info("%s length of collect list = %s" % (name, len(collect_list)))
     return collect_list
 
 
-def write_file(location="i24", suffix=".addr", order="alphanumeric"):
+def write_file(
+    location="i24",
+    suffix=".addr",
+    order="alphanumeric",
+    param_file_path=PARAM_FILE_PATH_FT,
+):
     name = inspect.stack()[0][3]
-    lg.info("%s" % name)
+    logger.info("%s" % name)
     if location == "i24":
         (
             chip_name,
@@ -384,15 +396,12 @@ def write_file(location="i24", suffix=".addr", order="alphanumeric"):
             exptime,
             dcdetdist,
             prepumpexptime,
-        ) = scrape_parameter_file("i24")
-        a_directory = "/dls_sw/i24/scripts/fastchips/"
-    elif location == "SACLA":
-        chip_name, sub_dir, n_exposures, chip_type, map_type = scrape_parameter_file()
-        a_directory = "/localhome/local/Documents/sacla/"
+        ) = scrape_parameter_file(param_file_path)
+        a_directory = Path("/dls_sw/i24/scripts/fastchips/")
     else:
-        lg.warning("%s Unknown location, %s" % (name, location))
+        logger.warning("%s Unknown location, %s" % (name, location))
         print("Unknown location in write_file")
-    chip_file_path = a_directory + "chips/" + sub_dir + "/" + chip_name + suffix
+    chip_file_path = a_directory / f"chips/{sub_dir}/{chip_name}{suffix}"
 
     fiducial_list = fiducials(chip_type)
     if order == "alphanumeric":
@@ -401,26 +410,28 @@ def write_file(location="i24", suffix=".addr", order="alphanumeric"):
     elif order == "shot":
         addr_list = get_shot_order(chip_type)
 
-    # list_of_lines = []
-    g = open(chip_file_path, "a")
-    for addr in addr_list:
-        xtal_name = "_".join([chip_name, addr])
-        (x, y) = get_xy(xtal_name, chip_type)
-        if addr in fiducial_list:
-            pres = "0"
-        else:
-            if "rand" in suffix:
-                pres = str(np.random.randint(2))
+    with open(chip_file_path, "a") as g:
+        for addr in addr_list:
+            xtal_name = "_".join([chip_name, addr])
+            (x, y) = get_xy(xtal_name, chip_type)
+            if addr in fiducial_list:
+                pres = "0"
             else:
-                pres = "-1"
-        line = "\t".join([xtal_name, str(x), str(y), "0.0", pres]) + "\n"
-        #  list_of_lines.append(line)
-        g.write(line)
-    g.close()
-    lg.info("%s" % name)
+                if "rand" in suffix:
+                    pres = str(np.random.randint(2))
+                else:
+                    pres = "-1"
+            line = "\t".join([xtal_name, str(x), str(y), "0.0", pres]) + "\n"
+            g.write(line)
+
+    logger.info("%s" % name)
 
 
-def check_files(location, suffix_list):
+def check_files(
+    location: str,
+    suffix_list: List[str],
+    param_file_path: Path | str = PARAM_FILE_PATH_FT,
+):
     name = inspect.stack()[0][3]
     if location == "i24":
         (
@@ -437,35 +448,32 @@ def check_files(location, suffix_list):
             dcdetdist,
             prepumpexptime,
             det_type,
-        ) = scrape_parameter_file("i24")
-        a_directory = "/dls_sw/i24/scripts/fastchips/"
-    elif location == "SACLA":
-        chip_name, sub_dir, n_exposures, chip_type, map_type = scrape_parameter_file()
-        a_directory = "/localhome/local/Documents/sacla/"
-
+        ) = scrape_parameter_file(param_path=param_file_path)
+        a_directory = Path("/dls_sw/i24/scripts/fastchips/")
     else:
-        lg.warning("%s Unknown location, %s" % (name, location))
+        logger.warning("%s Unknown location, %s" % (name, location))
         print("Unknown location in write_file")
-    chip_file_path = a_directory + "chips/" + sub_dir + "/" + chip_name
+    chip_file_path = a_directory / f"chips/{sub_dir}/{chip_name}"
 
     try:
         os.stat(chip_file_path)
     except Exception:
         os.makedirs(chip_file_path)
     for suffix in suffix_list:
-        full_fid = chip_file_path + suffix
-        if os.path.isfile(full_fid):
+        full_fid = chip_file_path.with_suffix(suffix)
+        if full_fid.is_file():
             time_str = time.strftime("%Y%m%d_%H%M%S_")
-            timestamp_fid = full_fid.replace(chip_name, time_str + "_" + chip_name)
+            timestamp_fid = full_fid.parent / f"{time_str}_{chip_name}{full_fid.suffix}"
             print("FIX ME")
             # hack / fix
-            # os.rename(full_fid, timestamp_fid)
             print("Already exists ... moving old file:", timestamp_fid)
-            lg.info("%s File Already Exists\n -->%s" % (name, timestamp_fid))
+            logger.info("%s File Already Exists\n -->%s" % (name, timestamp_fid))
     return 1
 
 
-def write_headers(location, suffix_list):
+def write_headers(
+    location: str, suffix_list: List[str], param_file_path=PARAM_FILE_PATH_FT
+):
     name = inspect.stack()[0][3]
     if location == "i24":
         (
@@ -482,82 +490,57 @@ def write_headers(location, suffix_list):
             dcdetdist,
             prepumpexptime,
             det_type,
-        ) = scrape_parameter_file("i24")
-        a_directory = "/dls_sw/i24/scripts/fastchips/"
-    elif location == "SACLA":
-        chip_name, sub_dir, n_exposures, chip_type, map_type = scrape_parameter_file()
-        a_directory = "/localhome/local/Documents/sacla/"
-    chip_file_path = a_directory + "chips/" + sub_dir + "/" + chip_name
+        ) = scrape_parameter_file(param_path=PARAM_FILE_PATH_FT)
+        a_directory = Path("/dls_sw/i24/scripts/fastchips/")
+        chip_file_path = a_directory / f"chips/{sub_dir}/{chip_name}"
 
-    if location == "i24":
         for suffix in suffix_list:
-            full_fid = chip_file_path + suffix
-            g = open(full_fid, "w")
-            g.write(
-                "#23456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\n#\n"
-            )
-            g.write("#&i24\tchip_name    = %s\n" % chip_name)
-            g.write("#&i24\tvisit        = %s\n" % visit)
-            g.write("#&i24\tsub_dir      = %s\n" % sub_dir)
-            g.write("#&i24\tn_exposures  = %s\n" % n_exposures)
-            g.write("#&i24\tchip_type    = %s\n" % chip_type)
-            g.write("#&i24\tmap_type     = %s\n" % map_type)
-            g.write("#&i24\tpump_repeat  = %s\n" % pump_repeat)
-            g.write("#&i24\tpumpexptime  = %s\n" % pumpexptime)
-            g.write("#&i24\texptime      = %s\n" % exptime)
-            g.write("#&i24\tdcdetdist    = %s\n" % dcdetdist)
-            g.write("#&i24\tprepumpexptime  = %s\n" % prepumpexptime)
-            g.write("#&i24\tdet_Type     = %s\n" % det_type)
-            g.write("#\n")
-            g.write(
-                "#XtalAddr      XCoord  YCoord  ZCoord  Present Shot  Spare04 Spare03 Spare02 Spare01\n"
-            )
-        g.close()
-
-    elif location == "SACLA":
-        for suffix in suffix_list:
-            full_fid = chip_file_path + suffix
-            g = open(full_fid, "w")
-            g.write(
-                "#23456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\n#\n"
-            )
-            g.write("#&SACLA\tchip_name    = %s\n" % chip_name)
-            g.write("#&SACLA\tsub_dir      = %s\n" % sub_dir)
-            g.write("#&SACLA\tn_exposures  = %s\n" % n_exposures)
-            g.write("#&SACLA\tchip_type    = %s\n" % chip_type)
-            g.write("#&SACLA\tmap_type     = %s\n" % map_type)
-            g.write("#\n")
-            g.write(
-                "#XtalAddr      XCoord  YCoord  ZCoord  Present Shot  Spare04 Spare03 Spare02 Spare01\n"
-            )
-        g.close()
+            full_fid = chip_file_path.with_suffix(suffix)
+            with open(full_fid, "w") as g:
+                g.write(
+                    "#23456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\n#\n"
+                )
+                g.write("#&i24\tchip_name    = %s\n" % chip_name)
+                g.write("#&i24\tvisit        = %s\n" % visit)
+                g.write("#&i24\tsub_dir      = %s\n" % sub_dir)
+                g.write("#&i24\tn_exposures  = %s\n" % n_exposures)
+                g.write("#&i24\tchip_type    = %s\n" % chip_type)
+                g.write("#&i24\tmap_type     = %s\n" % map_type)
+                g.write("#&i24\tpump_repeat  = %s\n" % pump_repeat)
+                g.write("#&i24\tpumpexptime  = %s\n" % pumpexptime)
+                g.write("#&i24\texptime      = %s\n" % exptime)
+                g.write("#&i24\tdcdetdist    = %s\n" % dcdetdist)
+                g.write("#&i24\tprepumpexptime  = %s\n" % prepumpexptime)
+                g.write("#&i24\tdet_Type     = %s\n" % det_type)
+                g.write("#\n")
+                g.write(
+                    "#XtalAddr      XCoord  YCoord  ZCoord  Present Shot  Spare04 Spare03 Spare02 Spare01\n"
+                )
     else:
-        lg.warning("%s Unknown location, %s" % (name, location))
+        logger.warning("%s Unknown location, %s" % (name, location))
         print("Unknown location in write_headers")
 
 
 def run():
+    setup_logging()
     name = inspect.stack()[0][3]
-    lg.info("%s Run Startup" % name)
+    logger.info("%s Run Startup" % name)
     print("Run StartUp")
-    lg.info("%s" % name)
+    logger.info("%s" % name)
     check_files("i24", [".addr", ".shot"])
     print("Checked files")
-    lg.info("%s Checked Files" % name)
+    logger.info("%s Checked Files" % name)
     write_headers("i24", [".addr", ".shot"])
     print("Written headers")
-    lg.info("%s Written Headers" % name)
-    # write_file('SACLA', suffix='.addr', order='alphanumeric')
-    # write_file('SACLA', suffix='.shot', order='shot')
+    logger.info("%s Written Headers" % name)
     print("Written files")
-    lg.info("%s Writing to Files has been disabled. Headers Only" % name)
+    logger.info("%s Writing to Files has been disabled. Headers Only" % name)
     # Makes a file with random crystal positions
     check_files("i24", ["rando.spec"])
     write_headers("i24", ["rando.spec"])
-    # write_file('SACLA', suffix='rando.spec', order='shot')
 
     print(10 * "Done ")
-    lg.info("%s Done" % name)
+    logger.info("%s Done" % name)
 
 
 if __name__ == "__main__":

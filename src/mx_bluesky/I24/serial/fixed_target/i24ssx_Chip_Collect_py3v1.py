@@ -1,8 +1,10 @@
 """
 Fixed target data collection
 """
+from __future__ import annotations
+
 import inspect
-import logging as lg
+import logging
 import os
 import pathlib
 import sys
@@ -12,27 +14,26 @@ from time import sleep
 
 import numpy as np
 
+from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.dcid import DCID, SSXType
-from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1 import moveto
 from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1 import (
     get_format,
     scrape_parameter_file,
 )
+from mx_bluesky.I24.serial.parameters.constants import LITEMAP_PATH
 from mx_bluesky.I24.serial.setup_beamline import caget, cagetstring, caput, pv
 from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
 from mx_bluesky.I24.serial.write_nexus import call_nexgen
 
+logger = logging.getLogger("I24ssx.fixed_target")
 
-def set_up_logging():
+usage = "%(prog)s [options]"
+
+
+def setup_logging():
     # Log should now change name daily.
-    fh = lg.FileHandler(filename=time.strftime("logs/i24_%Y_%m_%d.log"))
-    fh.setFormatter(lg.Formatter("%(asctime)s %(levelname)s:   \t%(message)s"))
-    fh.setLevel(lg.DEBUG)
-    console = lg.StreamHandler(sys.stdout)
-    console.setFormatter(lg.Formatter("%(message)s"))
-    lg.basicConfig(handlers=[fh, console])
-    # Old logging
-    # lg.basicConfig(format='%(asctime)s %(levelname)s:   \t%(message)s',level=lg.DEBUG, filename='i24_march21.log')
+    logfile = time.strftime("i24_%Y_%m_%d.log").lower()
+    log.config(logfile)
 
 
 def flush_print(text):
@@ -42,7 +43,6 @@ def flush_print(text):
 
 def get_chip_prog_values(
     chip_type,
-    location,
     pump_repeat,
     pumpexptime,
     pumpdelay,
@@ -51,8 +51,7 @@ def get_chip_prog_values(
     n_exposures=1,
 ):
     name = inspect.stack()[0][3]
-    lg.info("%s" % name)
-    # Hack for sacla3 to bismuth chip type for oxford inner
+    logger.info("%s" % name)
     if chip_type in ["0", "1", "5", "7", "8", "10"]:
         (
             xblocks,
@@ -69,17 +68,6 @@ def get_chip_prog_values(
         y_block_size = ((y_num_steps - 1) * w2w) + b2b_vert
 
         """
-        print 'rrrrrrrrrrrrrrrrrrrrrrrrrrrrr'
-        print x_num_steps
-        print y_num_steps
-        print xblocks
-        print yblocks
-        print w2w
-        print b2b_horz
-        print b2b_vert
-        print x_block_size
-        print y_block_size
-        print 'rrrrrrrrrrrrrrrrrrrrrrrrrrrrr'
         '0' = 'Toronto' = [9, 9, 12, 12, 0.125, 2.2  , 2.5  ]
         '1' = 'Oxford ' = [8, 8, 20, 20, 0.125, 3.175, 3.175]
         '2' = 'Hamburg' = [3, 3, 53, 53, 0.150, 8.58 , 8.58 ]
@@ -89,18 +77,14 @@ def get_chip_prog_values(
     elif chip_type == "2":
         if caget(pv.me14e_gp2) == 2:
             print("Full Mapping on Hamburg -> xblocks = 6")
-            lg.info("%s Full Mapping on Hamburg -> xblocks = 6" % name)
+            logger.info("%s Full Mapping on Hamburg -> xblocks = 6" % name)
             xblocks = 6
         else:
             xblocks = 3
 
-    elif chip_type == "3":
-        lg.debug("%s\t:Hack for SACLA3 bismuth for oxford inner" % name)
-        chip_type = "1"
-
     elif chip_type == "4":
         print("This is a Bismuth Chip")
-        lg.info("%s This is a Bismuth Chip" % name)
+        logger.info("%s This is a Bismuth Chip" % name)
         x_num_steps = caget(pv.me14e_gp6)
         y_num_steps = caget(pv.me14e_gp7)
         x_step_size = caget(pv.me14e_gp8)
@@ -112,7 +96,7 @@ def get_chip_prog_values(
 
     elif chip_type == "6":
         print("This is a Custom Chip")
-        lg.info("%s This is a Custom Chip" % name)
+        logger.info("%s This is a Custom Chip" % name)
         x_num_steps = caget(pv.me14e_gp6)
         y_num_steps = caget(pv.me14e_gp7)
         x_step_size = caget(pv.me14e_gp8)
@@ -123,7 +107,7 @@ def get_chip_prog_values(
         y_block_size = 0  # placeholder
     else:
         print("Unknown chip_type.  oh no")
-        lg.warning("%s Unknown chip_type, chip_type = %s" % (name, chip_type))
+        logger.warning("%s Unknown chip_type, chip_type = %s" % (name, chip_type))
 
     # this is where p variables for fast laser expts will be set
     if pump_repeat in ["0", "1", "2"]:
@@ -140,7 +124,7 @@ def get_chip_prog_values(
         pump_repeat_pvar = 10
     else:
         print("Unknown pump_repeat")
-        lg.warning("%s Unknown pump_repeat, pump_repeat = %s" % (name, pump_repeat))
+        logger.warning("%s Unknown pump_repeat, pump_repeat = %s" % (name, pump_repeat))
 
     if pump_repeat == "2":
         pump_in_probe = 1
@@ -152,7 +136,7 @@ def get_chip_prog_values(
         "Y_NUM_STEPS": [12, y_num_steps],
         "X_STEP_SIZE": [13, x_step_size],
         "Y_STEP_SIZE": [14, y_step_size],
-        "DWELL_TIME": [15, exptime],  # SACLA 15ms + 1ms
+        "DWELL_TIME": [15, exptime],
         "X_START": [16, 0],
         "Y_START": [17, 0],
         "Z_START": [18, 0],
@@ -169,11 +153,10 @@ def get_chip_prog_values(
         "PUMP_IN_PROBE": [38, pump_in_probe],
     }
 
-    if location == "i24":
-        chip_dict["DWELL_TIME"][1] = 1000 * float(exptime)
-        chip_dict["LASER_DWELL"][1] = 1000 * float(pumpexptime)
-        chip_dict["LASERTWO_DWELL"][1] = 1000 * float(prepumpexptime)
-        chip_dict["LASER_DELAY"][1] = 1000 * float(pumpdelay)
+    chip_dict["DWELL_TIME"][1] = 1000 * float(exptime)
+    chip_dict["LASER_DWELL"][1] = 1000 * float(pumpexptime)
+    chip_dict["LASERTWO_DWELL"][1] = 1000 * float(prepumpexptime)
+    chip_dict["LASER_DELAY"][1] = 1000 * float(pumpdelay)
 
     return chip_dict
 
@@ -182,7 +165,7 @@ def load_motion_program_data(motion_program_dict, map_type, pump_repeat):
     print("Loading prog vars for chip")
     print("pump_repeat", pump_repeat)
     name = inspect.stack()[0][3]
-    lg.info("%s loading program variables for chip" % name)
+    logger.info("%s loading program variables for chip" % name)
     if pump_repeat == "0":
         print("pump delay is 0")
         if map_type == "0":
@@ -192,7 +175,7 @@ def load_motion_program_data(motion_program_dict, map_type, pump_repeat):
         elif map_type == "2":
             prefix = 13
         else:
-            lg.warning("%s Unknown Map Type, map_type = %s" % (name, map_type))
+            logger.warning("%s Unknown Map Type, map_type = %s" % (name, map_type))
             print("Unknown map_type")
     elif pump_repeat in ["1", "2", "3", "4", "5", "6", "7"]:
         print("pump repeat is", pump_repeat)
@@ -216,7 +199,7 @@ def load_motion_program_data(motion_program_dict, map_type, pump_repeat):
         #    caput(pv.me14e_pmac_str, 'P1432=10')
 
     else:
-        lg.warning("%s Unknown Pump repeat, pump_repeat = %s" % (name, pump_repeat))
+        logger.warning("%s Unknown Pump repeat, pump_repeat = %s" % (name, pump_repeat))
         print("Unknown pump_repeat")
 
     for key in sorted(motion_program_dict.keys()):
@@ -226,62 +209,62 @@ def load_motion_program_data(motion_program_dict, map_type, pump_repeat):
         value = str(v[1])
         s = "P" + str(pvar) + "=" + str(value)
         print(key, "\t", s)
-        lg.info("%s %s \t %s" % (name, key, s))
+        logger.info("%s %s \t %s" % (name, key, s))
         caput(pv.me14e_pmac_str, s)
         sleep(0.02)
     sleep(0.2)
     print("done")
-    lg.info("%s done" % name)
+    logger.info("%s done" % name)
 
 
 def get_prog_num(chip_type, map_type, pump_repeat):
     name = inspect.stack()[0][3]
-    lg.info("%s Get Program Number" % name)
-    # Hack for sacla3 to bismuth chip type for oxford inner
+    logger.info("%s Get Program Number" % name)
     if str(pump_repeat) == "0":
-        if str(chip_type) == "3":
-            lg.debug("%s\t:Hack for SACLA3 bismuth for oxford inner" % name)
-            chip_type = "1"
         if chip_type in ["0", "1", "2", "5", "10"]:
             if map_type == "0":
-                lg.info("%s\t:Map Type = None" % name)
+                logger.info("%s\t:Map Type = None" % name)
                 print("Map Type is None")
                 return 11
             elif map_type == "1":
-                lg.info("%s\t:Map Type = Mapping Lite" % name)
+                logger.info("%s\t:Map Type = Mapping Lite" % name)
                 print("Map Type is Mapping Lite")
                 return 12
             elif map_type == "2":
-                lg.info("%s\t:Map Type = FULL" % name)
-                lg.debug("%s\t:Mapping Type FULL is broken as of 11.09.17" % name)
+                logger.info("%s\t:Map Type = FULL" % name)
+                logger.debug("%s\t:Mapping Type FULL is broken as of 11.09.17" % name)
                 print("Map Type is FULL")
                 return 13
             else:
-                lg.debug("%s\t:Unknown Mapping Type; map_type = %s" % (name, map_type))
+                logger.debug(
+                    "%s\t:Unknown Mapping Type; map_type = %s" % (name, map_type)
+                )
                 print("Unknown map_type")
                 print(map_type)
                 return 0
         elif chip_type == "4":
-            lg.info("%s\t:Bismuth Chip Type 2" % name)
+            logger.info("%s\t:Bismuth Chip Type 2" % name)
             print("Bismuth Chip Type 2")
             return 12
         elif chip_type == "6":
-            lg.info("%s\t:Custom Chip" % name)
+            logger.info("%s\t:Custom Chip" % name)
             print("Custom Chip Type")
             return 11
         elif chip_type in ["7", "8"]:
-            lg.info("%s\t:Heidelberg Chip" % name)
+            logger.info("%s\t:Heidelberg Chip" % name)
             print("Heidelberg Chip Type")
             return 11
         else:
-            lg.debug("%s\t:Unknown chip_type, chip_tpe = = %s" % (name, chip_type))
+            logger.debug("%s\t:Unknown chip_type, chip_tpe = = %s" % (name, chip_type))
             print("Unknown Chip Type")
     elif pump_repeat in ["1", "2", "3", "4", "5", "6", "7"]:
-        lg.info("%s\t:Map Type = Mapping Lite with Pump probe" % name)
+        logger.info("%s\t:Map Type = Mapping Lite with Pump probe" % name)
         print("Map Type is Mapping Lite with Pump Probe")
         return 14
     else:
-        lg.debug("%s\t:Unknown pump_repeat, pump_repeat = = %s" % (name, pump_repeat))
+        logger.debug(
+            "%s\t:Unknown pump_repeat, pump_repeat = = %s" % (name, pump_repeat)
+        )
         print("Unknown Pump Delay")
 
 
@@ -302,7 +285,7 @@ def datasetsizei24():
         dcdetdist,
         prepumpexptime,
         det_type,
-    ) = scrape_parameter_file(location="i24")
+    ) = scrape_parameter_file()
 
     if map_type == "0":
         chip_format = get_format(chip_type)[:4]
@@ -310,7 +293,7 @@ def datasetsizei24():
             # Chip Type 6 is Custom
             print("Calculating total number of images")
             total_numb_imgs = int(int(caget(pv.me14e_gp6)) * int(caget(pv.me14e_gp7)))
-            lg.info(
+            logger.info(
                 "%s !!!!!! Calculating total number of images %s"
                 % (name, total_numb_imgs)
             )
@@ -321,20 +304,20 @@ def datasetsizei24():
     elif map_type == "1":
         chip_format = get_format(chip_type)[2:4]
         block_count = 0
-        f = open("/dls_sw/i24/scripts/fastchips/litemaps/currentchip.map", "r")
-        for line in f.readlines():
-            entry = line.split()
-            if entry[2] == "1":
-                block_count += 1
-        f.close()
+        with open(LITEMAP_PATH / "currentchip.map", "r") as f:
+            for line in f.readlines():
+                entry = line.split()
+                if entry[2] == "1":
+                    block_count += 1
+
         print("block_count", block_count)
         print(chip_format)
-        lg.info("%s\t:block_count=%s" % (name, block_count))
-        lg.info("%s\t:chip_format=%s" % (name, chip_format))
+        logger.info("%s\t:block_count=%s" % (name, block_count))
+        logger.info("%s\t:chip_format=%s" % (name, chip_format))
 
         n_exposures = int(caget(pv.me14e_gp3))
         print(n_exposures)
-        lg.info("%s\t:n_exposures=%s" % (name, n_exposures))
+        logger.info("%s\t:n_exposures=%s" % (name, n_exposures))
 
         total_numb_imgs = np.prod(chip_format) * block_count * n_exposures
 
@@ -348,72 +331,16 @@ def datasetsizei24():
         #    print('Unknown pump_repeat')
 
     elif map_type == "2":
-        lg.warning("%s\t:Not Set Up For Full Mapping=%s" % (name))
+        logger.warning("%s\t:Not Set Up For Full Mapping=%s" % (name))
         print("FIX ME, Im not set up for full mapping ")
 
     else:
-        lg.warning("%s Unknown Map Type, map_type = %s" % (name, map_type))
+        logger.warning("%s Unknown Map Type, map_type = %s" % (name, map_type))
         print("Unknown map type")
 
     print("Total number of images", total_numb_imgs, "\n\n\n")
     caput(pv.me14e_gp10, total_numb_imgs)
-    lg.info("%s\t:----->Total number of images = %s" % (name, total_numb_imgs))
-
-    return total_numb_imgs
-
-
-def datasetsizesacla():
-    name = inspect.stack()[0][3]
-    chip_name, sub_dir, n_exposures, chip_type, map_type = scrape_parameter_file(
-        location="SACLA"
-    )
-    # Hack for sacla3 to bismuth chip type for oxford inner
-
-    if str(chip_type) == "3":
-        lg.debug("%s\t:Hack for SACLA3 bismuth for oxford inner" % name)
-        chip_type = "1"
-    if map_type == "0":
-        chip_format = get_format(chip_type)[:4]
-        total_numb_imgs = np.prod(chip_format)
-        if str(chip_type) == "6":
-            xs = int(caget(pv.me14e_gp6))
-            ys = int(caget(pv.me14e_gp7))
-            print(xs, ys, type(xs), type(ys))
-            total_numb_imgs = xs * ys
-        caput(pv.me14e_gp10, total_numb_imgs)
-        caput(pv.me14e_pmac_str, "P2402=0")
-        print("Total number of images", total_numb_imgs)
-
-    elif map_type == "1" or map_type == "3":
-        chip_format = get_format(chip_type)[2:4]
-        block_count = 0
-        # f = open('/localhome/local/Documents/sacla/parameter_files/currentchip.map', 'r')
-        f = open("/dls_sw/i24/scripts/fastchips/parameter_files/currentchip.map", "r")
-        for line in f.readlines():
-            entry = line.split()
-            if entry[2] == "1":
-                block_count += 1
-        f.close()
-        print("block_count", block_count)
-        lg.info("%s\t:block_count=%s" % (name, block_count))
-        print(chip_format)
-        lg.info("%s\t:chip_format=%s" % (name, chip_format))
-        #
-        n_exposures = caget(pv.me14e_gp3)
-        print(n_exposures)
-        lg.info("%s\t:n_exposures=%s" % (name, n_exposures))
-        #
-        total_numb_imgs = np.prod(chip_format) * block_count  # * n_exposures
-        caput(pv.me14e_gp10, total_numb_imgs)
-        caput(pv.me14e_pmac_str, "P2402=0")
-        print("Total number of images", total_numb_imgs)
-
-    elif map_type == "2":
-        lg.warning("%s Not Set Up For Full Mapping" % name)
-        print("FIX ME, Im not set up for full mapping ")
-    else:
-        lg.warning("%s Unknown Map Type, map_type = %s" % (name, map_type))
-        print("Unknown map type")
+    logger.info("%s\t:----->Total number of images = %s" % (name, total_numb_imgs))
 
     return total_numb_imgs
 
@@ -422,7 +349,7 @@ def start_i24():
     """Returns a tuple of (start_time, dcid)"""
     print("Starting i24")
     name = inspect.stack()[0][3]
-    lg.info("%s Starting i24" % name)
+    logger.info("%s Starting i24" % name)
     start_time = datetime.now()
     # run_num = caget(pv.pilat_filenumber)
     # print(80*'-', run_num)
@@ -441,25 +368,25 @@ def start_i24():
         dcdetdist,
         prepumpexptime,
         det_type,
-    ) = scrape_parameter_file(location="i24")
+    ) = scrape_parameter_file()
 
-    lg.info("%s Set up beamline" % (name))
+    logger.info("%s Set up beamline" % (name))
     sup.beamline("collect")
     sup.beamline("quickshot", [dcdetdist])
-    lg.info("%s Set up beamline DONE" % (name))
+    logger.info("%s Set up beamline DONE" % (name))
 
     total_numb_imgs = datasetsizei24()
 
     filepath = visit + sub_dir
     filename = chip_name
 
-    lg.info("%s Filepath %s" % (name, filepath))
-    lg.info("%s Filename %s" % (name, filename))
-    lg.info("%s Total number images %s" % (name, total_numb_imgs))
-    lg.info("%s Exposure time %s" % (name, exptime))
+    logger.info("%s Filepath %s" % (name, filepath))
+    logger.info("%s Filename %s" % (name, filename))
+    logger.info("%s Total number images %s" % (name, total_numb_imgs))
+    logger.info("%s Exposure time %s" % (name, exptime))
 
     print("Acquire Region")
-    lg.info("%s\t:Acquire Region" % (name))
+    logger.info("%s\t:Acquire Region" % (name))
 
     # Testing for new zebra triggering
     print("ZEBRA TEST ZEBRA TEST ZEBRA TEST ZEBRA TEST")
@@ -472,15 +399,14 @@ def start_i24():
 
     if det_type == "pilatus":
         print("Detector type is Pilatus")
-        lg.info("%s Fastchip Pilatus setup: filepath %s" % (name, filepath))
-        lg.info("%s Fastchip Pilatus setup: filepath %s" % (name, filename))
-        lg.info(
+        logger.info("%s Fastchip Pilatus setup: filepath %s" % (name, filepath))
+        logger.info("%s Fastchip Pilatus setup: filepath %s" % (name, filename))
+        logger.info(
             "%s Fastchip Pilatus setup: number of images %s" % (name, total_numb_imgs)
         )
-        lg.info("%s Fastchip Pilatus setup: exposure time %s" % (name, exptime))
+        logger.info("%s Fastchip Pilatus setup: exposure time %s" % (name, exptime))
 
         sup.pilatus("fastchip", [filepath, filename, total_numb_imgs, exptime])
-        # sup.pilatus('fastchip-hatrx', [filepath, filename, total_numb_imgs, exptime])
 
         # DCID process depends on detector PVs being set up already
         dcid = DCID(
@@ -499,12 +425,9 @@ def start_i24():
         )
 
         print("Arm Pilatus. Arm Zebra.")
-        # ZEBRA TEST. Swap the below two lines in/out. Must also swap pc_arm line also.
-        # sup.zebra1('fastchip')
-        sup.zebra1("fastchip-zebratrigger-pilatus", [num_gates, n_exposures, exptime])
+        sup.zebra1("fastchip-pilatus", [num_gates, n_exposures, exptime])
         caput(pv.pilat_acquire, "1")  # Arm pilatus
-        caput(pv.zebra1_pc_arm, "1")  # Arm zebra fastchip-zebratrigger
-        # caput(pv.zebra1_pc_arm_out, '1')    # Arm zebra fastchip
+        caput(pv.zebra1_pc_arm, "1")  # Arm zebra fastchip-pilatus
         caput(pv.pilat_filename, filename)
         time.sleep(1.5)
 
@@ -514,7 +437,7 @@ def start_i24():
         # FIXME TEMPORARY HACK TO DO SINGLE IMAGE PILATUS DATA COLL TO MKDIR #
 
         print("Single image pilatus data collection to create directory")
-        lg.info("%s single image pilatus data collection" % name)
+        logger.info("%s single image pilatus data collection" % name)
         num_imgs = 1
         sup.pilatus("quickshot-internaltrig", [filepath, filename, num_imgs, exptime])
         print("Sleep 2s for pilatus to arm")
@@ -533,12 +456,12 @@ def start_i24():
         print("Eiger filepath", filepath)
         print("Eiger filename", filename)
         print("Eiger total number of images", total_numb_imgs)
-        lg.info("%s Triggered Eiger setup: filepath %s" % (name, filepath))
-        lg.info("%s Triggered Eiger setup: filename %s" % (name, filename))
-        lg.info(
+        logger.info("%s Triggered Eiger setup: filepath %s" % (name, filepath))
+        logger.info("%s Triggered Eiger setup: filename %s" % (name, filename))
+        logger.info(
             "%s Triggered Eiger setup: number of images %s" % (name, total_numb_imgs)
         )
-        lg.info("%s Triggered Eiger setup: exposure time %s" % (name, exptime))
+        logger.info("%s Triggered Eiger setup: exposure time %s" % (name, exptime))
 
         sup.eiger("triggered", [filepath, filename, total_numb_imgs, exptime])
 
@@ -555,18 +478,13 @@ def start_i24():
         )
 
         print("Arm Zebra.")
-        # TO GET DOSE SERIES TO WORK
-        # Choose the correct pair of lines
-        # sup.zebra1("fastchip-eiger")
-        # caput(pv.zebra1_pc_arm_out, '1')    # Arm zebra
-
-        sup.zebra1("fastchip-zebratrigger-eiger", [num_gates, n_exposures, exptime])
-        caput(pv.zebra1_pc_arm, "1")  # Arm zebra fastchip-zebratrigger
+        sup.zebra1("fastchip-eiger", [num_gates, n_exposures, exptime])
+        caput(pv.zebra1_pc_arm, "1")  # Arm zebra fastchip-eiger
 
         time.sleep(1.5)
 
     else:
-        lg.warning("%s Unknown Detector Type, det_type = %s" % (name, det_type))
+        logger.warning("%s Unknown Detector Type, det_type = %s" % (name, det_type))
         print("Unknown detector type")
 
     # Open the hutch shutter
@@ -581,29 +499,12 @@ def start_i24():
     return start_time.ctime(), dcid
 
 
-def start_sacla():
-    print("Starting SACLA")
-    name = inspect.stack()[0][3]
-    lg.info("%s Starting SACLA" % name)
-    start_time = time.ctime()
-
-    total_numb_imgs = datasetsizesacla()
-    print(total_numb_imgs)
-
-    # make sure flipper is out
-    moveto("flipperout")
-    sleep(1)
-    moveto("lightout")
-    sleep(3)
-    return start_time
-
-
 def finish_i24(chip_prog_dict, start_time):
     name = inspect.stack()[0][3]
     det_type = str(caget(pv.me14e_gp101))
 
     print("Finishing I24")
-    lg.info("%s Finishing I24, Detector Type %s" % (name, det_type))
+    logger.info("%s Finishing I24, Detector Type %s" % (name, det_type))
 
     (
         chip_name,
@@ -619,7 +520,7 @@ def finish_i24(chip_prog_dict, start_time):
         dcdetdist,
         prepumpexptime,
         det_type,
-    ) = scrape_parameter_file(location="i24")
+    ) = scrape_parameter_file()
 
     total_numb_imgs = datasetsizei24()
     filepath = visit + sub_dir
@@ -667,81 +568,59 @@ def finish_i24(chip_prog_dict, start_time):
 
     os.makedirs(userlog_path, exist_ok=True)
 
-    f = open(userlog_path + userlog_fid, "w")
-    f.write("Fixed Target Data Collection Parameters\n")
-    f.write("Data directory \t%s\n" % filepath)
-    f.write("Filename \t%s\n" % filename)
-    f.write("Shots per pos \t%s\n" % n_exposures)
-    f.write("Total N images \t%s\n" % total_numb_imgs)
-    f.write("Exposure time \t%s\n" % exptime)
-    f.write("Det distance \t%s\n" % dcdetdist)
-    f.write("Transmission \t%s\n" % transmission)
-    f.write("Wavelength \t%s\n" % wavelength)
-    f.write("Detector type \t%s\n" % det_type)
-    f.write("Pump status \t%s\n" % pump_repeat)
-    f.write("Pump exp time \t%s\n" % pumpexptime)
-    f.write("Pump delay \t%s\n" % pumpdelay)
-    f.close()
+    with open(userlog_path + userlog_fid, "w") as f:
+        f.write("Fixed Target Data Collection Parameters\n")
+        f.write("Data directory \t%s\n" % filepath)
+        f.write("Filename \t%s\n" % filename)
+        f.write("Shots per pos \t%s\n" % n_exposures)
+        f.write("Total N images \t%s\n" % total_numb_imgs)
+        f.write("Exposure time \t%s\n" % exptime)
+        f.write("Det distance \t%s\n" % dcdetdist)
+        f.write("Transmission \t%s\n" % transmission)
+        f.write("Wavelength \t%s\n" % wavelength)
+        f.write("Detector type \t%s\n" % det_type)
+        f.write("Pump status \t%s\n" % pump_repeat)
+        f.write("Pump exp time \t%s\n" % pumpexptime)
+        f.write("Pump delay \t%s\n" % pumpdelay)
 
     sleep(0.5)
 
     return end_time
 
 
-def finish_sacla():
-    print("Finishing SACLA")
-    name = inspect.stack()[0][3]
-    lg.info("%s Finishing SACLA" % name)
-    caput(pv.me14e_pmac_str, "!x0y0z0")
-    lg.info("%s pmac_str=!x0y0z0" % name)
-    end_time = time.ctime()
-    return end_time
-
-
-def main(location="i24"):
-    print("Location is", location, "Starting")
+def main():
     # ABORT BUTTON
     name = inspect.stack()[0][3]
-    lg.info("%s" % name)
-    lg.info("%s Location is %s \n Starting" % (name, location))
+    logger.info("%s" % name)
+    logger.info("%s Location is I24 \n Starting" % name)
     caput(pv.me14e_gp9, 0)
 
-    if location == "i24":
-        (
-            chip_name,
-            visit,
-            sub_dir,
-            n_exposures,
-            chip_type,
-            map_type,
-            pump_repeat,
-            pumpexptime,
-            pumpdelay,
-            exptime,
-            dcdetdist,
-            prepumpexptime,
-            det_type,
-        ) = scrape_parameter_file(location="i24")
-        print("exptime", exptime)
-        print("pump_repeat", pump_repeat)
-        print("pumpexptime", pumpexptime)
-        print("pumpdelay", pumpdelay)
-        print("visit", visit)
-        print("dcdetdist", dcdetdist)
-        print("n_exposures", n_exposures)
-        print("det_type", det_type)
-        lg.info("%s exptime = %s" % (name, exptime))
-        lg.info("%s visit = %s" % (name, visit))
-        lg.info("%s dcdetdist = %s" % (name, dcdetdist))
-    else:
-        (
-            chip_name,
-            sub_dir,
-            n_exposures,
-            chip_type,
-            map_type,
-            prepumpexptime,
-        ) = scrape_parameter_file(location="SACLA")
+    (
+        chip_name,
+        visit,
+        sub_dir,
+        n_exposures,
+        chip_type,
+        map_type,
+        pump_repeat,
+        pumpexptime,
+        pumpdelay,
+        exptime,
+        dcdetdist,
+        prepumpexptime,
+        det_type,
+    ) = scrape_parameter_file()
+    print("exptime", exptime)
+    print("pump_repeat", pump_repeat)
+    print("pumpexptime", pumpexptime)
+    print("pumpdelay", pumpdelay)
+    print("visit", visit)
+    print("dcdetdist", dcdetdist)
+    print("n_exposures", n_exposures)
+    print("det_type", det_type)
+    logger.info("%s exptime = %s" % (name, exptime))
+    logger.info("%s visit = %s" % (name, visit))
+    logger.info("%s dcdetdist = %s" % (name, dcdetdist))
 
     print("\n\nChip name is", chip_name)
     print("sub_dir", sub_dir)
@@ -754,61 +633,45 @@ def main(location="i24"):
     print("prepumpexptime", prepumpexptime)
     print("Getting Prog Dictionary")
 
-    lg.info("%s Chip name is %s" % (name, chip_name))
-    lg.info("%s sub_dir = %s" % (name, sub_dir))
-    lg.info("%s n_exposures = %s" % (name, n_exposures))
-    lg.info("%s chip_type = %s" % (name, chip_type))
-    lg.info("%s map_type = %s" % (name, map_type))
-    lg.info("%s pump_repeat = %s" % (name, pump_repeat))
-    lg.info("%s pumpexptime = %s" % (name, pumpexptime))
-    lg.info("%s pumpdelay = %s" % (name, pumpdelay))
-    lg.info("%s prepumpexptime = %s" % (name, prepumpexptime))
-    lg.info("%s Getting Program Dictionary" % (name))
+    logger.info("%s Chip name is %s" % (name, chip_name))
+    logger.info("%s sub_dir = %s" % (name, sub_dir))
+    logger.info("%s n_exposures = %s" % (name, n_exposures))
+    logger.info("%s chip_type = %s" % (name, chip_type))
+    logger.info("%s map_type = %s" % (name, map_type))
+    logger.info("%s pump_repeat = %s" % (name, pump_repeat))
+    logger.info("%s pumpexptime = %s" % (name, pumpexptime))
+    logger.info("%s pumpdelay = %s" % (name, pumpdelay))
+    logger.info("%s prepumpexptime = %s" % (name, prepumpexptime))
+    logger.info("%s Getting Program Dictionary" % (name))
 
     # If alignment type is Oxford inner it is still an Oxford type chip
     if str(chip_type) == "3":
-        lg.debug("%s\tMain: Change chip type Oxford Inner to Oxford" % name)
+        logger.debug("%s\tMain: Change chip type Oxford Inner to Oxford" % name)
         chip_type = "1"
 
-    if location == "i24":
-        chip_prog_dict = get_chip_prog_values(
-            chip_type,
-            location,
-            pump_repeat,
-            pumpexptime,
-            pumpdelay,
-            prepumpexptime,
-            exptime=exptime,
-            n_exposures=n_exposures,
-        )
-    else:
-        chip_prog_dict = get_chip_prog_values(
-            chip_type, location, n_exposures=n_exposures
-        )
+    chip_prog_dict = get_chip_prog_values(
+        chip_type,
+        pump_repeat,
+        pumpexptime,
+        pumpdelay,
+        prepumpexptime,
+        exptime=exptime,
+        n_exposures=n_exposures,
+    )
     print("Loading Motion Program Data")
-    lg.info("%s Loading Motion Program Data" % (name))
+    logger.info("%s Loading Motion Program Data" % (name))
     load_motion_program_data(chip_prog_dict, map_type, pump_repeat)
 
-    if location == "i24":
-        start_time, dcid = start_i24()
-    elif location == "SACLA":
-        start_time = start_sacla()
-    else:
-        lg.warning(
-            "%s This does nothing location not I24 or SACLA \n location = %s"
-            % (name, location)
-        )
-        lg.debug("%s Put something here... start_time = start_sacla()" % (name))
-        print("Something went wrong. Location not specified")
+    start_time, dcid = start_i24()
 
     print("Moving to Start")
-    lg.info("%s Moving to start" % (name))
+    logger.info("%s Moving to start" % (name))
     caput(pv.me14e_pmac_str, "!x0y0z0")
     sleep(2.0)
 
     prog_num = get_prog_num(chip_type, map_type, pump_repeat)
-    lg.info("%s prog_num = %s" % (name, prog_num))
-    lg.info("%s Resting" % (name))
+    logger.info("%s prog_num = %s" % (name, prog_num))
+    logger.info("%s Resting" % (name))
 
     # Now ready for data collection. Open fast shutter
     caput(pv.zebra1_soft_in_b1, "1")  # Open fast shutter (zebra gate)
@@ -816,16 +679,16 @@ def main(location="i24"):
     print("Running pmac program number", prog_num)
 
     print("pmacing")
-    lg.info("%s pmacing" % (name))
-    lg.info("%s pmac str = &2b%sr" % (name, prog_num))
+    logger.info("%s pmacing" % (name))
+    logger.info("%s pmac str = &2b%sr" % (name, prog_num))
     caput(pv.me14e_pmac_str, "&2b%sr" % prog_num)
     sleep(1.0)
 
     # Kick off the StartOfCollect script
     dcid.notify_start()
 
-    param_file_tuple = scrape_parameter_file(location="i24")
-    if location == "i24" and det_type == "eiger":
+    param_file_tuple = scrape_parameter_file()
+    if det_type == "eiger":
         call_nexgen(
             chip_prog_dict,
             start_time,
@@ -834,7 +697,7 @@ def main(location="i24"):
         )
 
     print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-    lg.info("%s Data Collection running" % (name))
+    logger.info("%s Data Collection running" % (name))
 
     aborted = False
     while True:
@@ -849,7 +712,7 @@ def main(location="i24"):
                 i += 1
                 if int(caget(pv.me14e_gp9)) != 0:
                     aborted = True
-                    lg.warning("%s Data Collection Aborted" % (name))
+                    logger.warning("%s Data Collection Aborted" % (name))
                     print(50 * "ABORTED ")
                     caput(pv.me14e_pmac_str, "A")
                     sleep(1.0)
@@ -857,15 +720,12 @@ def main(location="i24"):
                     break
                 elif int(caget(pv.me14e_scanstatus)) == 0:
                     print(caget(pv.me14e_scanstatus))
-                    lg.warning("%s Data Collection Finished" % (name))
+                    logger.warning("%s Data Collection Finished" % (name))
                     print("\n", 20 * "DONE ")
                     break
-                # if int(caget(pv.pilat_acquire)) == 'Done':
-                #    print '\n', 20*'DONE '
-                #    break
         else:
             aborted = True
-            lg.info("%s Data Collection ended due to GP 9 not equalling 0" % (name))
+            logger.info("%s Data Collection ended due to GP 9 not equalling 0" % (name))
             break
         break
     print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
@@ -883,22 +743,18 @@ def main(location="i24"):
         caput(pv.eiger_acquire, 0)
         caput(pv.eiger_ODcapture, "Done")
 
-    if location == "i24":
-        end_time = finish_i24(chip_prog_dict, start_time)
-        dcid.collection_complete(end_time, aborted=aborted)
-        dcid.notify_end()
+    end_time = finish_i24(chip_prog_dict, start_time)
+    dcid.collection_complete(end_time, aborted=aborted)
+    dcid.notify_end()
 
-    if location == "SACLA":
-        end_time = finish_sacla()
-
-    lg.info("%s Chip name = %s sub_dir = %s" % (name, chip_name, sub_dir))
+    logger.info("%s Chip name = %s sub_dir = %s" % (name, chip_name, sub_dir))
     print("Start time:", start_time)
-    lg.info("%s Start Time = % s" % (name, start_time))
+    logger.info("%s Start Time = % s" % (name, start_time))
     print("End time:  ", end_time)
-    lg.info("%s End Time = %s" % (name, end_time))
+    logger.info("%s End Time = %s" % (name, end_time))
 
 
 if __name__ == "__main__":
-    set_up_logging()
-    # main(location='SACLA')
-    main(location="i24")
+    setup_logging()
+
+    main()
