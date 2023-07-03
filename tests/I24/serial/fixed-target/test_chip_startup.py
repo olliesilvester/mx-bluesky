@@ -50,7 +50,7 @@ def test_get_format_for_oxford_chip():
 def test_get_format_for_oxford_minichip():
     # 1 block of oxford chip
     fmt = get_format("9")
-    assert fmt == [1, 1, 20, 20, 0.125, 0.800, 0.800]
+    assert fmt == [1, 1, 20, 20, 0.125, 0.0, 0.0]
 
 
 def test_get_format_for_custom_chip():
