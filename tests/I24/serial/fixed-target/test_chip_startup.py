@@ -38,14 +38,19 @@ def test_scrape_parameter_file():
 
 def test_fiducials():
     assert len(fiducials("1")) == 0
-    assert len(fiducials("5")) == 0
-    assert len(fiducials("0")) > 0
+    assert len(fiducials("3")) == 0
 
 
-def test_get_format():
+def test_get_format_for_oxford_chip():
     # oxford chip
     fmt = get_format("1")
     assert fmt == [8, 8, 20, 20, 0.125, 0.800, 0.800]
+
+
+def test_get_format_for_oxford_minichip():
+    # 1 block of oxford chip
+    fmt = get_format("9")
+    assert fmt == [1, 1, 20, 20, 0.125, 0.800, 0.800]
 
 
 def test_get_format_for_custom_chip():
