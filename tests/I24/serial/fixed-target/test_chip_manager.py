@@ -16,6 +16,6 @@ def test_moveto_oxford_origin(fake_caget, fake_caput):
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caget")
 def test_moveto_chip_unknown(fake_caget, fake_caput):
     fake_caget.return_value = 2
-    moveto("yag")
+    moveto("zero")
     assert fake_caget.call_count == 1
-    assert fake_caput.call_count == 3
+    assert fake_caput.call_count == 1
