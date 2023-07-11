@@ -668,12 +668,6 @@ def moveto(place: str):
         logger.info("%s moving to %s" % (name, place))
         caput(pv.me14e_pmac_str, "!x0y0z0")
 
-    elif place == "yag":  # not in use
-        logger.info("%s moving %s" % (name, place))
-        caput(pv.me14e_stage_x, 1.0)
-        caput(pv.me14e_stage_y, 1.0)
-        caput(pv.me14e_stage_z, 1.0)
-
     elif place == "load_position":
         print("load position")
         logger.info("%s %s" % (name, place))
