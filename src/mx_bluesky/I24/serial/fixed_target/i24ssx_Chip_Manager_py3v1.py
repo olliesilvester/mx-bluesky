@@ -535,7 +535,7 @@ def load_lite_map(litemap_path: Path | str = LITEMAP_PATH):
     }
     # fmt: on
     chip_type = caget(pv.me14e_gp1)
-    if chip_type == 1 or chip_type == 3 or chip_type == 10:
+    if chip_type == 1 or chip_type == 3:
         logger.info("%s Oxford Block Order" % name)
         print("Oxford Block Order")
         # block_dict = oxford_block_dict
@@ -621,7 +621,7 @@ def moveto(place: str):
     chip_type = int(caget(pv.me14e_gp1))
     print("CHIP TYPE", chip_type)
 
-    if chip_type == 1:
+    if chip_type == 1 or chip_type == 9:
         print("Oxford Move")
         logger.info("%s Oxford Move" % (name))
         if place == "origin":
@@ -669,7 +669,7 @@ def moveto(place: str):
         logger.info("%s moving to %s" % (name, place))
         caput(pv.me14e_pmac_str, "!x0y0z0")
 
-    elif place == "yag":
+    elif place == "yag":  # not in use
         logger.info("%s moving %s" % (name, place))
         caput(pv.me14e_stage_x, 1.0)
         caput(pv.me14e_stage_y, 1.0)
@@ -714,29 +714,29 @@ def moveto(place: str):
         # caput(pv.aptr1_mp_select, 'In')
         # caput(pv.bl_mp_select, 'In')
 
-    elif place == "lightin":
+    elif place == "lightin":  # sacla backlight
         print("light in")
         logger.info("%s Light In" % (name))
         caput(pv.me14e_filter, 24)
 
-    elif place == "lightout":
+    elif place == "lightout":  # sacla backlight
         print("light out")
         logger.info("%s Light Out" % (name))
         caput(pv.me14e_filter, -24)
 
-    elif place == "flipperin":
+    elif place == "flipperin":  # redundant
         print("flipper in")
         logger.info("%s Flipper In" % (name))
         logger.debug("%s nb need M508=100 M509 =150 somewhere" % name)
         # nb need M508=100 M509 =150 somewhere
         caput(pv.me14e_pmac_str, "M512=0 M511=1")
 
-    elif place == "flipperout":
+    elif place == "flipperout":  # redundant
         print("flipper out")
         logger.info("%s Flipper out" % (name))
         caput(pv.me14e_pmac_str, " M512=1 M511=1")
 
-    elif place == "laser1on":
+    elif place == "laser1on":  # these are in laser edm
         print("Laser 1 /BNC2 shutter is open")
         # Use M712 = 0 if triggering on falling edge. M712 =1 if on rising edge
         # Be sure to also change laser1off
@@ -814,7 +814,7 @@ def fiducial(point: int, param_path: Path | str = PARAM_FILE_PATH_FT):
     rbv_3 = float(caget(pv.me14e_stage_z + ".RBV"))
 
     print("rbv1", rbv_1)
-    raw_1 = float(caget(pv.me14e_stage_x + ".RRBV"))
+    raw_1 = float(caget(pv.me14e_stage_x + ".RRBV"))  # possible typo
     raw_2 = float(caget(pv.me14e_stage_y + ".RRBV"))
     raw_3 = float(caget(pv.me14e_stage_z + ".RRBV"))
 
@@ -936,7 +936,7 @@ def cs_maker():
     logger.info("%s Cx , %1.4f, %1.4f" % (name, Cx, np.degrees(np.arcsin(Cx))))
 
     # Crucifix 1:   In normal orientation on I24 4 oct 2022
-    scalex, scaley, scalez = 10018.0, 9999.5, 10000.0
+    scalex, scaley, scalez = 10018.0, 9999.5, 10000.0  # this gets modified by hand
     # Crucifix 1:   In beamline position (upside down facing away)
     # X=0.000099896 , Y=0.000099983, Z=0.0001000 (mm/cts for MRES and ERES)
     # pre-sacla3 scalex, scaley, scalez  = 10010.4, 10001.7, 10000.0
@@ -980,7 +980,7 @@ def cs_maker():
     # Crucifix 1 on beamline
     # skew = 0.0126
     # Crucifix 2 deconstructed on beamline
-    skew = -0.189
+    skew = -0.189  # same as scalex/y/z skew=th_z1 - th_z2
     # skew = -1.2734
     # Crucifix 3
     # skew = 0.0883
@@ -1104,9 +1104,17 @@ def block_check():
             chip_type = int(caget(pv.me14e_gp1))
             # Possible bug: this seems to be missing the chips in use.
             if chip_type == 9:
+                logger.info("Oxford mini chip in use.")
                 block_start_list = scrape_pvar_file("minichip_oxford.pvar")
+            elif chip_type == 6:
+                logger.error("This is a custom chip, no block check available!")
+                raise ValueError(
+                    "Chip type set to 'custom', which has no block check."
+                    "If not using a custom chip, please double check chip in the GUI."
+                )
             else:
-                raise ValueError("Invalid chip type")
+                logger.warning("Default is Oxford chip block start list.")
+                block_start_list = scrape_pvar_file("oxford.pvar")
             for entry in block_start_list:
                 if int(caget(pv.me14e_gp9)) != 0:
                     logger.warning("%s Block Check Aborted" % (name))
