@@ -671,16 +671,8 @@ def moveto(place: str):
     elif place == "load_position":
         print("load position")
         logger.info("%s %s" % (name, place))
-        # caput(pv.me14e_filter, 20)
-        # caput(pv.me14e_stage_x, -15.0)
-        # caput(pv.me14e_stage_y, 25.0)
-        # caput(pv.me14e_stage_z, 0.0)
-        # caput(pv.me14e_pmac_str, 'M512=0 M511=1')
-        # i24 settings
         caput(pv.bs_mp_select, "Robot")
         caput(pv.bl_mp_select, "Out")
-        # caput(pv.aptr1_mp_select, 'Robot')
-        # reduced detz while stage problems. was 1480
         caput(pv.det_z, 1300)
 
     elif place == "collect_position":
@@ -690,44 +682,15 @@ def moveto(place: str):
         caput(pv.me14e_stage_x, 0.0)
         caput(pv.me14e_stage_y, 0.0)
         caput(pv.me14e_stage_z, 0.0)
-        # caput(pv.me14e_pmac_str, 'M512=0 M511=1')
         caput(pv.bs_mp_select, "Data Collection")
-        # caput(pv.aptr1_mp_select, 'In')
         caput(pv.bl_mp_select, "In")
 
     elif place == "microdrop_position":
         print("microdrop align position")
         logger.info("%s %s" % (name, place))
-        # caput(pv.me14e_filter, 20)
         caput(pv.me14e_stage_x, 6.0)
         caput(pv.me14e_stage_y, -7.8)
         caput(pv.me14e_stage_z, 0.0)
-        # caput(pv.me14e_pmac_str, 'M512=0 M511=1')
-        # caput(pv.bs_mp_select, 'Data Collection')
-        # caput(pv.aptr1_mp_select, 'In')
-        # caput(pv.bl_mp_select, 'In')
-
-    elif place == "lightin":  # sacla backlight
-        print("light in")
-        logger.info("%s Light In" % (name))
-        caput(pv.me14e_filter, 24)
-
-    elif place == "lightout":  # sacla backlight
-        print("light out")
-        logger.info("%s Light Out" % (name))
-        caput(pv.me14e_filter, -24)
-
-    elif place == "flipperin":  # redundant
-        print("flipper in")
-        logger.info("%s Flipper In" % (name))
-        logger.debug("%s nb need M508=100 M509 =150 somewhere" % name)
-        # nb need M508=100 M509 =150 somewhere
-        caput(pv.me14e_pmac_str, "M512=0 M511=1")
-
-    elif place == "flipperout":  # redundant
-        print("flipper out")
-        logger.info("%s Flipper out" % (name))
-        caput(pv.me14e_pmac_str, " M512=1 M511=1")
 
     elif place == "laser1on":  # these are in laser edm
         print("Laser 1 /BNC2 shutter is open")
@@ -807,7 +770,7 @@ def fiducial(point: int, param_path: Path | str = PARAM_FILE_PATH_FT):
     rbv_3 = float(caget(pv.me14e_stage_z + ".RBV"))
 
     print("rbv1", rbv_1)
-    raw_1 = float(caget(pv.me14e_stage_x + ".RRBV"))  # possible typo
+    raw_1 = float(caget(pv.me14e_stage_x + ".RRBV"))
     raw_2 = float(caget(pv.me14e_stage_y + ".RRBV"))
     raw_3 = float(caget(pv.me14e_stage_z + ".RRBV"))
 
@@ -1038,7 +1001,6 @@ def cs_maker():
     sleep(0.1)
     print(5 * "chip_type", type(chip_type))
     logger.info("%s Chip_type is %s" % (name, chip_type))
-    # NEXT THREE LINES COMMENTED OUT FOR CS TESTS 5 JUNE
     if str(chip_type) == "1":
         caput(pv.me14e_pmac_str, "!x0.4y0.4")
         sleep(0.1)
@@ -1095,7 +1057,6 @@ def block_check():
     while True:
         if int(caget(pv.me14e_gp9)) == 0:
             chip_type = int(caget(pv.me14e_gp1))
-            # Possible bug: this seems to be missing the chips in use.
             if chip_type == 9:
                 logger.info("Oxford mini chip in use.")
                 block_start_list = scrape_pvar_file("minichip_oxford.pvar")
@@ -1136,9 +1097,6 @@ def main(args):
     logger.info("%s \n\n%s" % (name, args))
     if args[1] == "initialise":
         initialise()
-    elif args[1] == "pvar_test":
-        chipid = args[2]
-        # pvar_test(chipid) # TODO find out what this is supposed to be!!!
     elif args[1] == "moveto":
         moveto(args[2])
     elif args[1] == "fiducial":
