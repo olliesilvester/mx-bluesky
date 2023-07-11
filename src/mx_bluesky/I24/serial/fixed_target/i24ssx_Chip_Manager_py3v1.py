@@ -534,7 +534,7 @@ def load_lite_map(litemap_path: Path | str = LITEMAP_PATH):
         'H1': '64', 'H2': '63', 'H3': '62', 'H4': '61', 'H5': '60', 'H6': '59', 'H7': '58', 'H8': '57',
     }
     # fmt: on
-    chip_type = caget(pv.me14e_gp1)
+    chip_type = int(caget(pv.me14e_gp1))
     if chip_type == 1 or chip_type == 3:
         logger.info("%s Oxford Block Order" % name)
         print("Oxford Block Order")
@@ -661,8 +661,8 @@ def moveto(place: str):
             caput(pv.me14e_stage_y, 25.40)
 
     else:
-        print("Unknown chip_type move")
         logger.warning("%s Unknown chip_type move" % name)
+        raise ValueError("Unknown chip_type move")
 
     # Non Chip Specific Move
     if place == "zero":

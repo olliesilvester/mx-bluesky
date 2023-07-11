@@ -140,11 +140,6 @@ def get_format(chip_type):
         b2b_horz = 0.0
         b2b_vert = 0.0
         chip_format = [1, 1, 25, 25]
-    elif chip_type == "6":  # Custom
-        w2w = 0.100
-        b2b_horz = 0
-        b2b_vert = 0
-        chip_format = [1, 1, 20, 20]
     elif chip_type == "9":  # Mini oxford (1 block)
         w2w = 0.125
         b2b_horz = 0

@@ -93,7 +93,7 @@ def convert_chip_to_hex(fid, chip_type):
     check_files(["%s.full" % chip_type])
     with open("%s.full" % fid[:-5], "w") as g:
         # Normal
-        if chip_type in ["0", "1", "5"]:
+        if chip_type in ["1", "3"]:
             shot_order_list = get_shot_order(chip_type)
             logger.info("%s Shot Order List: \n" % (name))
             logger.info("%s" % shot_order_list[:14])
