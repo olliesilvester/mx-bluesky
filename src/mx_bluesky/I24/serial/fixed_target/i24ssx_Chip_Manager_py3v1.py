@@ -662,7 +662,6 @@ def moveto(place: str):
 
     else:
         logger.warning("%s Unknown chip_type move" % name)
-        raise ValueError("Unknown chip_type move")
 
     # Non Chip Specific Move
     if place == "zero":
