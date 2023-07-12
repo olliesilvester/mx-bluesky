@@ -3293,42 +3293,24 @@ topShadowColor index 1
 botShadowColor index 8
 controlPv "ME14E-MO-IOC-01:GP1"
 font "arial-medium-r-18.0"
-numItems 10
+numItems 4
 symbolTag {
-  0 "Toronto"
-  1 "Oxford"
-  2 "Hamburg"
-  3 "Oxford Inner"
-  4 "Bismuth2"
-  5 "Regina"
-  6 "Custom"
-  7 "Heidelberg4"
-  8 "Heidelberg6"
-  9 "Minichip"
+  0 "Oxford"
+  1 "Oxford Inner"
+  2 "Custom"
+  3 "Minichip"
 }
 symbol0 {
-  0 "TO"
-  1 "OX"
-  2 "HH"
-  3 "B1"
-  4 "B2"
-  5 "Re"
-  6 "Cu"
-  7 "He4"
-  8 "He6"
-  9 "Mini"
+  0 "OX"
+  1 "B1"
+  2 "Cu"
+  3 "Mini"
 }
 value0 {
-  0 "Toronto"
-  1 "oxford"
-  2 "hamburg"
-  3 "Oxford Inner"
-  4 "Bismuth2"
-  5 "Regina"
-  6 "Custom"
-  7 "Heidelyberg4"
-  8 "Heidelberg6"
-  9 "Minichip"
+  0 "oxford"
+  1 "Oxford Inner"
+  2 "Custom"
+  3 "Minichip"
 }
 endObjectProperties
 
@@ -3728,42 +3710,24 @@ topShadowColor index 1
 botShadowColor index 8
 controlPv "ME14E-MO-IOC-01:GP1"
 font "arial-medium-r-18.0"
-numItems 10
+numItems 4
 symbolTag {
-  0 "Toronto"
-  1 "Oxford"
-  2 "Hamburg"
-  3 "Oxford Inner"
-  4 "Bismuth2"
-  5 "Regina"
-  6 "Custom"
-  7 "Heidelberg4"
-  8 "Heidelberg6"
-  9 "Minichip"
+  0 "Oxford"
+  1 "Oxford Inner"
+  2 "Custom"
+  3 "Minichip"
 }
 symbol0 {
-  0 "TO"
-  1 "OX"
-  2 "HH"
-  3 "B1"
-  4 "B2"
-  5 "Re"
-  6 "Cu"
-  7 "He4"
-  8 "He6"
-  9 "Mini"
+  0 "OX"
+  1 "B1"
+  2 "Cu"
+  3 "Mini"
 }
 value0 {
-  0 "Toronto"
-  1 "oxford"
-  2 "hamburg"
-  3 "Oxford Inner"
-  4 "Bismuth2"
-  5 "Regina"
-  6 "Custom"
-  7 "Heidelyberg4"
-  8 "Heidelberg6"
-  9 "Minichip"
+  0 "oxford"
+  1 "Oxford Inner"
+  2 "Custom"
+  3 "Minichip"
 }
 endObjectProperties
 

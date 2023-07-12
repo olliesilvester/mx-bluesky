@@ -216,9 +216,7 @@ def define_current_chip(chipid: str, param_path: Path | str = PVAR_FILE_PATH):
     chip_type = caget(pv.me14e_gp1)
     print(chip_type, chipid)
     logger.info("%s chip_type:%s chipid:%s" % (name, chip_type, chipid))
-    if chipid == "toronto":
-        caput(pv.me14e_gp1, 0)
-    elif chipid == "oxford":
+    if chipid == "oxford":
         caput(pv.me14e_gp1, 1)
 
     param_path = _coerce_to_path(param_path)
@@ -261,10 +259,7 @@ def save_screen_map(litemap_path: Path | str = LITEMAP_PATH):
 def upload_parameters(chipid: str, litemap_path: Path | str = LITEMAP_PATH):
     name = inspect.stack()[0][3]
     logger.info("%s Uploading Parameters to the GeoBrick" % (name))
-    if chipid == "toronto":
-        caput(pv.me14e_gp1, 0)
-        width = 9
-    elif chipid == "oxford":
+    if chipid == "oxford":
         caput(pv.me14e_gp1, 1)
         width = 8
     litemap_path = _coerce_to_path(litemap_path)
@@ -527,17 +522,6 @@ def load_lite_map(litemap_path: Path | str = LITEMAP_PATH):
     name = inspect.stack()[0][3]
     load_stock_map("clear")
     # fmt: off
-    toronto_block_dict = {
-        'A1': '01', 'A2': '02', 'A3': '03', 'A4': '04', 'A5': '05', 'A6': '06', 'A7': '07', 'A8': '08', 'A9': '09',
-        'B1': '18', 'B2': '17', 'B3': '16', 'B4': '15', 'B5': '14', 'B6': '13', 'B7': '12', 'B8': '11', 'B9': '10',
-        'C1': '19', 'C2': '20', 'C3': '21', 'C4': '22', 'C5': '23', 'C6': '24', 'C7': '25', 'C8': '26', 'C9': '27',
-        'D1': '36', 'D2': '35', 'D3': '34', 'D4': '33', 'D5': '32', 'D6': '31', 'D7': '30', 'D8': '29', 'D9': '28',
-        'E1': '37', 'E2': '38', 'E3': '39', 'E4': '40', 'E5': '41', 'E6': '42', 'E7': '43', 'E8': '44', 'E9': '45',
-        'F1': '54', 'F2': '53', 'F3': '52', 'F4': '51', 'F5': '50', 'F6': '49', 'F7': '48', 'F8': '47', 'F9': '46',
-        'G1': '55', 'G2': '56', 'G3': '57', 'G4': '58', 'G5': '59', 'G6': '60', 'G7': '61', 'G8': '62', 'G9': '63',
-        'H1': '72', 'H2': '71', 'H3': '70', 'H4': '69', 'H5': '68', 'H6': '67', 'H7': '66', 'H8': '65', 'H9': '64',
-        'I1': '73', 'I2': '74', 'I3': '75', 'I4': '76', 'I5': '77', 'I6': '78', 'I7': '79', 'I8': '80', 'I9': '81',
-    }
     # Oxford_block_dict is wrong (columns and rows need to flip) added in script below to generate it automatically however kept this for backwards compatiability/reference
     oxford_block_dict = {   # noqa: F841
         'A1': '01', 'A2': '02', 'A3': '03', 'A4': '04', 'A5': '05', 'A6': '06', 'A7': '07', 'A8': '08',
@@ -550,12 +534,8 @@ def load_lite_map(litemap_path: Path | str = LITEMAP_PATH):
         'H1': '64', 'H2': '63', 'H3': '62', 'H4': '61', 'H5': '60', 'H6': '59', 'H7': '58', 'H8': '57',
     }
     # fmt: on
-    chip_type = caget(pv.me14e_gp1)
-    if chip_type == 0:
-        logger.info("%s Toronto Block Order" % name)
-        print("Toronto Block Order")
-        block_dict = toronto_block_dict
-    elif chip_type == 1 or chip_type == 3 or chip_type == 10:
+    chip_type = int(caget(pv.me14e_gp1))
+    if chip_type in [0, 1]:
         logger.info("%s Oxford Block Order" % name)
         print("Oxford Block Order")
         # block_dict = oxford_block_dict
@@ -634,26 +614,16 @@ def load_full_map(fullmap_path: Path | str = FULLMAP_PATH):
     print(10 * "Done ", "\n")
 
 
-def moveto(place):
+def moveto(place: str):
     name = inspect.stack()[0][3]
     logger.info("%s Move to %s" % (name, place))
     print(5 * (place + " "))
     chip_type = int(caget(pv.me14e_gp1))
     print("CHIP TYPE", chip_type)
-    if chip_type == 0:
-        print("Toronto Move")
-        logger.info("%s Toronto Move" % (name))
-        if place == "origin":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f1":
-            caput(pv.me14e_stage_x, +18.975)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f2":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, +21.375)
 
-    elif chip_type == 1:
+    if chip_type == 0 or chip_type == 3:
+        # Oxford and minichip
+        # As minichip is nothing more than a smaller oxford, they should move the same way
         print("Oxford Move")
         logger.info("%s Oxford Move" % (name))
         if place == "origin":
@@ -666,7 +636,7 @@ def moveto(place):
             caput(pv.me14e_stage_x, 0.0)
             caput(pv.me14e_stage_y, 25.40)
 
-    elif chip_type == 3:
+    elif chip_type == 1:
         print("Oxford Inner Move")
         logger.info("%s Oxford Inner Move" % (name))
         if place == "origin":
@@ -679,7 +649,7 @@ def moveto(place):
             caput(pv.me14e_stage_x, 0.0)
             caput(pv.me14e_stage_y, 24.60)
 
-    elif chip_type == 6:
+    elif chip_type == 2:
         print("Custom Move")
         logger.info("%s Custom Chip Move" % (name))
         if place == "origin":
@@ -692,21 +662,7 @@ def moveto(place):
             caput(pv.me14e_stage_x, 0.0)
             caput(pv.me14e_stage_y, 25.40)
 
-    elif chip_type == 10:
-        print("Oxford 6 by 6 blocks Move")
-        logger.info("%s Oxford 6 by 6 blocks Move" % (name))
-        if place == "origin":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f1":
-            caput(pv.me14e_stage_x, 18.25)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f2":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 18.25)
-
     else:
-        print("Unknown chip_type move")
         logger.warning("%s Unknown chip_type move" % name)
 
     # Non Chip Specific Move
@@ -714,25 +670,11 @@ def moveto(place):
         logger.info("%s moving to %s" % (name, place))
         caput(pv.me14e_pmac_str, "!x0y0z0")
 
-    elif place == "yag":
-        logger.info("%s moving %s" % (name, place))
-        caput(pv.me14e_stage_x, 1.0)
-        caput(pv.me14e_stage_y, 1.0)
-        caput(pv.me14e_stage_z, 1.0)
-
     elif place == "load_position":
         print("load position")
         logger.info("%s %s" % (name, place))
-        # caput(pv.me14e_filter, 20)
-        # caput(pv.me14e_stage_x, -15.0)
-        # caput(pv.me14e_stage_y, 25.0)
-        # caput(pv.me14e_stage_z, 0.0)
-        # caput(pv.me14e_pmac_str, 'M512=0 M511=1')
-        # i24 settings
         caput(pv.bs_mp_select, "Robot")
         caput(pv.bl_mp_select, "Out")
-        # caput(pv.aptr1_mp_select, 'Robot')
-        # reduced detz while stage problems. was 1480
         caput(pv.det_z, 1300)
 
     elif place == "collect_position":
@@ -742,46 +684,17 @@ def moveto(place):
         caput(pv.me14e_stage_x, 0.0)
         caput(pv.me14e_stage_y, 0.0)
         caput(pv.me14e_stage_z, 0.0)
-        # caput(pv.me14e_pmac_str, 'M512=0 M511=1')
         caput(pv.bs_mp_select, "Data Collection")
-        # caput(pv.aptr1_mp_select, 'In')
         caput(pv.bl_mp_select, "In")
 
     elif place == "microdrop_position":
         print("microdrop align position")
         logger.info("%s %s" % (name, place))
-        # caput(pv.me14e_filter, 20)
         caput(pv.me14e_stage_x, 6.0)
         caput(pv.me14e_stage_y, -7.8)
         caput(pv.me14e_stage_z, 0.0)
-        # caput(pv.me14e_pmac_str, 'M512=0 M511=1')
-        # caput(pv.bs_mp_select, 'Data Collection')
-        # caput(pv.aptr1_mp_select, 'In')
-        # caput(pv.bl_mp_select, 'In')
 
-    elif place == "lightin":
-        print("light in")
-        logger.info("%s Light In" % (name))
-        caput(pv.me14e_filter, 24)
-
-    elif place == "lightout":
-        print("light out")
-        logger.info("%s Light Out" % (name))
-        caput(pv.me14e_filter, -24)
-
-    elif place == "flipperin":
-        print("flipper in")
-        logger.info("%s Flipper In" % (name))
-        logger.debug("%s nb need M508=100 M509 =150 somewhere" % name)
-        # nb need M508=100 M509 =150 somewhere
-        caput(pv.me14e_pmac_str, "M512=0 M511=1")
-
-    elif place == "flipperout":
-        print("flipper out")
-        logger.info("%s Flipper out" % (name))
-        caput(pv.me14e_pmac_str, " M512=1 M511=1")
-
-    elif place == "laser1on":
+    elif place == "laser1on":  # these are in laser edm
         print("Laser 1 /BNC2 shutter is open")
         # Use M712 = 0 if triggering on falling edge. M712 =1 if on rising edge
         # Be sure to also change laser1off
@@ -981,7 +894,7 @@ def cs_maker():
     logger.info("%s Cx , %1.4f, %1.4f" % (name, Cx, np.degrees(np.arcsin(Cx))))
 
     # Crucifix 1:   In normal orientation on I24 4 oct 2022
-    scalex, scaley, scalez = 10018.0, 9999.5, 10000.0
+    scalex, scaley, scalez = 10018.0, 9999.5, 10000.0  # this gets modified by hand
     # Crucifix 1:   In beamline position (upside down facing away)
     # X=0.000099896 , Y=0.000099983, Z=0.0001000 (mm/cts for MRES and ERES)
     # pre-sacla3 scalex, scaley, scalez  = 10010.4, 10001.7, 10000.0
@@ -1090,8 +1003,7 @@ def cs_maker():
     sleep(0.1)
     print(5 * "chip_type", type(chip_type))
     logger.info("%s Chip_type is %s" % (name, chip_type))
-    # NEXT THREE LINES COMMENTED OUT FOR CS TESTS 5 JUNE
-    if str(chip_type) == "1":
+    if str(chip_type) == "0":
         caput(pv.me14e_pmac_str, "!x0.4y0.4")
         sleep(0.1)
         caput(pv.me14e_pmac_str, "#1hmz#2hmz#3hmz")
@@ -1147,12 +1059,18 @@ def block_check():
     while True:
         if int(caget(pv.me14e_gp9)) == 0:
             chip_type = int(caget(pv.me14e_gp1))
-            if chip_type == 9:
+            if chip_type == 3:
+                logger.info("Oxford mini chip in use.")
                 block_start_list = scrape_pvar_file("minichip_oxford.pvar")
-            elif chip_type == 10:
-                block_start_list = scrape_pvar_file("oxford6x6.pvar")
+            elif chip_type == 2:
+                logger.error("This is a custom chip, no block check available!")
+                raise ValueError(
+                    "Chip type set to 'custom', which has no block check."
+                    "If not using a custom chip, please double check chip in the GUI."
+                )
             else:
-                raise ValueError("Invalid chip type")
+                logger.warning("Default is Oxford chip block start list.")
+                block_start_list = scrape_pvar_file("oxford.pvar")
             for entry in block_start_list:
                 if int(caget(pv.me14e_gp9)) != 0:
                     logger.warning("%s Block Check Aborted" % (name))
@@ -1181,9 +1099,6 @@ def main(args):
     logger.info("%s \n\n%s" % (name, args))
     if args[1] == "initialise":
         initialise()
-    elif args[1] == "pvar_test":
-        chipid = args[2]
-        # pvar_test(chipid) # TODO find out what this is supposed to be!!!
     elif args[1] == "moveto":
         moveto(args[2])
     elif args[1] == "fiducial":
