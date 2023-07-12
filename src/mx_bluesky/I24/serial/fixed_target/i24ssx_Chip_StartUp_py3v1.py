@@ -118,10 +118,11 @@ def read_parameters(
 def fiducials(chip_type):
     name = inspect.stack()[0][3]
 
-    if chip_type in ["1", "3", "9"]:
+    if chip_type in ["0", "1", "3"]:
         fiducial_list = []
-        # No fiducial for custom?
-
+        # No fiducial for custom
+    elif chip_type == "2":
+        logger.warning("No fiducials for custom chip")
     else:
         logger.warning("%s Unknown chip_type, %s, in fiducials" % (name, chip_type))
         print("Unknown chip_type in fiducials")
@@ -130,17 +131,17 @@ def fiducials(chip_type):
 
 def get_format(chip_type):
     name = inspect.stack()[0][3]
-    if chip_type == "1":  # Oxford
+    if chip_type == "0":  # Oxford
         w2w = 0.125
         b2b_horz = 0.800
         b2b_vert = 0.800
         chip_format = [8, 8, 20, 20]
-    elif chip_type == "3":  # Oxford Inner
+    elif chip_type == "1":  # Oxford Inner
         w2w = 0.600
         b2b_horz = 0.0
         b2b_vert = 0.0
         chip_format = [1, 1, 25, 25]
-    elif chip_type == "9":  # Mini oxford (1 block)
+    elif chip_type == "3":  # Mini oxford (1 block)
         w2w = 0.125
         b2b_horz = 0
         b2b_vert = 0

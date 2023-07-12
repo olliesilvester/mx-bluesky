@@ -52,7 +52,7 @@ def get_chip_prog_values(
 ):
     name = inspect.stack()[0][3]
     logger.info("%s" % name)
-    if chip_type in ["1", "3", "9"]:
+    if chip_type in ["0", "1", "3"]:
         # '1' = 'Oxford ' = [8, 8, 20, 20, 0.125, 3.175, 3.175]
         (
             xblocks,
@@ -68,7 +68,7 @@ def get_chip_prog_values(
         x_block_size = ((x_num_steps - 1) * w2w) + b2b_horz
         y_block_size = ((y_num_steps - 1) * w2w) + b2b_vert
 
-    elif chip_type == "6":
+    elif chip_type == "2":
         # This is set by the user in the edm screen
         # The chip format might change every time and is read from PVs.
         print("This is a Custom Chip")
@@ -197,7 +197,7 @@ def get_prog_num(chip_type, map_type, pump_repeat):
     name = inspect.stack()[0][3]
     logger.info("%s Get Program Number" % name)
     if str(pump_repeat) == "0":
-        if chip_type in ["1", "3"]:
+        if chip_type in ["0", "1"]:
             if map_type == "0":
                 logger.info("%s\t:Map Type = None" % name)
                 print("Map Type is None")
@@ -218,14 +218,14 @@ def get_prog_num(chip_type, map_type, pump_repeat):
                 print("Unknown map_type")
                 print(map_type)
                 return 0
-        elif chip_type == "6":
+        elif chip_type == "2":
             logger.info("%s\t:Custom Chip" % name)
             print("Custom Chip Type")
             return 11
         else:
             logger.debug("%s\t:Unknown chip_type, chip_tpe = = %s" % (name, chip_type))
             print("Unknown Chip Type")
-    elif pump_repeat in ["1", "2", "3", "4", "5", "6", "7"]:
+    elif pump_repeat in ["1", "2", "3", "5", "10"]:
         logger.info("%s\t:Map Type = Mapping Lite with Pump probe" % name)
         print("Map Type is Mapping Lite with Pump Probe")
         return 14
@@ -256,12 +256,11 @@ def datasetsizei24():
     ) = scrape_parameter_file()
 
     if map_type == "0":
-        if chip_type == "6":
-            # Chip Type 6 is Custom
-            print("Calculating total number of images")
+        if chip_type == "2":
+            print("Calculating total number of images for custom chip")
             total_numb_imgs = int(int(caget(pv.me14e_gp6)) * int(caget(pv.me14e_gp7)))
             logger.info(
-                "%s !!!!!! Calculating total number of images %s"
+                "%s !!!!!! Calculating total number of images for custom chip %s"
                 % (name, total_numb_imgs)
             )
             print(total_numb_imgs)
@@ -604,9 +603,9 @@ def main():
     logger.info("%s Getting Program Dictionary" % (name))
 
     # If alignment type is Oxford inner it is still an Oxford type chip
-    if str(chip_type) == "3":
+    if str(chip_type) == "1":
         logger.debug("%s\tMain: Change chip type Oxford Inner to Oxford." % name)
-        chip_type = "1"
+        chip_type = "0"
 
     chip_prog_dict = get_chip_prog_values(
         chip_type,

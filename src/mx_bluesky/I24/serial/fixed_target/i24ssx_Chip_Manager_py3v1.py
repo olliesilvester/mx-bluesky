@@ -535,7 +535,7 @@ def load_lite_map(litemap_path: Path | str = LITEMAP_PATH):
     }
     # fmt: on
     chip_type = int(caget(pv.me14e_gp1))
-    if chip_type == 1 or chip_type == 3:
+    if chip_type == 0 or chip_type == 1:
         logger.info("%s Oxford Block Order" % name)
         print("Oxford Block Order")
         # block_dict = oxford_block_dict
@@ -621,7 +621,7 @@ def moveto(place: str):
     chip_type = int(caget(pv.me14e_gp1))
     print("CHIP TYPE", chip_type)
 
-    if chip_type == 1 or chip_type == 9:
+    if chip_type == 0 or chip_type == 3:
         print("Oxford Move")
         logger.info("%s Oxford Move" % (name))
         if place == "origin":
@@ -634,7 +634,7 @@ def moveto(place: str):
             caput(pv.me14e_stage_x, 0.0)
             caput(pv.me14e_stage_y, 25.40)
 
-    elif chip_type == 3:
+    elif chip_type == 1:
         print("Oxford Inner Move")
         logger.info("%s Oxford Inner Move" % (name))
         if place == "origin":
@@ -647,7 +647,7 @@ def moveto(place: str):
             caput(pv.me14e_stage_x, 0.0)
             caput(pv.me14e_stage_y, 24.60)
 
-    elif chip_type == 6:
+    elif chip_type == 2:
         print("Custom Move")
         logger.info("%s Custom Chip Move" % (name))
         if place == "origin":
@@ -1001,7 +1001,7 @@ def cs_maker():
     sleep(0.1)
     print(5 * "chip_type", type(chip_type))
     logger.info("%s Chip_type is %s" % (name, chip_type))
-    if str(chip_type) == "1":
+    if str(chip_type) == "0":
         caput(pv.me14e_pmac_str, "!x0.4y0.4")
         sleep(0.1)
         caput(pv.me14e_pmac_str, "#1hmz#2hmz#3hmz")
@@ -1057,10 +1057,10 @@ def block_check():
     while True:
         if int(caget(pv.me14e_gp9)) == 0:
             chip_type = int(caget(pv.me14e_gp1))
-            if chip_type == 9:
+            if chip_type == 3:
                 logger.info("Oxford mini chip in use.")
                 block_start_list = scrape_pvar_file("minichip_oxford.pvar")
-            elif chip_type == 6:
+            elif chip_type == 2:
                 logger.error("This is a custom chip, no block check available!")
                 raise ValueError(
                     "Chip type set to 'custom', which has no block check."

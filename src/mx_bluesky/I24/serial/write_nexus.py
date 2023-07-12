@@ -34,7 +34,7 @@ def call_nexgen(
             prepumpexptime,
             det_type,
         ) = param_file_tuple
-        if map_type == 0 or int(chip_type) == 6:
+        if map_type == 0 or int(chip_type) == 2:
             currentchipmap = "fullchip"
         else:
             currentchipmap = "/dls_sw/i24/scripts/fastchips/litemaps/currentchip.map"
