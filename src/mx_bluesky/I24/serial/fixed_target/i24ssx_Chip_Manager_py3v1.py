@@ -938,7 +938,7 @@ def cs_maker():
     # Crucifix 1 on beamline
     # skew = 0.0126
     # Crucifix 2 deconstructed on beamline
-    skew = -0.189  # same as scalex/y/z skew=th_z1 - th_z2
+    skew = -0.189
     # skew = -1.2734
     # Crucifix 3
     # skew = 0.0883
