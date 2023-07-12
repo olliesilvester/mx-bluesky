@@ -229,7 +229,7 @@ def get_prog_num(chip_type, map_type, pump_repeat):
             logger.debug("%s\t:Unknown chip_type, chip_tpe = = %s" % (name, chip_type))
             print("Unknown Chip Type")
             return 0
-    elif pump_repeat in ["1", "2", "3", "5", "10"]:
+    elif pump_repeat in ["1", "2", "3", "4", "5", "6", "7"]:
         logger.info("%s\t:Map Type = Mapping Lite with Pump probe" % name)
         print("Map Type is Mapping Lite with Pump Probe")
         return 14
