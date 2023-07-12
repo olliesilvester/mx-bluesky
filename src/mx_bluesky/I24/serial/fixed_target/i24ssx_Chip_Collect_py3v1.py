@@ -222,6 +222,9 @@ def get_prog_num(chip_type, map_type, pump_repeat):
             logger.info("%s\t:Custom Chip" % name)
             print("Custom Chip Type")
             return 11
+        elif chip_type == "3":
+            logger.info("%s\t:Mini Oxford Chip" % name)
+            return 11
         else:
             logger.debug("%s\t:Unknown chip_type, chip_tpe = = %s" % (name, chip_type))
             print("Unknown Chip Type")
