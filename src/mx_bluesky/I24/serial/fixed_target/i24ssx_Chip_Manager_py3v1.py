@@ -535,7 +535,7 @@ def load_lite_map(litemap_path: Path | str = LITEMAP_PATH):
     }
     # fmt: on
     chip_type = int(caget(pv.me14e_gp1))
-    if chip_type == 0 or chip_type == 1:
+    if chip_type in [0, 1]:
         logger.info("%s Oxford Block Order" % name)
         print("Oxford Block Order")
         # block_dict = oxford_block_dict
