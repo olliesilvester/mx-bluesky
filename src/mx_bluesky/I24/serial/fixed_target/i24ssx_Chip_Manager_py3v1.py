@@ -622,6 +622,8 @@ def moveto(place: str):
     print("CHIP TYPE", chip_type)
 
     if chip_type == 0 or chip_type == 3:
+        # Oxford and minichip
+        # As minichip is nothing more than a smaller oxford, they should move the same way
         print("Oxford Move")
         logger.info("%s Oxford Move" % (name))
         if place == "origin":
