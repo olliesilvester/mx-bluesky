@@ -67,3 +67,10 @@ venv*
 # further build artifacts
 lockfiles/
 
+# Edm backup files
+*.edl~
+
+# Parameter files that could be modified by hand by scientists
+# or created during collection
+**/parameters/fixed-target/*.txt
+**/parameters/fixed-target/*.json
