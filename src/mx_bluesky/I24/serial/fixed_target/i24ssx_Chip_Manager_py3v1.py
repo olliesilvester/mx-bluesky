@@ -1067,6 +1067,10 @@ def block_check():
     print(10 * "Done ")
 
 
+def cli_parser():
+    pass
+
+
 def main(args):
     setup_logging()
     name = inspect.stack()[0][3]
