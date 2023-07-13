@@ -5,6 +5,7 @@ This version changed to python3 March2020 by RLO
 from __future__ import annotations
 
 import inspect
+import json
 import logging
 import shutil
 import sys
@@ -20,6 +21,7 @@ from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_StartUp_py3v1 as star
 from mx_bluesky.I24.serial.parameters.constants import (
     FULLMAP_PATH,
     LITEMAP_PATH,
+    PARAM_FILE_PATH,
     PARAM_FILE_PATH_FT,
     PVAR_FILE_PATH,
 )
@@ -815,6 +817,35 @@ def scrape_mtr_fiducials(point: int, param_path: Path | str = PARAM_FILE_PATH_FT
 
 
 def cs_maker():
+    """
+    Coordinate system.
+
+    Values for scalex, scaley, scalez, and skew, as well as the sign of
+    Sx, Sy, Sz are stored in a .json file and should be modified there.
+    Location of file: src/mx_bluesky/I24/serial/parameters/cs_maker.json
+
+    Theory
+    Rx: rotation about X-axis, pitch
+    Ry: rotation about Y-axis, yaw
+    Rz: rotation about Z-axis, roll
+    The order of rotation is Roll->Yaw->Pitch (Rx*Ry*Rz)
+    Rx           Ry          Rz
+    |1  0   0| | Cy  0 Sy| |Cz -Sz 0|   | CyCz        -CxSz         Sy  |
+    |0 Cx -Sx|*|  0  1  0|*|Sz  Cz 0| = | SxSyCz+CxSz -SxSySz+CxCz -SxCy|
+    |0 Sx  Cx| |-Sy  0 Cy| | 0   0 1|   |-CxSyCz+SxSz  CxSySz+SxCz  CxCy|
+
+    BELOW iS TEST TEST (CLOCKWISE)
+    Rx           Ry          Rz
+    |1  0   0| | Cy 0 -Sy| |Cz  Sz 0|   | CyCz         CxSz         -Sy |
+    |0 Cx  Sx|*|  0  1  0|*|-Sz Cz 0| = | SxSyCz-CxSz  SxSySz+CxCz  SxCy|
+    |0 -Sx Cx| | Sy  0 Cy| | 0   0 1|   | CxSyCz+SxSz  CxSySz-SxCz  CxCy|
+
+
+    Skew:
+    Skew is the difference between the Sz1 and Sz2 after rotation is taken out.
+    This should be measured in situ prior to expriment, ie. measure by hand using
+    opposite and adjacent RBV after calibration of scale factors.
+    """
     name = inspect.stack()[0][3]
     chip_type = int(caget(pv.me14e_gp1))
     fiducial_dict = {}
@@ -841,31 +872,18 @@ def cs_maker():
     print("mtr2 direction", mtr2_dir)
     print("mtr3 direction", mtr3_dir)
 
-    """
-    Theory
-    Rx: rotation about X-axis, pitch
-    Ry: rotation about Y-axis, yaw
-    Rz: rotation about Z-axis, roll
-    The order of rotation is Roll->Yaw->Pitch (Rx*Ry*Rz)
-    Rx           Ry          Rz
-    |1  0   0| | Cy  0 Sy| |Cz -Sz 0|   | CyCz        -CxSz         Sy  |
-    |0 Cx -Sx|*|  0  1  0|*|Sz  Cz 0| = | SxSyCz+CxSz -SxSySz+CxCz -SxCy|
-    |0 Sx  Cx| |-Sy  0 Cy| | 0   0 1|   |-CxSyCz+SxSz  CxSySz+SxCz  CxCy|
+    # Scale parameters saved in json file
+    with open(PARAM_FILE_PATH / "cs_maker.json", "r") as fh:
+        cs_info = json.load(fh)
 
-    BELOW iS TEST TEST (CLOCKWISE)
-    Rx           Ry          Rz
-    |1  0   0| | Cy 0 -Sy| |Cz  Sz 0|   | CyCz         CxSz         -Sy  |
-    |0 Cx  Sx|*|  0  1  0|*|-Sz Cz 0| = | SxSyCz-CxSz  SxSySz+CxCz  SxCy|
-    |0 -Sx Cx| | Sy  0 Cy| | 0   0 1|   | CxSyCz+SxSz  CxSySz-SxCz  CxCy|
+    scalex, scaley, scalez = cs_info["scalex"], cs_info["scaley"], cs_info["scalez"]
+    skew = cs_info["skew"]
 
-    """
-    # Rotation Around Z #
+    # Rotation Around Z
     # If stages upsidedown (I24) change sign of Sz
-    # Sz1 =       f1_y / fiducial_dict[chip_type][0]
     Sz1 = -1 * f1_y / fiducial_dict[chip_type][0]
-    # Sz2 = -1 * (f2_x / fiducial_dict[chip_type][1])
     Sz2 = f2_x / fiducial_dict[chip_type][1]
-    Sz = -1 * ((Sz1 + Sz2) / 2)
+    Sz = cs_info["Sz_dir"] * ((Sz1 + Sz2) / 2)
     Cz = np.sqrt((1 - Sz**2))
     print("Sz1 , %1.4f, %1.4f" % (Sz1, np.degrees(np.arcsin(Sz1))))
     logger.info("%s Sz1 , %1.4f, %1.4f" % (name, Sz1, np.degrees(np.arcsin(Sz1))))
@@ -875,44 +893,22 @@ def cs_maker():
     logger.info("%s Sz , %1.4f, %1.4f" % (name, Sz, np.degrees(np.arcsin(Sz))))
     print("Cz ,  %1.4f, %1.4f\n" % (Cz, np.degrees(np.arccos(Cz))))
     logger.info("%s Cz , %1.4f, %1.4f" % (name, Cz, np.degrees(np.arcsin(Cz))))
-    # Rotation Around Y #
-    # Sy = f1_z /  fiducial_dict[chip_type][0]
-    Sy = 1 * f1_z / fiducial_dict[chip_type][0]
+    # Rotation Around Y
+    Sy = cs_info["Sy_dir"] * f1_z / fiducial_dict[chip_type][0]
     Cy = np.sqrt((1 - Sy**2))
     print("Sy , %1.4f, %1.4f" % (Sy, np.degrees(np.arcsin(Sy))))
     logger.info("%s Sy , %1.4f, %1.4f" % (name, Sy, np.degrees(np.arcsin(Sy))))
     print("Cy , %1.4f, %1.4f\n" % (Cy, np.degrees(np.arccos(Cy))))
     logger.info("%s Cy , %1.4f, %1.4f" % (name, Cy, np.degrees(np.arcsin(Cy))))
-    # Rotation Around X #
+    # Rotation Around X
     # If stages upsidedown (I24) change sign of Sx
-    Sx = -1 * f2_z / fiducial_dict[chip_type][1]
-    # Sx =  f2_z /  fiducial_dict[chip_type][1]
+    Sx = cs_info["Sx_dir"] * f2_z / fiducial_dict[chip_type][1]
     Cx = np.sqrt((1 - Sx**2))
     print("Sx , %1.4f, %1.4f" % (Sx, np.degrees(np.arcsin(Sx))))
     logger.info("%s Sx , %1.4f, %1.4f" % (name, Sx, np.degrees(np.arcsin(Sx))))
     print("Cx , %1.4f, %1.4f\n" % (Cx, np.degrees(np.arccos(Cx))))
     logger.info("%s Cx , %1.4f, %1.4f" % (name, Cx, np.degrees(np.arcsin(Cx))))
 
-    # Crucifix 1:   In normal orientation on I24 4 oct 2022
-    scalex, scaley, scalez = 10018.0, 9999.5, 10000.0  # this gets modified by hand
-    # Crucifix 1:   In beamline position (upside down facing away)
-    # X=0.000099896 , Y=0.000099983, Z=0.0001000 (mm/cts for MRES and ERES)
-    # pre-sacla3 scalex, scaley, scalez  = 10010.4, 10001.7, 10000.0
-    # Crucifix 2:   In normal orientation from SACLA4
-    # scalex, scaley, scalez  = 10011.4, 10000.0, 10000.0
-    # Crucifix 2:   Upside down on beamline April 2018
-    # scalex, scaley, scalez  = 10008.4, 10003.0, 10000.0
-    # Crucifix 2:   Dismantled on beamline Sept 2022
-    # scalex, scaley, scalez  = 10021.5, 10006.7, 10000.0
-    # Crucifix 2:   In normal orientation (sat on table facing away)
-    # X=0.0000999 , Y=0.00009996, Z=0.0001000 (mm/cts for MRES and ERES)
-    # scalex,scaley,scalez  = 10010.0, 10004.0, 10000.0
-    # Temple 1:   In normal orientation (sat on table facing away)
-    # X=0.0000 , Y=0.0000, Z=0.0001000 (mm/cts for MRES and ERES)
-    # scalex,scaley,scalez  = 10008.0, 10002.0, 10000.0
-
-    # minus signs added Aug17 in lab 30 preparing for sacla
-    # added to y1factor x2factor
     x1factor = mtr1_dir * scalex * (Cy * Cz)
     y1factor = mtr2_dir * scaley * (-1.0 * Cx * Sz)
     z1factor = mtr3_dir * scalez * Sy
@@ -924,26 +920,6 @@ def cs_maker():
     x3factor = mtr1_dir * scalex * ((Sx * Sz) - (Cx * Sy * Cz))
     y3factor = mtr2_dir * scaley * ((Cx * Sy * Sz) + (Sx * Cz))
     z3factor = mtr3_dir * scalez * (Cx * Cy)
-    """
-    Rx           Ry          Rz
-    |1  0   0| | Cy  0 Sy| |Cz -Sz 0|   | CyCz        -CxSz         Sy  |
-    |0 Cx -Sx|*|  0  1  0|*|Sz  Cz 0| = | SxSyCz+CxSz -SxSySz+CxCz -SxCy|
-    |0 Sx  Cx| |-Sy  0 Cy| | 0   0 1|   |-CxSyCz+SxSz  CxSySz+SxCz  CxCy|
-    """
-    # skew is the difference between the Sz1 and Sz2 after rotation is taken out.
-    # this should be measured in situ prior to expriment
-    # In situ is measure by hand using opposite and adjacent RBV after calibration of
-    # scale factors
-    # print 10*'WARNING\n', '\nHave you calculated skew?\n\n', 10*'WARNING\n'
-    # Crucifix 1 on beamline
-    # skew = 0.0126
-    # Crucifix 2 deconstructed on beamline
-    skew = -0.189
-    # skew = -1.2734
-    # Crucifix 3
-    # skew = 0.0883
-    # Temple 1
-    # skew = 0.02
 
     print("Skew being used is: %1.4f" % skew)
     logger.info("%s Skew being used is: %1.4f" % (name, skew))
@@ -962,7 +938,6 @@ def cs_maker():
     print("Calculated skew has been known to have the wrong sign")
     logger.info("%s Calculated Skew has been known to have the wrong sign")
 
-    # skew = calc_skew
     sinD = np.sin((skew / 2) * (np.pi / 180))
     cosD = np.cos((skew / 2) * (np.pi / 180))
     new_x1factor = (x1factor * cosD) + (y1factor * sinD)

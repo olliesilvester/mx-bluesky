@@ -74,5 +74,5 @@ lockfiles/
 # or created during collection
 **/parameters/*.json
 **/parameters/fixed-target/*.txt
-**/parameters/fixed-target/*.json
+# **/parameters/fixed-target/*.json
 **/parameters/fixed-target/*/*.map
