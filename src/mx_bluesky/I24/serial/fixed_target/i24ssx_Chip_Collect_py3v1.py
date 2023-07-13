@@ -21,8 +21,9 @@ from mx_bluesky.I24.serial.dcid import DCID
 from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1 import (  # scrape_parameter_file,
     get_format,
 )
-from mx_bluesky.I24.serial.parameters import SSXType, read_parameters
-from mx_bluesky.I24.serial.parameters.constants import LITEMAP_PATH
+from mx_bluesky.I24.serial.initialise_parameters import read_parameters
+from mx_bluesky.I24.serial.parameters import ExperimentParameters, SSXType
+from mx_bluesky.I24.serial.parameters.constants import LITEMAP_PATH, PARAM_FILE_PATH_FT
 from mx_bluesky.I24.serial.setup_beamline import (
     FixedTarget,
     caget,
@@ -279,9 +280,9 @@ def get_prog_num(chip_type, map_type, pump_repeat):
 def datasetsizei24(params):
     # Calculates how many images will be collected based on map type and N repeats
     name = inspect.stack()[0][3]
-    n_exposures = params["n_exposures"]
-    chip_type = params["chip_type"]
-    map_type = params["map_type"]
+    n_exposures = params.expt.n_exposures
+    chip_type = params.expt.chip_type
+    map_type = params.expt.map_type
 
     if map_type == "0":
         chip_format = get_format(chip_type)[:4]
@@ -353,17 +354,17 @@ def start_i24(params, filepath):
 
     logger.info("%s Set up beamline" % (name))
     sup.beamline("collect")
-    sup.beamline("quickshot", [params["det_dist"]])
+    sup.beamline("quickshot", [params.general.det_dist])
     logger.info("%s Set up beamline DONE" % (name))
 
     total_numb_imgs = datasetsizei24(params)
 
-    filename = params["filename"]
+    filename = params.general.filename
 
     logger.info("%s Filepath %s" % (name, filepath))
     logger.info("%s Filename %s" % (name, filename))
     logger.info("%s Total number images %s" % (name, total_numb_imgs))
-    logger.info("%s Exposure time %s" % (name, params["exp_time"]))
+    logger.info("%s Exposure time %s" % (name, params.general.exp_time))
 
     print("Acquire Region")
     logger.info("%s\t:Acquire Region" % (name))
@@ -371,13 +372,13 @@ def start_i24(params, filepath):
     # Testing for new zebra triggering
     print("ZEBRA TEST ZEBRA TEST ZEBRA TEST ZEBRA TEST")
 
-    num_gates = int(total_numb_imgs) / params["n_exposures"]
+    num_gates = int(total_numb_imgs) / params.expt.n_exposures
 
     print("Total number of images:", total_numb_imgs)
-    print("Number of exposures:", params["n_exposures"])
+    print("Number of exposures:", params.expt.n_exposures)
     print("num gates is Total images/N exposures:", num_gates)
 
-    if params["det_type"] == "pilatus":
+    if params.general.det_type == "pilatus":
         print("Detector type is Pilatus")
         logger.info("%s Fastchip Pilatus setup: filepath %s" % (name, filepath))
         logger.info("%s Fastchip Pilatus setup: filepath %s" % (name, filename))
@@ -385,11 +386,12 @@ def start_i24(params, filepath):
             "%s Fastchip Pilatus setup: number of images %s" % (name, total_numb_imgs)
         )
         logger.info(
-            "%s Fastchip Pilatus setup: exposure time %s" % (name, params["exp_time"])
+            "%s Fastchip Pilatus setup: exposure time %s"
+            % (name, params.general.exp_time)
         )
 
         sup.pilatus(
-            "fastchip", [filepath, filename, total_numb_imgs, params["exp_time"]]
+            "fastchip", [filepath, filename, total_numb_imgs, params.general.exp_time]
         )
         # sup.pilatus('fastchip-hatrx', [filepath, filename, total_numb_imgs, exptime])
 
@@ -397,16 +399,16 @@ def start_i24(params, filepath):
         dcid = DCID(
             emit_errors=False,
             ssx_type=SSXType.FIXED,
-            visit=params["visit"].name,
+            visit=params.general.visit.name,
             image_dir=filepath,
             start_time=start_time,
             num_images=total_numb_imgs,
-            exposure_time=params["exp_time"],
-            detector=params["det_type"],
-            shots_per_position=params["n_exposures"],
-            pump_exposure_time=params["pump_exp"],
-            pump_delay=params["pump_delay"],
-            pump_status=int(params["pump_repeat"]),
+            exposure_time=params.general.exp_time,
+            detector=params.general.det_type,
+            shots_per_position=params.expt.n_exposures,
+            pump_exposure_time=params.pump_probe.pump_exp,
+            pump_delay=params.pump_probe.pump_delay,
+            pump_status=int(params.pump_probe.pump_repeat),
         )
 
         print("Arm Pilatus. Arm Zebra.")
@@ -414,14 +416,14 @@ def start_i24(params, filepath):
         # sup.zebra1('fastchip')
         sup.zebra1(
             "fastchip-zebratrigger-pilatus",
-            [num_gates, params["n_exposures"], params["exp_time"]],
+            [num_gates, params.expt.n_exposures, params.general.exp_time],
         )
         caput(pv.pilat_acquire, "1")  # Arm pilatus
         caput(pv.zebra1_pc_arm, "1")  # Arm zebra fastchip-pilatus
         caput(pv.pilat_filename, filename)
         time.sleep(1.5)
 
-    elif params["det_type"] == "eiger":
+    elif params.general.det_type == "eiger":
         print("Detector type is Eiger")
 
         # FIXME TEMPORARY HACK TO DO SINGLE IMAGE PILATUS DATA COLL TO MKDIR #
@@ -430,7 +432,8 @@ def start_i24(params, filepath):
         logger.info("%s single image pilatus data collection" % name)
         num_imgs = 1
         sup.pilatus(
-            "quickshot-internaltrig", [filepath, filename, num_imgs, params["exp_time"]]
+            "quickshot-internaltrig",
+            [filepath, filename, num_imgs, params.general.exp_time],
         )
         print("Sleep 2s for pilatus to arm")
         sleep(2)
@@ -454,29 +457,31 @@ def start_i24(params, filepath):
             "%s Triggered Eiger setup: number of images %s" % (name, total_numb_imgs)
         )
         logger.info(
-            "%s Triggered Eiger setup: exposure time %s" % (name, params["exp_time"])
+            "%s Triggered Eiger setup: exposure time %s"
+            % (name, params.general.exp_time)
         )
 
         sup.eiger(
-            "triggered", [filepath, filename, total_numb_imgs, params["exp_time"]]
+            "triggered", [filepath, filename, total_numb_imgs, params.general.exp_time]
         )
 
         # DCID process depends on detector PVs being set up already
         dcid = DCID(
             emit_errors=False,
             ssx_type=SSXType.FIXED,
-            visit=params["visit"].name,
+            visit=params.general.visit.name,
             image_dir=filepath,
             start_time=start_time,
             num_images=total_numb_imgs,
-            exposure_time=params["exp_time"],
-            detector=params["det_type"],
-            shots_per_position=params["n_exposures"],
+            exposure_time=params.general.exp_time,
+            detector=params.general.det_type,
+            shots_per_position=params.expt.n_exposures,
         )
 
         print("Arm Zebra.")
         sup.zebra1(
-            "fastchip-eiger", [num_gates, params["n_exposures"], params["exp_time"]]
+            "fastchip-eiger",
+            [num_gates, params.expt.n_exposures, params.general.exp_time],
         )
         caput(pv.zebra1_pc_arm, "1")  # Arm zebra fastchip-eiger
 
@@ -484,7 +489,7 @@ def start_i24(params, filepath):
 
     else:
         logger.warning(
-            "%s Unknown Detector Type, det_type = %s" % (name, params["det_type"])
+            "%s Unknown Detector Type, det_type = %s" % (name, params.general.det_type)
         )
         print("Unknown detector type")
 
@@ -508,7 +513,7 @@ def finish_i24(params, filepath, chip_prog_dict, start_time):
     logger.info("%s Finishing I24, Detector Type %s" % (name, det_type))
 
     total_numb_imgs = datasetsizei24(params)
-    filename = params["filename"]
+    filename = params.general.filename
 
     transmission = (float(caget(pv.pilat_filtertrasm)),)
     wavelength = float(caget(pv.dcm_lambda))
@@ -518,7 +523,7 @@ def finish_i24(params, filepath, chip_prog_dict, start_time):
 
     if det_type == "pilatus":
         print("Finish I24 Pilatus")
-        filename = filename + "_" + caget(pv.pilat_filenum)
+        filename = filename + "_" + caget(pv.pilat_filenum)  # FIXME somewhere in params
         caput(pv.zebra1_soft_in_b1, "No")  # Close the fast shutter
         caput(pv.zebra1_pc_arm_out, "0")  # Disarm the zebra
         sup.zebra1("return-to-normal")
@@ -548,7 +553,7 @@ def finish_i24(params, filepath, chip_prog_dict, start_time):
 
     # Write a record of what was collected to the processing directory
     print("Writing user log")
-    userlog_path = params["visit"] / Path("processing") / params["directory"]
+    userlog_path = params.general.visit / Path("processing") / params.general.directory
     userlog_fid = filename + "_parameters.txt"
 
     os.makedirs(userlog_path, exist_ok=True)
@@ -580,24 +585,29 @@ def main():
     logger.info("%s Location is I24 \n Starting" % name)
     caput(pv.me14e_gp9, 0)
 
+    params: ExperimentParameters = read_parameters(
+        filepath=PARAM_FILE_PATH_FT,
+        expt_type=SSXType.FIXED,
+    )
+    filepath = params.general.collection_path
     params, filepath = read_parameters(FixedTarget, sup.get_detector_type())
-    (
-        visit,
-        sub_dir,
-        chip_name,
-        exptime,
-        det_type,
-        dcdetdist,
-        chip_type,
-        map_type,
-        n_exposures,
-        pumpexptime,
-        pumpdelay,
-        pump_status,
-        pump_repeat,
-        prepumpexptime,
-        det_type,
-    ) = params.values()
+
+    # FIXME horrible temporary thing
+    visit = params.general.visit
+    sub_dir = params.general.directory
+    chip_name = params.general.filename
+    exptime = params.general.exp_time
+    det_type = params.general.det_type
+    dcdetdist = params.general.det_dist
+    chip_type = params.expt.chip_type
+    map_type = params.expt.map_type
+    n_exposures = params.expt.n_exposures
+    pumpexptime = params.pump_probe.pump_exp
+    pumpdelay = params.pump_probe.pump_delay
+    pump_status = params.pump_probe.pump_status  # noqa: F841
+    pump_repeat = params.pump_probe.pump_repeat
+    prepumpexptime = params.pump_probe.prepump_exp
+
     print("exptime", exptime)
     print("pump_repeat", pump_repeat)
     print("pumpexptime", pumpexptime)
