@@ -3,23 +3,17 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
+from typing import Optional, Union
 
 from dataclasses_json import DataClassJsonMixin
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from pydantic.dataclasses import dataclass
 
-# from typing import Optional, Union
 
-
-class Config:
-    smart_union = True
-    validate_default = True
-
-
-@dataclass(config=Config)
+@dataclass(config=ConfigDict(validate_assignment=True))
 class GeneralParameters(DataClassJsonMixin):
-    visit: Path | str
-    directory: Path | str
+    visit: Union[Path, str]
+    directory: Union[Path, str]
     filename: str
     exp_time: float
     det_type: str
@@ -40,26 +34,26 @@ class GeneralParameters(DataClassJsonMixin):
         return self.visit / self.directory
 
 
-@dataclass(config=Config)
+@dataclass(config=ConfigDict(validate_assignment=True))
 class PumpProbeParameters(DataClassJsonMixin):
     pump_exp: float
     pump_delay: float
     pump_status: bool = False
     pump_repeat: str = "0"
-    prepump_exp: float | None = None
+    prepump_exp: Optional[float] = None
 
     def __post_init__(self):
         if self.pump_exp and self.pump_exp > 0:
             self.pump_status = True
 
 
-@dataclass(config=Config)
+@dataclass(config=ConfigDict(validate_assignment=True))
 class ExtruderParams(DataClassJsonMixin):
     num_imgs: int
     expt_type: str = "extruder"
 
 
-@dataclass(config=Config)
+@dataclass(config=ConfigDict(validate_assignment=True))
 class FixedTargetParams(DataClassJsonMixin):
     chip_type: str
     map_type: str
