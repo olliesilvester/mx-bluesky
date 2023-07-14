@@ -64,7 +64,7 @@ class FixedTargetParams(DataClassJsonMixin):
 class ExperimentParameters(BaseModel):
     general: GeneralParameters
     pump_probe: PumpProbeParameters
-    expt: ExtruderParams | FixedTargetParams
+    expt: ExtruderParams | FixedTargetParams  # type: ignore
 
     class Config:
         arbitrary_types_allowed = True

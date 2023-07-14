@@ -107,7 +107,7 @@ font "arial-medium-r-18.0"
 numPvs 4
 numDsps 1
 displayFileName {
-  0 "mx_bluesky/I24/serial/fixed_target/FT-gui-edm/MappingLite-oxford_py3v1.edl"
+  0 "MappingLite-oxford_py3v1.edl"
 }
 endObjectProperties
 
