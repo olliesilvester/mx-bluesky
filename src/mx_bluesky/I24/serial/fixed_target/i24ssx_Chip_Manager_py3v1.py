@@ -875,8 +875,12 @@ def cs_maker():
     print("mtr3 direction", mtr3_dir)
 
     # Scale parameters saved in json file
-    with open(CS_FILES_PATH / "cs_maker.json", "r") as fh:
-        cs_info = json.load(fh)
+    try:
+        with open(CS_FILES_PATH / "cs_maker.json", "r") as fh:
+            cs_info = json.load(fh)
+    except json.JSONDecodeError:
+        logger.error("Invalid JSON file.")
+        raise
 
     scalex, scaley, scalez = cs_info["scalex"], cs_info["scaley"], cs_info["scalez"]
     skew = cs_info["skew"]
