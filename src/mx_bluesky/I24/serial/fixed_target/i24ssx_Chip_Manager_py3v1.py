@@ -20,9 +20,9 @@ from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_Mapping_py3v1 as mapping
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_StartUp_py3v1 as startup
 from mx_bluesky.I24.serial.parameters.constants import (
+    CS_FILES_PATH,
     FULLMAP_PATH,
     LITEMAP_PATH,
-    PARAM_FILE_PATH,
     PARAM_FILE_PATH_FT,
     PVAR_FILE_PATH,
 )
@@ -742,7 +742,7 @@ def moveto(place: str):
         caput(pv.me14e_pmac_str, " M812=0 M811=1")
 
 
-def scrape_mtr_directions(param_path: Path | str = PARAM_FILE_PATH_FT):
+def scrape_mtr_directions(param_path: Path | str = CS_FILES_PATH):
     name = inspect.stack()[0][3]
     param_path = _coerce_to_path(param_path)
 
@@ -875,7 +875,7 @@ def cs_maker():
     print("mtr3 direction", mtr3_dir)
 
     # Scale parameters saved in json file
-    with open(PARAM_FILE_PATH / "cs_maker.json", "r") as fh:
+    with open(CS_FILES_PATH / "cs_maker.json", "r") as fh:
         cs_info = json.load(fh)
 
     scalex, scaley, scalez = cs_info["scalex"], cs_info["scaley"], cs_info["scalez"]
