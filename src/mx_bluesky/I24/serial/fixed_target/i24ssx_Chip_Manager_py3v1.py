@@ -882,14 +882,35 @@ def cs_maker():
         logger.error("Invalid JSON file.")
         raise
 
-    scalex, scaley, scalez = cs_info["scalex"], cs_info["scaley"], cs_info["scalez"]
-    skew = cs_info["skew"]
+    try:
+        scalex, scaley, scalez = (
+            float(cs_info["scalex"]),
+            float(cs_info["scaley"]),
+            float(cs_info["scalez"]),
+        )
+        skew = float(cs_info["skew"])
+        Sx_dir, Sy_dir, Sz_dir = (
+            int(cs_info["Sx_dir"]),
+            int(cs_info["Sy_dir"]),
+            int(cs_info["Sz_dir"]),
+        )
+    except KeyError:
+        logger.error("Wrong or missing key in the cs json file.")
+        raise
+
+    def check_dir(val):
+        if val not in [1, -1]:
+            raise ValueError("Wrong value for direction. Please set to either -1 or 1.")
+
+    check_dir(Sx_dir)
+    check_dir(Sy_dir)
+    check_dir(Sz_dir)
 
     # Rotation Around Z
     # If stages upsidedown (I24) change sign of Sz
     Sz1 = -1 * f1_y / fiducial_dict[chip_type][0]
     Sz2 = f2_x / fiducial_dict[chip_type][1]
-    Sz = cs_info["Sz_dir"] * ((Sz1 + Sz2) / 2)
+    Sz = Sz_dir * ((Sz1 + Sz2) / 2)
     Cz = np.sqrt((1 - Sz**2))
     print("Sz1 , %1.4f, %1.4f" % (Sz1, np.degrees(np.arcsin(Sz1))))
     logger.info("%s Sz1 , %1.4f, %1.4f" % (name, Sz1, np.degrees(np.arcsin(Sz1))))
@@ -900,7 +921,7 @@ def cs_maker():
     print("Cz ,  %1.4f, %1.4f\n" % (Cz, np.degrees(np.arccos(Cz))))
     logger.info("%s Cz , %1.4f, %1.4f" % (name, Cz, np.degrees(np.arcsin(Cz))))
     # Rotation Around Y
-    Sy = cs_info["Sy_dir"] * f1_z / fiducial_dict[chip_type][0]
+    Sy = Sy_dir * f1_z / fiducial_dict[chip_type][0]
     Cy = np.sqrt((1 - Sy**2))
     print("Sy , %1.4f, %1.4f" % (Sy, np.degrees(np.arcsin(Sy))))
     logger.info("%s Sy , %1.4f, %1.4f" % (name, Sy, np.degrees(np.arcsin(Sy))))
@@ -908,7 +929,7 @@ def cs_maker():
     logger.info("%s Cy , %1.4f, %1.4f" % (name, Cy, np.degrees(np.arcsin(Cy))))
     # Rotation Around X
     # If stages upsidedown (I24) change sign of Sx
-    Sx = cs_info["Sx_dir"] * f2_z / fiducial_dict[chip_type][1]
+    Sx = Sx_dir * f2_z / fiducial_dict[chip_type][1]
     Cx = np.sqrt((1 - Sx**2))
     print("Sx , %1.4f, %1.4f" % (Sx, np.degrees(np.arcsin(Sx))))
     logger.info("%s Sx , %1.4f, %1.4f" % (name, Sx, np.degrees(np.arcsin(Sx))))

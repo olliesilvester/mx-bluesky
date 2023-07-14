@@ -21,6 +21,8 @@ MTR1 0 0 1 0
 MTR2 1 -1 -1 1
 MTR3 0 0 -1 0"""
 
+cs_json = '{"scalex":1, "scaley":2, "scalez":3, "skew":-0.5, "Sx_dir":1, "Sy_dir":-1, "Sz_dir":0}'
+
 
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caput")
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caget")
@@ -96,4 +98,52 @@ def test_cs_maker_raises_error_for_invalid_json(
     fake_dir.return_value = (1, 1, 1)
     fake_fid.return_value = (0, 0, 0)
     with pytest.raises(json.JSONDecodeError):
+        cs_maker()
+
+
+@patch(
+    "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.open",
+    mock_open(read_data='{"scalex":11, "skew":12}'),
+)
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caput")
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caget")
+@patch(
+    "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.scrape_mtr_directions"
+)
+@patch(
+    "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.scrape_mtr_fiducials"
+)
+def test_cs_maker_raises_error_for_missing_key_in_json(
+    fake_fid,
+    fake_dir,
+    fake_caget,
+    fake_caput,
+):
+    fake_dir.return_value = (1, 1, 1)
+    fake_fid.return_value = (0, 0, 0)
+    with pytest.raises(KeyError):
+        cs_maker()
+
+
+@patch(
+    "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.open",
+    mock_open(read_data=cs_json),
+)
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caput")
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caget")
+@patch(
+    "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.scrape_mtr_directions"
+)
+@patch(
+    "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.scrape_mtr_fiducials"
+)
+def test_cs_maker_raises_error_for_wrong_direction_in_json(
+    fake_fid,
+    fake_dir,
+    fake_caget,
+    fake_caput,
+):
+    fake_dir.return_value = (1, 1, 1)
+    fake_fid.return_value = (0, 0, 0)
+    with pytest.raises(ValueError):
         cs_maker()
