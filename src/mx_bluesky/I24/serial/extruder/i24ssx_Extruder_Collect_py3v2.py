@@ -426,7 +426,7 @@ def run_extruderi24(args=None):
     dcid.notify_start()
 
     if params.general.det_type == "eiger":
-        call_nexgen(None, start_time, params, "extruder")
+        call_nexgen(None, start_time, params, SSXType.EXTRUDER)
 
     print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
 

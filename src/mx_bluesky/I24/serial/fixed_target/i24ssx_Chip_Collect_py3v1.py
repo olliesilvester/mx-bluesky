@@ -652,6 +652,7 @@ def main():
             chip_prog_dict,
             start_time,
             params,
+            SSXType.FIXED,
             total_numb_imgs=datasetsizei24(),
         )
 

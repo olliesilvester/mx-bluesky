@@ -49,6 +49,7 @@ class PumpProbeParameters(DataClassJsonMixin):
 @dataclass
 class ExtruderParams(DataClassJsonMixin):
     num_imgs: int
+    expt_type: str = "extruder"
 
 
 @dataclass
@@ -56,6 +57,7 @@ class FixedTargetParams(DataClassJsonMixin):
     chip_type: str
     map_type: str
     n_exposures: int
+    expt_type: str = "fixed_target"
 
 
 class ExperimentParameters(BaseModel):

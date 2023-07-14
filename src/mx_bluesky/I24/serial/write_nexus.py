@@ -1,65 +1,46 @@
+from __future__ import annotations
+
 import os
 import pathlib
 import pprint
 import time
+from datetime import datetime
+from typing import Dict
 
 import requests
 
+from mx_bluesky.I24.serial.parameters import ExperimentParameters, SSXType
 from mx_bluesky.I24.serial.setup_beamline import caget, cagetstring, pv
 
 
 def call_nexgen(
-    chip_prog_dict,
-    start_time,
-    params,
-    expt_type="fixed_target",
-    total_numb_imgs=None,
+    chip_prog_dict: Dict[str, str | float],
+    start_time: datetime,
+    params: ExperimentParameters,
+    ssx_type: SSXType = SSXType.FIXED,
+    total_numb_imgs: int | None = None,
 ):
     det_type = str(caget(pv.me14e_gp101))
     print(f"det_type: {det_type}")
 
-    if expt_type == "fixed_target":
-        (
-            visit,
-            sub_dir,
-            filename,
-            exptime,
-            det_type,
-            dcdetdist,
-            chip_type,
-            map_type,
-            n_exposures,
-            pumpexptime,
-            pumpdelay,
-            pump_status,
-            pump_repeat,
-            prepumpexptime,
-            det_type,
-        ) = params.values()
+    if ssx_type == SSXType.FIXED:
+        chip_type = params.expt.chip_type  # type: ignore[union-attr]
+        map_type = params.expt.map_type  # type: ignore[union-attr]
+        pump_repeat = params.pump_probe.pump_repeat
 
         if map_type == 0 or int(chip_type) == 2:
             currentchipmap = "fullchip"
         else:
             currentchipmap = "/dls_sw/i24/scripts/fastchips/litemaps/currentchip.map"
 
-    elif expt_type == "extruder":
+    elif ssx_type == SSXType.EXTRUDER:
         # chip_prog_dict should be None for extruder (passed as input for now)
-        (
-            visit,
-            sub_dir,
-            filename,
-            exptime,
-            det_type,
-            dcdetdist,
-            num_imgs,
-            pumpexptime,
-            pumpdelay,
-            pump_status,
-        ) = params.values()
-        total_numb_imgs = num_imgs
+        total_numb_imgs = params.expt.num_imgs  # type: ignore[union-attr]
         currentchipmap = None
-        pump_repeat = "0" if pump_status == "false" else "1"
+        pump_repeat = "0" if params.pump_probe.pump_status == "false" else "1"
 
+    visit = params.general.visit
+    sub_dir = params.general.directory
     filename_prefix = cagetstring(pv.eiger_ODfilenameRBV)
     meta_h5 = pathlib.Path(visit) / sub_dir / f"{filename_prefix}_meta.h5"
     t0 = time.time()
@@ -76,12 +57,10 @@ def call_nexgen(
         print(f"Giving up waiting for {meta_h5} after {max_wait} seconds")
         return False
 
-    # filepath = visit + sub_dir
-    # filename = chip_name
     transmission = (float(caget(pv.pilat_filtertrasm)),)
     wavelength = float(caget(pv.dcm_lambda))
 
-    if det_type == "eiger":
+    if params.general.det_type == "eiger":
         print("nexgen here")
         print(chip_prog_dict)
 
@@ -94,14 +73,14 @@ def call_nexgen(
             "beam_center": [caget(pv.eiger_beamx), caget(pv.eiger_beamy)],
             "chipmap": currentchipmap,
             "chip_info": chip_prog_dict,
-            "det_dist": dcdetdist,
-            "exp_time": exptime,
-            "expt_type": expt_type,
+            "det_dist": params.general.det_dist,
+            "exp_time": params.general.exp_time,
+            "expt_type": params.expt.expt_type,
             "filename": filename_prefix,
-            "num_imgs": int(total_numb_imgs),
+            "num_imgs": total_numb_imgs,
             "pump_status": bool(float(pump_repeat)),
-            "pump_exp": pumpexptime,
-            "pump_delay": pumpdelay,
+            "pump_exp": params.pump_probe.pump_exp,
+            "pump_delay": params.pump_probe.pump_delay,
             "transmission": transmission[0],
             "visitpath": os.fspath(meta_h5.parent),
             "wavelength": wavelength,
