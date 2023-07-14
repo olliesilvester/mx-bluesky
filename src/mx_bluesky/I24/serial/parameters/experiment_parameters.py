@@ -8,8 +8,15 @@ from dataclasses_json import DataClassJsonMixin
 from pydantic import BaseModel
 from pydantic.dataclasses import dataclass
 
+# from typing import Optional, Union
 
-@dataclass
+
+class Config:
+    smart_union = True
+    validate_default = True
+
+
+@dataclass(config=Config)
 class GeneralParameters(DataClassJsonMixin):
     visit: Path | str
     directory: Path | str
@@ -33,7 +40,7 @@ class GeneralParameters(DataClassJsonMixin):
         return self.visit / self.directory
 
 
-@dataclass
+@dataclass(config=Config)
 class PumpProbeParameters(DataClassJsonMixin):
     pump_exp: float
     pump_delay: float
@@ -46,13 +53,13 @@ class PumpProbeParameters(DataClassJsonMixin):
             self.pump_status = True
 
 
-@dataclass
+@dataclass(config=Config)
 class ExtruderParams(DataClassJsonMixin):
     num_imgs: int
     expt_type: str = "extruder"
 
 
-@dataclass
+@dataclass(config=Config)
 class FixedTargetParams(DataClassJsonMixin):
     chip_type: str
     map_type: str
