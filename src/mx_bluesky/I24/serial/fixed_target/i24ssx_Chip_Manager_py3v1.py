@@ -4,6 +4,7 @@ This version changed to python3 March2020 by RLO
 """
 from __future__ import annotations
 
+import argparse
 import inspect
 import json
 import logging
@@ -180,6 +181,7 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
     print("exptime", exptime)
     print("detector", det_type)
     print("\n", "Write parameter file done", "\n")
+    startup.run()
 
 
 def scrape_pvar_file(fid: str, pvar_dir: Path | str = PVAR_FILE_PATH):
@@ -317,7 +319,7 @@ def upload_full(fullmap_path: Path | str = FULLMAP_PATH):
     logger.info("%s %s" % (name, 10 * "Done"))
 
 
-def load_stock_map(map_choice):
+def load_stock_map(map_choice: str):
     name = inspect.stack()[0][3]
     logger.info("%s Adjusting Lite Map EDM Screen" % name)
     print("Please wait, adjusting lite map")
@@ -1067,54 +1069,54 @@ def block_check():
     print(10 * "Done ")
 
 
-def cli_parser():
-    pass
-
-
-def main(args):
-    setup_logging()
-    name = inspect.stack()[0][3]
-    print(args)
-    logger.info("%s \n\n%s" % (name, args))
-    if args[1] == "initialise":
-        initialise()
-    elif args[1] == "moveto":
-        moveto(args[2])
-    elif args[1] == "fiducial":
-        fiducial(args[2])
-    elif args[1] == "cs_maker":
-        cs_maker()
-    elif args[1] == "pumpprobe_calc":
-        pumpprobe_calc()
-    elif args[1] == "write_parameter_file":
-        write_parameter_file()
-        startup.run()
-    elif args[1] == "define_current_chip":
-        chipid = args[2]
-        define_current_chip(chipid)
-    elif args[1] == "load_stock_map":
-        map_choice = args[2]
-        load_stock_map(map_choice)
-    elif args[1] == "load_lite_map":
-        load_lite_map()
-    elif args[1] == "load_full_map":
-        load_full_map()
-    elif args[1] == "save_screen_map":
-        save_screen_map()
-    elif args[1] == "upload_full":
-        upload_full()
-    elif args[1] == "upload_parameters":
-        chipid = args[2]
-        upload_parameters(chipid)
-    elif args[1] == "cs_reset":
-        cs_reset()
-    elif args[1] == "block_check":
-        block_check()
-
-    else:
-        print("Unknown Command")
-        logger.warning("%s Unknown Command" % name)
-
-
 if __name__ == "__main__":
-    main(sys.argv)
+    setup_logging()
+
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(
+        help="Choose command.",
+        required=True,
+        dest="sub-command",
+    )
+    parser_init = subparsers.add_parser(
+        "initialise",
+    )
+    parser_init.set_defaults(func=initialise)
+    parser_moveto = subparsers.add_parser(
+        "moveto",
+    )
+    parser_moveto.add_argument("place", type=str)
+    parser_moveto.set_defaults(func=moveto)
+    parser_fid = subparsers.add_parser("fiducial")
+    parser_fid.add_argument("point", type=int)
+    parser_fid.set_defaults(func=fiducial)
+    parser_csm = subparsers.add_parser("cs_maker")
+    parser_csm.set_defaults(func=cs_maker)
+    parser_pp = subparsers.add_parser("pumpprobe_calc")
+    parser_pp.set_defaults(func=pumpprobe_calc)
+    parser_write = subparsers.add_parser("write_parameter_file")
+    parser_write.set_defaults(func=write_parameter_file)
+    parser_def = subparsers.add_parser("define_current_chip")
+    parser_def.add_argument("chipid", type=str)
+    parser_def.set_defaults(func=define_current_chip)
+    parser_stockmap = subparsers.add_parser("load_stock_map")
+    parser_stockmap.add_argument("map_choice", type=str)
+    parser_stockmap.set_defaults(func=load_stock_map)
+    parser_litemap = subparsers.add_parser("load_lite_map")
+    parser_litemap.set_defaults(func=load_lite_map)
+    parser_fullmap = subparsers.add_parser("load_full_map")
+    parser_fullmap.set_defaults(func=load_full_map)
+    parser_save = subparsers.add_parser("save_screen_map")
+    parser_save.set_defaults(func=save_screen_map)
+    parser_upld = subparsers.add_parser("upload_full")
+    parser_upld.set_defaults(func=upload_full)
+    parser_params = subparsers.add_parser("upload_parameters")
+    parser_params.add_argument("chipid", type=str)
+    parser_params.set_defaults(func=upload_parameters)
+    parser_csr = subparsers.add_parser("cs_reset")
+    parser_csr.set_defaults(func=cs_reset)
+    parser_block = subparsers.add_parser("block_check")
+    parser_block.set_defaults(func=block_check)
+
+    args = parser.parse_args()
+    args.func(args)
