@@ -36,11 +36,12 @@ def call_nexgen(
             prepumpexptime,
             det_type,
         ) = params.values()
-        currentchipmap = (
-            "/dls_sw/i24/scripts/fastchips/litemaps/currentchip.map"
-            if map_type != 0
-            else "fullchip"
-        )
+
+        if map_type == 0 or int(chip_type) == 2:
+            currentchipmap = "fullchip"
+        else:
+            currentchipmap = "/dls_sw/i24/scripts/fastchips/litemaps/currentchip.map"
+
     elif expt_type == "extruder":
         # chip_prog_dict should be None for extruder (passed as input for now)
         (

@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     # Create window named OAV1view and set onmouse to this
     cv.namedWindow("OAV1view")
-    cv.setMouseCallback("OAV1view", onMouse)
+    cv.setMouseCallback("OAV1view", onMouse)  # type: ignore
 
     print("Showing camera feed. Press escape to close")
     # Read captured video and store them in success and frame
