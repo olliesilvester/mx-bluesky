@@ -23,6 +23,7 @@ dependencies = [
     "opencv-python",
     "pydantic<2.0",
     "dataclasses-json",
+    "dodal @ git+https://github.com/DiamondLightSource/dodal.git@main",
 ]
 dynamic = ["version"]
 license.file = "LICENSE"
