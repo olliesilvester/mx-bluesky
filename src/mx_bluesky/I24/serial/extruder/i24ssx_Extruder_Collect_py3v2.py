@@ -288,7 +288,6 @@ def run_extruderi24(args=None):
             sup.zebra1("quickshot", [gate_start, gate_width])
 
     elif det_type == "eiger":
-        # Test moving seqID+1 to here
         caput(pv.eiger_seqID, int(caget(pv.eiger_seqID)) + 1)
         logger.info("Eiger quickshot setup: filepath %s" % filepath)
         logger.info("Eiger quickshot setup: filepath %s" % filename)
