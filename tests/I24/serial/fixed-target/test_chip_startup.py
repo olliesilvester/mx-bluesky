@@ -15,7 +15,7 @@ sub_dir bar
 chip_name chip
 protein_name protK
 n_exposures 1
-chip_type 1
+chip_type 0
 map_type None
 dcdetdist 100
 det_type eig
@@ -37,20 +37,20 @@ def test_scrape_parameter_file():
 
 
 def test_fiducials():
+    assert len(fiducials("0")) == 0
     assert len(fiducials("1")) == 0
-    assert len(fiducials("5")) == 0
-    assert len(fiducials("0")) > 0
 
 
-def test_get_format():
+def test_get_format_for_oxford_chip():
     # oxford chip
-    fmt = get_format("1")
+    fmt = get_format("0")
     assert fmt == [8, 8, 20, 20, 0.125, 0.800, 0.800]
 
 
-def test_get_format_for_custom_chip():
-    fmt = get_format("6")
-    assert fmt == [1, 1, 20, 20, 0.1, 0, 0]
+def test_get_format_for_oxford_minichip():
+    # 1 block of oxford chip
+    fmt = get_format("3")
+    assert fmt == [1, 1, 20, 20, 0.125, 0.0, 0.0]
 
 
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1.os")

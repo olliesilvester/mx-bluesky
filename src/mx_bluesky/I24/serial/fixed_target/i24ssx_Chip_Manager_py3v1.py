@@ -4,7 +4,9 @@ This version changed to python3 March2020 by RLO
 """
 from __future__ import annotations
 
+import argparse
 import inspect
+import json
 import logging
 import shutil
 import sys
@@ -18,6 +20,7 @@ from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_Mapping_py3v1 as mapping
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_StartUp_py3v1 as startup
 from mx_bluesky.I24.serial.parameters.constants import (
+    CS_FILES_PATH,
     FULLMAP_PATH,
     LITEMAP_PATH,
     PARAM_FILE_PATH_FT,
@@ -178,6 +181,7 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
     print("exptime", exptime)
     print("detector", det_type)
     print("\n", "Write parameter file done", "\n")
+    startup.run()
 
 
 def scrape_pvar_file(fid: str, pvar_dir: Path | str = PVAR_FILE_PATH):
@@ -216,9 +220,7 @@ def define_current_chip(chipid: str, param_path: Path | str = PVAR_FILE_PATH):
     chip_type = caget(pv.me14e_gp1)
     print(chip_type, chipid)
     logger.info("%s chip_type:%s chipid:%s" % (name, chip_type, chipid))
-    if chipid == "toronto":
-        caput(pv.me14e_gp1, 0)
-    elif chipid == "oxford":
+    if chipid == "oxford":
         caput(pv.me14e_gp1, 1)
 
     param_path = _coerce_to_path(param_path)
@@ -261,10 +263,7 @@ def save_screen_map(litemap_path: Path | str = LITEMAP_PATH):
 def upload_parameters(chipid: str, litemap_path: Path | str = LITEMAP_PATH):
     name = inspect.stack()[0][3]
     logger.info("%s Uploading Parameters to the GeoBrick" % (name))
-    if chipid == "toronto":
-        caput(pv.me14e_gp1, 0)
-        width = 9
-    elif chipid == "oxford":
+    if chipid == "oxford":
         caput(pv.me14e_gp1, 1)
         width = 8
     litemap_path = _coerce_to_path(litemap_path)
@@ -320,7 +319,7 @@ def upload_full(fullmap_path: Path | str = FULLMAP_PATH):
     logger.info("%s %s" % (name, 10 * "Done"))
 
 
-def load_stock_map(map_choice):
+def load_stock_map(map_choice: str):
     name = inspect.stack()[0][3]
     logger.info("%s Adjusting Lite Map EDM Screen" % name)
     print("Please wait, adjusting lite map")
@@ -527,17 +526,6 @@ def load_lite_map(litemap_path: Path | str = LITEMAP_PATH):
     name = inspect.stack()[0][3]
     load_stock_map("clear")
     # fmt: off
-    toronto_block_dict = {
-        'A1': '01', 'A2': '02', 'A3': '03', 'A4': '04', 'A5': '05', 'A6': '06', 'A7': '07', 'A8': '08', 'A9': '09',
-        'B1': '18', 'B2': '17', 'B3': '16', 'B4': '15', 'B5': '14', 'B6': '13', 'B7': '12', 'B8': '11', 'B9': '10',
-        'C1': '19', 'C2': '20', 'C3': '21', 'C4': '22', 'C5': '23', 'C6': '24', 'C7': '25', 'C8': '26', 'C9': '27',
-        'D1': '36', 'D2': '35', 'D3': '34', 'D4': '33', 'D5': '32', 'D6': '31', 'D7': '30', 'D8': '29', 'D9': '28',
-        'E1': '37', 'E2': '38', 'E3': '39', 'E4': '40', 'E5': '41', 'E6': '42', 'E7': '43', 'E8': '44', 'E9': '45',
-        'F1': '54', 'F2': '53', 'F3': '52', 'F4': '51', 'F5': '50', 'F6': '49', 'F7': '48', 'F8': '47', 'F9': '46',
-        'G1': '55', 'G2': '56', 'G3': '57', 'G4': '58', 'G5': '59', 'G6': '60', 'G7': '61', 'G8': '62', 'G9': '63',
-        'H1': '72', 'H2': '71', 'H3': '70', 'H4': '69', 'H5': '68', 'H6': '67', 'H7': '66', 'H8': '65', 'H9': '64',
-        'I1': '73', 'I2': '74', 'I3': '75', 'I4': '76', 'I5': '77', 'I6': '78', 'I7': '79', 'I8': '80', 'I9': '81',
-    }
     # Oxford_block_dict is wrong (columns and rows need to flip) added in script below to generate it automatically however kept this for backwards compatiability/reference
     oxford_block_dict = {   # noqa: F841
         'A1': '01', 'A2': '02', 'A3': '03', 'A4': '04', 'A5': '05', 'A6': '06', 'A7': '07', 'A8': '08',
@@ -550,12 +538,8 @@ def load_lite_map(litemap_path: Path | str = LITEMAP_PATH):
         'H1': '64', 'H2': '63', 'H3': '62', 'H4': '61', 'H5': '60', 'H6': '59', 'H7': '58', 'H8': '57',
     }
     # fmt: on
-    chip_type = caget(pv.me14e_gp1)
-    if chip_type == 0:
-        logger.info("%s Toronto Block Order" % name)
-        print("Toronto Block Order")
-        block_dict = toronto_block_dict
-    elif chip_type == 1 or chip_type == 3 or chip_type == 10:
+    chip_type = int(caget(pv.me14e_gp1))
+    if chip_type in [0, 1]:
         logger.info("%s Oxford Block Order" % name)
         print("Oxford Block Order")
         # block_dict = oxford_block_dict
@@ -634,26 +618,16 @@ def load_full_map(fullmap_path: Path | str = FULLMAP_PATH):
     print(10 * "Done ", "\n")
 
 
-def moveto(place):
+def moveto(place: str):
     name = inspect.stack()[0][3]
     logger.info("%s Move to %s" % (name, place))
     print(5 * (place + " "))
     chip_type = int(caget(pv.me14e_gp1))
     print("CHIP TYPE", chip_type)
-    if chip_type == 0:
-        print("Toronto Move")
-        logger.info("%s Toronto Move" % (name))
-        if place == "origin":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f1":
-            caput(pv.me14e_stage_x, +18.975)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f2":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, +21.375)
 
-    elif chip_type == 1:
+    if chip_type == 0 or chip_type == 3:
+        # Oxford and minichip
+        # As minichip is nothing more than a smaller oxford, they should move the same way
         print("Oxford Move")
         logger.info("%s Oxford Move" % (name))
         if place == "origin":
@@ -666,7 +640,7 @@ def moveto(place):
             caput(pv.me14e_stage_x, 0.0)
             caput(pv.me14e_stage_y, 25.40)
 
-    elif chip_type == 3:
+    elif chip_type == 1:
         print("Oxford Inner Move")
         logger.info("%s Oxford Inner Move" % (name))
         if place == "origin":
@@ -679,7 +653,7 @@ def moveto(place):
             caput(pv.me14e_stage_x, 0.0)
             caput(pv.me14e_stage_y, 24.60)
 
-    elif chip_type == 6:
+    elif chip_type == 2:
         print("Custom Move")
         logger.info("%s Custom Chip Move" % (name))
         if place == "origin":
@@ -692,21 +666,7 @@ def moveto(place):
             caput(pv.me14e_stage_x, 0.0)
             caput(pv.me14e_stage_y, 25.40)
 
-    elif chip_type == 10:
-        print("Oxford 6 by 6 blocks Move")
-        logger.info("%s Oxford 6 by 6 blocks Move" % (name))
-        if place == "origin":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f1":
-            caput(pv.me14e_stage_x, 18.25)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f2":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 18.25)
-
     else:
-        print("Unknown chip_type move")
         logger.warning("%s Unknown chip_type move" % name)
 
     # Non Chip Specific Move
@@ -714,25 +674,11 @@ def moveto(place):
         logger.info("%s moving to %s" % (name, place))
         caput(pv.me14e_pmac_str, "!x0y0z0")
 
-    elif place == "yag":
-        logger.info("%s moving %s" % (name, place))
-        caput(pv.me14e_stage_x, 1.0)
-        caput(pv.me14e_stage_y, 1.0)
-        caput(pv.me14e_stage_z, 1.0)
-
     elif place == "load_position":
         print("load position")
         logger.info("%s %s" % (name, place))
-        # caput(pv.me14e_filter, 20)
-        # caput(pv.me14e_stage_x, -15.0)
-        # caput(pv.me14e_stage_y, 25.0)
-        # caput(pv.me14e_stage_z, 0.0)
-        # caput(pv.me14e_pmac_str, 'M512=0 M511=1')
-        # i24 settings
         caput(pv.bs_mp_select, "Robot")
         caput(pv.bl_mp_select, "Out")
-        # caput(pv.aptr1_mp_select, 'Robot')
-        # reduced detz while stage problems. was 1480
         caput(pv.det_z, 1300)
 
     elif place == "collect_position":
@@ -742,46 +688,17 @@ def moveto(place):
         caput(pv.me14e_stage_x, 0.0)
         caput(pv.me14e_stage_y, 0.0)
         caput(pv.me14e_stage_z, 0.0)
-        # caput(pv.me14e_pmac_str, 'M512=0 M511=1')
         caput(pv.bs_mp_select, "Data Collection")
-        # caput(pv.aptr1_mp_select, 'In')
         caput(pv.bl_mp_select, "In")
 
     elif place == "microdrop_position":
         print("microdrop align position")
         logger.info("%s %s" % (name, place))
-        # caput(pv.me14e_filter, 20)
         caput(pv.me14e_stage_x, 6.0)
         caput(pv.me14e_stage_y, -7.8)
         caput(pv.me14e_stage_z, 0.0)
-        # caput(pv.me14e_pmac_str, 'M512=0 M511=1')
-        # caput(pv.bs_mp_select, 'Data Collection')
-        # caput(pv.aptr1_mp_select, 'In')
-        # caput(pv.bl_mp_select, 'In')
 
-    elif place == "lightin":
-        print("light in")
-        logger.info("%s Light In" % (name))
-        caput(pv.me14e_filter, 24)
-
-    elif place == "lightout":
-        print("light out")
-        logger.info("%s Light Out" % (name))
-        caput(pv.me14e_filter, -24)
-
-    elif place == "flipperin":
-        print("flipper in")
-        logger.info("%s Flipper In" % (name))
-        logger.debug("%s nb need M508=100 M509 =150 somewhere" % name)
-        # nb need M508=100 M509 =150 somewhere
-        caput(pv.me14e_pmac_str, "M512=0 M511=1")
-
-    elif place == "flipperout":
-        print("flipper out")
-        logger.info("%s Flipper out" % (name))
-        caput(pv.me14e_pmac_str, " M512=1 M511=1")
-
-    elif place == "laser1on":
+    elif place == "laser1on":  # these are in laser edm
         print("Laser 1 /BNC2 shutter is open")
         # Use M712 = 0 if triggering on falling edge. M712 =1 if on rising edge
         # Be sure to also change laser1off
@@ -825,7 +742,7 @@ def moveto(place):
         caput(pv.me14e_pmac_str, " M812=0 M811=1")
 
 
-def scrape_mtr_directions(param_path: Path | str = PARAM_FILE_PATH_FT):
+def scrape_mtr_directions(param_path: Path | str = CS_FILES_PATH):
     name = inspect.stack()[0][3]
     param_path = _coerce_to_path(param_path)
 
@@ -902,6 +819,35 @@ def scrape_mtr_fiducials(point: int, param_path: Path | str = PARAM_FILE_PATH_FT
 
 
 def cs_maker():
+    """
+    Coordinate system.
+
+    Values for scalex, scaley, scalez, and skew, as well as the sign of
+    Sx, Sy, Sz are stored in a .json file and should be modified there.
+    Location of file: src/mx_bluesky/I24/serial/parameters/cs_maker.json
+
+    Theory
+    Rx: rotation about X-axis, pitch
+    Ry: rotation about Y-axis, yaw
+    Rz: rotation about Z-axis, roll
+    The order of rotation is Roll->Yaw->Pitch (Rx*Ry*Rz)
+    Rx           Ry          Rz
+    |1  0   0| | Cy  0 Sy| |Cz -Sz 0|   | CyCz        -CxSz         Sy  |
+    |0 Cx -Sx|*|  0  1  0|*|Sz  Cz 0| = | SxSyCz+CxSz -SxSySz+CxCz -SxCy|
+    |0 Sx  Cx| |-Sy  0 Cy| | 0   0 1|   |-CxSyCz+SxSz  CxSySz+SxCz  CxCy|
+
+    BELOW iS TEST TEST (CLOCKWISE)
+    Rx           Ry          Rz
+    |1  0   0| | Cy 0 -Sy| |Cz  Sz 0|   | CyCz         CxSz         -Sy |
+    |0 Cx  Sx|*|  0  1  0|*|-Sz Cz 0| = | SxSyCz-CxSz  SxSySz+CxCz  SxCy|
+    |0 -Sx Cx| | Sy  0 Cy| | 0   0 1|   | CxSyCz+SxSz  CxSySz-SxCz  CxCy|
+
+
+    Skew:
+    Skew is the difference between the Sz1 and Sz2 after rotation is taken out.
+    This should be measured in situ prior to expriment, ie. measure by hand using
+    opposite and adjacent RBV after calibration of scale factors.
+    """
     name = inspect.stack()[0][3]
     chip_type = int(caget(pv.me14e_gp1))
     fiducial_dict = {}
@@ -928,31 +874,43 @@ def cs_maker():
     print("mtr2 direction", mtr2_dir)
     print("mtr3 direction", mtr3_dir)
 
-    """
-    Theory
-    Rx: rotation about X-axis, pitch
-    Ry: rotation about Y-axis, yaw
-    Rz: rotation about Z-axis, roll
-    The order of rotation is Roll->Yaw->Pitch (Rx*Ry*Rz)
-    Rx           Ry          Rz
-    |1  0   0| | Cy  0 Sy| |Cz -Sz 0|   | CyCz        -CxSz         Sy  |
-    |0 Cx -Sx|*|  0  1  0|*|Sz  Cz 0| = | SxSyCz+CxSz -SxSySz+CxCz -SxCy|
-    |0 Sx  Cx| |-Sy  0 Cy| | 0   0 1|   |-CxSyCz+SxSz  CxSySz+SxCz  CxCy|
+    # Scale parameters saved in json file
+    try:
+        with open(CS_FILES_PATH / "cs_maker.json", "r") as fh:
+            cs_info = json.load(fh)
+    except json.JSONDecodeError:
+        logger.error("Invalid JSON file.")
+        raise
 
-    BELOW iS TEST TEST (CLOCKWISE)
-    Rx           Ry          Rz
-    |1  0   0| | Cy 0 -Sy| |Cz  Sz 0|   | CyCz         CxSz         -Sy  |
-    |0 Cx  Sx|*|  0  1  0|*|-Sz Cz 0| = | SxSyCz-CxSz  SxSySz+CxCz  SxCy|
-    |0 -Sx Cx| | Sy  0 Cy| | 0   0 1|   | CxSyCz+SxSz  CxSySz-SxCz  CxCy|
+    try:
+        scalex, scaley, scalez = (
+            float(cs_info["scalex"]),
+            float(cs_info["scaley"]),
+            float(cs_info["scalez"]),
+        )
+        skew = float(cs_info["skew"])
+        Sx_dir, Sy_dir, Sz_dir = (
+            int(cs_info["Sx_dir"]),
+            int(cs_info["Sy_dir"]),
+            int(cs_info["Sz_dir"]),
+        )
+    except KeyError:
+        logger.error("Wrong or missing key in the cs json file.")
+        raise
 
-    """
-    # Rotation Around Z #
+    def check_dir(val):
+        if val not in [1, -1]:
+            raise ValueError("Wrong value for direction. Please set to either -1 or 1.")
+
+    check_dir(Sx_dir)
+    check_dir(Sy_dir)
+    check_dir(Sz_dir)
+
+    # Rotation Around Z
     # If stages upsidedown (I24) change sign of Sz
-    # Sz1 =       f1_y / fiducial_dict[chip_type][0]
     Sz1 = -1 * f1_y / fiducial_dict[chip_type][0]
-    # Sz2 = -1 * (f2_x / fiducial_dict[chip_type][1])
     Sz2 = f2_x / fiducial_dict[chip_type][1]
-    Sz = -1 * ((Sz1 + Sz2) / 2)
+    Sz = Sz_dir * ((Sz1 + Sz2) / 2)
     Cz = np.sqrt((1 - Sz**2))
     print("Sz1 , %1.4f, %1.4f" % (Sz1, np.degrees(np.arcsin(Sz1))))
     logger.info("%s Sz1 , %1.4f, %1.4f" % (name, Sz1, np.degrees(np.arcsin(Sz1))))
@@ -962,44 +920,22 @@ def cs_maker():
     logger.info("%s Sz , %1.4f, %1.4f" % (name, Sz, np.degrees(np.arcsin(Sz))))
     print("Cz ,  %1.4f, %1.4f\n" % (Cz, np.degrees(np.arccos(Cz))))
     logger.info("%s Cz , %1.4f, %1.4f" % (name, Cz, np.degrees(np.arcsin(Cz))))
-    # Rotation Around Y #
-    # Sy = f1_z /  fiducial_dict[chip_type][0]
-    Sy = 1 * f1_z / fiducial_dict[chip_type][0]
+    # Rotation Around Y
+    Sy = Sy_dir * f1_z / fiducial_dict[chip_type][0]
     Cy = np.sqrt((1 - Sy**2))
     print("Sy , %1.4f, %1.4f" % (Sy, np.degrees(np.arcsin(Sy))))
     logger.info("%s Sy , %1.4f, %1.4f" % (name, Sy, np.degrees(np.arcsin(Sy))))
     print("Cy , %1.4f, %1.4f\n" % (Cy, np.degrees(np.arccos(Cy))))
     logger.info("%s Cy , %1.4f, %1.4f" % (name, Cy, np.degrees(np.arcsin(Cy))))
-    # Rotation Around X #
+    # Rotation Around X
     # If stages upsidedown (I24) change sign of Sx
-    Sx = -1 * f2_z / fiducial_dict[chip_type][1]
-    # Sx =  f2_z /  fiducial_dict[chip_type][1]
+    Sx = Sx_dir * f2_z / fiducial_dict[chip_type][1]
     Cx = np.sqrt((1 - Sx**2))
     print("Sx , %1.4f, %1.4f" % (Sx, np.degrees(np.arcsin(Sx))))
     logger.info("%s Sx , %1.4f, %1.4f" % (name, Sx, np.degrees(np.arcsin(Sx))))
     print("Cx , %1.4f, %1.4f\n" % (Cx, np.degrees(np.arccos(Cx))))
     logger.info("%s Cx , %1.4f, %1.4f" % (name, Cx, np.degrees(np.arcsin(Cx))))
 
-    # Crucifix 1:   In normal orientation on I24 4 oct 2022
-    scalex, scaley, scalez = 10018.0, 9999.5, 10000.0
-    # Crucifix 1:   In beamline position (upside down facing away)
-    # X=0.000099896 , Y=0.000099983, Z=0.0001000 (mm/cts for MRES and ERES)
-    # pre-sacla3 scalex, scaley, scalez  = 10010.4, 10001.7, 10000.0
-    # Crucifix 2:   In normal orientation from SACLA4
-    # scalex, scaley, scalez  = 10011.4, 10000.0, 10000.0
-    # Crucifix 2:   Upside down on beamline April 2018
-    # scalex, scaley, scalez  = 10008.4, 10003.0, 10000.0
-    # Crucifix 2:   Dismantled on beamline Sept 2022
-    # scalex, scaley, scalez  = 10021.5, 10006.7, 10000.0
-    # Crucifix 2:   In normal orientation (sat on table facing away)
-    # X=0.0000999 , Y=0.00009996, Z=0.0001000 (mm/cts for MRES and ERES)
-    # scalex,scaley,scalez  = 10010.0, 10004.0, 10000.0
-    # Temple 1:   In normal orientation (sat on table facing away)
-    # X=0.0000 , Y=0.0000, Z=0.0001000 (mm/cts for MRES and ERES)
-    # scalex,scaley,scalez  = 10008.0, 10002.0, 10000.0
-
-    # minus signs added Aug17 in lab 30 preparing for sacla
-    # added to y1factor x2factor
     x1factor = mtr1_dir * scalex * (Cy * Cz)
     y1factor = mtr2_dir * scaley * (-1.0 * Cx * Sz)
     z1factor = mtr3_dir * scalez * Sy
@@ -1011,26 +947,6 @@ def cs_maker():
     x3factor = mtr1_dir * scalex * ((Sx * Sz) - (Cx * Sy * Cz))
     y3factor = mtr2_dir * scaley * ((Cx * Sy * Sz) + (Sx * Cz))
     z3factor = mtr3_dir * scalez * (Cx * Cy)
-    """
-    Rx           Ry          Rz
-    |1  0   0| | Cy  0 Sy| |Cz -Sz 0|   | CyCz        -CxSz         Sy  |
-    |0 Cx -Sx|*|  0  1  0|*|Sz  Cz 0| = | SxSyCz+CxSz -SxSySz+CxCz -SxCy|
-    |0 Sx  Cx| |-Sy  0 Cy| | 0   0 1|   |-CxSyCz+SxSz  CxSySz+SxCz  CxCy|
-    """
-    # skew is the difference between the Sz1 and Sz2 after rotation is taken out.
-    # this should be measured in situ prior to expriment
-    # In situ is measure by hand using opposite and adjacent RBV after calibration of
-    # scale factors
-    # print 10*'WARNING\n', '\nHave you calculated skew?\n\n', 10*'WARNING\n'
-    # Crucifix 1 on beamline
-    # skew = 0.0126
-    # Crucifix 2 deconstructed on beamline
-    skew = -0.189
-    # skew = -1.2734
-    # Crucifix 3
-    # skew = 0.0883
-    # Temple 1
-    # skew = 0.02
 
     print("Skew being used is: %1.4f" % skew)
     logger.info("%s Skew being used is: %1.4f" % (name, skew))
@@ -1049,7 +965,6 @@ def cs_maker():
     print("Calculated skew has been known to have the wrong sign")
     logger.info("%s Calculated Skew has been known to have the wrong sign")
 
-    # skew = calc_skew
     sinD = np.sin((skew / 2) * (np.pi / 180))
     cosD = np.cos((skew / 2) * (np.pi / 180))
     new_x1factor = (x1factor * cosD) + (y1factor * sinD)
@@ -1090,8 +1005,7 @@ def cs_maker():
     sleep(0.1)
     print(5 * "chip_type", type(chip_type))
     logger.info("%s Chip_type is %s" % (name, chip_type))
-    # NEXT THREE LINES COMMENTED OUT FOR CS TESTS 5 JUNE
-    if str(chip_type) == "1":
+    if str(chip_type) == "0":
         caput(pv.me14e_pmac_str, "!x0.4y0.4")
         sleep(0.1)
         caput(pv.me14e_pmac_str, "#1hmz#2hmz#3hmz")
@@ -1147,12 +1061,18 @@ def block_check():
     while True:
         if int(caget(pv.me14e_gp9)) == 0:
             chip_type = int(caget(pv.me14e_gp1))
-            if chip_type == 9:
+            if chip_type == 3:
+                logger.info("Oxford mini chip in use.")
                 block_start_list = scrape_pvar_file("minichip_oxford.pvar")
-            elif chip_type == 10:
-                block_start_list = scrape_pvar_file("oxford6x6.pvar")
+            elif chip_type == 2:
+                logger.error("This is a custom chip, no block check available!")
+                raise ValueError(
+                    "Chip type set to 'custom', which has no block check."
+                    "If not using a custom chip, please double check chip in the GUI."
+                )
             else:
-                raise ValueError("Invalid chip type")
+                logger.warning("Default is Oxford chip block start list.")
+                block_start_list = scrape_pvar_file("oxford.pvar")
             for entry in block_start_list:
                 if int(caget(pv.me14e_gp9)) != 0:
                     logger.warning("%s Block Check Aborted" % (name))
@@ -1174,53 +1094,54 @@ def block_check():
     print(10 * "Done ")
 
 
-def main(args):
-    setup_logging()
-    name = inspect.stack()[0][3]
-    print(args)
-    logger.info("%s \n\n%s" % (name, args))
-    if args[1] == "initialise":
-        initialise()
-    elif args[1] == "pvar_test":
-        chipid = args[2]
-        # pvar_test(chipid) # TODO find out what this is supposed to be!!!
-    elif args[1] == "moveto":
-        moveto(args[2])
-    elif args[1] == "fiducial":
-        fiducial(args[2])
-    elif args[1] == "cs_maker":
-        cs_maker()
-    elif args[1] == "pumpprobe_calc":
-        pumpprobe_calc()
-    elif args[1] == "write_parameter_file":
-        write_parameter_file()
-        startup.run()
-    elif args[1] == "define_current_chip":
-        chipid = args[2]
-        define_current_chip(chipid)
-    elif args[1] == "load_stock_map":
-        map_choice = args[2]
-        load_stock_map(map_choice)
-    elif args[1] == "load_lite_map":
-        load_lite_map()
-    elif args[1] == "load_full_map":
-        load_full_map()
-    elif args[1] == "save_screen_map":
-        save_screen_map()
-    elif args[1] == "upload_full":
-        upload_full()
-    elif args[1] == "upload_parameters":
-        chipid = args[2]
-        upload_parameters(chipid)
-    elif args[1] == "cs_reset":
-        cs_reset()
-    elif args[1] == "block_check":
-        block_check()
-
-    else:
-        print("Unknown Command")
-        logger.warning("%s Unknown Command" % name)
-
-
 if __name__ == "__main__":
-    main(sys.argv)
+    setup_logging()
+
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(
+        help="Choose command.",
+        required=True,
+        dest="sub-command",
+    )
+    parser_init = subparsers.add_parser(
+        "initialise",
+    )
+    parser_init.set_defaults(func=initialise)
+    parser_moveto = subparsers.add_parser(
+        "moveto",
+    )
+    parser_moveto.add_argument("place", type=str)
+    parser_moveto.set_defaults(func=moveto)
+    parser_fid = subparsers.add_parser("fiducial")
+    parser_fid.add_argument("point", type=int)
+    parser_fid.set_defaults(func=fiducial)
+    parser_csm = subparsers.add_parser("cs_maker")
+    parser_csm.set_defaults(func=cs_maker)
+    parser_pp = subparsers.add_parser("pumpprobe_calc")
+    parser_pp.set_defaults(func=pumpprobe_calc)
+    parser_write = subparsers.add_parser("write_parameter_file")
+    parser_write.set_defaults(func=write_parameter_file)
+    parser_def = subparsers.add_parser("define_current_chip")
+    parser_def.add_argument("chipid", type=str)
+    parser_def.set_defaults(func=define_current_chip)
+    parser_stockmap = subparsers.add_parser("load_stock_map")
+    parser_stockmap.add_argument("map_choice", type=str)
+    parser_stockmap.set_defaults(func=load_stock_map)
+    parser_litemap = subparsers.add_parser("load_lite_map")
+    parser_litemap.set_defaults(func=load_lite_map)
+    parser_fullmap = subparsers.add_parser("load_full_map")
+    parser_fullmap.set_defaults(func=load_full_map)
+    parser_save = subparsers.add_parser("save_screen_map")
+    parser_save.set_defaults(func=save_screen_map)
+    parser_upld = subparsers.add_parser("upload_full")
+    parser_upld.set_defaults(func=upload_full)
+    parser_params = subparsers.add_parser("upload_parameters")
+    parser_params.add_argument("chipid", type=str)
+    parser_params.set_defaults(func=upload_parameters)
+    parser_csr = subparsers.add_parser("cs_reset")
+    parser_csr.set_defaults(func=cs_reset)
+    parser_block = subparsers.add_parser("block_check")
+    parser_block.set_defaults(func=block_check)
+
+    args = parser.parse_args()
+    args.func(args)
