@@ -3,7 +3,8 @@ from __future__ import annotations
 from collections import namedtuple
 
 import bluesky.plan_stubs as bps
-from bluesky import RunEngine
+
+# from bluesky import RunEngine
 from dodal.devices.i24.i24_vgonio import VGonio
 
 Point3D = namedtuple("Point3D", ("x", "y", "z"))
@@ -22,8 +23,9 @@ def exercise_plan():
 
 
 def main():
-    RE = RunEngine()
-    RE(exercise_plan())
+    # RE = RunEngine()
+    # RE(exercise_plan())
+    pass
 
 
 main()
