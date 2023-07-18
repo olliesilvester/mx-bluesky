@@ -6,10 +6,11 @@ from __future__ import annotations
 import inspect
 import logging
 import os
-import pathlib
+import shutil
 import sys
 import time
 from datetime import datetime
+from pathlib import Path
 from time import sleep
 
 import numpy as np
@@ -20,7 +21,7 @@ from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1 import (
     get_format,
     scrape_parameter_file,
 )
-from mx_bluesky.I24.serial.parameters.constants import LITEMAP_PATH
+from mx_bluesky.I24.serial.parameters.constants import LITEMAP_PATH, PARAM_FILE_PATH_FT
 from mx_bluesky.I24.serial.setup_beamline import caget, cagetstring, caput, pv
 from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
 from mx_bluesky.I24.serial.write_nexus import call_nexgen
@@ -39,6 +40,19 @@ def setup_logging():
 def flush_print(text):
     sys.stdout.write(str(text))
     sys.stdout.flush()
+
+
+def copy_files_to_data_location(
+    dest_dir: Path | str,
+    param_path: Path = PARAM_FILE_PATH_FT,
+    map_file: Path = LITEMAP_PATH,
+    map_type: str = "1",
+):
+    if not isinstance(dest_dir, Path):
+        dest_dir = Path(dest_dir)
+    shutil.copy2(param_path / "parameters.txt", dest_dir / "parameters.txt")
+    if map_type == "1":
+        shutil.copy2(map_file / "currentchip.map", dest_dir / "currentchip.map")
 
 
 def get_chip_prog_values(
@@ -347,7 +361,7 @@ def start_i24():
         dcid = DCID(
             emit_errors=False,
             ssx_type=SSXType.FIXED,
-            visit=pathlib.Path(visit).name,
+            visit=Path(visit).name,
             image_dir=filepath,
             start_time=start_time,
             num_images=total_numb_imgs,
@@ -397,7 +411,7 @@ def start_i24():
         dcid = DCID(
             emit_errors=False,
             ssx_type=SSXType.FIXED,
-            visit=pathlib.Path(visit).name,
+            visit=Path(visit).name,
             image_dir=filepath,
             start_time=start_time,
             num_images=total_numb_imgs,
@@ -483,6 +497,9 @@ def finish_i24(chip_prog_dict, start_time):
 
     end_time = time.ctime()
     logger.info("Collection end time %s" % end_time)
+
+    # Copy parameter file and eventual chip map to collection directory
+    copy_files_to_data_location(Path(visit + sub_dir), map_type=map_type)
 
     # Write a record of what was collected to the processing directory
     userlog_path = visit + "processing/" + sub_dir + "/"
