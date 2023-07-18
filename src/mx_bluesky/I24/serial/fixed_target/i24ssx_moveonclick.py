@@ -2,11 +2,14 @@
 Move on click gui for fixed targets at I24
 Robin Owen 12 Jan 2021
 """
+import logging
 
 import cv2 as cv
 
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_Manager_py3v1 as manager
 from mx_bluesky.I24.serial.setup_beamline import caput, pv
+
+logger = logging.getLogger("I24ssx.moveonclick")
 
 # Set beam position and scale.
 beamX = 577
@@ -17,10 +20,10 @@ zoomcalibrator = 6  # 8 seems to work well for zoom 2
 # Register clicks and move chip stages
 def onMouse(event, x, y, flags, param):
     if event == cv.EVENT_LBUTTONUP:
-        print("Clicked X and Y", x, y)
+        logger.info("Clicked X and Y %s %s" % x, y)
         xmove = -1 * (beamX - x) * zoomcalibrator
         ymove = -1 * (beamY - y) * zoomcalibrator
-        print("Moving X and Y", xmove, ymove)
+        logger.info("Moving X and Y %s %s" % xmove, ymove)
         xmovepmacstring = "#1J:" + str(xmove)
         ymovepmacstring = "#2J:" + str(ymove)
         caput(pv.me14e_pmac_str, xmovepmacstring)
@@ -35,7 +38,7 @@ if __name__ == "__main__":
     cv.namedWindow("OAV1view")
     cv.setMouseCallback("OAV1view", onMouse)  # type: ignore
 
-    print("Showing camera feed. Press escape to close")
+    logger.info("Showing camera feed. Press escape to close")
     # Read captured video and store them in success and frame
     success, frame = cap.read()
 

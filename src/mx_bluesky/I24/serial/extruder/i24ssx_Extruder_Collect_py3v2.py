@@ -26,7 +26,7 @@ logger = logging.getLogger("I24ssx.extruder")
 
 
 def setup_logging():
-    logfile = time.strftime("i24_%d%B%y.log").lower()
+    logfile = time.strftime("i24extruder_%d%B%y.log").lower()
     log.config(logfile)
 
 
