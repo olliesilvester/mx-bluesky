@@ -206,7 +206,7 @@ def modechange(action):
 
 def beamline(action, args_list=None):
     logger.debug("\n***** Entering Beamline")
-    logger.info("beamline - ", action)
+    logger.info("beamline - %s" % action)
     if args_list:
         for arg in args_list:
             logger.debug("Argument: %s" % arg)
@@ -257,7 +257,7 @@ def beamline(action, args_list=None):
 
 def pilatus(action, args_list=None):
     logger.debug("\n***** Entering Pilatus")
-    logger.info("pilatus - ", action)
+    logger.info("pilatus - %s" % action)
     if args_list:
         for arg in args_list:
             logger.debug("Argument: %s" % arg)
@@ -376,7 +376,7 @@ def pilatus(action, args_list=None):
 
 def eiger(action, args_list=None):
     logger.debug("\n***** Entering Eiger")
-    logger.info("eiger - ", action)
+    logger.info("eiger - %s" % action)
     if args_list:
         for arg in args_list:
             logger.debug("Argument: %s" % arg)
@@ -497,7 +497,7 @@ def eiger(action, args_list=None):
 
 def xspress3(action, args_list=None):
     logger.debug("\n***** Entering xspress3")
-    logger.info("xspress3 -", action)
+    logger.info("xspress3 - %s" % action)
     if args_list:
         for arg in args_list:
             logger.debug("Argument: %s" % arg)
@@ -551,7 +551,7 @@ def xspress3(action, args_list=None):
 
 def zebra1(action, args_list=None):
     logger.debug("\n***** Entering zebra1")
-    logger.info("zebra1 -", action)
+    logger.info("zebra1 - %s" % action)
     if args_list:
         for arg in args_list:
             logger.debug("Argument: %s" % arg)
@@ -650,7 +650,7 @@ def zebra1(action, args_list=None):
 
 def geobrick(action, args_list=None):
     logger.debug("\n***** Entering Geobrick 10")
-    logger.info("geobrick - ", action)
+    logger.info("geobrick - %s" % action)
     if args_list:
         for arg in args_list:
             logger.debug("Argument: %s" % arg)

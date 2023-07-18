@@ -517,6 +517,7 @@ def main():
     logger.info("Running a chip colelction on I24 (%s)" % name)
     caput(pv.me14e_gp9, 0)
 
+    logger.info("Getting parameters from file.")
     (
         chip_name,
         visit,
