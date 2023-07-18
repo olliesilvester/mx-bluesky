@@ -32,7 +32,7 @@ def setup_logging():
 
 def read_file_make_dict(fid, chip_type, switch=False):
     name = inspect.stack()[0][3]
-    logger.info("%s" % name)
+    logger.debug("Running %s" % name)
     a_dict = {}
     b_dict = {}
     with open(fid, "r") as f:

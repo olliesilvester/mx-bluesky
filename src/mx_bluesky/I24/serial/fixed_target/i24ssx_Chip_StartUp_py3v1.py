@@ -446,24 +446,16 @@ def write_headers(
 
 
 def run():
-    name = inspect.stack()[0][3]
-    logger.info("%s Run Startup" % name)
-    print("Run StartUp")
-    logger.info("%s" % name)
+    logger.debug("Run Startup")
     check_files("i24", [".addr", ".shot"])
-    print("Checked files")
-    logger.info("%s Checked Files" % name)
+    logger.info("Checked Files")
     write_headers("i24", [".addr", ".shot"])
-    print("Written headers")
-    logger.info("%s Written Headers" % name)
-    print("Written files")
-    logger.info("%s Writing to Files has been disabled. Headers Only" % name)
+    logger.info("Written Headers")
+    logger.info("Writing to Files has been disabled. Headers Only")
     # Makes a file with random crystal positions
     check_files("i24", ["rando.spec"])
     write_headers("i24", ["rando.spec"])
-
-    print(10 * "Done ")
-    logger.info("%s Done" % name)
+    logger.debug("StartUp Done")
 
 
 if __name__ == "__main__":
