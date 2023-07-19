@@ -5,7 +5,6 @@ This version changed to python3 March2020 by RLO
 """
 from __future__ import annotations
 
-import inspect
 import logging
 import os
 import string
@@ -115,10 +114,8 @@ def read_parameters(
     return args
 
 
+@log.log_on_entry
 def fiducials(chip_type):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
-
     if chip_type in ["0", "1", "3"]:
         fiducial_list = []
         # No fiducial for custom
@@ -129,9 +126,8 @@ def fiducials(chip_type):
     return fiducial_list
 
 
+@log.log_on_entry
 def get_format(chip_type):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     if chip_type == "0":  # Oxford
         w2w = 0.125
         b2b_horz = 0.800
@@ -148,8 +144,9 @@ def get_format(chip_type):
         b2b_vert = 0
         chip_format = [1, 1, 20, 20]
     else:
-        logger.error("Unknown chip_type, %s" % chip_type)
-        raise ValueError("Unknown chip_type")
+        msg = "Unknown chip_type, %s" % chip_type
+        logger.error(msg)
+        raise ValueError(msg)
     cell_format = chip_format + [w2w, b2b_horz, b2b_vert]
     logger.info("Cell format for chip type %s: %s" % (chip_type, cell_format))
     return cell_format
@@ -181,7 +178,6 @@ def get_xy(addr, chip_type):
 
 
 def pathli(l_in=[], way="typewriter", reverse=False):
-    name = inspect.stack()[0][3]
     if reverse is True:
         li = list(reversed(l_in))
     else:
@@ -218,9 +214,9 @@ def pathli(l_in=[], way="typewriter", reverse=False):
                 for rep in range(25):
                     long_list.append(entry)
         else:
-            logger.warning("%s No known path, way =  %s" % (name, way))
+            logger.warning("No known path, way =  %s" % way)
     else:
-        logger.warning("%s no list" % (name))
+        logger.warning("No list written")
     return long_list
 
 
@@ -236,7 +232,6 @@ def zippum(list_1_args, list_2_args):
 
 
 def get_alphanumeric(chip_type):
-    name = inspect.stack()[0][3]
     cell_format = get_format(chip_type)
     blk_num = cell_format[0]
     wnd_num = cell_format[2]
@@ -255,13 +250,12 @@ def get_alphanumeric(chip_type):
     for block in block_list:
         for window in window_list:
             alphanumeric_list.append(block + "_" + window)
-    logger.info("%s length of alphanumeric list = %s" % (name, len(alphanumeric_list)))
+    logger.info("Length of alphanumeric list = %s" % len(alphanumeric_list))
     return alphanumeric_list
 
 
+@log.log_on_entry
 def get_shot_order(chip_type):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     cell_format = get_format(chip_type)
     blk_num = cell_format[0]
     wnd_num = cell_format[2]
@@ -298,6 +292,7 @@ def get_shot_order(chip_type):
     return collect_list
 
 
+@log.log_on_entry
 def write_file(
     location: str = "i24",
     suffix: str = ".addr",
@@ -305,8 +300,6 @@ def write_file(
     param_file_path: Path = PARAM_FILE_PATH_FT,
     save_path: Path = HEADER_FILES_PATH,
 ):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     if location == "i24":
         (
             chip_name,
@@ -322,7 +315,9 @@ def write_file(
             prepumpexptime,
         ) = scrape_parameter_file(param_file_path)
     else:
-        logger.warning("Unknown location, %s" % location)
+        msg = "Unknown location, %s" % location
+        logger.error(msg)
+        raise ValueError(msg)
     chip_file_path = save_path / f"chips/{sub_dir}/{chip_name}{suffix}"
 
     fiducial_list = fiducials(chip_type)
@@ -346,17 +341,16 @@ def write_file(
             line = "\t".join([xtal_name, str(x), str(y), "0.0", pres]) + "\n"
             g.write(line)
 
-    logger.info("Write file done")
+    logger.info("Write %s completed" % chip_file_path)
 
 
+@log.log_on_entry
 def check_files(
     location: str,
     suffix_list: List[str],
     param_file_path: Path | str = PARAM_FILE_PATH_FT,
     save_path: Path = HEADER_FILES_PATH,
 ):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     if location == "i24":
         (
             chip_name,
@@ -374,7 +368,9 @@ def check_files(
             det_type,
         ) = scrape_parameter_file(param_path=param_file_path)
     else:
-        logger.warning("Unknown location, %s" % location)
+        msg = "Unknown location, %s" % location
+        logger.error(msg)
+        raise ValueError(msg)
     chip_file_path = save_path / f"chips/{sub_dir}/{chip_name}"
 
     try:
@@ -385,21 +381,22 @@ def check_files(
         full_fid = chip_file_path.with_suffix(suffix)
         if full_fid.is_file():
             time_str = time.strftime("%Y%m%d_%H%M%S_")
-            timestamp_fid = full_fid.parent / f"{time_str}_{chip_name}{full_fid.suffix}"
-            # FIXME hack / fix
-            logger.info("File Already Exists\n -->%s" % timestamp_fid)
+            timestamp_fid = (  # noqa: F841
+                full_fid.parent / f"{time_str}_{chip_name}{full_fid.suffix}"
+            )
+            # FIXME hack / fix. Actually move the file
+            logger.info("File %s Already Exists" % full_fid)
     logger.debug("Check files done")
     return 1
 
 
+@log.log_on_entry
 def write_headers(
     location: str,
     suffix_list: List[str],
     param_file_path: Path = PARAM_FILE_PATH_FT,
     save_path: Path = HEADER_FILES_PATH,
 ):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     if location == "i24":
         (
             chip_name,
@@ -441,7 +438,9 @@ def write_headers(
                     "#XtalAddr      XCoord  YCoord  ZCoord  Present Shot  Spare04 Spare03 Spare02 Spare01\n"
                 )
     else:
-        logger.warning("Unknown location, %s" % location)
+        msg = "Unknown location, %s" % location
+        logger.error(msg)
+        raise ValueError(msg)
     logger.debug("Write headers done")
 
 
