@@ -66,13 +66,8 @@ def write_params_to_file(
     with open(filepath / f"{root}_parameters.json", "w") as fh:
         json.dump(params, fh, indent=2)
 
-    # with open(filepath / f"{root}_parameters.txt", "w") as fh:
-    #    for k, v in params.items():
-    #        fh.write(f"{k} \t\t{v}\n")
-
 
 def get_params_dict(expt: ExperimentType, det_type: str):
-    # params: Dict[str, Any] = {}
     expt_params: FixedTargetParams | ExtruderParams
 
     # Run caget
@@ -84,30 +79,27 @@ def get_params_dict(expt: ExperimentType, det_type: str):
         det_type=det_type,
         det_dist=float(caget(expt.pv.det_dist)),
     )
-    # params.update(**general.to_dict())
+
     if isinstance(expt, FixedTarget):
         expt_params = FixedTargetParams(
             chip_type=caget(expt.spec_pv.chip_type),
             map_type=caget(expt.spec_pv.map_type),
             n_exposures=int(caget(expt.spec_pv.n_exposures)),
         )
-        # params.update(**expt_params.to_dict())
         pp = PumpProbeParameters(
             pump_exp=float(caget(expt.pv.pump_exp)),
             pump_delay=float(caget(expt.pv.pump_delay)),
             pump_repeat=caget(expt.spec_pv.pump_repeat),
             prepump_exp=float(caget(expt.spec_pv.prepump_exp)),
         )
-        # params.update(**pp.to_dict())
+
     else:
         expt_params = ExtruderParams(num_imgs=int(caget(expt.spec_pv.num_imgs)))
-        # params.update(**expt_params.to_dict())
         pp = PumpProbeParameters(
             pump_exp=float(caget(expt.pv.pump_exp)),
             pump_delay=float(caget(expt.pv.pump_delay)),
             pump_status=bool(caget(expt.spec_pv.pump_status)),
         )
-        # params.update(**pp.to_dict())
 
         params = ExperimentParameters(
             general=general,
@@ -117,6 +109,9 @@ def get_params_dict(expt: ExperimentType, det_type: str):
     return eval(params.json())
 
 
+# TODO: this should probably just be renamed like write_parameter_file in manager
+# So it can be called by the button
+# Also, add copy of file to the collection directory, same for map. Somewhere
 def save_parameters(expt_type: SSXType = SSXType.FIXED):
     expt: ExperimentType
 
