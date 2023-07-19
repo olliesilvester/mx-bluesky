@@ -3,7 +3,6 @@ Fixed target data collection
 """
 from __future__ import annotations
 
-import inspect
 import logging
 import os
 import shutil
@@ -55,6 +54,7 @@ def copy_files_to_data_location(
         shutil.copy2(map_file / "currentchip.map", dest_dir / "currentchip.map")
 
 
+@log.log_on_entry
 def get_chip_prog_values(
     chip_type,
     pump_repeat,
@@ -64,8 +64,6 @@ def get_chip_prog_values(
     exptime=16,
     n_exposures=1,
 ):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     if chip_type in ["0", "1", "3"]:
         logger.info("This is an Oxford chip %s" % chip_type)
         # '1' = 'Oxford ' = [8, 8, 20, 20, 0.125, 3.175, 3.175]
@@ -112,7 +110,7 @@ def get_chip_prog_values(
     elif pump_repeat == "7":
         pump_repeat_pvar = 10
     else:
-        logger.warning("%s Unknown pump_repeat, pump_repeat = %s" % (name, pump_repeat))
+        logger.warning("Unknown pump_repeat, pump_repeat = %s" % pump_repeat)
 
     logger.info("Pump repeat is %s, PVAR set to %s" % (pump_repeat, pump_repeat_pvar))
 
@@ -153,9 +151,8 @@ def get_chip_prog_values(
     return chip_dict
 
 
+@log.log_on_entry
 def load_motion_program_data(motion_program_dict, map_type, pump_repeat):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     logger.info("Loading motion program data for chip.")
     logger.info("Pump_repeat is %s" % pump_repeat)
     if pump_repeat == "0":
@@ -184,16 +181,15 @@ def load_motion_program_data(motion_program_dict, map_type, pump_repeat):
         pvar_base = prefix * 100
         pvar = pvar_base + v[0]
         value = str(v[1])
-        s = f"P{str(pvar)}={str(value)}"
+        s = "P%s=%s" % (str(pvar), str(value))
         logger.info("%s \t %s" % (key, s))
         caput(pv.me14e_pmac_str, s)
         sleep(0.02)
     sleep(0.2)
 
 
+@log.log_on_entry
 def get_prog_num(chip_type, map_type, pump_repeat):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     logger.info("Get Program Number")
     if str(pump_repeat) == "0":
         if chip_type in ["0", "1"]:
@@ -208,9 +204,10 @@ def get_prog_num(chip_type, map_type, pump_repeat):
                 return 12
             elif map_type == "2":
                 logger.info("Map type 1 = Full Mapping")
-                logger.info("Program number: 13")
-                logger.warning("Mapping Type FULL is broken as of 11.09.17")
-                return 13
+                logger.info("Program number: 13")  # once fixed return 13
+                msg = "Mapping Type FULL is broken as of 11.09.17"
+                logger.error(msg)
+                raise ValueError(msg)
             else:
                 logger.debug("Unknown Mapping Type; map_type = %s" % map_type)
                 return 0
@@ -225,7 +222,7 @@ def get_prog_num(chip_type, map_type, pump_repeat):
             logger.info("Program number: 11")
             return 11
         else:
-            logger.debug("%s\t:Unknown chip_type, chip_tpe = = %s" % (name, chip_type))
+            logger.debug("Unknown chip_type, chip_tpe = = %s" % chip_type)
             return 0
     elif pump_repeat in ["1", "2", "3", "4", "5", "6", "7"]:
         logger.info("Pump_repeat: %s \t Chip Type: %s" % (pump_repeat, chip_type))
@@ -237,10 +234,9 @@ def get_prog_num(chip_type, map_type, pump_repeat):
         return 0
 
 
+@log.log_on_entry
 def datasetsizei24():
     # Calculates how many images will be collected based on map type and N repeats
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     logger.info("Calculate total number of images expected in data collection.")
     (
         chip_name,
@@ -292,11 +288,11 @@ def datasetsizei24():
         logger.info("Calculated number of images: %s" % total_numb_imgs)
 
     elif map_type == "2":
-        logger.warning("%s\t:Not Set Up For Full Mapping=%s" % (name))
+        logger.error("Not Set Up For Full Mapping")
         raise ValueError("The beamline is currently not set for Full Mapping.")
 
     else:
-        logger.warning("%s Unknown Map Type, map_type = %s" % (name, map_type))
+        logger.warning("Unknown Map Type, map_type = %s" % map_type)
         raise ValueError("Unknown map type")
 
     logger.info("Set PV to calculated number of images.")
@@ -305,10 +301,9 @@ def datasetsizei24():
     return total_numb_imgs
 
 
+@log.log_on_entry
 def start_i24():
     """Returns a tuple of (start_time, dcid)"""
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     logger.info("Start I24 data collection.")
     start_time = datetime.now()
     logger.info("Collection start time %s" % start_time.ctime())
@@ -426,8 +421,9 @@ def start_i24():
         time.sleep(1.5)
 
     else:
-        logger.warning("%s Unknown Detector Type, det_type = %s" % (name, det_type))
-        raise ValueError("Unknown detector type.")
+        msg = "Unknown Detector Type, det_type = %s" % det_type
+        logger.error(msg)
+        raise ValueError(msg)
 
     # Open the hutch shutter
 
@@ -441,10 +437,9 @@ def start_i24():
     return start_time.ctime(), dcid
 
 
+@log.log_on_entry
 def finish_i24(chip_prog_dict, start_time):
-    name = inspect.stack()[0][3]
     det_type = str(caget(pv.me14e_gp101))
-    logger.debug("Running %s" % name)
     logger.info("Finish I24 data collection with %s detector." % det_type)
 
     (
@@ -530,8 +525,7 @@ def finish_i24(chip_prog_dict, start_time):
 
 def main():
     # ABORT BUTTON
-    name = inspect.stack()[0][3]
-    logger.info("Running a chip colelction on I24 (%s)" % name)
+    logger.info("Running a chip collection on I24")
     caput(pv.me14e_gp9, 0)
 
     logger.info("Getting parameters from file.")
