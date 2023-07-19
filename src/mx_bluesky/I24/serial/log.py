@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import functools
 import logging
 import logging.config
 from os import environ
@@ -79,3 +80,15 @@ def config(logfile: str | None = None, write_mode: str = "a", delayed: bool = Fa
         FH.setLevel(logging.DEBUG)
         FH.setFormatter(fileFormatter)
         logger.addHandler(FH)
+
+
+def log_on_entry(func):
+    logger = logging.getLogger("I24ssx")
+
+    @functools.wraps(func)
+    def decorator(*args, **kwargs):
+        name = func.__name__
+        logger.debug("Running %s " % name)
+        return func(*args, **kwargs)
+
+    return decorator

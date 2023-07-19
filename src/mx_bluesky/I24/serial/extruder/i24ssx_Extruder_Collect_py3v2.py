@@ -6,7 +6,6 @@ This version in python3 new Feb2021 by RLO
 from __future__ import annotations
 
 import argparse
-import inspect
 import logging
 import sys
 import time
@@ -41,9 +40,8 @@ def _coerce_to_path(path: Path | str) -> Path:
     return path
 
 
+@log.log_on_entry
 def initialise_extruderi24(args=None):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s " % name)
     logger.info("Initialise Parameters for extruder data collection on I24.")
 
     visit = caget(pv.ioc12_gp1)
@@ -62,14 +60,12 @@ def initialise_extruderi24(args=None):
     caput(pv.ioc12_gp10, 0)
     caput(pv.ioc12_gp15, det_type.name)
     caput(pv.pilat_cbftemplate, 0)
-    logger.info(4 * "DONE ")
-    logger.info("Initialsation complete")
+    logger.info("Initialisation complete.")
 
 
+@log.log_on_entry
 def moveto(args):
     place = args.place
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s " % name)
     logger.info("Move to: %s" % place)
 
     det_type = caget(pv.ioc12_gp15)
@@ -94,10 +90,8 @@ def moveto(args):
         caput(pv.det_z, 1480)
 
 
+@log.log_on_entry
 def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s " % name)
-
     param_path = _coerce_to_path(param_path)
     param_fid = "parameters.txt"
 
@@ -195,10 +189,8 @@ def scrape_parameter_file(param_path: Path | str = PARAM_FILE_PATH):
     )
 
 
+@log.log_on_entry
 def run_extruderi24(args=None):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s " % name)
-
     start_time = datetime.now()
     logger.info("Collection start time: %s" % start_time.ctime())
 
@@ -232,8 +224,6 @@ def run_extruderi24(args=None):
 
     # For pixel detector
     filepath = visit + directory
-    print("Filepath", filepath)
-    print("Filename", filename)
     logger.info("Filepath %s" % filepath)
     logger.info("Filename %s" % filename)
 
@@ -246,8 +236,8 @@ def run_extruderi24(args=None):
     # Added temprary hack in pilatus pump is false below as gate width wrong
     gate_width = float(pump_exp) + float(pump_delay) + float(exp_time)
     gate_step = float(gate_width) + float(probepumpbuffer)
-    print("Calculated gate width %s" % gate_width)
-    print("Calculated gate step %s" % gate_step)
+    logger.info("Calculated gate width %.4f" % gate_width)
+    logger.info("Calculated gate step %.4f" % gate_step)
     num_gates = num_imgs
     p1_delay = 0
     p1_width = pump_exp
@@ -259,7 +249,7 @@ def run_extruderi24(args=None):
         caput(pv.pilat_cbftemplate, 0)
         logger.info("Pilatus quickshot setup: filepath %s" % filepath)
         logger.info("Pilatus quickshot setup: filepath %s" % filename)
-        logger.info("Pilatus quickshot setup: number of images %s" % num_imgs)
+        logger.info("Pilatus quickshot setup: number of images %d" % num_imgs)
         logger.info("Pilatus quickshot setup: exposure time %s" % exp_time)
 
         if pump_status == "true":
@@ -319,8 +309,9 @@ def run_extruderi24(args=None):
             sup.eiger("quickshot", [filepath, filename, num_imgs, exp_time])
             sup.zebra1("quickshot", [gate_start, gate_width])
     else:
-        logger.error("Unknown Detector Type, det_type = %s" % det_type)
-        raise ValueError("Unkown detector.")
+        err = "Unknown Detector Type, det_type = %s" % det_type
+        logger.error(err)
+        raise ValueError(err)
 
     # Do DCID creation BEFORE arming the detector
     dcid = DCID(
@@ -365,7 +356,6 @@ def run_extruderi24(args=None):
                 if int(caget(pv.ioc12_gp8)) != 0:
                     aborted = True
                     logger.warning("Data Collection Aborted")
-                    logger.info(20 * "ABORTED ")
                     if det_type == "pilatus":
                         caput(pv.pilat_acquire, 0)
                     elif det_type == "eiger":
@@ -374,7 +364,6 @@ def run_extruderi24(args=None):
                     break
                 elif int(caget(pv.zebra1_pc_arm_out)) != 1:
                     logger.info("----> Zebra disarmed  <----")
-                    logger.info(20 * "DONE ")
                     break
         else:
             aborted = True
