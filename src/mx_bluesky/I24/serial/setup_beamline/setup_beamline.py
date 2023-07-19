@@ -205,7 +205,7 @@ def modechange(action):
 
 
 def beamline(action, args_list=None):
-    logger.debug("\n***** Entering Beamline")
+    logger.debug("***** Entering Beamline")
     logger.info("beamline - %s" % action)
     if args_list:
         for arg in args_list:
@@ -223,8 +223,8 @@ def beamline(action, args_list=None):
         det_dist = args_list[0]
         caput(pv.det_z, det_dist)
         logger.info("Waiting on detector")
-        logger.debug("Detector distance: %s" % int(float(det_dist)))
-        logger.debug("det_z: %s" % int(float(caget(pv.det_z + ".RBV"))))
+        logger.debug("Detector distance: %s" % det_dist)
+        logger.debug("det_z: %s" % caget(pv.det_z + ".RBV"))
         while str(int(float(caget(pv.det_z + ".RBV")))) != str(int(float(det_dist))):
             caput(pv.det_z, det_dist)
             sleep(0.2)
@@ -256,7 +256,7 @@ def beamline(action, args_list=None):
 
 
 def pilatus(action, args_list=None):
-    logger.debug("\n***** Entering Pilatus")
+    logger.debug("***** Entering Pilatus")
     logger.info("pilatus - %s" % action)
     if args_list:
         for arg in args_list:
@@ -375,7 +375,7 @@ def pilatus(action, args_list=None):
 
 
 def eiger(action, args_list=None):
-    logger.debug("\n***** Entering Eiger")
+    logger.debug("***** Entering Eiger")
     logger.info("eiger - %s" % action)
     if args_list:
         for arg in args_list:
@@ -496,7 +496,7 @@ def eiger(action, args_list=None):
 
 
 def xspress3(action, args_list=None):
-    logger.debug("\n***** Entering xspress3")
+    logger.debug("***** Entering xspress3")
     logger.info("xspress3 - %s" % action)
     if args_list:
         for arg in args_list:
@@ -550,7 +550,7 @@ def xspress3(action, args_list=None):
 
 
 def zebra1(action, args_list=None):
-    logger.debug("\n***** Entering zebra1")
+    logger.debug("***** Entering zebra1")
     logger.info("zebra1 - %s" % action)
     if args_list:
         for arg in args_list:
@@ -649,7 +649,7 @@ def zebra1(action, args_list=None):
 
 
 def geobrick(action, args_list=None):
-    logger.debug("\n***** Entering Geobrick 10")
+    logger.debug("***** Entering Geobrick 10")
     logger.info("geobrick - %s" % action)
     if args_list:
         for arg in args_list:
