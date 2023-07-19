@@ -20,7 +20,7 @@ zoomcalibrator = 6  # 8 seems to work well for zoom 2
 # Register clicks and move chip stages
 def onMouse(event, x, y, flags, param):
     if event == cv.EVENT_LBUTTONUP:
-        logger.info("Clicked X and Y %s %s" % x, y)
+        logger.info("Clicked X and Y %s %s" % (x, y))
         xmove = -1 * (beamX - x) * zoomcalibrator
         ymove = -1 * (beamY - y) * zoomcalibrator
         logger.info("Moving X and Y %s %s" % xmove, ymove)
