@@ -5,7 +5,6 @@ This version changed to python3 March2020 by RLO
 from __future__ import annotations
 
 import argparse
-import inspect
 import json
 import logging
 import shutil
@@ -44,10 +43,9 @@ def setup_logging():
     log.config(logfile)
 
 
+@log.log_on_entry
 def initialise():
     # commented out filter lines 230719 as this stage not connected
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     logger.info("Setting VMAX VELO ACCL HHL LLM pvs")
 
     caput(pv.me14e_stage_x + ".VMAX", 20)
@@ -104,14 +102,12 @@ def initialise():
     logger.info("Initialisation Complete")
 
 
+@log.log_on_entry
 def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
-
     param_path = _coerce_to_path(param_path)
 
     param_fid = "parameters.txt"
-    logger.info("Writing Parameter File: %s" % (param_path / param_fid))
+    logger.info("Writing Parameter File: %s" % (param_path / param_fid).as_posix())
 
     visit = caget(pv.me14e_gp100)
 
@@ -198,9 +194,8 @@ def scrape_pvar_file(fid: str, pvar_dir: Path | str = PVAR_FILE_PATH):
     return block_start_list
 
 
+@log.log_on_entry
 def define_current_chip(chipid: str, param_path: Path | str = PVAR_FILE_PATH):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     logger.debug("Run load stock map for just the first block")
     load_stock_map("Just The First Block")
     """
@@ -225,27 +220,25 @@ def define_current_chip(chipid: str, param_path: Path | str = PVAR_FILE_PATH):
             caput(pv.me14e_pmac_str, line_from_file)
 
 
+@log.log_on_entry
 def save_screen_map(litemap_path: Path | str = LITEMAP_PATH):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     litemap_path = _coerce_to_path(litemap_path)
 
-    logger.info("Saving %s currentchip.map" % litemap_path)
+    logger.info("Saving %s currentchip.map" % litemap_path.as_posix())
     with open(litemap_path / "currentchip.map", "w") as f:
         logger.info("Printing only blocks with block_val == 1")
         for x in range(1, 82):
             block_str = "ME14E-MO-IOC-01:GP%i" % (x + 10)
             block_val = int(caget(block_str))
             if block_val == 1:
-                logger.info("%s %s" % (block_str, block_val))
+                logger.info("%s %d" % (block_str, block_val))
             line = "%02dstatus    P3%02d1 \t%s\n" % (x, x, block_val)
             f.write(line)
     return 0
 
 
+@log.log_on_entry
 def upload_parameters(chipid: str, litemap_path: Path | str = LITEMAP_PATH):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     logger.info("Uploading Parameters to the GeoBrick")
     if chipid == "oxford":
         caput(pv.me14e_gp1, 1)
@@ -254,7 +247,7 @@ def upload_parameters(chipid: str, litemap_path: Path | str = LITEMAP_PATH):
 
     with open(litemap_path / "currentchip.map", "r") as f:
         logger.info("Chipid %s" % chipid)
-        logger.info("width %s" % width)
+        logger.info("width %d" % width)
         x = 1
         for line in f.readlines()[: width**2]:
             cols = line.split()
@@ -279,9 +272,8 @@ def upload_parameters(chipid: str, litemap_path: Path | str = LITEMAP_PATH):
     logger.debug("Upload parameters done.")
 
 
+@log.log_on_entry
 def upload_full(fullmap_path: Path | str = FULLMAP_PATH):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     fullmap_path = _coerce_to_path(fullmap_path)
 
     with open(fullmap_path / "currentchip.full", "r") as fh:
@@ -298,9 +290,8 @@ def upload_full(fullmap_path: Path | str = FULLMAP_PATH):
     logger.debug("Upload fullmap done")
 
 
+@log.log_on_entry
 def load_stock_map(map_choice: str):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     logger.info("Adjusting Lite Map EDM Screen")
     logger.debug("Please wait, adjusting lite map")
     #
@@ -499,9 +490,8 @@ def load_stock_map(map_choice: str):
     logger.debug("Load stock map done.")
 
 
+@log.log_on_entry
 def load_lite_map(litemap_path: Path | str = LITEMAP_PATH):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     logger.debug("Run load stock map with 'clear' setting.")
     load_stock_map("clear")
     # fmt: off
@@ -560,13 +550,12 @@ def load_lite_map(litemap_path: Path | str = LITEMAP_PATH):
         yesno = entry[1]
         block_num = block_dict[block_name]
         pvar = "ME14E-MO-IOC-01:GP" + str(int(block_num) + 10)
-        logger.info("%s %s %s" % (block_name, yesno, pvar))
+        logger.info("Block: %s \tScanned: %s \tPVAR: %s" % (block_name, yesno, pvar))
     logger.debug("Load lite map done")
 
 
+@log.log_on_entry
 def load_full_map(fullmap_path: Path | str = FULLMAP_PATH):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     (
         chip_name,
         visit,
@@ -589,9 +578,8 @@ def load_full_map(fullmap_path: Path | str = FULLMAP_PATH):
     logger.debug("Load full map done")
 
 
+@log.log_on_entry
 def moveto(place: str):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     logger.info("Move to: %s" % place)
     chip_type = int(caget(pv.me14e_gp1))
     logger.info("Chip type is%s" % chip_type)
@@ -702,9 +690,8 @@ def moveto(place: str):
         caput(pv.me14e_pmac_str, " M812=0 M811=1")
 
 
+@log.log_on_entry
 def scrape_mtr_directions(param_path: Path | str = CS_FILES_PATH):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     param_path = _coerce_to_path(param_path)
 
     with open(param_path / "motor_direction.txt", "r") as f:
@@ -723,9 +710,8 @@ def scrape_mtr_directions(param_path: Path | str = CS_FILES_PATH):
     return mtr1_dir, mtr2_dir, mtr3_dir
 
 
+@log.log_on_entry
 def fiducial(point: int, param_path: Path | str = PARAM_FILE_PATH_FT):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     scale = 10000.0  # noqa: F841
     param_path = _coerce_to_path(param_path)
 
@@ -735,7 +721,6 @@ def fiducial(point: int, param_path: Path | str = PARAM_FILE_PATH_FT):
     rbv_2 = float(caget(pv.me14e_stage_y + ".RBV"))
     rbv_3 = float(caget(pv.me14e_stage_z + ".RBV"))
 
-    print("rbv1", rbv_1)
     raw_1 = float(caget(pv.me14e_stage_x + ".RRBV"))
     raw_2 = float(caget(pv.me14e_stage_y + ".RRBV"))
     raw_3 = float(caget(pv.me14e_stage_z + ".RRBV"))
@@ -768,6 +753,7 @@ def scrape_mtr_fiducials(point: int, param_path: Path | str = PARAM_FILE_PATH_FT
     return f_x, f_y, f_z
 
 
+@log.log_on_entry
 def cs_maker():
     """
     Coordinate system.
@@ -798,8 +784,6 @@ def cs_maker():
     This should be measured in situ prior to expriment, ie. measure by hand using
     opposite and adjacent RBV after calibration of scale factors.
     """
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     chip_type = int(caget(pv.me14e_gp1))
     fiducial_dict = {}
     fiducial_dict[0] = [18.975, 21.375]
@@ -819,8 +803,8 @@ def cs_maker():
     f1_x, f1_y, f1_z = scrape_mtr_fiducials(1)
     f2_x, f2_y, f2_z = scrape_mtr_fiducials(2)
     logger.info("mtr1 direction: %s" % mtr1_dir)
-    print("mtr2 direction: %s" % mtr2_dir)
-    print("mtr3 direction: %s" % mtr3_dir)
+    logger.info("mtr2 direction: %s" % mtr2_dir)
+    logger.info("mtr3 direction: %s" % mtr3_dir)
 
     # Scale parameters saved in json file
     try:
@@ -908,9 +892,10 @@ def cs_maker():
     cs1 = "#1->%+1.3fX%+1.3fY%+1.3fZ" % (new_x1factor, new_y1factor, z1factor)
     cs2 = "#2->%+1.3fX%+1.3fY%+1.3fZ" % (new_x2factor, new_y2factor, z2factor)
     cs3 = "#3->%+1.3fX%+1.3fY%+1.3fZ" % (x3factor, y3factor, z3factor)
-    logger.info("\n".join([cs1, cs2, cs3]))
+    logger.info("PMAC strings. \ncs1: %s \ncs2: %scs3: %s" % (cs1, cs2, cs3))
     logger.info(
-        "These should be 1. This is the sum of the squares of the factors divided by their scale"
+        """These next values should be 1.
+        This is the sum of the squares of the factors divided by their scale."""
     )
     sqfact1 = np.sqrt(x1factor**2 + y1factor**2 + z1factor**2) / scalex
     sqfact2 = np.sqrt(x2factor**2 + y2factor**2 + z2factor**2) / scaley
@@ -953,9 +938,8 @@ def cs_reset():
     logger.debug("CSreset Done")
 
 
+@log.log_on_entry
 def pumpprobe_calc():
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     logger.info("Calculate and show exposure and dwell time for each option.")
     exptime = float(caget(pv.me14e_exptime))
     pumpexptime = float(caget(pv.me14e_gp103))
@@ -980,9 +964,8 @@ def pumpprobe_calc():
     logger.debug("PP calculations done")
 
 
+@log.log_on_entry
 def block_check():
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     caput(pv.me14e_gp9, 0)
     while True:
         if int(caget(pv.me14e_gp9)) == 0:
@@ -1005,7 +988,7 @@ def block_check():
                     sleep(1.0)
                     break
                 block, x, y = entry
-                logger.info("%s %s %s" % (block, x, y))
+                logger.info("Block: %s -> (x=%s y=%s)" % (block, x, y))
                 caput(pv.me14e_pmac_str, "!x%sy%s" % (x, y))
                 time.sleep(0.4)
         else:

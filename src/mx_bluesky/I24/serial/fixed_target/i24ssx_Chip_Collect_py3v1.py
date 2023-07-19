@@ -338,15 +338,15 @@ def start_i24():
 
     num_gates = int(total_numb_imgs) / int(n_exposures)
 
-    logger.info("Total number of images: %s" % total_numb_imgs)
+    logger.info("Total number of images: %d" % total_numb_imgs)
     logger.info("Number of exposures: %s" % n_exposures)
-    logger.info("Number of gates (=Total images/N exposures): %s" % num_gates)
+    logger.info("Number of gates (=Total images/N exposures): %.4f" % num_gates)
 
     if det_type == "pilatus":
         logger.info("Using Pilatus detector")
         logger.info("Fastchip Pilatus setup: filepath %s" % filepath)
         logger.info("Fastchip Pilatus setup: filepath %s" % filename)
-        logger.info("Fastchip Pilatus setup: number of images %s" % total_numb_imgs)
+        logger.info("Fastchip Pilatus setup: number of images %d" % total_numb_imgs)
         logger.info("%s Fastchip Pilatus setup: exposure time %s" % exptime)
 
         sup.pilatus("fastchip", [filepath, filename, total_numb_imgs, exptime])
@@ -396,7 +396,7 @@ def start_i24():
 
         logger.info("Triggered Eiger setup: filepath %s" % filepath)
         logger.info("Triggered Eiger setup: filename %s" % filename)
-        logger.info("Triggered Eiger setup: number of images %s" % total_numb_imgs)
+        logger.info("Triggered Eiger setup: number of images %d" % total_numb_imgs)
         logger.info("Triggered Eiger setup: exposure time %s" % exptime)
 
         sup.eiger("triggered", [filepath, filename, total_numb_imgs, exptime])
@@ -588,9 +588,9 @@ def main():
     logger.debug("Opening fast shutter.")
     caput(pv.zebra1_soft_in_b1, "1")  # Open fast shutter (zebra gate)
 
-    logger.info("Run PMAC with program number %s" % prog_num)
-    logger.info("pmac str = &2b%sr" % prog_num)
-    caput(pv.me14e_pmac_str, "&2b%sr" % prog_num)
+    logger.info("Run PMAC with program number %d" % prog_num)
+    logger.info("pmac str = &2b%dr" % prog_num)
+    caput(pv.me14e_pmac_str, "&2b%dr" % prog_num)
     sleep(1.0)
 
     # Kick off the StartOfCollect script
