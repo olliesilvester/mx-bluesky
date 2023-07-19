@@ -3,7 +3,6 @@ Chip mapping utilities for fixed target
 
 This version changed to python3 March2020 by RLO
 """
-import inspect
 import logging
 import time
 
@@ -30,9 +29,8 @@ def setup_logging():
     log.config(logfile)
 
 
+@log.log_on_entry
 def read_file_make_dict(fid, chip_type, switch=False):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     a_dict = {}
     b_dict = {}
     with open(fid, "r") as f:
@@ -52,9 +50,8 @@ def read_file_make_dict(fid, chip_type, switch=False):
         return a_dict
 
 
+@log.log_on_entry
 def plot_file(fid, chip_type):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     chip_dict = read_file_make_dict(fid, chip_type)
     x_list, y_list, z_list = [], [], []
     for k in sorted(chip_dict.keys()):
@@ -85,9 +82,8 @@ def plot_file(fid, chip_type):
     return 1
 
 
+@log.log_on_entry
 def convert_chip_to_hex(fid, chip_type):
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     chip_dict = read_file_make_dict(fid, chip_type, True)
     chip_format = get_format(chip_type)
     check_files(["%s.full" % chip_type])
@@ -126,33 +122,24 @@ def convert_chip_to_hex(fid, chip_type):
                 pvar = 5001 + i
                 line = "P%s=$%s" % (pvar, hex_string)
                 g.write(line + "\n")
+                logger.info("hex string: %s" % (hex_string + 4 * "0"))
+                logger.info("line number= %s" % i)
                 logger.info(
-                    "%s \n"
-                    % (
-                        ("{0:0>%sX}" % hex_length).format(
-                            int("".join(str(x) for x in right_list), 2)
-                        )
-                        + 4 * "0"
-                    )
+                    "right_list: \n%s\n" % ("".join(str(x) for x in right_list))
                 )
-                logger.info("%s %s \n" % (i, right_list))
-                logger.info("%s\n" % ("".join(str(x) for x in right_list)))
-                logger.info("%s \n" % line)
+                logger.info("PVAR: %s" % line)
                 if (i + 1) % windows_per_block == 0:
                     logger.info(
                         "\n %s" % (40 * (" %i" % ((i / windows_per_block) + 2)))
                     )
-            print(hex_length)
             logger.info("hex_length: %s" % hex_length)
         else:
-            logger.warning("Chip type unknown")
+            logger.warning("Chip type unknown, no conversion done.")
     return 0
 
 
 def main():
     setup_logging()
-    name = inspect.stack()[0][3]
-    logger.debug("Running %s" % name)
     (
         chip_name,
         visit,
