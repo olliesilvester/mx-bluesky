@@ -6,7 +6,6 @@ This version in python3 new Feb2021 by RLO
 from __future__ import annotations
 
 import argparse
-import inspect
 import logging
 import sys
 import time
@@ -26,7 +25,7 @@ logger = logging.getLogger("I24ssx.extruder")
 
 
 def setup_logging():
-    logfile = time.strftime("i24_%d%B%y.log").lower()
+    logfile = time.strftime("i24extruder_%d%B%y.log").lower()
     log.config(logfile)
 
 
@@ -41,13 +40,12 @@ def _coerce_to_path(path: Path | str) -> Path:
     return path
 
 
+@log.log_on_entry
 def initialise_extruderi24(args=None):
-    name = inspect.stack()[0][3]
-    print("Initialise Parameters for extruder data collection")
-    logger.info("%s I24 extruder initialisation" % name)
+    logger.info("Initialise Parameters for extruder data collection on I24.")
 
     visit = caget(pv.ioc12_gp1)
-    logger.info("%s Visit defined %s" % (name, visit))
+    logger.info("Visit defined %s" % visit)
 
     # Define detector in use
     det_type = sup.get_detector_type()
@@ -62,19 +60,17 @@ def initialise_extruderi24(args=None):
     caput(pv.ioc12_gp10, 0)
     caput(pv.ioc12_gp15, det_type.name)
     caput(pv.pilat_cbftemplate, 0)
-    print("Done Done Done")
-    logger.info("%s Initialsation complete" % name)
+    logger.info("Initialisation complete.")
 
 
+@log.log_on_entry
 def moveto(args):
     place = args.place
-    name = inspect.stack()[0][3]
-    logger.info("%s Move to %s" % (name, place))
+    logger.info("Move to: %s" % place)
 
     det_type = caget(pv.ioc12_gp15)
 
     if place == "laseron":
-        logger.info("%s laser on%s" % (name, place))
         if det_type == "pilatus":
             caput(pv.zebra1_out1_ttl, 60.0)
             caput(pv.zebra1_soft_in_b0, 1.0)
@@ -83,7 +79,6 @@ def moveto(args):
             caput(pv.zebra1_soft_in_b0, 1.0)
 
     if place == "laseroff":
-        logger.info("%s laser off%s" % (name, place))
         if det_type == "pilatus":
             caput(pv.zebra1_soft_in_b0, 0.0)
             caput(pv.zebra1_out1_ttl, 0.0)
@@ -95,14 +90,12 @@ def moveto(args):
         caput(pv.det_z, 1480)
 
 
+@log.log_on_entry
 def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH):
-    name = inspect.stack()[0][3]
-
     param_path = _coerce_to_path(param_path)
     param_fid = "parameters.txt"
 
-    logger.info("%s Writing Parameter File \n%s" % (name, param_path / param_fid))
-    print("\nWriting Parameter File   ", param_path / param_fid)
+    logger.info("Writing Parameter File to: %s \n" % (param_path / param_fid))
 
     visit = caget(pv.ioc12_gp1)
     directory = caget(pv.ioc12_gp2)
@@ -126,8 +119,9 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH):
             # Note for future reference. Appending underscore causes more hassle and
             # high probability of users accidentally overwriting data. Use a dash
             filename = filename + "-"
-            print("Requested filename ends in a number. Appended dash:", filename)
-            logger.info("%s Requested filename ends in a number. Appended dash")
+            logger.info(
+                "Requested filename ends in a number. Appended dash: %s" % filename
+            )
 
     with open(param_path / param_fid, "w") as f:
         f.write("visit \t\t%s\n" % visit)
@@ -141,28 +135,17 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH):
         f.write("pump_exp \t%s\n" % pump_exp)
         f.write("pump_delay \t%s\n" % pump_delay)
 
-    logger.info("%s visit %s" % (name, visit))
-    logger.info("%s directory %s" % (name, directory))
-    logger.info("%s filename %s" % (name, filename))
-    logger.info("%s num_imgs %s" % (name, num_imgs))
-    logger.info("%s exp_time %s" % (name, exp_time))
-    logger.info("%s det_dist %s" % (name, det_dist))
-    logger.info("%s det_type %s" % (name, det_type))
-    logger.info("%s pump_probe %s" % (name, pump_status))
-    logger.info("%s pump_exp %s" % (name, pump_exp))
-    logger.info("%s pump_delay %s" % (name, pump_delay))
-
-    print("\n")
-    print("visit:", visit)
-    print("directory:", directory)
-    print("filename:", filename)
-    print("num_imgs:", num_imgs)
-    print("exp_time:", exp_time)
-    print("det_dist:", det_dist)
-    print("det_type:", det_type)
-    print("pump_probe:", pump_status)
-    print("pump_exp:", pump_exp)
-    print("pump_delay:", pump_delay)
+    logger.info("Parameters \n")
+    logger.info("visit %s" % visit)
+    logger.info("directory %s" % directory)
+    logger.info("filename %s" % filename)
+    logger.info("num_imgs %s" % num_imgs)
+    logger.info("exp_time %s" % exp_time)
+    logger.info("det_dist %s" % det_dist)
+    logger.info("det_type %s" % det_type)
+    logger.info("pump_probe %s" % pump_status)
+    logger.info("pump_exp %s" % pump_exp)
+    logger.info("pump_delay %s" % pump_delay)
 
 
 def scrape_parameter_file(param_path: Path | str = PARAM_FILE_PATH):
@@ -206,13 +189,10 @@ def scrape_parameter_file(param_path: Path | str = PARAM_FILE_PATH):
     )
 
 
+@log.log_on_entry
 def run_extruderi24(args=None):
-    print("Starting i24")
-    name = inspect.stack()[0][3]
-    logger.info("%s" % name)
-
     start_time = datetime.now()
-    print("Start time", start_time.ctime())
+    logger.info("Collection start time: %s" % start_time.ctime())
 
     write_parameter_file()
     (
@@ -228,14 +208,12 @@ def run_extruderi24(args=None):
         pump_delay,
     ) = scrape_parameter_file()
 
-    logger.info("%s Start Time = % s" % (name, start_time))
-
     # Setting up the beamline
     caput("BL24I-PS-SHTR-01:CON", "Reset")
-    print("Reset hutch shutter sleep for 1sec")
+    logger.debug("Reset hutch shutter sleep for 1sec")
     sleep(1.0)
     caput("BL24I-PS-SHTR-01:CON", "Open")
-    print("Open hutch shutter sleep for 2sec")
+    logger.debug("Open hutch shutter sleep for 2sec")
     sleep(2.0)
 
     sup.beamline("collect")
@@ -246,21 +224,20 @@ def run_extruderi24(args=None):
 
     # For pixel detector
     filepath = visit + directory
-    print("Filepath", filepath)
-    print("Filename", filename)
-    logger.info("%s Filepath %s" % (name, filepath))
-    logger.info("%s Filename %s" % (name, filename))
+    logger.info("Filepath %s" % filepath)
+    logger.info("Filename %s" % filename)
 
     # For zebra
     # The below will need to be determined emprically. A value of 0.0 may be ok (????)
     probepumpbuffer = 0.01
 
     gate_start = 1.0
-    # Need to check these for pilatus. Added temprary hack in pilatus pump is false below as gate width wrong
+    # Need to check these for pilatus.
+    # Added temprary hack in pilatus pump is false below as gate width wrong
     gate_width = float(pump_exp) + float(pump_delay) + float(exp_time)
     gate_step = float(gate_width) + float(probepumpbuffer)
-    print("Calculated gate width", gate_width)
-    print("Calculated gate step", gate_step)
+    logger.info("Calculated gate width %.4f" % gate_width)
+    logger.info("Calculated gate step %.4f" % gate_step)
     num_gates = num_imgs
     p1_delay = 0
     p1_width = pump_exp
@@ -268,20 +245,17 @@ def run_extruderi24(args=None):
     p2_width = exp_time
 
     if det_type == "pilatus":
-        print("Using pilatus mini cbf")
+        logger.debug("Using pilatus mini cbf")
         caput(pv.pilat_cbftemplate, 0)
-        logger.info("%s Pilatus quickshot setup: filepath %s" % (name, filepath))
-        logger.info("%s Pilatus quickshot setup: filepath %s" % (name, filename))
-        logger.info(
-            "%s Pilatus quickshot setup: number of images %s" % (name, num_imgs)
-        )
-        logger.info("%s Pilatus quickshot setup: exposure time %s" % (name, exp_time))
+        logger.info("Pilatus quickshot setup: filepath %s" % filepath)
+        logger.info("Pilatus quickshot setup: filepath %s" % filename)
+        logger.info("Pilatus quickshot setup: number of images %d" % num_imgs)
+        logger.info("Pilatus quickshot setup: exposure time %s" % exp_time)
 
         if pump_status == "true":
-            print("pump probe experiment")
-            logger.info("%s Pump probe extruder data collection" % name)
-            logger.info("%s Pump exposure time %s" % (name, pump_exp))
-            logger.info("%s Pump delay time %s" % (name, pump_delay))
+            logger.info("Pump probe extruder data collection")
+            logger.info("Pump exposure time %s" % pump_exp)
+            logger.info("Pump delay time %s" % pump_delay)
             sup.pilatus("fastchip", [filepath, filename, num_imgs, exp_time])
             sup.zebra1(
                 "zebratrigger-pilatus",
@@ -297,26 +271,23 @@ def run_extruderi24(args=None):
                 ],
             )
         elif pump_status == "false":
-            print("Static experiment: no photoexcitation")
-            logger.info("%s Static experiment: no photoexcitation" % name)
+            logger.info("Static experiment: no photoexcitation")
             sup.pilatus("quickshot", [filepath, filename, num_imgs, exp_time])
             gate_start = 1.0
             gate_width = (float(exp_time) * float(num_imgs)) + float(0.5)
             sup.zebra1("quickshot", [gate_start, gate_width])
 
     elif det_type == "eiger":
-        # Test moving seqID+1 to here
         caput(pv.eiger_seqID, int(caget(pv.eiger_seqID)) + 1)
-        logger.info("%s Eiger quickshot setup: filepath %s" % (name, filepath))
-        logger.info("%s Eiger quickshot setup: filepath %s" % (name, filename))
-        logger.info("%s Eiger quickshot setup: number of images %s" % (name, num_imgs))
-        logger.info("%s Eiger quickshot setup: exposure time %s" % (name, exp_time))
+        logger.info("Eiger quickshot setup: filepath %s" % filepath)
+        logger.info("Eiger quickshot setup: filepath %s" % filename)
+        logger.info("Eiger quickshot setup: number of images %s" % num_imgs)
+        logger.info("Eiger quickshot setup: exposure time %s" % exp_time)
 
         if pump_status == "true":
-            print("pump probe experiment")
-            logger.info("%s Pump probe extruder data collection" % name)
-            logger.info("%s Pump exposure time %s" % (name, pump_exp))
-            logger.info("%s Pump delay time %s" % (name, pump_delay))
+            logger.info("Pump probe extruder data collection")
+            logger.info("Pump exposure time %s" % pump_exp)
+            logger.info("Pump delay time %s" % pump_delay)
             sup.eiger("triggered", [filepath, filename, num_imgs, exp_time])
             sup.zebra1(
                 "zebratrigger-eiger",
@@ -332,15 +303,15 @@ def run_extruderi24(args=None):
                 ],
             )
         elif pump_status == "false":
-            print("Static experiment: no photoexcitation")
-            logger.info("%s Static experiment: no photoexcitation" % name)
+            logger.info("Static experiment: no photoexcitation")
             gate_start = 1.0
             gate_width = (float(exp_time) * float(num_imgs)) + float(0.5)
             sup.eiger("quickshot", [filepath, filename, num_imgs, exp_time])
             sup.zebra1("quickshot", [gate_start, gate_width])
     else:
-        logger.warning("%s Unknown Detector Type, det_type = %s" % (name, det_type))
-        print("Unknown detector type")
+        err = "Unknown Detector Type, det_type = %s" % det_type
+        logger.error(err)
+        raise ValueError(err)
 
     # Do DCID creation BEFORE arming the detector
     dcid = DCID(
@@ -354,28 +325,25 @@ def run_extruderi24(args=None):
     )
 
     # Collect
-    print("\nFast Shutter Opening")
-    logger.info("%s Fast shutter opened" % (name))
+    logger.info("Fast shutter opening")
     caput(pv.zebra1_soft_in_b1, 1)
     if det_type == "pilatus":
-        print("pilatus acquire ON")
+        logger.info("Pilatus acquire ON")
         caput(pv.pilat_acquire, 1)
     elif det_type == "eiger":
-        print("Triggering Eiger NOW")
+        logger.info("Triggering Eiger NOW")
         caput(pv.eiger_trigger, 1)
 
     dcid.notify_start()
 
     param_file_tuple = scrape_parameter_file()
     if det_type == "eiger":
+        logger.info("Call nexgen server for nexus writing.")
         call_nexgen(None, start_time, param_file_tuple, "extruder")
-
-    print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
 
     aborted = False
     while True:
-        # ioc12_gp8 is the ABORT button
-        if int(caget(pv.ioc12_gp8)) == 0:
+        if int(caget(pv.ioc12_gp8)) == 0:  # ioc12_gp8 is the ABORT button
             caput(pv.zebra1_pc_arm, 1)
             sleep(gate_start)
             i = 0
@@ -387,8 +355,7 @@ def run_extruderi24(args=None):
                 i += 1
                 if int(caget(pv.ioc12_gp8)) != 0:
                     aborted = True
-                    logger.warning("%s Data Collection Aborted" % (name))
-                    print(50 * "ABORTED ")
+                    logger.warning("Data Collection Aborted")
                     if det_type == "pilatus":
                         caput(pv.pilat_acquire, 0)
                     elif det_type == "eiger":
@@ -396,58 +363,47 @@ def run_extruderi24(args=None):
                     sleep(1.0)
                     break
                 elif int(caget(pv.zebra1_pc_arm_out)) != 1:
-                    print("----> Zebra disarmed  <----")
-                    print(20 * "DONE ")
+                    logger.info("----> Zebra disarmed  <----")
                     break
         else:
             aborted = True
-            print("Data Collection ended due to GP 8 not equalling 0")
-            logger.warning(
-                "%s Data Collection ended due to GP 8 not equalling 0" % (name)
-            )
+            logger.warning("Data Collection ended due to GP 8 not equalling 0")
             break
         break
-    print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
 
     caput(pv.ioc12_gp8, 1)
-    print("\nFast Shutter Closing")
-    logger.info("%s Fast shutter closed" % (name))
+    logger.info("Fast shutter closing")
     caput(pv.zebra1_soft_in_b1, 0)
-    print("\nZebra DISARMED")
+    logger.info("\nZebra DISARMED")
     caput(pv.zebra1_pc_disarm, 1)
 
     end_time = datetime.now()
 
     if det_type == "pilatus":
-        print("Pilatus Acquire STOP")
+        logger.info("Pilatus Acquire STOP")
         caput(pv.pilat_acquire, 0)
     elif det_type == "eiger":
-        print("Eiger Acquire STOP")
+        logger.info("Eiger Acquire STOP")
         caput(pv.eiger_acquire, 0)
         caput(pv.eiger_ODcapture, "Done")
-        print(filename + "_" + caget(pv.eiger_seqID))
-        print(type(num_imgs))
 
     sleep(0.5)
 
     # Clean Up
-    # print 'Setting zebra back to normal'
+    logger.info("Setting zebra back to normal")
     sup.zebra1("return-to-normal")
     if det_type == "pilatus":
         sup.pilatus("return-to-normal")
     elif det_type == "eiger":
         sup.eiger("return-to-normal")
         print(filename + "_" + caget(pv.eiger_seqID))
-        # Write eiger return to normal next
-    print("End of Run ")
-    print("Close hutch shutter")
+    logger.info("End of Run")
+    logger.info("Close hutch shutter")
     caput("BL24I-PS-SHTR-01:CON", "Close")
 
     dcid.collection_complete(end_time, aborted=aborted)
     dcid.notify_end()
-    print("Start time", start_time.ctime())
-    print("End time", end_time.ctime())
-    logger.info("%s End Time = %s" % (name, end_time))
+    logger.info("End Time = %s" % end_time.ctime())
     return 1
 
 
