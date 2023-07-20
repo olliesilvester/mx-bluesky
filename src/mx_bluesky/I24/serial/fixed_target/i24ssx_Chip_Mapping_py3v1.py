@@ -3,7 +3,6 @@ Chip mapping utilities for fixed target
 
 This version changed to python3 March2020 by RLO
 """
-import inspect
 import logging
 import time
 
@@ -30,9 +29,8 @@ def setup_logging():
     log.config(logfile)
 
 
+@log.log_on_entry
 def read_file_make_dict(fid, chip_type, switch=False):
-    name = inspect.stack()[0][3]
-    logger.info("%s" % name)
     a_dict = {}
     b_dict = {}
     with open(fid, "r") as f:
@@ -52,9 +50,8 @@ def read_file_make_dict(fid, chip_type, switch=False):
         return a_dict
 
 
+@log.log_on_entry
 def plot_file(fid, chip_type):
-    name = inspect.stack()[0][3]
-    logger.info("%s" % name)
     chip_dict = read_file_make_dict(fid, chip_type)
     x_list, y_list, z_list = [], [], []
     for k in sorted(chip_dict.keys()):
@@ -85,9 +82,8 @@ def plot_file(fid, chip_type):
     return 1
 
 
+@log.log_on_entry
 def convert_chip_to_hex(fid, chip_type):
-    name = inspect.stack()[0][3]
-    logger.info("%s" % name)
     chip_dict = read_file_make_dict(fid, chip_type, True)
     chip_format = get_format(chip_type)
     check_files(["%s.full" % chip_type])
@@ -95,17 +91,13 @@ def convert_chip_to_hex(fid, chip_type):
         # Normal
         if chip_type in ["0", "1"]:
             shot_order_list = get_shot_order(chip_type)
-            logger.info("%s Shot Order List: \n" % (name))
+            logger.info("Shot Order List: \n")
             logger.info("%s" % shot_order_list[:14])
             logger.info("%s" % shot_order_list[-14:])
-            print(shot_order_list[:14])
-            print(shot_order_list[-14:])
             for i, k in enumerate(shot_order_list):
                 if i % 20 == 0:
-                    print()
                     logger.info("\n")
                 else:
-                    print(k, end=" ")
                     logger.info("%s" % k)
             sorted_pres_list = []
             for addr in shot_order_list:
@@ -130,45 +122,24 @@ def convert_chip_to_hex(fid, chip_type):
                 pvar = 5001 + i
                 line = "P%s=$%s" % (pvar, hex_string)
                 g.write(line + "\n")
-                print(
-                    ("{0:0>%sX}" % hex_length).format(
-                        int("".join(str(x) for x in right_list), 2)
-                    )
-                    + 4 * "0",
-                    end=" ",
-                )
-                print(i, right_list, end=" ")
-                print("".join(str(x) for x in right_list), end=" ")
-                print(line)
+                logger.info("hex string: %s" % (hex_string + 4 * "0"))
+                logger.info("line number= %s" % i)
                 logger.info(
-                    "%s %s \n"
-                    % (
-                        name,
-                        ("{0:0>%sX}" % hex_length).format(
-                            int("".join(str(x) for x in right_list), 2)
-                        )
-                        + 4 * "0",
-                    )
+                    "right_list: \n%s\n" % ("".join(str(x) for x in right_list))
                 )
-                logger.info("%s %s %s \n" % (name, i, right_list))
-                logger.info("%s %s\n" % (name, "".join(str(x) for x in right_list)))
-                logger.info("%s %s \n" % (name, line))
+                logger.info("PVAR: %s" % line)
                 if (i + 1) % windows_per_block == 0:
-                    print("\n", 40 * (" %i" % ((i / windows_per_block) + 2)))
                     logger.info(
                         "\n %s" % (40 * (" %i" % ((i / windows_per_block) + 2)))
                     )
-            print(hex_length)
-            logger.info("%s hex_length: %s" % (name, hex_length))
+            logger.info("hex_length: %s" % hex_length)
         else:
-            logger.warning("Chip type unknown")
+            logger.warning("Chip type unknown, no conversion done.")
     return 0
 
 
 def main():
     setup_logging()
-    name = inspect.stack()[0][3]
-    logger.info("%s" % name)
     (
         chip_name,
         visit,
@@ -181,11 +152,9 @@ def main():
     check_files([".spec"])
     write_file(suffix=".spec", order="shot")
 
-    logger.info("%s PARAMETER PATH = %s" % (name, PARAM_FILE_PATH_FT))
-    print("param_path", PARAM_FILE_PATH_FT)
+    logger.info("PARAMETER PATH = %s" % PARAM_FILE_PATH_FT)
     fid = PARAM_FILE_PATH_FT / f"{chip_name}.spec"
-    logger.info("%s FID = %s" % (name, fid))
-    print("FID", fid)
+    logger.info("FID = %s" % fid)
 
     plot_file(fid, chip_type)
     convert_chip_to_hex(fid, chip_type)

@@ -29,7 +29,7 @@ try:
 except ImportError:
     pass
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("I24ssx.DCID")
 
 
 # Collection start/end script to kick off analysis
@@ -269,7 +269,7 @@ class DCID:
             logger.warning("Error running end of collect notification: %s", e)
 
     def collection_complete(
-        self, end_time: str | datetime.datetime = None, aborted: bool = False
+        self, end_time: str | datetime.datetime | None = None, aborted: bool = False
     ) -> None:
         """
         Mark an ispyb DCID as completed.

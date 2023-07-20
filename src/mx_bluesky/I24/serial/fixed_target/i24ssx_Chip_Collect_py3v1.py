@@ -3,9 +3,9 @@ Fixed target data collection
 """
 from __future__ import annotations
 
-import inspect
 import logging
 import os
+import shutil
 import sys
 import time
 from datetime import datetime
@@ -41,7 +41,7 @@ usage = "%(prog)s [options]"
 
 def setup_logging():
     # Log should now change name daily.
-    logfile = time.strftime("i24_%Y_%m_%d.log").lower()
+    logfile = time.strftime("i24fixedtarget_%d%B%y.log").lower()
     log.config(logfile)
 
 
@@ -50,6 +50,20 @@ def flush_print(text):
     sys.stdout.flush()
 
 
+def copy_files_to_data_location(
+    dest_dir: Path | str,
+    param_path: Path = PARAM_FILE_PATH_FT,
+    map_file: Path = LITEMAP_PATH,
+    map_type: str = "1",
+):
+    if not isinstance(dest_dir, Path):
+        dest_dir = Path(dest_dir)
+    shutil.copy2(param_path / "parameters.txt", dest_dir / "parameters.txt")
+    if map_type == "1":
+        shutil.copy2(map_file / "currentchip.map", dest_dir / "currentchip.map")
+
+
+@log.log_on_entry
 def get_chip_prog_values(
     chip_type,
     pump_repeat,
@@ -59,9 +73,8 @@ def get_chip_prog_values(
     exptime=16,
     n_exposures=1,
 ):
-    name = inspect.stack()[0][3]
-    logger.info("%s" % name)
     if chip_type in ["0", "1", "3"]:
+        logger.info("This is an Oxford chip %s" % chip_type)
         # '1' = 'Oxford ' = [8, 8, 20, 20, 0.125, 3.175, 3.175]
         (
             xblocks,
@@ -80,8 +93,7 @@ def get_chip_prog_values(
     elif chip_type == "2":
         # This is set by the user in the edm screen
         # The chip format might change every time and is read from PVs.
-        print("This is a Custom Chip")
-        logger.info("%s This is a Custom Chip" % name)
+        logger.info("This is a Custom Chip")
         x_num_steps = caget(pv.me14e_gp6)
         y_num_steps = caget(pv.me14e_gp7)
         x_step_size = caget(pv.me14e_gp8)
@@ -91,8 +103,7 @@ def get_chip_prog_values(
         x_block_size = 0  # placeholder
         y_block_size = 0  # placeholder
     else:
-        print("Unknown chip_type.  oh no")
-        logger.warning("%s Unknown chip_type, chip_type = %s" % (name, chip_type))
+        logger.warning("Unknown chip_type, chip_type = %s" % chip_type)
 
     # this is where p variables for fast laser expts will be set
     if pump_repeat in ["0", "1", "2"]:
@@ -108,13 +119,16 @@ def get_chip_prog_values(
     elif pump_repeat == "7":
         pump_repeat_pvar = 10
     else:
-        print("Unknown pump_repeat")
-        logger.warning("%s Unknown pump_repeat, pump_repeat = %s" % (name, pump_repeat))
+        logger.warning("Unknown pump_repeat, pump_repeat = %s" % pump_repeat)
+
+    logger.info("Pump repeat is %s, PVAR set to %s" % (pump_repeat, pump_repeat_pvar))
 
     if pump_repeat == "2":
         pump_in_probe = 1
     else:
         pump_in_probe = 0
+
+    logger.info("pump_in_probe set to %s" % pump_in_probe)
 
     chip_dict = {
         "X_NUM_STEPS": [11, x_num_steps],
@@ -146,130 +160,113 @@ def get_chip_prog_values(
     return chip_dict
 
 
+@log.log_on_entry
 def load_motion_program_data(motion_program_dict, map_type, pump_repeat):
-    print("Loading prog vars for chip")
-    print("pump_repeat", pump_repeat)
-    name = inspect.stack()[0][3]
-    logger.info("%s loading program variables for chip" % name)
+    logger.info("Loading motion program data for chip.")
+    logger.info("Pump_repeat is %s" % pump_repeat)
     if pump_repeat == "0":
-        print("pump delay is 0")
         if map_type == "0":
             prefix = 11
+            logger.info(
+                "Map type is %s, setting program prefix to %s" % (map_type, prefix)
+            )
         elif map_type == "1":
             prefix = 12
         elif map_type == "2":
             prefix = 13
         else:
-            logger.warning("%s Unknown Map Type, map_type = %s" % (name, map_type))
-            print("Unknown map_type")
+            logger.warning("Unknown Map Type, map_type = %s" % map_type)
+            return
     elif pump_repeat in ["1", "2", "3", "4", "5", "6", "7"]:
-        print("pump repeat is", pump_repeat)
         prefix = 14
-        print("prefix is", prefix)
-        # if pump_repeat == '3':
-        #    P1432 = 1
-        # Need to set the correct P variable here
-        #    caput(pv.me14e_pmac_str, 'P1432=1')
-        # elif pump_repeat == '4':
-        #    P1432 = 2
-        #    caput(pv.me14e_pmac_str, 'P1432=2')
-        # elif pump_repeat == '5':
-        #    P1432 = 3
-        #    caput(pv.me14e_pmac_str, 'P1432=3')
-        # elif pump_repeat == '6':
-        #    P1432 = 5
-        #    caput(pv.me14e_pmac_str, 'P1432=5')
-        # elif pump_repeat == '3':
-        #    P1432 = 10
-        #    caput(pv.me14e_pmac_str, 'P1432=10')
-
+        logger.info("Setting program prefix to %s" % prefix)
     else:
-        logger.warning("%s Unknown Pump repeat, pump_repeat = %s" % (name, pump_repeat))
-        print("Unknown pump_repeat")
+        logger.warning("Unknown Pump repeat, pump_repeat = %s" % pump_repeat)
+        return
 
+    logger.info("Set PMAC_STRING pv.")
     for key in sorted(motion_program_dict.keys()):
         v = motion_program_dict[key]
         pvar_base = prefix * 100
         pvar = pvar_base + v[0]
         value = str(v[1])
-        s = "P" + str(pvar) + "=" + str(value)
-        print(key, "\t", s)
-        logger.info("%s %s \t %s" % (name, key, s))
+        s = "P%s=%s" % (str(pvar), str(value))
+        logger.info("%s \t %s" % (key, s))
         caput(pv.me14e_pmac_str, s)
         sleep(0.02)
     sleep(0.2)
-    print("done")
-    logger.info("%s done" % name)
 
 
+@log.log_on_entry
 def get_prog_num(chip_type, map_type, pump_repeat):
-    name = inspect.stack()[0][3]
-    logger.info("%s Get Program Number" % name)
+    logger.info("Get Program Number")
     if str(pump_repeat) == "0":
         if chip_type in ["0", "1"]:
+            logger.info("Pump_repeat: %s \tOxford Chip: %s" % (pump_repeat, chip_type))
             if map_type == "0":
-                logger.info("%s\t:Map Type = None" % name)
-                print("Map Type is None")
+                logger.info("Map type 0 = None")
+                logger.info("Program number: 11")
                 return 11
             elif map_type == "1":
-                logger.info("%s\t:Map Type = Mapping Lite" % name)
-                print("Map Type is Mapping Lite")
+                logger.info("Map type 1 = Mapping Lite")
+                logger.info("Program number: 12")
                 return 12
             elif map_type == "2":
-                logger.info("%s\t:Map Type = FULL" % name)
-                logger.debug("%s\t:Mapping Type FULL is broken as of 11.09.17" % name)
-                print("Map Type is FULL")
-                return 13
+                logger.info("Map type 1 = Full Mapping")
+                logger.info("Program number: 13")  # once fixed return 13
+                msg = "Mapping Type FULL is broken as of 11.09.17"
+                logger.error(msg)
+                raise ValueError(msg)
             else:
-                logger.debug(
-                    "%s\t:Unknown Mapping Type; map_type = %s" % (name, map_type)
-                )
-                print("Unknown map_type")
-                print(map_type)
+                logger.debug("Unknown Mapping Type; map_type = %s" % map_type)
                 return 0
         elif chip_type == "2":
-            logger.info("%s\t:Custom Chip" % name)
-            print("Custom Chip Type")
+            logger.info("Pump_repeat: %s \tCustom Chip: %s" % (pump_repeat, chip_type))
+            logger.info("Program number: 11")
             return 11
         elif chip_type == "3":
-            logger.info("%s\t:Mini Oxford Chip" % name)
+            logger.info(
+                "Pump_repeat: %s \tMini Oxford Chip: %s" % (pump_repeat, chip_type)
+            )
+            logger.info("Program number: 11")
             return 11
         else:
-            logger.debug("%s\t:Unknown chip_type, chip_tpe = = %s" % (name, chip_type))
-            print("Unknown Chip Type")
+            logger.debug("Unknown chip_type, chip_tpe = = %s" % chip_type)
             return 0
     elif pump_repeat in ["1", "2", "3", "4", "5", "6", "7"]:
-        logger.info("%s\t:Map Type = Mapping Lite with Pump probe" % name)
-        print("Map Type is Mapping Lite with Pump Probe")
+        logger.info("Pump_repeat: %s \t Chip Type: %s" % (pump_repeat, chip_type))
+        logger.info("Map Type = Mapping Lite with Pump Probe")
+        logger.info("Program number: 14")
         return 14
     else:
-        logger.debug(
-            "%s\t:Unknown pump_repeat, pump_repeat = = %s" % (name, pump_repeat)
-        )
-        print("Unknown Pump Delay")
+        logger.warning("Unknown pump_repeat, pump_repeat = = %s" % pump_repeat)
+        return 0
 
 
+@log.log_on_entry
 def datasetsizei24(params):
     # Calculates how many images will be collected based on map type and N repeats
-    name = inspect.stack()[0][3]
+    logger.info("Calculate total number of images expected in data collection.")
     n_exposures = params.expt.n_exposures
     chip_type = params.expt.chip_type
     map_type = params.expt.map_type
 
     if map_type == "0":
         if chip_type == "2":
-            print("Calculating total number of images for custom chip")
             total_numb_imgs = int(int(caget(pv.me14e_gp6)) * int(caget(pv.me14e_gp7)))
             logger.info(
-                "%s !!!!!! Calculating total number of images for custom chip %s"
-                % (name, total_numb_imgs)
+                "Map type: None \tCustom chip \tNumber of images %s" % total_numb_imgs
             )
-            print(total_numb_imgs)
         else:
             chip_format = get_format(chip_type)[:4]
             total_numb_imgs = np.prod(chip_format)
+            logger.info(
+                "Map type: None \tOxford chip %s \tNumber of images %s"
+                % (chip_type, total_numb_imgs)
+            )
 
     elif map_type == "1":
+        logger.info("Using Mapping Lite on chip type %s" % chip_type)
         chip_format = get_format(chip_type)[2:4]
         block_count = 0
         with open(LITEMAP_PATH / "currentchip.map", "r") as f:
@@ -278,78 +275,64 @@ def datasetsizei24(params):
                 if entry[2] == "1":
                     block_count += 1
 
-        print("block_count", block_count)
-        print(chip_format)
-        logger.info("%s\t:block_count=%s" % (name, block_count))
-        logger.info("%s\t:chip_format=%s" % (name, chip_format))
+        logger.info("Block count=%s" % block_count)
+        logger.info("Chip format=%s" % chip_format)
 
         n_exposures = int(caget(pv.me14e_gp3))
-        print(n_exposures)
-        logger.info("%s\t:n_exposures=%s" % (name, n_exposures))
+        logger.info("Number of exposures=%s" % n_exposures)
 
         total_numb_imgs = np.prod(chip_format) * block_count * n_exposures
+        logger.info("Calculated number of images: %s" % total_numb_imgs)
 
     elif map_type == "2":
-        logger.warning("%s\t:Not Set Up For Full Mapping=%s" % (name))
+        logger.error("Not Set Up For Full Mapping")
         raise ValueError("The beamline is currently not set for Full Mapping.")
 
     else:
-        logger.warning("%s Unknown Map Type, map_type = %s" % (name, map_type))
+        logger.warning("Unknown Map Type, map_type = %s" % map_type)
         raise ValueError("Unknown map type")
 
-    print("Total number of images", total_numb_imgs, "\n\n\n")
+    logger.info("Set PV to calculated number of images.")
     caput(pv.me14e_gp10, total_numb_imgs)
-    logger.info("%s\t:----->Total number of images = %s" % (name, total_numb_imgs))
 
     return total_numb_imgs
 
 
+@log.log_on_entry
 def start_i24(params, filepath):
     """Returns a tuple of (start_time, dcid)"""
-    print("Starting i24")
-    name = inspect.stack()[0][3]
-    logger.info("%s Starting i24" % name)
+    logger.info("Start I24 data collection.")
     start_time = datetime.now()
-    # run_num = caget(pv.pilat_filenumber)
-    # print(80*'-', run_num)
-    # lg.info('%s run_num = %s'%(name,run_num))
 
-    logger.info("%s Set up beamline" % (name))
+    logger.info("Collection start time %s" % start_time.ctime())
+
+    logger.debug("Set up beamline")
     sup.beamline("collect")
+
     sup.beamline("quickshot", [params.general.det_dist])
-    logger.info("%s Set up beamline DONE" % (name))
+    logger.debug("Set up beamline DONE")
 
     total_numb_imgs = datasetsizei24(params)
 
     filename = params.general.filename
 
-    logger.info("%s Filepath %s" % (name, filepath))
-    logger.info("%s Filename %s" % (name, filename))
-    logger.info("%s Total number images %s" % (name, total_numb_imgs))
-    logger.info("%s Exposure time %s" % (name, params.general.exp_time))
-
-    print("Acquire Region")
-    logger.info("%s\t:Acquire Region" % (name))
-
-    # Testing for new zebra triggering
-    print("ZEBRA TEST ZEBRA TEST ZEBRA TEST ZEBRA TEST")
+    logger.debug("Acquire Region")
 
     num_gates = int(total_numb_imgs) / params.expt.n_exposures
 
-    print("Total number of images:", total_numb_imgs)
-    print("Number of exposures:", params.expt.n_exposures)
-    print("num gates is Total images/N exposures:", num_gates)
+    logger.info("Total number of images: %d" % total_numb_imgs)
+    logger.info("Number of exposures: %s" % params.expt.n_exposures)
+    logger.info("Number of gates (=Total images/N exposures): %.4f" % num_gates)
 
     if params.general.det_type == "pilatus":
         print("Detector type is Pilatus")
-        logger.info("%s Fastchip Pilatus setup: filepath %s" % (name, filepath))
-        logger.info("%s Fastchip Pilatus setup: filepath %s" % (name, filename))
         logger.info(
-            "%s Fastchip Pilatus setup: number of images %s" % (name, total_numb_imgs)
+            "%s Fastchip Pilatus setup: filepath %s" % params.general.collection_path
         )
+        logger.info("%s Fastchip Pilatus setup: filepath %s" % filename)
+        logger.info("Fastchip Pilatus setup: number of images %d" % total_numb_imgs)
         logger.info(
-            "%s Fastchip Pilatus setup: exposure time %s"
-            % (name, params.general.exp_time)
+            "Fastchip Pilatus setup: exposure time %s" % params.general.exp_time
         )
 
         sup.pilatus(
@@ -358,6 +341,7 @@ def start_i24(params, filepath):
         # sup.pilatus('fastchip-hatrx', [filepath, filename, total_numb_imgs, exptime])
 
         # DCID process depends on detector PVs being set up already
+        logger.debug("Start DCID process")
         dcid = DCID(
             emit_errors=False,
             ssx_type=SSXType.FIXED,
@@ -373,9 +357,7 @@ def start_i24(params, filepath):
             pump_status=int(params.pump_probe.pump_repeat),
         )
 
-        print("Arm Pilatus. Arm Zebra.")
-        # ZEBRA TEST. Swap the below two lines in/out. Must also swap pc_arm line also.
-        # sup.zebra1('fastchip')
+        logger.debug("Arm Pilatus. Arm Zebra.")
         sup.zebra1(
             "fastchip-zebratrigger-pilatus",
             [num_gates, params.expt.n_exposures, params.general.exp_time],
@@ -386,48 +368,39 @@ def start_i24(params, filepath):
         time.sleep(1.5)
 
     elif params.general.det_type == "eiger":
-        print("Detector type is Eiger")
+        logger.info("Using Eiger detector")
 
-        # FIXME TEMPORARY HACK TO DO SINGLE IMAGE PILATUS DATA COLL TO MKDIR #
-
-        print("Single image pilatus data collection to create directory")
-        logger.info("%s single image pilatus data collection" % name)
+        logger.warning(
+            """TEMPORARY HACK!
+            Running a Single image pilatus data collection to create directory."""
+        )
         num_imgs = 1
+
         sup.pilatus(
             "quickshot-internaltrig",
             [filepath, filename, num_imgs, params.general.exp_time],
         )
-        print("Sleep 2s for pilatus to arm")
+        logger.debug("Sleep 2s waiting for pilatus to arm")
         sleep(2)
-        print("Done. Collecting")
-        # caput(pv.pilat_acquire, '1')        # Arm pilatus
-        print("Can sometimes fail to arm")
         sleep(0.5)
         caput(pv.pilat_acquire, "0")  # Disarm pilatus
         sleep(0.5)
         caput(pv.pilat_acquire, "1")  # Arm pilatus
-        print("Pilatus data collection DONE DONE DONE")
+        logger.debug("Pilatus data collection DONE")
         sup.pilatus("return to normal")
-        print("Single image pilatus data collection DONE")
+        logger.info("Pilatus back to normal. Single image pilatus data collection DONE")
 
-        print("Eiger filepath", filepath)
-        print("Eiger filename", filename)
-        print("Eiger total number of images", total_numb_imgs)
-        logger.info("%s Triggered Eiger setup: filepath %s" % (name, filepath))
-        logger.info("%s Triggered Eiger setup: filename %s" % (name, filename))
-        logger.info(
-            "%s Triggered Eiger setup: number of images %s" % (name, total_numb_imgs)
-        )
-        logger.info(
-            "%s Triggered Eiger setup: exposure time %s"
-            % (name, params.general.exp_time)
-        )
+        logger.info("Triggered Eiger setup: filepath %s" % filepath)
+        logger.info("Triggered Eiger setup: filename %s" % filename)
+        logger.info("Triggered Eiger setup: number of images %d" % total_numb_imgs)
+        logger.info("Triggered Eiger setup: exposure time %s" % params.general.exp_time)
 
         sup.eiger(
             "triggered", [filepath, filename, total_numb_imgs, params.general.exp_time]
         )
 
         # DCID process depends on detector PVs being set up already
+        logger.debug("Start DCID process")
         dcid = DCID(
             emit_errors=False,
             ssx_type=SSXType.FIXED,
@@ -440,7 +413,7 @@ def start_i24(params, filepath):
             shots_per_position=params.expt.n_exposures,
         )
 
-        print("Arm Zebra.")
+        logger.debug("Arm Zebra.")
         sup.zebra1(
             "fastchip-eiger",
             [num_gates, params.expt.n_exposures, params.general.exp_time],
@@ -450,29 +423,26 @@ def start_i24(params, filepath):
         time.sleep(1.5)
 
     else:
-        logger.warning(
-            "%s Unknown Detector Type, det_type = %s" % (name, params.general.det_type)
-        )
-        print("Unknown detector type")
+        msg = "Unknown Detector Type, det_type = %s" % params.general.det_type
+        logger.error(msg)
+        raise ValueError(msg)
 
     # Open the hutch shutter
 
     caput("BL24I-PS-SHTR-01:CON", "Reset")
-    print("Reset sleep for 1sec")
+    logger.debug("Reset, then sleep for 1s")
     sleep(1.0)
     caput("BL24I-PS-SHTR-01:CON", "Open")
-    print(" Open sleep for 2sec")
+    logger.debug(" Open, then sleep for 2s")
     sleep(2.0)
 
     return start_time.ctime(), dcid
 
 
+@log.log_on_entry
 def finish_i24(params, filepath, chip_prog_dict, start_time):
-    name = inspect.stack()[0][3]
     det_type = str(caget(pv.me14e_gp101))
-
-    print("Finishing I24")
-    logger.info("%s Finishing I24, Detector Type %s" % (name, det_type))
+    logger.info("Finish I24 data collection with %s detector." % det_type)
 
     total_numb_imgs = datasetsizei24(params)
     filename = params.general.filename
@@ -480,47 +450,46 @@ def finish_i24(params, filepath, chip_prog_dict, start_time):
     transmission = (float(caget(pv.pilat_filtertrasm)),)
     wavelength = float(caget(pv.dcm_lambda))
 
-    print(filename)
-    print(caget(pv.eiger_seqID))
-
     if det_type == "pilatus":
-        print("Finish I24 Pilatus")
+        logger.info("Finish I24 Pilatus")
         filename = filename + "_" + caget(pv.pilat_filenum)  # FIXME somewhere in params
-        caput(pv.zebra1_soft_in_b1, "No")  # Close the fast shutter
-        caput(pv.zebra1_pc_arm_out, "0")  # Disarm the zebra
+        logger.debug("Close the fast shutter.")
+        caput(pv.zebra1_soft_in_b1, "No")
+        logger.debug("Disarm the zebra.")
+        caput(pv.zebra1_pc_arm_out, "0")
         sup.zebra1("return-to-normal")
         sup.pilatus("return-to-normal")
         sleep(0.2)
     elif det_type == "eiger":
-        # THIS SECTION NEEDS TO BE CHECKED CAREFULLY
-        print("Finish I24 Eiger")
-        caput(pv.zebra1_soft_in_b1, "No")  # Close the fast shutter
-        caput(pv.zebra1_pc_arm_out, "0")  # Disarm the zebra
+        logger.info("Finish I24 Eiger")
+        logger.debug("Close the fast shutter.")
+        caput(pv.zebra1_soft_in_b1, "No")
+        logger.debug("Disarm the zebra.")
+        caput(pv.zebra1_pc_arm_out, "0")
         sup.zebra1("return-to-normal")
         sup.eiger("return-to-normal")
-        # print("NEEDS TESTING NEEDS TESTING NEEDS TESTING")
         filename = cagetstring(pv.eiger_ODfilenameRBV)
-        # caput(pv.eiger_acquire, 0)
-        # caput(pv.eiger_ODcapture, "Done")
-        # print(cagetstring(pv.eiger_ODfilenameRBV))
-        # print(filename + "_" + caget(pv.eiger_seqID))
 
     # Detector independent moves
-    # Move chip back to home position and close shutter
-    print("Closing shutter")
+    logger.info("Move chip back to home position by setting PMAC_STRING pv.")
     caput(pv.me14e_pmac_str, "!x0y0z0")
+    logger.debug("Closing shutter")
     caput("BL24I-PS-SHTR-01:CON", "Close")
 
     end_time = time.ctime()
+    logger.info("Collection end time %s" % end_time)
+
+    # Copy parameter file and eventual chip map to collection directory
+    copy_files_to_data_location(filepath, map_type=params.expt.map_type)
 
     # Write a record of what was collected to the processing directory
-    print("Writing user log")
     userlog_path = params.general.visit / Path("processing") / params.general.directory
     userlog_fid = filename + "_parameters.txt"
+    logger.debug("Write a user log in %s" % userlog_path.as_posix())
 
     os.makedirs(userlog_path, exist_ok=True)
 
-    with open(userlog_path + userlog_fid, "w") as f:
+    with open(userlog_path / userlog_fid, "w") as f:
         f.write("Fixed Target Data Collection Parameters\n")
         f.write("Data directory \t%s\n" % filepath)
         f.write("Filename \t%s\n" % filename)
@@ -542,9 +511,7 @@ def finish_i24(params, filepath, chip_prog_dict, start_time):
 
 def main():
     # ABORT BUTTON
-    name = inspect.stack()[0][3]
-    logger.info("%s" % name)
-    logger.info("%s Location is I24 \n Starting" % name)
+    logger.info("Running a chip collection on I24")
     caput(pv.me14e_gp9, 0)
 
     params: ExperimentParameters = read_parameters(
@@ -570,43 +537,23 @@ def main():
     pump_repeat = params.pump_probe.pump_repeat
     prepumpexptime = params.pump_probe.prepump_exp
 
-    print("exptime", exptime)
-    print("pump_repeat", pump_repeat)
-    print("pumpexptime", pumpexptime)
-    print("pumpdelay", pumpdelay)
-    print("visit", visit)
-    print("dcdetdist", dcdetdist)
-    print("n_exposures", n_exposures)
-    print("det_type", det_type)
-    logger.info("%s exptime = %s" % (name, exptime))
-    logger.info("%s visit = %s" % (name, visit))
-    logger.info("%s dcdetdist = %s" % (name, dcdetdist))
-
-    print("\n\nChip name is", chip_name)
-    print("sub_dir", sub_dir)
-    print("n_exposures", n_exposures)
-    print("chip_type", chip_type)
-    print("map type", map_type)
-    print("pump_repeat", pump_repeat)
-    print("pumpexptime", pumpexptime)
-    print("pumpdelay", pumpdelay)
-    print("prepumpexptime", prepumpexptime)
-    print("Getting Prog Dictionary")
-
-    logger.info("%s Chip name is %s" % (name, chip_name))
-    logger.info("%s sub_dir = %s" % (name, sub_dir))
-    logger.info("%s n_exposures = %s" % (name, n_exposures))
-    logger.info("%s chip_type = %s" % (name, chip_type))
-    logger.info("%s map_type = %s" % (name, map_type))
-    logger.info("%s pump_repeat = %s" % (name, pump_repeat))
-    logger.info("%s pumpexptime = %s" % (name, pumpexptime))
-    logger.info("%s pumpdelay = %s" % (name, pumpdelay))
-    logger.info("%s prepumpexptime = %s" % (name, prepumpexptime))
-    logger.info("%s Getting Program Dictionary" % (name))
+    logger.info("Chip name is %s" % chip_name)
+    logger.info("visit = %s" % visit)
+    logger.info("sub_dir = %s" % sub_dir)
+    logger.info("n_exposures = %s" % n_exposures)
+    logger.info("chip_type = %s" % chip_type)
+    logger.info("map_type = %s" % map_type)
+    logger.info("dcdetdist = %s" % dcdetdist)
+    logger.info("exptime = %s" % exptime)
+    logger.info("pump_repeat = %s" % pump_repeat)
+    logger.info("pumpexptime = %s" % pumpexptime)
+    logger.info("pumpdelay = %s" % pumpdelay)
+    logger.info("prepumpexptime = %s" % prepumpexptime)
+    logger.info("Getting Program Dictionary")
 
     # If alignment type is Oxford inner it is still an Oxford type chip
     if str(chip_type) == "1":
-        logger.debug("%s\tMain: Change chip type Oxford Inner to Oxford." % name)
+        logger.debug("Change chip type Oxford Inner to Oxford.")
         chip_type = "0"
 
     chip_prog_dict = get_chip_prog_values(
@@ -618,36 +565,32 @@ def main():
         exptime=exptime,
         n_exposures=n_exposures,
     )
-    print("Loading Motion Program Data")
-    logger.info("%s Loading Motion Program Data" % (name))
+    logger.info("Loading Motion Program Data")
     load_motion_program_data(chip_prog_dict, map_type, pump_repeat)
 
     start_time, dcid = start_i24(params, filepath)
 
-    print("Moving to Start")
-    logger.info("%s Moving to start" % (name))
+    logger.info("Moving to Start")
     caput(pv.me14e_pmac_str, "!x0y0z0")
     sleep(2.0)
 
     prog_num = get_prog_num(chip_type, map_type, pump_repeat)
-    logger.info("%s prog_num = %s" % (name, prog_num))
-    logger.info("%s Resting" % (name))
 
     # Now ready for data collection. Open fast shutter
+    logger.debug("Opening fast shutter.")
     caput(pv.zebra1_soft_in_b1, "1")  # Open fast shutter (zebra gate)
 
-    print("Running pmac program number", prog_num)
-
-    print("pmacing")
-    logger.info("%s pmacing" % (name))
-    logger.info("%s pmac str = &2b%sr" % (name, prog_num))
-    caput(pv.me14e_pmac_str, "&2b%sr" % prog_num)
+    logger.info("Run PMAC with program number %d" % prog_num)
+    logger.info("pmac str = &2b%dr" % prog_num)
+    caput(pv.me14e_pmac_str, "&2b%dr" % prog_num)
     sleep(1.0)
 
     # Kick off the StartOfCollect script
+    logger.debug("Notify DCID of the start of the collection.")
     dcid.notify_start()
 
     if det_type == "eiger":
+        logger.debug("Start nexus writing service.")
         call_nexgen(
             chip_prog_dict,
             start_time,
@@ -656,8 +599,7 @@ def main():
             total_numb_imgs=datasetsizei24(),
         )
 
-    print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-    logger.info("%s Data Collection running" % (name))
+    logger.info("Data Collection running")
 
     aborted = False
     while True:
@@ -672,46 +614,44 @@ def main():
                 i += 1
                 if int(caget(pv.me14e_gp9)) != 0:
                     aborted = True
-                    logger.warning("%s Data Collection Aborted" % (name))
-                    print(50 * "ABORTED ")
+                    logger.warning("Data Collection Aborted")
                     caput(pv.me14e_pmac_str, "A")
                     sleep(1.0)
                     caput(pv.me14e_pmac_str, "P2401=0")
                     break
                 elif int(caget(pv.me14e_scanstatus)) == 0:
                     print(caget(pv.me14e_scanstatus))
-                    logger.warning("%s Data Collection Finished" % (name))
-                    print("\n", 20 * "DONE ")
+                    logger.warning("Data Collection Finished")
                     break
         else:
             aborted = True
-            logger.info("%s Data Collection ended due to GP 9 not equalling 0" % (name))
+            logger.info("Data Collection ended due to GP 9 not equalling 0")
             break
         break
-    print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-    print("Closing fast shutter")
+
+    logger.debug("Closing fast shutter")
     caput(pv.zebra1_soft_in_b1, "No")  # Close the fast shutter
     sleep(2.0)
 
     if det_type == "pilatus":
-        print("Pilatus Acquire STOP")
+        logger.debug("Pilatus Acquire STOP")
         sleep(0.5)
         caput(pv.pilat_acquire, 0)
     elif det_type == "eiger":
-        print("Eiger Acquire STOP")
+        logger.debug("Eiger Acquire STOP")
         sleep(0.5)
         caput(pv.eiger_acquire, 0)
         caput(pv.eiger_ODcapture, "Done")
 
     end_time = finish_i24(params, filepath, chip_prog_dict, start_time)
     dcid.collection_complete(end_time, aborted=aborted)
+    logger.debug("Notify DCID of end of collection.")
     dcid.notify_end()
 
-    logger.info("%s Chip name = %s sub_dir = %s" % (name, chip_name, sub_dir))
-    print("Start time:", start_time)
-    logger.info("%s Start Time = % s" % (name, start_time))
-    print("End time:  ", end_time)
-    logger.info("%s End Time = %s" % (name, end_time))
+    logger.info("Quick summary of settings")
+    logger.info("Chip name = %s sub_dir = %s" % (chip_name, sub_dir))
+    logger.info("Start Time = % s" % start_time)
+    logger.info("End Time = %s" % end_time)
 
 
 if __name__ == "__main__":
