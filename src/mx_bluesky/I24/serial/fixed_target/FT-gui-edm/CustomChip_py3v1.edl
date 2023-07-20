@@ -690,7 +690,7 @@ botShadowColor index 11
 font "arial-medium-r-18.0"
 numCmds 1
 command {
-  0 "python /dls_sw/i24/scripts/serial-collect/FT-scripts/i24ssx_Chip_Manager_py3v1.py cs_reset"
+  0 "python /dls_sw/i24/software/bluesky/mx_bluesky/src/mx_bluesky/I24/serial/fixed_target/i24ssx_Chip_Manager_py3v1.py cs_reset"
 }
 endObjectProperties
 

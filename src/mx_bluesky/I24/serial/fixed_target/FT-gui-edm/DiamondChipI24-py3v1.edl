@@ -107,7 +107,7 @@ font "arial-medium-r-18.0"
 numPvs 4
 numDsps 1
 displayFileName {
-  0 "/dls_sw/work/R3.14.12.3/ioc/ME14E/ME14E-MO-IOC-01/ME14E-MO-IOC-01App/opi/edl/MappingLite-oxford_py3v1.edl"
+  0 "/dls_sw/i24/software/bluesky/mx_bluesky/src/mx_bluesky/I24/serial/fixed_target/FT-gui-edm/MappingLite-oxford_py3v1.edl"
 }
 endObjectProperties
 
@@ -170,7 +170,7 @@ buttonLabel "Oxford"
 numPvs 4
 numDsps 1
 displayFileName {
-  0 "/dls_sw/work/R3.14.12.3/ioc/ME14E/ME14E-MO-IOC-01/ME14E-MO-IOC-01App/opi/edl/MappingLite-oxford_py3v1.edl"
+  0 "/dls_sw/i24/software/bluesky/mx_bluesky/src/mx_bluesky/I24/serial/fixed_target/FT-gui-edm/MappingLite-oxford_py3v1.edl"
 }
 endObjectProperties
 
@@ -280,7 +280,7 @@ botShadowColor index 14
 font "arial-medium-r-18.0"
 numCmds 1
 command {
-  0 "python /dls_sw/i24/scripts/serial-collect/FT-scripts/i24ssx_Chip_Manager_py3v1.py moveto load_position"
+  0 "python /dls_sw/i24/software/bluesky/mx_bluesky/src/mx_bluesky/I24/serial/fixed_target/i24ssx_Chip_Manager_py3v1.py moveto load_position"
 }
 endObjectProperties
 
@@ -301,7 +301,7 @@ botShadowColor index 14
 font "arial-medium-r-18.0"
 numCmds 1
 command {
-  0 "python /dls_sw/i24/scripts/serial-collect/FT-scripts/i24ssx_Chip_Manager_py3v1.py moveto collect_position"
+  0 "python /dls_sw/i24/software/bluesky/mx_bluesky/src/mx_bluesky/I24/serial/fixed_target/i24ssx_Chip_Manager_py3v1.py moveto collect_position"
 }
 endObjectProperties
 
@@ -323,7 +323,7 @@ font "helvetica-bold-r-24.0"
 buttonLabel "Start"
 numCmds 1
 command {
-  0 "python /dls_sw/i24/scripts/serial-collect/FT-scripts/i24ssx_Chip_Collect_py3v1.py"
+  0 "python /dls_sw/i24/software/bluesky/mx_bluesky/src/mx_bluesky/I24/serial/fixed_target/i24ssx_Chip_Collect_py3v1.py"
 }
 endObjectProperties
 
@@ -615,7 +615,7 @@ botShadowColor index 14
 font "arial-medium-r-18.0"
 numCmds 1
 command {
-  0 "python /dls_sw/i24/scripts/serial-collect/FT-scripts/i24ssx_Chip_Manager_py3v1.py cs_maker"
+  0 "python /dls_sw/i24/software/bluesky/mx_bluesky/src/mx_bluesky/I24/serial/fixed_target/i24ssx_Chip_Manager_py3v1.py cs_maker"
 }
 endObjectProperties
 
@@ -1051,7 +1051,7 @@ botShadowColor index 14
 font "arial-medium-r-18.0"
 numCmds 1
 command {
-  0 "python /dls_sw/i24/scripts/serial-collect/FT-scripts/i24ssx_Chip_Manager_py3v1.py moveto zero"
+  0 "python /dls_sw/i24/software/bluesky/mx_bluesky/src/mx_bluesky/I24/serial/fixed_target/i24ssx_Chip_Manager_py3v1.py moveto zero"
 }
 endObjectProperties
 
@@ -1199,7 +1199,7 @@ botShadowColor index 14
 font "arial-medium-r-18.0"
 numCmds 1
 command {
-  0 "python /dls_sw/i24/scripts/serial-collect/FT-scripts/i24ssx_Chip_Manager_py3v1.py initialise"
+  0 "python /dls_sw/i24/software/bluesky/mx_bluesky/src/mx_bluesky/I24/serial/fixed_target/i24ssx_Chip_Manager_py3v1.py initialise"
 }
 endObjectProperties
 
@@ -1446,7 +1446,7 @@ buttonLabel "GP PV"
 numPvs 4
 numDsps 1
 displayFileName {
-  0 "/dls_sw/work/R3.14.12.3/ioc/ME14E/ME14E-MO-IOC-01/data/ME14E-GeneralPurpose.edl"
+  0 "/dls_sw/i24/software/bluesky/mx_bluesky/src/mx_bluesky/I24/serial/fixed_target/FT-gui-edm/ME14E-GeneralPurpose.edl"
 }
 endObjectProperties
 
@@ -1467,7 +1467,7 @@ botShadowColor index 14
 font "arial-medium-r-18.0"
 numCmds 1
 command {
-  0 "python /dls_sw/i24/scripts/serial-collect/FT-scripts/i24ssx_Chip_Manager_py3v1.py write_parameter_file"
+  0 "python /dls_sw/i24/software/bluesky/mx_bluesky/src/mx_bluesky/I24/serial/fixed_target/i24ssx_Chip_Manager_py3v1.py write_parameter_file"
 }
 endObjectProperties
 
@@ -1624,7 +1624,7 @@ font "arial-medium-r-18.0"
 numPvs 4
 numDsps 1
 displayFileName {
-  0 "/dls_sw/work/R3.14.12.3/ioc/ME14E/ME14E-MO-IOC-01/ME14E-MO-IOC-01App/opi/edl/pumpprobe-py3v1.edl"
+  0 "/dls_sw/i24/software/bluesky/mx_bluesky/src/mx_bluesky/I24/serial/fixed_target/FT-gui-edm/pumpprobe-py3v1.edl"
 }
 endObjectProperties
 
@@ -1645,7 +1645,7 @@ botShadowColor index 14
 font "arial-medium-r-18.0"
 numCmds 1
 command {
-  0 "python /dls_sw/i24/scripts/serial-collect/FT-scripts/i24ssx_Chip_Manager_py3v1.py block_check "
+  0 "python /dls_sw/i24/software/bluesky/mx_bluesky/src/mx_bluesky/I24/serial/fixed_target/i24ssx_Chip_Manager_py3v1.py block_check "
 }
 endObjectProperties
 
@@ -1791,7 +1791,7 @@ buttonLabel "Custom Chip"
 numPvs 4
 numDsps 1
 displayFileName {
-  0 "CustomChip_py3v1.edl"
+  0 "/dls_sw/i24/software/bluesky/mx_bluesky/src/mx_bluesky/I24/serial/fixed_target/FT-gui-edm/CustomChip_py3v1.edl"
 }
 endObjectProperties
 
@@ -3019,7 +3019,7 @@ font "helvetica-medium-r-18.0"
 buttonLabel "Set Fiducial 2"
 numCmds 1
 command {
-  0 "python /dls_sw/i24/scripts/serial-collect/FT-scripts/i24ssx_Chip_Manager_py3v1.py fiducial 2"
+  0 "python /dls_sw/i24/software/bluesky/mx_bluesky/src/mx_bluesky/I24/serial/fixed_target/i24ssx_Chip_Manager_py3v1.py fiducial 2"
 }
 endObjectProperties
 
@@ -3041,7 +3041,7 @@ font "helvetica-medium-r-18.0"
 buttonLabel "Goto Fiducial 2"
 numCmds 1
 command {
-  0 "python /dls_sw/i24/scripts/serial-collect/FT-scripts/i24ssx_Chip_Manager_py3v1.py moveto f2"
+  0 "python /dls_sw/i24/software/bluesky/mx_bluesky/src/mx_bluesky/I24/serial/fixed_target/i24ssx_Chip_Manager_py3v1.py moveto f2"
 }
 endObjectProperties
 
@@ -3085,7 +3085,7 @@ font "helvetica-medium-r-18.0"
 buttonLabel "Set Fiducial 1"
 numCmds 1
 command {
-  0 "python /dls_sw/i24/scripts/serial-collect/FT-scripts/i24ssx_Chip_Manager_py3v1.py fiducial 1"
+  0 "python /dls_sw/i24/software/bluesky/mx_bluesky/src/mx_bluesky/I24/serial/fixed_target/i24ssx_Chip_Manager_py3v1.py fiducial 1"
 }
 endObjectProperties
 
@@ -3107,7 +3107,7 @@ font "helvetica-medium-r-18.0"
 buttonLabel "Goto Fiducial 1"
 numCmds 1
 command {
-  0 "python /dls_sw/i24/scripts/serial-collect/FT-scripts/i24ssx_Chip_Manager_py3v1.py moveto f1"
+  0 "python /dls_sw/i24/software/bluesky/mx_bluesky/src/mx_bluesky/I24/serial/fixed_target/i24ssx_Chip_Manager_py3v1.py moveto f1"
 }
 endObjectProperties
 
@@ -3834,7 +3834,7 @@ font "arial-bold-r-14.0"
 buttonLabel "Move on Click"
 numCmds 1
 command {
-  0 "python /dls_sw/i24/scripts/serial-collect/FT-scripts/i24ssx_moveonclick.py"
+  0 "python /dls_sw/i24/software/bluesky/mx_bluesky/src/mx_bluesky/I24/serial/fixed_target/i24ssx_moveonclick.py"
 }
 endObjectProperties
 
@@ -3855,7 +3855,7 @@ botShadowColor index 14
 font "arial-medium-r-18.0"
 numCmds 1
 command {
-  0 "python /dls_sw/i24/scripts/serial-collect/FT-scripts/i24ssx_Chip_Manager_py3v1.py moveto zero"
+  0 "python /dls_sw/i24/software/bluesky/mx_bluesky/src/mx_bluesky/I24/serial/fixed_target/i24ssx_Chip_Manager_py3v1.py moveto zero"
 }
 endObjectProperties
 
@@ -3897,7 +3897,7 @@ botShadowColor index 14
 font "arial-medium-r-18.0"
 numCmds 1
 command {
-  0 "python /dls_sw/i24/scripts/serial-collect/FT-scripts/i24ssx_Chip_Manager_py3v1.py moveto microdrop_position"
+  0 "python /dls_sw/i24/software/bluesky/mx_bluesky/src/mx_bluesky/I24/serial/fixed_target/i24ssx_Chip_Manager_py3v1.py moveto microdrop_position"
 }
 endObjectProperties
 
@@ -3939,7 +3939,7 @@ botShadowColor index 14
 font "arial-medium-r-18.0"
 numCmds 1
 command {
-  0 "edm -x /dls_sw/i24/scripts/serial-collect/FT-gui-edm/microdrop_alignment.edl"
+  0 "edm -x /dls_sw/i24/software/bluesky/mx_bluesky/src/mx_bluesky/I24/serial/fixed_target/FT-gui-edm/microdrop_alignment.edl"
 }
 endObjectProperties
 
