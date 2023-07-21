@@ -867,7 +867,7 @@ buttonLabel "PMAC"
 numPvs 4
 numDsps 1
 displayFileName {
-  0 "/dls_sw/work/R3.14.12.3/ioc/ME14E/ME14E-MO-IOC-01/ME14E-MO-IOC-01App/opi/edl/PMAC_Command.edl"
+  0 "/dls_sw/i24/software/bluesky/mx_bluesky/src/mx_bluesky/I24/serial/fixed_target/FT-gui-edm/PMAC_Command.edl"
 }
 endObjectProperties
 
@@ -3983,7 +3983,7 @@ buttonLabel "Stages"
 numPvs 4
 numDsps 1
 displayFileName {
-  0 "/dls_sw/work/R3.14.12.3/ioc/ME14E/BL/data/ME14E-motors.edl"
+  0 "/dls_sw/i24/software/bluesky/mx_bluesky/src/mx_bluesky/I24/serial/fixed_target/FT-gui-edm/ME14E-motors.edl"
 }
 endObjectProperties
 
