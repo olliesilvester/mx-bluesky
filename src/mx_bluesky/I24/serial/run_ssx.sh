@@ -3,7 +3,7 @@
 # Start the edm screen relative to requested serial collection
 expt_type=${1:-FT}
 
-echo "Activate python environment before starting edm screen"
+echo "Activating python environment..."
 source /dls_sw/i24/software/bluesky/mx_bluesky/.venv/bin/activate
 
 shopt -s nocasematch
