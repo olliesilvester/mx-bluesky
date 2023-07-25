@@ -196,8 +196,8 @@ def scrape_pvar_file(fid: str, pvar_dir: Path | str = PVAR_FILE_PATH):
 
 @log.log_on_entry
 def define_current_chip(
-    args = None, 
-    chipid: str = "oxford", 
+    args=None,
+    chipid: str = "oxford",
     param_path: Path | str = PVAR_FILE_PATH,
 ):
     chipid = args.chipid if args else chipid
@@ -244,8 +244,8 @@ def save_screen_map(litemap_path: Path | str = LITEMAP_PATH):
 
 @log.log_on_entry
 def upload_parameters(
-    args = None, 
-    chipid: str = "oxford", 
+    args=None,
+    chipid: str = "oxford",
     litemap_path: Path | str = LITEMAP_PATH,
 ):
     chipid = args.chipid if args else chipid
@@ -301,7 +301,7 @@ def upload_full(fullmap_path: Path | str = FULLMAP_PATH):
 
 
 @log.log_on_entry
-def load_stock_map(args = None, map_choice: str = "clear"):
+def load_stock_map(args=None, map_choice: str = "clear"):
     map_choice = args.map_choice if args else map_choice
     logger.info("Adjusting Lite Map EDM Screen")
     logger.debug("Please wait, adjusting lite map")
@@ -590,7 +590,7 @@ def load_full_map(fullmap_path: Path | str = FULLMAP_PATH):
 
 
 @log.log_on_entry
-def moveto(args = None, place: str = "origin"):
+def moveto(args=None, place: str = "origin"):
     place = args.place if args else place
     logger.info("Move to: %s" % place)
     chip_type = int(caget(pv.me14e_gp1))
@@ -723,7 +723,7 @@ def scrape_mtr_directions(param_path: Path | str = CS_FILES_PATH):
 
 
 @log.log_on_entry
-def fiducial(args = None, point: int = 1, param_path: Path | str = PARAM_FILE_PATH_FT):
+def fiducial(args=None, point: int = 1, param_path: Path | str = PARAM_FILE_PATH_FT):
     point = args.point if args else point
     scale = 10000.0  # noqa: F841
     param_path = _coerce_to_path(param_path)
