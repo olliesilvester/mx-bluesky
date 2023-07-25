@@ -3,9 +3,12 @@
 # Deploy EDM screens for serial crystallography
 # Make a copy of them in edm/ and replace paths depending if in dev or beamline mode
 
-base=$( dirname "$( dirname "$0" )" )
-
-edm_build="$base/edm"
+if [[ -z "${BEAMLINE}" ]]; then
+    edm_build="/dls_sw/$BEAMLINE/software/bluesky/edm_serial"
+else
+    base=$( dirname "$( dirname "$0" )" )
+    edm_build="$base/edm_serial"
+fi
 
 if [ -d $edm_build ]; then
     rm -rf $edm_build
