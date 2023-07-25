@@ -723,7 +723,7 @@ def scrape_mtr_directions(param_path: Path | str = CS_FILES_PATH):
 
 
 @log.log_on_entry
-def fiducial(args=None, point: int = 1, param_path: Path | str = PARAM_FILE_PATH_FT):
+def fiducial(args=None, point: int = 1, param_path: Path | str = CS_FILES_PATH):
     point = args.point if args else point
     scale = 10000.0  # noqa: F841
     param_path = _coerce_to_path(param_path)
@@ -742,7 +742,7 @@ def fiducial(args=None, point: int = 1, param_path: Path | str = PARAM_FILE_PATH
     f_y = rbv_2
     f_z = rbv_3
 
-    logger.info("Writing Fiducial File %sfiducial_%s.txt" % (param_path, point))
+    logger.info("Writing Fiducial File %s/fiducial_%s.txt" % (param_path, point))
     logger.info("MTR\tRBV\tRAW\tCorr\tf_value")
     logger.info("MTR1\t%1.4f\t%i\t%i\t%1.4f" % (rbv_1, raw_1, mtr1_dir, f_x))
     logger.info("MTR2\t%1.4f\t%i\t%i\t%1.4f" % (rbv_2, raw_2, mtr2_dir, f_y))
@@ -755,7 +755,7 @@ def fiducial(args=None, point: int = 1, param_path: Path | str = PARAM_FILE_PATH
         f.write("MTR3\t%1.4f\t%i\t%i\t%1.4f" % (rbv_3, raw_3, mtr3_dir, f_z))
 
 
-def scrape_mtr_fiducials(point: int, param_path: Path | str = PARAM_FILE_PATH_FT):
+def scrape_mtr_fiducials(point: int, param_path: Path | str = CS_FILES_PATH):
     param_path = _coerce_to_path(param_path)
 
     with open(param_path / f"fiducial_{point}.txt", "r") as f:
