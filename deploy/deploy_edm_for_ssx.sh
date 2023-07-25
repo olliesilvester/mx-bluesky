@@ -42,7 +42,7 @@ for filename in $ex_edm/*.edl; do
     sed -i "s+${edm_placeholder}+${ex_edm}+g" $filename     # Fix edm paths
     sed -i "s+${scripts_placeholder}+${scripts_loc}+g" $filename    # Fix scripts paths
 done
-echo "Setting up screens for fixed target"g
+echo "Setting up screens for fixed target"
 for filename in $ft_edm/*.edl; do
     sed -i "s+${edm_placeholder}+${ft_edm}+g" $filename     # Fix edm paths
     sed -i "s+${scripts_placeholder}+${scripts_loc}+g" $filename    # Fix scripts paths
