@@ -5,7 +5,6 @@
 
 current=$( realpath "$( dirname "$0" )" )
 base=$(dirname $current)
-echo $base
 
 if [[ -n "${BEAMLINE}" ]]; then
     edm_build="/dls_sw/$BEAMLINE/software/bluesky/edm_serial"
@@ -13,7 +12,7 @@ else
     edm_build="$base/edm_serial"
 fi
 
-echo $edm_build
+echo "EDM screens for ssx will be saved in: $edm_build"
 
 if [ -d $edm_build ]; then
     rm -rf $edm_build
@@ -39,10 +38,14 @@ cp $scripts_loc/fixed_target/FT-gui-edm/*.edl $ft_edm
 
 # Fix both edm and scripts paths
 for filename in $ex_edm/*.edl; do
+    echo "Setting up screen for extruder"
     sed -i "s+${edm_placeholder}+${ex_edm}+g" $filename     # Fix edm paths
     sed -i "s+${scripts_placeholder}+${scripts_loc}+g" $filename    # Fix scripts paths
 done
 for filename in $ft_edm/*.edl; do
+    echo "Setting up screens for fixed target"
     sed -i "s+${edm_placeholder}+${ft_edm}+g" $filename     # Fix edm paths
     sed -i "s+${scripts_placeholder}+${scripts_loc}+g" $filename    # Fix scripts paths
 done
+
+echo "EDM screen set up completed."
