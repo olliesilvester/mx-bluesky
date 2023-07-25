@@ -7,7 +7,7 @@ current=$( realpath "$( dirname "$0" )" )
 base=$(dirname $current)
 
 if [[ -n "${BEAMLINE}" ]]; then
-    edm_build="/dls_sw/$BEAMLINE/software/bluesky/edm_serial"
+    edm_build="/dls_sw/$BEAMLINE/software/bluesky/mx_bluesky/edm_serial"
 else
     edm_build="$base/edm_serial"
 fi
