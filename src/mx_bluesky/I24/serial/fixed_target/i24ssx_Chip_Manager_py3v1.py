@@ -105,6 +105,7 @@ def initialise(args=None):
 @log.log_on_entry
 def write_parameter_file(args=None, param_path: Path | str = PARAM_FILE_PATH_FT):
     param_path = _coerce_to_path(param_path)
+    param_path.mkdir(parents=True, exist_ok=True)
 
     param_fid = "parameters.txt"
     logger.info("Writing Parameter File: %s" % (param_path / param_fid).as_posix())
@@ -228,6 +229,7 @@ def define_current_chip(
 @log.log_on_entry
 def save_screen_map(args=None, litemap_path: Path | str = LITEMAP_PATH):
     litemap_path = _coerce_to_path(litemap_path)
+    litemap_path.mkdir(parents=True, exist_ok=True)
 
     logger.info("Saving %s currentchip.map" % litemap_path.as_posix())
     with open(litemap_path / "currentchip.map", "w") as f:

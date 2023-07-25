@@ -347,7 +347,7 @@ def start_i24():
         logger.info("Fastchip Pilatus setup: filepath %s" % filepath)
         logger.info("Fastchip Pilatus setup: filepath %s" % filename)
         logger.info("Fastchip Pilatus setup: number of images %d" % total_numb_imgs)
-        logger.info("%s Fastchip Pilatus setup: exposure time %s" % exptime)
+        logger.info("Fastchip Pilatus setup: exposure time %s" % exptime)
 
         sup.pilatus("fastchip", [filepath, filename, total_numb_imgs, exptime])
 
