@@ -12,8 +12,10 @@ def dummy_logger():
     yield logger
 
 
+@patch("mx_bluesky.I24.serial.log.environ")
 @patch("mx_bluesky.I24.serial.log.Path.mkdir")
-def test_logging_file_path(mock_dir):
+def test_logging_file_path(mock_dir, mock_environ):
+    mock_environ.get.return_value = None
     log_path = log._get_logging_file_path()
     assert mock_dir.call_count == 1
     assert log_path.as_posix() == "tmp/logs"
