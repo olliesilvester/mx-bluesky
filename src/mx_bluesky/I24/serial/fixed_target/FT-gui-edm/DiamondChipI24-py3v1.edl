@@ -107,7 +107,7 @@ font "arial-medium-r-18.0"
 numPvs 4
 numDsps 1
 displayFileName {
-  0 "EDM_LOCATION/fixed_target/FT-gui-edm/MappingLite-oxford_py3v1.edl"
+  0 "EDM_LOCATION/MappingLite-oxford_py3v1.edl"
 }
 endObjectProperties
 
@@ -170,7 +170,7 @@ buttonLabel "Oxford"
 numPvs 4
 numDsps 1
 displayFileName {
-  0 "EDM_LOCATION/fixed_target/FT-gui-edm/MappingLite-oxford_py3v1.edl"
+  0 "EDM_LOCATION/MappingLite-oxford_py3v1.edl"
 }
 endObjectProperties
 
@@ -867,7 +867,7 @@ buttonLabel "PMAC"
 numPvs 4
 numDsps 1
 displayFileName {
-  0 "EDM_LOCATION/fixed_target/FT-gui-edm/PMAC_Command.edl"
+  0 "EDM_LOCATION/PMAC_Command.edl"
 }
 endObjectProperties
 
@@ -1446,7 +1446,7 @@ buttonLabel "GP PV"
 numPvs 4
 numDsps 1
 displayFileName {
-  0 "EDM_LOCATION/fixed_target/FT-gui-edm/ME14E-GeneralPurpose.edl"
+  0 "EDM_LOCATION/ME14E-GeneralPurpose.edl"
 }
 endObjectProperties
 
@@ -1624,7 +1624,7 @@ font "arial-medium-r-18.0"
 numPvs 4
 numDsps 1
 displayFileName {
-  0 "EDM_LOCATION/fixed_target/FT-gui-edm/pumpprobe-py3v1.edl"
+  0 "EDM_LOCATION/pumpprobe-py3v1.edl"
 }
 endObjectProperties
 
@@ -1791,7 +1791,7 @@ buttonLabel "Custom Chip"
 numPvs 4
 numDsps 1
 displayFileName {
-  0 "EDM_LOCATION/fixed_target/FT-gui-edm/CustomChip_py3v1.edl"
+  0 "EDM_LOCATION/CustomChip_py3v1.edl"
 }
 endObjectProperties
 
@@ -3939,7 +3939,7 @@ botShadowColor index 14
 font "arial-medium-r-18.0"
 numCmds 1
 command {
-  0 "edm -x EDM_LOCATION/fixed_target/FT-gui-edm/microdrop_alignment.edl"
+  0 "edm -x EDM_LOCATION/microdrop_alignment.edl"
 }
 endObjectProperties
 
@@ -3983,7 +3983,7 @@ buttonLabel "Stages"
 numPvs 4
 numDsps 1
 displayFileName {
-  0 "EDM_LOCATION/fixed_target/FT-gui-edm/ME14E-motors.edl"
+  0 "EDM_LOCATION/ME14E-motors.edl"
 }
 endObjectProperties
 
