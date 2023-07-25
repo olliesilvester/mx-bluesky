@@ -28,7 +28,7 @@ cs_json = '{"scalex":1, "scaley":2, "scalez":3, "skew":-0.5, "Sx_dir":1, "Sy_dir
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caget")
 def test_moveto_oxford_origin(fake_caget, fake_caput):
     fake_caget.return_value = 0
-    moveto("origin")
+    moveto(place="origin")
     assert fake_caget.call_count == 1
     assert fake_caput.call_count == 2
 
@@ -37,7 +37,7 @@ def test_moveto_oxford_origin(fake_caget, fake_caput):
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caget")
 def test_moveto_oxford_inner_f1(fake_caget, fake_caput):
     fake_caget.return_value = 1
-    moveto("f1")
+    moveto(place="f1")
     assert fake_caget.call_count == 1
     assert fake_caput.call_count == 2
 
@@ -46,7 +46,7 @@ def test_moveto_oxford_inner_f1(fake_caget, fake_caput):
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caget")
 def test_moveto_chip_unknown(fake_caget, fake_caput):
     fake_caget.return_value = 4
-    moveto("zero")
+    moveto(place="zero")
     assert fake_caget.call_count == 1
     assert fake_caput.call_count == 1
 

@@ -195,9 +195,14 @@ def scrape_pvar_file(fid: str, pvar_dir: Path | str = PVAR_FILE_PATH):
 
 
 @log.log_on_entry
-def define_current_chip(chipid: str, param_path: Path | str = PVAR_FILE_PATH):
+def define_current_chip(
+    args = None, 
+    chipid: str = "oxford", 
+    param_path: Path | str = PVAR_FILE_PATH,
+):
+    chipid = args.chipid if args else chipid
     logger.debug("Run load stock map for just the first block")
-    load_stock_map("Just The First Block")
+    load_stock_map(map_choice="Just The First Block")
     """
     Not sure what this is for:
     print 'Setting Mapping Type to Lite'
@@ -238,7 +243,12 @@ def save_screen_map(litemap_path: Path | str = LITEMAP_PATH):
 
 
 @log.log_on_entry
-def upload_parameters(chipid: str, litemap_path: Path | str = LITEMAP_PATH):
+def upload_parameters(
+    args = None, 
+    chipid: str = "oxford", 
+    litemap_path: Path | str = LITEMAP_PATH,
+):
+    chipid = args.chipid if args else chipid
     logger.info("Uploading Parameters to the GeoBrick")
     if chipid == "oxford":
         caput(pv.me14e_gp1, 1)
@@ -291,7 +301,8 @@ def upload_full(fullmap_path: Path | str = FULLMAP_PATH):
 
 
 @log.log_on_entry
-def load_stock_map(map_choice: str):
+def load_stock_map(args = None, map_choice: str = "clear"):
+    map_choice = args.map_choice if args else map_choice
     logger.info("Adjusting Lite Map EDM Screen")
     logger.debug("Please wait, adjusting lite map")
     #
@@ -493,7 +504,7 @@ def load_stock_map(map_choice: str):
 @log.log_on_entry
 def load_lite_map(litemap_path: Path | str = LITEMAP_PATH):
     logger.debug("Run load stock map with 'clear' setting.")
-    load_stock_map("clear")
+    load_stock_map(map_choice="clear")
     # fmt: off
     # Oxford_block_dict is wrong (columns and rows need to flip) added in script below to generate it automatically however kept this for backwards compatiability/reference
     oxford_block_dict = {   # noqa: F841
@@ -579,7 +590,8 @@ def load_full_map(fullmap_path: Path | str = FULLMAP_PATH):
 
 
 @log.log_on_entry
-def moveto(place: str):
+def moveto(args = None, place: str = "origin"):
+    place = args.place if args else place
     logger.info("Move to: %s" % place)
     chip_type = int(caget(pv.me14e_gp1))
     logger.info("Chip type is%s" % chip_type)
@@ -711,7 +723,8 @@ def scrape_mtr_directions(param_path: Path | str = CS_FILES_PATH):
 
 
 @log.log_on_entry
-def fiducial(point: int, param_path: Path | str = PARAM_FILE_PATH_FT):
+def fiducial(args = None, point: int = 1, param_path: Path | str = PARAM_FILE_PATH_FT):
+    point = args.point if args else point
     scale = 10000.0  # noqa: F841
     param_path = _coerce_to_path(param_path)
 
