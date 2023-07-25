@@ -103,7 +103,7 @@ def initialise(args=None):
 
 
 @log.log_on_entry
-def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
+def write_parameter_file(args=None, param_path: Path | str = PARAM_FILE_PATH_FT):
     param_path = _coerce_to_path(param_path)
 
     param_fid = "parameters.txt"
@@ -226,7 +226,7 @@ def define_current_chip(
 
 
 @log.log_on_entry
-def save_screen_map(litemap_path: Path | str = LITEMAP_PATH):
+def save_screen_map(args=None, litemap_path: Path | str = LITEMAP_PATH):
     litemap_path = _coerce_to_path(litemap_path)
 
     logger.info("Saving %s currentchip.map" % litemap_path.as_posix())
@@ -283,7 +283,7 @@ def upload_parameters(
 
 
 @log.log_on_entry
-def upload_full(fullmap_path: Path | str = FULLMAP_PATH):
+def upload_full(args=None, fullmap_path: Path | str = FULLMAP_PATH):
     fullmap_path = _coerce_to_path(fullmap_path)
 
     with open(fullmap_path / "currentchip.full", "r") as fh:
@@ -502,7 +502,7 @@ def load_stock_map(args=None, map_choice: str = "clear"):
 
 
 @log.log_on_entry
-def load_lite_map(litemap_path: Path | str = LITEMAP_PATH):
+def load_lite_map(args=None, litemap_path: Path | str = LITEMAP_PATH):
     logger.debug("Run load stock map with 'clear' setting.")
     load_stock_map(map_choice="clear")
     # fmt: off
@@ -566,7 +566,7 @@ def load_lite_map(litemap_path: Path | str = LITEMAP_PATH):
 
 
 @log.log_on_entry
-def load_full_map(fullmap_path: Path | str = FULLMAP_PATH):
+def load_full_map(args=None, fullmap_path: Path | str = FULLMAP_PATH):
     (
         chip_name,
         visit,
@@ -935,7 +935,7 @@ def cs_maker(args=None):
     logger.debug("CSmaker done.")
 
 
-def cs_reset():
+def cs_reset(args=None):
     cs1 = "#1->-10000X+0Y+0Z"
     cs2 = "#2->+0X+10000Y+0Z"
     cs3 = "#3->0X+0Y+10000Z"
@@ -973,7 +973,7 @@ def pumpprobe_calc(args=None):
 
 
 @log.log_on_entry
-def block_check():
+def block_check(args=None):
     caput(pv.me14e_gp9, 0)
     while True:
         if int(caget(pv.me14e_gp9)) == 0:
