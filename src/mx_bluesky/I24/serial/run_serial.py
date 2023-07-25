@@ -29,6 +29,7 @@ def run_extruder():
     subprocess.run(
         [
             "edm",
+            "-x",
             edm_path / "EX-gui/DiamondExtruder-I24-py3v1.edl",
         ]
     )
@@ -44,6 +45,7 @@ def run_fixed_target():
     subprocess.run(
         [
             "edm",
+            "-x",
             edm_path / "FT-gui/DiamondChipI24-py3v1.edl",
         ]
     )
