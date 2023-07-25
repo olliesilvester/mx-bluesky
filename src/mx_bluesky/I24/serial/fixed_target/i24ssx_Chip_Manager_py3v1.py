@@ -44,7 +44,7 @@ def setup_logging():
 
 
 @log.log_on_entry
-def initialise():
+def initialise(args=None):
     # commented out filter lines 230719 as this stage not connected
     logger.info("Setting VMAX VELO ACCL HHL LLM pvs")
 
@@ -767,7 +767,7 @@ def scrape_mtr_fiducials(point: int, param_path: Path | str = PARAM_FILE_PATH_FT
 
 
 @log.log_on_entry
-def cs_maker():
+def cs_maker(args=None):
     """
     Coordinate system.
 
@@ -952,7 +952,7 @@ def cs_reset():
 
 
 @log.log_on_entry
-def pumpprobe_calc():
+def pumpprobe_calc(args=None):
     logger.info("Calculate and show exposure and dwell time for each option.")
     exptime = float(caget(pv.me14e_exptime))
     pumpexptime = float(caget(pv.me14e_gp103))
@@ -964,16 +964,11 @@ def pumpprobe_calc():
     repeat3 = 6 * 20 * (movetime + (pumpexptime + exptime) / 2)
     repeat5 = 10 * 20 * (movetime + (pumpexptime + exptime) / 2)
     repeat10 = 20 * 20 * (movetime + (pumpexptime + exptime) / 2)
-    logger.info("repeat1: %s s" % round(repeat1, 4))
-    logger.info("repeat2: %s s" % round(repeat2, 4))
-    logger.info("repeat3: %s s" % round(repeat3, 4))
-    logger.info("repeat5: %s s" % round(repeat5, 4))
-    logger.info("repeat10: %s s" % round(repeat10, 4))
-    logger.info(pv.me14e_gp104, round(repeat1, 4))
-    logger.info(pv.me14e_gp105, round(repeat2, 4))
-    logger.info(pv.me14e_gp106, round(repeat3, 4))
-    logger.info(pv.me14e_gp107, round(repeat5, 4))
-    logger.info(pv.me14e_gp108, round(repeat10, 4))
+    logger.info("repeat1 (%s): %s s" % (pv.me14e_gp104, round(repeat1, 4)))
+    logger.info("repeat2 (%s): %s s" % (pv.me14e_gp105, round(repeat2, 4)))
+    logger.info("repeat3 (%s): %s s" % (pv.me14e_gp106, round(repeat3, 4)))
+    logger.info("repeat5 (%s): %s s" % (pv.me14e_gp107, round(repeat5, 4)))
+    logger.info("repeat10 (%s): %s s" % (pv.me14e_gp108, round(repeat10, 4)))
     logger.debug("PP calculations done")
 
 
