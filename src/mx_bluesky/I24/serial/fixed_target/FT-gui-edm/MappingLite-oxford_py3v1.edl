@@ -2388,8 +2388,8 @@ lineColor index 7
 fill
 fillColor index 7
 visPv "ME14E-MO-IOC-01:GP1"
-visMin "0"
-visMax "2"
+visMin "3"
+visMax "4"
 endObjectProperties
 
 # (Shell Command)
@@ -2449,8 +2449,8 @@ lineColor index 7
 fill
 fillColor index 7
 visPv "ME14E-MO-IOC-01:GP1"
-visMin "0"
-visMax "2"
+visMin "3"
+visMax "4"
 endObjectProperties
 
 # (Static Text)
@@ -2469,8 +2469,8 @@ fgColor index 14
 bgColor index 0
 useDisplayBg
 visPv "ME14E-MO-IOC-01:GP1"
-visMin "0"
-visMax "2"
+visMin "3"
+visMax "4"
 value {
   "Chip type MUST be set to "
   "Oxford "
@@ -2495,8 +2495,8 @@ fgColor index 14
 bgColor index 0
 useDisplayBg
 visPv "ME14E-MO-IOC-01:GP1"
-visMin "0"
-visMax "2"
+visMin "3"
+visMax "4"
 value {
   "Chip type MUST be set to "
   "Oxford "
@@ -2519,8 +2519,8 @@ lineColor index 7
 fill
 fillColor index 7
 visPv "ME14E-MO-IOC-01:GP1"
-visMin "0"
-visMax "2"
+visMin "3"
+visMax "4"
 endObjectProperties
 
 # (Static Text)
@@ -2539,8 +2539,8 @@ fgColor index 14
 bgColor index 0
 useDisplayBg
 visPv "ME14E-MO-IOC-01:GP1"
-visMin "0"
-visMax "2"
+visMin "3"
+visMax "4"
 value {
   "Chip type MUST be set to "
   "Oxford "
