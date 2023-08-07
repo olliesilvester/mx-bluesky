@@ -1,5 +1,5 @@
 import json
-from unittest.mock import mock_open, patch
+from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 
@@ -7,6 +7,7 @@ from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1 import (
     cs_maker,
     cs_reset,
     moveto,
+    parse_args_and_run_parsed_function,
     scrape_mtr_directions,
     scrape_mtr_fiducials,
 )
@@ -28,7 +29,7 @@ cs_json = '{"scalex":1, "scaley":2, "scalez":3, "skew":-0.5, "Sx_dir":1, "Sy_dir
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caget")
 def test_moveto_oxford_origin(fake_caget, fake_caput):
     fake_caget.return_value = 0
-    moveto(place="origin")
+    moveto("origin")
     assert fake_caget.call_count == 1
     assert fake_caput.call_count == 2
 
@@ -37,7 +38,7 @@ def test_moveto_oxford_origin(fake_caget, fake_caput):
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caget")
 def test_moveto_oxford_inner_f1(fake_caget, fake_caput):
     fake_caget.return_value = 1
-    moveto(place="f1")
+    moveto("f1")
     assert fake_caget.call_count == 1
     assert fake_caput.call_count == 2
 
@@ -46,7 +47,7 @@ def test_moveto_oxford_inner_f1(fake_caget, fake_caput):
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caget")
 def test_moveto_chip_unknown(fake_caget, fake_caput):
     fake_caget.return_value = 4
-    moveto(place="zero")
+    moveto("zero")
     assert fake_caget.call_count == 1
     assert fake_caput.call_count == 1
 
@@ -147,3 +148,23 @@ def test_cs_maker_raises_error_for_wrong_direction_in_json(
     fake_fid.return_value = (0, 0, 0)
     with pytest.raises(ValueError):
         cs_maker()
+
+
+@patch(
+    "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.fiducial",
+    autospec=True,
+)
+def test_arg_parser_runs_fiducial_function_as_expected(mock_fiducial: MagicMock):
+    parse_args_and_run_parsed_function(["fiducial", "2"])
+    mock_fiducial.assert_called_once_with(2)
+
+
+@patch(
+    "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.define_current_chip",
+    autospec=True,
+)
+def test_arg_parser_runs_define_current_chip_function_as_expected(
+    mock_define_current_chip: MagicMock,
+):
+    parse_args_and_run_parsed_function(["define_current_chip", "chip_id"])
+    mock_define_current_chip.assert_called_once_with("chip_id")

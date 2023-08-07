@@ -44,7 +44,7 @@ def setup_logging():
 
 
 @log.log_on_entry
-def initialise(args=None):
+def initialise():
     # commented out filter lines 230719 as this stage not connected
     logger.info("Setting VMAX VELO ACCL HHL LLM pvs")
 
@@ -103,7 +103,7 @@ def initialise(args=None):
 
 
 @log.log_on_entry
-def write_parameter_file(args=None, param_path: Path | str = PARAM_FILE_PATH_FT):
+def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
     param_path = _coerce_to_path(param_path)
     param_path.mkdir(parents=True, exist_ok=True)
 
@@ -197,13 +197,11 @@ def scrape_pvar_file(fid: str, pvar_dir: Path | str = PVAR_FILE_PATH):
 
 @log.log_on_entry
 def define_current_chip(
-    args=None,
     chipid: str = "oxford",
     param_path: Path | str = PVAR_FILE_PATH,
 ):
-    chipid = args.chipid if args else chipid
     logger.debug("Run load stock map for just the first block")
-    load_stock_map(map_choice="Just The First Block")
+    load_stock_map("Just The First Block")
     """
     Not sure what this is for:
     print 'Setting Mapping Type to Lite'
@@ -227,7 +225,7 @@ def define_current_chip(
 
 
 @log.log_on_entry
-def save_screen_map(args=None, litemap_path: Path | str = LITEMAP_PATH):
+def save_screen_map(litemap_path: Path | str = LITEMAP_PATH):
     litemap_path = _coerce_to_path(litemap_path)
     litemap_path.mkdir(parents=True, exist_ok=True)
 
@@ -246,11 +244,9 @@ def save_screen_map(args=None, litemap_path: Path | str = LITEMAP_PATH):
 
 @log.log_on_entry
 def upload_parameters(
-    args=None,
     chipid: str = "oxford",
     litemap_path: Path | str = LITEMAP_PATH,
 ):
-    chipid = args.chipid if args else chipid
     logger.info("Uploading Parameters to the GeoBrick")
     if chipid == "oxford":
         caput(pv.me14e_gp1, 1)
@@ -285,7 +281,7 @@ def upload_parameters(
 
 
 @log.log_on_entry
-def upload_full(args=None, fullmap_path: Path | str = FULLMAP_PATH):
+def upload_full(fullmap_path: Path | str = FULLMAP_PATH):
     fullmap_path = _coerce_to_path(fullmap_path)
 
     with open(fullmap_path / "currentchip.full", "r") as fh:
@@ -303,8 +299,7 @@ def upload_full(args=None, fullmap_path: Path | str = FULLMAP_PATH):
 
 
 @log.log_on_entry
-def load_stock_map(args=None, map_choice: str = "clear"):
-    map_choice = args.map_choice if args else map_choice
+def load_stock_map(map_choice: str = "clear"):
     logger.info("Adjusting Lite Map EDM Screen")
     logger.debug("Please wait, adjusting lite map")
     #
@@ -504,9 +499,9 @@ def load_stock_map(args=None, map_choice: str = "clear"):
 
 
 @log.log_on_entry
-def load_lite_map(args=None, litemap_path: Path | str = LITEMAP_PATH):
+def load_lite_map(litemap_path: Path | str = LITEMAP_PATH):
     logger.debug("Run load stock map with 'clear' setting.")
-    load_stock_map(map_choice="clear")
+    load_stock_map("clear")
     # fmt: off
     # Oxford_block_dict is wrong (columns and rows need to flip) added in script below to generate it automatically however kept this for backwards compatiability/reference
     oxford_block_dict = {   # noqa: F841
@@ -568,7 +563,7 @@ def load_lite_map(args=None, litemap_path: Path | str = LITEMAP_PATH):
 
 
 @log.log_on_entry
-def load_full_map(args=None, fullmap_path: Path | str = FULLMAP_PATH):
+def load_full_map(fullmap_path: Path | str = FULLMAP_PATH):
     (
         chip_name,
         visit,
@@ -592,8 +587,7 @@ def load_full_map(args=None, fullmap_path: Path | str = FULLMAP_PATH):
 
 
 @log.log_on_entry
-def moveto(args=None, place: str = "origin"):
-    place = args.place if args else place
+def moveto(place: str = "origin"):
     logger.info("Move to: %s" % place)
     chip_type = int(caget(pv.me14e_gp1))
     logger.info("Chip type is%s" % chip_type)
@@ -725,8 +719,7 @@ def scrape_mtr_directions(param_path: Path | str = CS_FILES_PATH):
 
 
 @log.log_on_entry
-def fiducial(args=None, point: int = 1, param_path: Path | str = CS_FILES_PATH):
-    point = args.point if args else point
+def fiducial(point: int = 1, param_path: Path | str = CS_FILES_PATH):
     scale = 10000.0  # noqa: F841
     param_path = _coerce_to_path(param_path)
 
@@ -769,7 +762,7 @@ def scrape_mtr_fiducials(point: int, param_path: Path | str = CS_FILES_PATH):
 
 
 @log.log_on_entry
-def cs_maker(args=None):
+def cs_maker():
     """
     Coordinate system.
 
@@ -937,7 +930,7 @@ def cs_maker(args=None):
     logger.debug("CSmaker done.")
 
 
-def cs_reset(args=None):
+def cs_reset():
     cs1 = "#1->-10000X+0Y+0Z"
     cs2 = "#2->+0X+10000Y+0Z"
     cs3 = "#3->0X+0Y+10000Z"
@@ -954,7 +947,7 @@ def cs_reset(args=None):
 
 
 @log.log_on_entry
-def pumpprobe_calc(args=None):
+def pumpprobe_calc():
     logger.info("Calculate and show exposure and dwell time for each option.")
     exptime = float(caget(pv.me14e_exptime))
     pumpexptime = float(caget(pv.me14e_gp103))
@@ -975,7 +968,7 @@ def pumpprobe_calc(args=None):
 
 
 @log.log_on_entry
-def block_check(args=None):
+def block_check():
     caput(pv.me14e_gp9, 0)
     while True:
         if int(caget(pv.me14e_gp9)) == 0:
@@ -1008,9 +1001,8 @@ def block_check(args=None):
     logger.debug("Block check done")
 
 
-if __name__ == "__main__":
-    setup_logging()
-
+def parse_args_and_run_parsed_function(args):
+    print(f"Run with {args}")
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(
         help="Choose command.",
@@ -1057,5 +1049,14 @@ if __name__ == "__main__":
     parser_block = subparsers.add_parser("block_check")
     parser_block.set_defaults(func=block_check)
 
-    args = parser.parse_args()
-    args.func(args)
+    args = parser.parse_args(args)
+
+    args_dict = vars(args)
+    args_dict.pop("sub-command")
+    args_dict.pop("func")(**args_dict)
+
+
+if __name__ == "__main__":
+    setup_logging()
+
+    parse_args_and_run_parsed_function(sys.argv[1:])
