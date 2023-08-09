@@ -20,6 +20,10 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/i24-ssx-hotfixes/"
   },
   {
+    "version": "make_jupyter_easier",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/make_jupyter_easier/"
+  },
+  {
     "version": "wto16239_draft1",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/wto16239_draft1/"
   }
