@@ -17,7 +17,11 @@ Getting Started
 
 To get started with developing this repo at DLS run ```dls_dev_setup.sh``.
 
-We recommend developing with VSCode. You can do this at DLS by running::
+If you want to develop interactively at the beamline we recommend using jupyter notebooks. You can get started with this by running::
+
+    $ ./start_jupyter.sh
+
+If you're doing more in-depth development we recommend developing with VSCode. You can do this at DLS by running::
 
 
     $ module load vscode
