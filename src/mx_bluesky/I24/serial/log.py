@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import functools
 import logging
 import logging.config
 from os import environ
@@ -63,7 +64,7 @@ def config(logfile: str | None = None, write_mode: str = "a", delayed: bool = Fa
     Configure the logging.
 
     Args:
-        logfile (str, optional): Filename for logfile. If passed, create a file handler \
+        logfile (str, optional): Filename for logfile. If passed, create a file handler\
             for the logger to write to file the log output. Defaults to None.
         write_mode (str, optional): String indicating writing mode for the output \
             .log file. Defaults to "a".
@@ -72,10 +73,22 @@ def config(logfile: str | None = None, write_mode: str = "a", delayed: bool = Fa
     if logfile:
         logs = _get_logging_file_path() / logfile
         fileFormatter = logging.Formatter(
-            "%(asctime)s %(levelname)s:   \t%(message)s",
+            "%(asctime)s %(levelname)s: \t(%(name)s) %(message)s",
             datefmt="%d-%m-%Y %I:%M:%S",
         )
         FH = logging.FileHandler(logs, mode=write_mode, encoding="utf-8", delay=delayed)
         FH.setLevel(logging.DEBUG)
         FH.setFormatter(fileFormatter)
         logger.addHandler(FH)
+
+
+def log_on_entry(func):
+    logger = logging.getLogger("I24ssx")
+
+    @functools.wraps(func)
+    def decorator(*args, **kwargs):
+        name = func.__name__
+        logger.debug("Running %s " % name)
+        return func(*args, **kwargs)
+
+    return decorator

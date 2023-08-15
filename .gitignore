@@ -67,6 +67,10 @@ venv*
 # further build artifacts
 lockfiles/
 
+# EDM screens
+edm/
+edm_serial/
+
 # Edm backup files
 *.edl~
 

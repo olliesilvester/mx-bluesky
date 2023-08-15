@@ -11,14 +11,14 @@ shopt -s nocasematch
 
 if [[ $expt_type == "FT" ]] || [[ $expt_type == "fixed-target" ]]
 then
-    echo "fixed-target"
+    echo "Setting visit PV for serial fixed-target collection."
     caput  $ft_pv $visit
-    echo "Visit set to: $visit"
+    echo "Visit set to: $visit."
 elif [[ $expt_type == "EX" ]] || [[ $expt_type == "extruder" ]]
 then
-    echo "extruder"
+    echo "Setting visit PV for serial extruder collection."
     caput  $ex_pv $visit
     echo "Visit set to: $visit"
 else
-    echo "Unknown experiment type"
+    echo "Unknown experiment type, visit PV not set."
 fi
