@@ -105,6 +105,7 @@ def initialise():
 @log.log_on_entry
 def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
     param_path = _coerce_to_path(param_path)
+    param_path.mkdir(parents=True, exist_ok=True)
 
     param_fid = "parameters.txt"
     logger.info("Writing Parameter File: %s" % (param_path / param_fid).as_posix())
@@ -195,7 +196,10 @@ def scrape_pvar_file(fid: str, pvar_dir: Path | str = PVAR_FILE_PATH):
 
 
 @log.log_on_entry
-def define_current_chip(chipid: str, param_path: Path | str = PVAR_FILE_PATH):
+def define_current_chip(
+    chipid: str = "oxford",
+    param_path: Path | str = PVAR_FILE_PATH,
+):
     logger.debug("Run load stock map for just the first block")
     load_stock_map("Just The First Block")
     """
@@ -223,6 +227,7 @@ def define_current_chip(chipid: str, param_path: Path | str = PVAR_FILE_PATH):
 @log.log_on_entry
 def save_screen_map(litemap_path: Path | str = LITEMAP_PATH):
     litemap_path = _coerce_to_path(litemap_path)
+    litemap_path.mkdir(parents=True, exist_ok=True)
 
     logger.info("Saving %s currentchip.map" % litemap_path.as_posix())
     with open(litemap_path / "currentchip.map", "w") as f:
@@ -238,7 +243,10 @@ def save_screen_map(litemap_path: Path | str = LITEMAP_PATH):
 
 
 @log.log_on_entry
-def upload_parameters(chipid: str, litemap_path: Path | str = LITEMAP_PATH):
+def upload_parameters(
+    chipid: str = "oxford",
+    litemap_path: Path | str = LITEMAP_PATH,
+):
     logger.info("Uploading Parameters to the GeoBrick")
     if chipid == "oxford":
         caput(pv.me14e_gp1, 1)
@@ -291,7 +299,7 @@ def upload_full(fullmap_path: Path | str = FULLMAP_PATH):
 
 
 @log.log_on_entry
-def load_stock_map(map_choice: str):
+def load_stock_map(map_choice: str = "clear"):
     logger.info("Adjusting Lite Map EDM Screen")
     logger.debug("Please wait, adjusting lite map")
     #
@@ -579,7 +587,7 @@ def load_full_map(fullmap_path: Path | str = FULLMAP_PATH):
 
 
 @log.log_on_entry
-def moveto(place: str):
+def moveto(place: str = "origin"):
     logger.info("Move to: %s" % place)
     chip_type = int(caget(pv.me14e_gp1))
     logger.info("Chip type is%s" % chip_type)
@@ -711,7 +719,7 @@ def scrape_mtr_directions(param_path: Path | str = CS_FILES_PATH):
 
 
 @log.log_on_entry
-def fiducial(point: int, param_path: Path | str = PARAM_FILE_PATH_FT):
+def fiducial(point: int = 1, param_path: Path | str = CS_FILES_PATH):
     scale = 10000.0  # noqa: F841
     param_path = _coerce_to_path(param_path)
 
@@ -729,7 +737,7 @@ def fiducial(point: int, param_path: Path | str = PARAM_FILE_PATH_FT):
     f_y = rbv_2
     f_z = rbv_3
 
-    logger.info("Writing Fiducial File %sfiducial_%s.txt" % (param_path, point))
+    logger.info("Writing Fiducial File %s/fiducial_%s.txt" % (param_path, point))
     logger.info("MTR\tRBV\tRAW\tCorr\tf_value")
     logger.info("MTR1\t%1.4f\t%i\t%i\t%1.4f" % (rbv_1, raw_1, mtr1_dir, f_x))
     logger.info("MTR2\t%1.4f\t%i\t%i\t%1.4f" % (rbv_2, raw_2, mtr2_dir, f_y))
@@ -742,7 +750,7 @@ def fiducial(point: int, param_path: Path | str = PARAM_FILE_PATH_FT):
         f.write("MTR3\t%1.4f\t%i\t%i\t%1.4f" % (rbv_3, raw_3, mtr3_dir, f_z))
 
 
-def scrape_mtr_fiducials(point: int, param_path: Path | str = PARAM_FILE_PATH_FT):
+def scrape_mtr_fiducials(point: int, param_path: Path | str = CS_FILES_PATH):
     param_path = _coerce_to_path(param_path)
 
     with open(param_path / f"fiducial_{point}.txt", "r") as f:
@@ -951,16 +959,11 @@ def pumpprobe_calc():
     repeat3 = 6 * 20 * (movetime + (pumpexptime + exptime) / 2)
     repeat5 = 10 * 20 * (movetime + (pumpexptime + exptime) / 2)
     repeat10 = 20 * 20 * (movetime + (pumpexptime + exptime) / 2)
-    logger.info("repeat1: %s s" % round(repeat1, 4))
-    logger.info("repeat2: %s s" % round(repeat2, 4))
-    logger.info("repeat3: %s s" % round(repeat3, 4))
-    logger.info("repeat5: %s s" % round(repeat5, 4))
-    logger.info("repeat10: %s s" % round(repeat10, 4))
-    logger.info(pv.me14e_gp104, round(repeat1, 4))
-    logger.info(pv.me14e_gp105, round(repeat2, 4))
-    logger.info(pv.me14e_gp106, round(repeat3, 4))
-    logger.info(pv.me14e_gp107, round(repeat5, 4))
-    logger.info(pv.me14e_gp108, round(repeat10, 4))
+    logger.info("repeat1 (%s): %s s" % (pv.me14e_gp104, round(repeat1, 4)))
+    logger.info("repeat2 (%s): %s s" % (pv.me14e_gp105, round(repeat2, 4)))
+    logger.info("repeat3 (%s): %s s" % (pv.me14e_gp106, round(repeat3, 4)))
+    logger.info("repeat5 (%s): %s s" % (pv.me14e_gp107, round(repeat5, 4)))
+    logger.info("repeat10 (%s): %s s" % (pv.me14e_gp108, round(repeat10, 4)))
     logger.debug("PP calculations done")
 
 
@@ -998,9 +1001,8 @@ def block_check():
     logger.debug("Block check done")
 
 
-if __name__ == "__main__":
-    setup_logging()
-
+def parse_args_and_run_parsed_function(args):
+    print(f"Run with {args}")
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(
         help="Choose command.",
@@ -1047,5 +1049,14 @@ if __name__ == "__main__":
     parser_block = subparsers.add_parser("block_check")
     parser_block.set_defaults(func=block_check)
 
-    args = parser.parse_args()
-    args.func(args)
+    args = parser.parse_args(args)
+
+    args_dict = vars(args)
+    args_dict.pop("sub-command")
+    args_dict.pop("func")(**args_dict)
+
+
+if __name__ == "__main__":
+    setup_logging()
+
+    parse_args_and_run_parsed_function(sys.argv[1:])
