@@ -581,8 +581,8 @@ lineColor index 7
 fill
 fillColor index 7
 visPv "ME14E-MO-IOC-01:GP1"
-visMin "4"
-visMax "5"
+visMin "0"
+visMax "2"
 endObjectProperties
 
 # (Rectangle)
@@ -600,7 +600,7 @@ fill
 fillColor index 7
 visPv "ME14E-MO-IOC-01:GP1"
 visMin "0"
-visMax "6"
+visMax "2"
 endObjectProperties
 
 # (Static Text)
@@ -620,7 +620,7 @@ bgColor index 0
 useDisplayBg
 visPv "ME14E-MO-IOC-01:GP1"
 visMin "0"
-visMax "6"
+visMax "2"
 value {
   "Chip type MUST "
   "be set to "
@@ -729,8 +729,8 @@ lineColor index 7
 fill
 fillColor index 7
 visPv "ME14E-MO-IOC-01:GP1"
-visMin "7"
-visMax "12"
+visMin "0"
+visMax "2"
 endObjectProperties
 
 # (Static Text)
@@ -749,8 +749,8 @@ fgColor index 14
 bgColor index 0
 useDisplayBg
 visPv "ME14E-MO-IOC-01:GP1"
-visMin "7"
-visMax "12"
+visMin "0"
+visMax "2"
 value {
   "Chip type MUST"
   "be set to"
