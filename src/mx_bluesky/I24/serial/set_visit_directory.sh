@@ -1,8 +1,12 @@
 #!/bin/bash
 
 # Set visit directory for current experiment type
-visit=$1
-expt_type=${2:-FT}
+echo "Reading file /dls_sw/i24/etc/ssx_visit.txt"
+
+filename="/dls_sw/i24/etc/ssx_visit.txt"
+
+visit=$(sed -n '1p' $filename)
+expt_type=$(sed -n '2p' $filename)
 
 ex_pv=BL24I-EA-IOC-12:GP1
 ft_pv=ME14E-MO-IOC-01:GP100
@@ -20,5 +24,5 @@ then
     caput  $ex_pv $visit
     echo "Visit set to: $visit"
 else
-    echo "Unknown experiment type, visit PV not set."
+    echo -e "Unknown experiment type, visit PV not set. \nValid experiment values: fixed-target, extruder."
 fi
