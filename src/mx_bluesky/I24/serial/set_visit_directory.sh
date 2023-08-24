@@ -1,9 +1,8 @@
 #!/bin/bash
 
-# Set visit directory for current experiment type
-echo "Reading file /dls_sw/i24/etc/ssx_visit.txt"
-
-filename="/dls_sw/i24/etc/ssx_visit.txt"
+# Set visit directory for current experiment type from values stored in a file
+filename="/dls_sw/i24/etc/ssx_current_visit.txt"
+echo "Reading file: $filename"
 
 visit=$(sed -n '1p' $filename)
 expt_type=$(sed -n '2p' $filename)
