@@ -3,13 +3,29 @@
 # Set visit directory for current experiment type from values stored in a file
 filename="/dls_sw/i24/etc/ssx_current_visit.txt"
 
+display_help_msg() {
+    usage="./set_visit_directory.sh [expt_type]"
+    echo "USAGE: $usage"
+    echo "This script sets the visit directory for a serial crystallography experiment on I24."
+    echo "The current visit directory is saved in: $filename. Please modify this file to set a new visit."
+    echo "WARNING. The experiment type is set by default to fixed-target." 
+    echo "To set the directory for an extruder experiment please pass extruder as a command line argument." 
+}
+
+case "$1" in
+    -h | --help)
+        display_help_msg
+        exit 0
+        ;;
+esac
+
+
 if [[ ! -f "$filename" ]]; then
     echo "The file $filename does not exist. Impossible to set the visit directory."
     exit 1
 fi
 
-
-echo "Reading file: $filename"
+echo "Reading visit from file: $filename"
 
 visit=$(sed -n '1p' $filename)
 expt_type=${1:-FT}
