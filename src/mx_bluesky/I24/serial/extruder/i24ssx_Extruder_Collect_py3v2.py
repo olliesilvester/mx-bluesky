@@ -342,6 +342,7 @@ def run_extruderi24(args=None):
         call_nexgen(None, start_time, param_file_tuple, "extruder")
 
     aborted = False
+    timeout = time.time() + num_imgs * exp_time + 1
     while True:
         if int(caget(pv.ioc12_gp8)) == 0:  # ioc12_gp8 is the ABORT button
             caput(pv.zebra1_pc_arm, 1)
@@ -364,6 +365,18 @@ def run_extruderi24(args=None):
                     break
                 elif int(caget(pv.zebra1_pc_arm_out)) != 1:
                     logger.info("----> Zebra disarmed  <----")
+                    break
+                elif time.time() >= timeout:
+                    logger.warning(
+                        """
+                        Something went wrong and data collection timed out. Aborting.
+                    """
+                    )
+                    if det_type == "pilatus":
+                        caput(pv.pilat_acquire, 0)
+                    elif det_type == "eiger":
+                        caput(pv.eiger_acquire, 0)
+                    sleep(1.0)
                     break
         else:
             aborted = True

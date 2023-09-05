@@ -610,6 +610,7 @@ def main():
     logger.info("Data Collection running")
 
     aborted = False
+    timeout = time.time() + datasetsizei24() * exptime + 10
     while True:
         # me14e_gp9 is the ABORT button
         if int(caget(pv.me14e_gp9)) == 0:
@@ -630,6 +631,17 @@ def main():
                 elif int(caget(pv.me14e_scanstatus)) == 0:
                     print(caget(pv.me14e_scanstatus))
                     logger.warning("Data Collection Finished")
+                    break
+                elif time.time() >= timeout:
+                    aborted = True
+                    logger.warning(
+                        """
+                        Something went wrong and data collection timed out. Aborting.
+                        """
+                    )
+                    caput(pv.me14e_pmac_str, "A")
+                    sleep(1.0)
+                    caput(pv.me14e_pmac_str, "P2401=0")
                     break
         else:
             aborted = True
