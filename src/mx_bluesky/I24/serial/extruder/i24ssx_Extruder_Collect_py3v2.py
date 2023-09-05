@@ -342,7 +342,7 @@ def run_extruderi24(args=None):
         call_nexgen(None, start_time, param_file_tuple, "extruder")
 
     aborted = False
-    timeout = time.time() + num_imgs * exp_time + 1
+    timeout = time.time() + int(num_imgs) * float(exp_time) + 1
     while True:
         if int(caget(pv.ioc12_gp8)) == 0:  # ioc12_gp8 is the ABORT button
             caput(pv.zebra1_pc_arm, 1)

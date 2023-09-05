@@ -610,7 +610,7 @@ def main():
     logger.info("Data Collection running")
 
     aborted = False
-    timeout = time.time() + datasetsizei24() * exptime + 10
+    timeout = time.time() + datasetsizei24() * float(exptime) + 10
     while True:
         # me14e_gp9 is the ABORT button
         if int(caget(pv.me14e_gp9)) == 0:
