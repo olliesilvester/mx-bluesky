@@ -342,7 +342,7 @@ def run_extruderi24(args=None):
         call_nexgen(None, start_time, param_file_tuple, "extruder")
 
     aborted = False
-    timeout = time.time() + int(num_imgs) * float(exp_time) + 1
+    timeout_time = time.time() + int(num_imgs) * float(exp_time) + 10
     while True:
         if int(caget(pv.ioc12_gp8)) == 0:  # ioc12_gp8 is the ABORT button
             caput(pv.zebra1_pc_arm, 1)
@@ -364,9 +364,11 @@ def run_extruderi24(args=None):
                     sleep(1.0)
                     break
                 elif int(caget(pv.zebra1_pc_arm_out)) != 1:
+                    # As soon as the zebra1_pc_arm_out is not 1 anymore, exit.
+                    # Epics checks the geobrick and updates this PV once the collection is done.
                     logger.info("----> Zebra disarmed  <----")
                     break
-                elif time.time() >= timeout:
+                elif time.time() >= timeout_time:
                     logger.warning(
                         """
                         Something went wrong and data collection timed out. Aborting.

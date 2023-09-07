@@ -610,7 +610,7 @@ def main():
     logger.info("Data Collection running")
 
     aborted = False
-    timeout = time.time() + datasetsizei24() * float(exptime) + 10
+    timeout_time = time.time() + datasetsizei24() * float(exptime) + 60
     while True:
         # me14e_gp9 is the ABORT button
         if int(caget(pv.me14e_gp9)) == 0:
@@ -629,10 +629,13 @@ def main():
                     caput(pv.me14e_pmac_str, "P2401=0")
                     break
                 elif int(caget(pv.me14e_scanstatus)) == 0:
+                    # As soon as me14e_scanstatus is set to 0, exit.
+                    # Epics checks the geobrick and updates this PV every s or so.
+                    # Once the collection is done, it will be set to 0.
                     print(caget(pv.me14e_scanstatus))
                     logger.warning("Data Collection Finished")
                     break
-                elif time.time() >= timeout:
+                elif time.time() >= timeout_time:
                     aborted = True
                     logger.warning(
                         """
