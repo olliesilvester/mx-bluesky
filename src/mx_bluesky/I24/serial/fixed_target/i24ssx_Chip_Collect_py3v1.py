@@ -611,46 +611,44 @@ def main():
 
     aborted = False
     timeout_time = time.time() + datasetsizei24() * float(exptime) + 60
-    while True:
-        # me14e_gp9 is the ABORT button
-        if int(caget(pv.me14e_gp9)) == 0:
-            i = 0
-            text_list = ["|", "/", "-", "\\"]
-            while True:
-                line_of_text = "\r\t\t\t Waiting   " + 30 * ("%s" % text_list[i % 4])
-                flush_print(line_of_text)
-                sleep(0.5)
-                i += 1
-                if int(caget(pv.me14e_gp9)) != 0:
-                    aborted = True
-                    logger.warning("Data Collection Aborted")
-                    caput(pv.me14e_pmac_str, "A")
-                    sleep(1.0)
-                    caput(pv.me14e_pmac_str, "P2401=0")
-                    break
-                elif int(caget(pv.me14e_scanstatus)) == 0:
-                    # As soon as me14e_scanstatus is set to 0, exit.
-                    # Epics checks the geobrick and updates this PV every s or so.
-                    # Once the collection is done, it will be set to 0.
-                    print(caget(pv.me14e_scanstatus))
-                    logger.warning("Data Collection Finished")
-                    break
-                elif time.time() >= timeout_time:
-                    aborted = True
-                    logger.warning(
-                        """
-                        Something went wrong and data collection timed out. Aborting.
-                        """
-                    )
-                    caput(pv.me14e_pmac_str, "A")
-                    sleep(1.0)
-                    caput(pv.me14e_pmac_str, "P2401=0")
-                    break
-        else:
-            aborted = True
-            logger.info("Data Collection ended due to GP 9 not equalling 0")
-            break
-        break
+
+    # me14e_gp9 is the ABORT button
+    if int(caget(pv.me14e_gp9)) == 0:
+        i = 0
+        text_list = ["|", "/", "-", "\\"]
+        while True:
+            line_of_text = "\r\t\t\t Waiting   " + 30 * ("%s" % text_list[i % 4])
+            flush_print(line_of_text)
+            sleep(0.5)
+            i += 1
+            if int(caget(pv.me14e_gp9)) != 0:
+                aborted = True
+                logger.warning("Data Collection Aborted")
+                caput(pv.me14e_pmac_str, "A")
+                sleep(1.0)
+                caput(pv.me14e_pmac_str, "P2401=0")
+                break
+            elif int(caget(pv.me14e_scanstatus)) == 0:
+                # As soon as me14e_scanstatus is set to 0, exit.
+                # Epics checks the geobrick and updates this PV every s or so.
+                # Once the collection is done, it will be set to 0.
+                print(caget(pv.me14e_scanstatus))
+                logger.warning("Data Collection Finished")
+                break
+            elif time.time() >= timeout_time:
+                aborted = True
+                logger.warning(
+                    """
+                    Something went wrong and data collection timed out. Aborting.
+                    """
+                )
+                caput(pv.me14e_pmac_str, "A")
+                sleep(1.0)
+                caput(pv.me14e_pmac_str, "P2401=0")
+                break
+    else:
+        aborted = True
+        logger.info("Data Collection ended due to GP 9 not equalling 0")
 
     logger.debug("Closing fast shutter")
     caput(pv.zebra1_soft_in_b1, "No")  # Close the fast shutter

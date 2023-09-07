@@ -343,48 +343,46 @@ def run_extruderi24(args=None):
 
     aborted = False
     timeout_time = time.time() + int(num_imgs) * float(exp_time) + 10
-    while True:
-        if int(caget(pv.ioc12_gp8)) == 0:  # ioc12_gp8 is the ABORT button
-            caput(pv.zebra1_pc_arm, 1)
-            sleep(gate_start)
-            i = 0
-            text_list = ["|", "/", "-", "\\"]
-            while True:
-                line_of_text = "\r\t\t\t Waiting   " + 30 * ("%s" % text_list[i % 4])
-                flush_print(line_of_text)
-                sleep(0.5)
-                i += 1
-                if int(caget(pv.ioc12_gp8)) != 0:
-                    aborted = True
-                    logger.warning("Data Collection Aborted")
-                    if det_type == "pilatus":
-                        caput(pv.pilat_acquire, 0)
-                    elif det_type == "eiger":
-                        caput(pv.eiger_acquire, 0)
-                    sleep(1.0)
-                    break
-                elif int(caget(pv.zebra1_pc_arm_out)) != 1:
-                    # As soon as the zebra1_pc_arm_out is not 1 anymore, exit.
-                    # Epics checks the geobrick and updates this PV once the collection is done.
-                    logger.info("----> Zebra disarmed  <----")
-                    break
-                elif time.time() >= timeout_time:
-                    logger.warning(
-                        """
-                        Something went wrong and data collection timed out. Aborting.
+
+    if int(caget(pv.ioc12_gp8)) == 0:  # ioc12_gp8 is the ABORT button
+        caput(pv.zebra1_pc_arm, 1)
+        sleep(gate_start)
+        i = 0
+        text_list = ["|", "/", "-", "\\"]
+        while True:
+            line_of_text = "\r\t\t\t Waiting   " + 30 * ("%s" % text_list[i % 4])
+            flush_print(line_of_text)
+            sleep(0.5)
+            i += 1
+            if int(caget(pv.ioc12_gp8)) != 0:
+                aborted = True
+                logger.warning("Data Collection Aborted")
+                if det_type == "pilatus":
+                    caput(pv.pilat_acquire, 0)
+                elif det_type == "eiger":
+                    caput(pv.eiger_acquire, 0)
+                sleep(1.0)
+                break
+            elif int(caget(pv.zebra1_pc_arm_out)) != 1:
+                # As soon as the zebra1_pc_arm_out is not 1 anymore, exit.
+                # Epics checks the geobrick and updates this PV once the collection is done.
+                logger.info("----> Zebra disarmed  <----")
+                break
+            elif time.time() >= timeout_time:
+                logger.warning(
                     """
-                    )
-                    if det_type == "pilatus":
-                        caput(pv.pilat_acquire, 0)
-                    elif det_type == "eiger":
-                        caput(pv.eiger_acquire, 0)
-                    sleep(1.0)
-                    break
-        else:
-            aborted = True
-            logger.warning("Data Collection ended due to GP 8 not equalling 0")
-            break
-        break
+                    Something went wrong and data collection timed out. Aborting.
+                """
+                )
+                if det_type == "pilatus":
+                    caput(pv.pilat_acquire, 0)
+                elif det_type == "eiger":
+                    caput(pv.eiger_acquire, 0)
+                sleep(1.0)
+                break
+    else:
+        aborted = True
+        logger.warning("Data Collection ended due to GP 8 not equalling 0")
 
     caput(pv.ioc12_gp8, 1)
     logger.info("Fast shutter closing")
