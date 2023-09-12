@@ -249,7 +249,7 @@ def upload_parameters(
 ):
     logger.info("Uploading Parameters to the GeoBrick")
     if chipid == "oxford":
-        caput(pv.me14e_gp1, 1)
+        caput(pv.me14e_gp1, 0)
         width = 8
     litemap_path = _coerce_to_path(litemap_path)
 
