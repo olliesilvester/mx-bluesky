@@ -794,17 +794,10 @@ def cs_maker():
     """
     chip_type = int(caget(pv.me14e_gp1))
     fiducial_dict = {}
-    fiducial_dict[0] = [18.975, 21.375]
-    fiducial_dict[1] = [25.400, 25.400]
-    fiducial_dict[2] = [24.968, 24.968]
-    fiducial_dict[3] = [24.600, 24.600]
-    fiducial_dict[4] = [27.500, 27.500]
-    fiducial_dict[5] = [17.175, 17.175]
-    fiducial_dict[6] = [25.400, 25.400]
-    fiducial_dict[7] = [19.135, 9.635]
-    fiducial_dict[8] = [19.525, 9.335]
-    fiducial_dict[9] = [2.375, 2.375]
-    fiducial_dict[10] = [18.25, 18.25]
+    fiducial_dict[0] = [25.400, 25.400]
+    fiducial_dict[1] = [24.600, 24.600]
+    fiducial_dict[2] = [25.400, 25.400]
+    fiducial_dict[3] = [18.25, 18.25]
     logger.info("Chip type is %s with size %s" % (chip_type, fiducial_dict[chip_type]))
 
     mtr1_dir, mtr2_dir, mtr3_dir = scrape_mtr_directions()
