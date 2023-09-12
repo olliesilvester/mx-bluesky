@@ -23,7 +23,7 @@ def onMouse(event, x, y, flags, param):
     if event == cv.EVENT_LBUTTONUP:
         logger.info("Clicked X and Y %s %s" % (x, y))
         xmove = -1 * (beamX - x) * zoomcalibrator
-        ymove = -1 * (beamY - y) * zoomcalibrator
+        ymove = 1 * (beamY - y) * zoomcalibrator
         logger.info("Moving X and Y %s %s" % (xmove, ymove))
         xmovepmacstring = "#1J:" + str(xmove)
         ymovepmacstring = "#2J:" + str(ymove)
@@ -37,7 +37,7 @@ if __name__ == "__main__":
 
     # Create window named OAV1view and set onmouse to this
     cv.namedWindow("OAV1view")
-    # FIXME
+    # FIXME this goes in the wrong direction
     cv.setMouseCallback("OAV1view", onMouse)  # type: ignore
 
     logger.info("Showing camera feed. Press escape to close")
