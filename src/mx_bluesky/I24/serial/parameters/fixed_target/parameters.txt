@@ -1,6 +1,6 @@
 visit 		/dls/i24/data/2023/cm33852-4/
-chip_name 	test2-
-protein_name 	test2_20230912/
+chip_name 	beta
+protein_name 	test2_20230912/test2
 n_exposures 	1
 chip_type 	0
 map_type 	1
