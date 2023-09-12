@@ -166,8 +166,9 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
     logger.info("prepumpexptime: %s" % prepumpexptime)
     logger.info("detector type: %s" % det_type)
 
-    logger.debug("Running start up now.")
-    startup.run()
+    if map_type == "2":
+        logger.debug("Running start up now.")
+        startup.run()
 
 
 def scrape_pvar_file(fid: str, pvar_dir: Path | str = PVAR_FILE_PATH):
