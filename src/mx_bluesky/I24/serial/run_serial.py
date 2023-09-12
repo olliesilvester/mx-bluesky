@@ -41,7 +41,7 @@ def run_fixed_target():
     loc = get_location()
     logger.info(f"Running on {loc}.")
     edm_path = get_edm_path()
-    logger.info("Starting extruder edm screen...")
+    logger.info("Starting fixed target edm screen...")
     subprocess.run(
         [
             "edm",
