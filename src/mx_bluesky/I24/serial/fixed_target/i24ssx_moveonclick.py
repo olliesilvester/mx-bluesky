@@ -24,7 +24,7 @@ def onMouse(event, x, y, flags, param):
         logger.info("Clicked X and Y %s %s" % (x, y))
         xmove = -1 * (beamX - x) * zoomcalibrator
         ymove = -1 * (beamY - y) * zoomcalibrator
-        logger.info("Moving X and Y %s %s" % xmove, ymove)
+        logger.info("Moving X and Y %s %s" % (xmove, ymove))
         xmovepmacstring = "#1J:" + str(xmove)
         ymovepmacstring = "#2J:" + str(ymove)
         caput(pv.me14e_pmac_str, xmovepmacstring)
