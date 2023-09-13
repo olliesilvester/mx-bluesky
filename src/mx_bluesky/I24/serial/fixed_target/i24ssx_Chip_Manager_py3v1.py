@@ -39,7 +39,7 @@ def _coerce_to_path(path: Path | str) -> Path:
 
 def setup_logging():
     # Log should now change name daily.
-    logfile = time.strftime("i24_%Y_%m_%d.log").lower()
+    logfile = time.strftime("i24fixedtarget_%d%B%y.log").lower()
     log.config(logfile)
 
 
