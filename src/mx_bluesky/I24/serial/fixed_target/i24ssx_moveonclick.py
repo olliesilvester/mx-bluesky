@@ -37,7 +37,6 @@ if __name__ == "__main__":
 
     # Create window named OAV1view and set onmouse to this
     cv.namedWindow("OAV1view")
-    # FIXME this goes in the wrong direction
     cv.setMouseCallback("OAV1view", onMouse)  # type: ignore
 
     logger.info("Showing camera feed. Press escape to close")
