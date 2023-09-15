@@ -167,6 +167,8 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
     logger.info("detector type: %s" % det_type)
 
     if map_type == "2":
+        # This step creates some header files (.addr, .spec), containing the parameters,
+        # that are only needed when full mapping is in use.
         logger.debug("Running start up now.")
         startup.run()
 
