@@ -12,8 +12,9 @@ from mx_bluesky.I24.serial.setup_beamline import caput, pv
 logger = logging.getLogger("I24ssx.moveonclick")
 
 # Set beam position and scale.
-beamX = 577
-beamY = 409
+# TODO grab these from somewhere else, no hard coding!
+beamX = 599  # 577
+beamY = 388  # 409
 zoomcalibrator = 6  # 8 seems to work well for zoom 2
 
 
@@ -22,8 +23,8 @@ def onMouse(event, x, y, flags, param):
     if event == cv.EVENT_LBUTTONUP:
         logger.info("Clicked X and Y %s %s" % (x, y))
         xmove = -1 * (beamX - x) * zoomcalibrator
-        ymove = -1 * (beamY - y) * zoomcalibrator
-        logger.info("Moving X and Y %s %s" % xmove, ymove)
+        ymove = 1 * (beamY - y) * zoomcalibrator
+        logger.info("Moving X and Y %s %s" % (xmove, ymove))
         xmovepmacstring = "#1J:" + str(xmove)
         ymovepmacstring = "#2J:" + str(ymove)
         caput(pv.me14e_pmac_str, xmovepmacstring)
