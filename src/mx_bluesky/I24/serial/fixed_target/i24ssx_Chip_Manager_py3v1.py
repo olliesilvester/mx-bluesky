@@ -744,7 +744,7 @@ def fiducial(point: int = 1, param_path: Path | str = CS_FILES_PATH):
     logger.info("MTR\tRBV\tRAW\tCorr\tf_value")
     logger.info("MTR1\t%1.4f\t%i\t%i\t%1.4f" % (rbv_1, raw_1, mtr1_dir, f_x))
     logger.info("MTR2\t%1.4f\t%i\t%i\t%1.4f" % (rbv_2, raw_2, mtr2_dir, f_y))
-    logger.info("MTR3\t%1.4f\t%i\t%i\t%1.4f" % (rbv_3, raw_3, mtr3_dir, f_y))
+    logger.info("MTR3\t%1.4f\t%i\t%i\t%1.4f" % (rbv_3, raw_3, mtr3_dir, f_z))
 
     with open(param_path / f"fiducial_{point}.txt", "w") as f:
         f.write("MTR\tRBV\tRAW\tCorr\tf_value\n")
