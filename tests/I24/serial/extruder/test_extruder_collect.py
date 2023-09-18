@@ -97,6 +97,11 @@ def test_moveto_laseroff_for_pilatus(fake_caget, fake_caput, dummy_parser):
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sup")
-def test_run_extruder(fake_sup, fake_caget, fake_caput, fake_nexgen, fake_dcid):
+def test_run_extruder_with_eiger(
+    fake_sup, fake_caget, fake_caput, fake_nexgen, fake_dcid
+):
     run_extruderi24()
     assert fake_nexgen.call_count == 1
+    assert fake_dcid.call_count == 1
+    # Check temporary piilatus hack is in there
+    assert fake_sup.pilatus.call_count == 2

@@ -278,6 +278,24 @@ def run_extruderi24(args=None):
             sup.zebra1("quickshot", [gate_start, gate_width])
 
     elif det_type == "eiger":
+        logger.info("Using Eiger detector")
+
+        logger.warning(
+            """TEMPORARY HACK!
+            Running a Single image pilatus data collection to create directory."""
+        )
+        num_imgs = 1
+        sup.pilatus("quickshot-internaltrig", [filepath, filename, num_imgs, exp_time])
+        logger.debug("Sleep 2s waiting for pilatus to arm")
+        sleep(2)
+        sleep(0.5)
+        caput(pv.pilat_acquire, "0")  # Disarm pilatus
+        sleep(0.5)
+        caput(pv.pilat_acquire, "1")  # Arm pilatus
+        logger.debug("Pilatus data collection DONE")
+        sup.pilatus("return to normal")
+        logger.info("Pilatus back to normal. Single image pilatus data collection DONE")
+
         caput(pv.eiger_seqID, int(caget(pv.eiger_seqID)) + 1)
         logger.info("Eiger quickshot setup: filepath %s" % filepath)
         logger.info("Eiger quickshot setup: filepath %s" % filename)
