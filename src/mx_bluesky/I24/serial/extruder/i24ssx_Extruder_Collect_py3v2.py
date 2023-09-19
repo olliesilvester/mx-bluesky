@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import re
 import sys
 import time
 from datetime import datetime
@@ -113,9 +114,9 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH):
 
     # If file name ends in a digit this causes processing/pilatus pain.
     # Append an underscore
-    numbers = ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
     if det_type == "pilatus":
-        if filename.endswith(numbers):
+        m = re.search(r"\d+$", filename)
+        if m is not None:
             # Note for future reference. Appending underscore causes more hassle and
             # high probability of users accidentally overwriting data. Use a dash
             filename = filename + "-"

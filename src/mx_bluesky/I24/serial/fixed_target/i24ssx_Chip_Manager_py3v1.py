@@ -7,6 +7,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import re
 import shutil
 import sys
 import time
@@ -125,16 +126,20 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
     map_type = caget(pv.me14e_gp2)
     chip_type = caget(pv.me14e_gp1)
     det_type = caget(pv.me14e_gp101)
+
+    # If file name ends in a digit this causes processing/pilatus pain.
+    # Append an underscore
     if det_type == "pilatus":
         caput(pv.pilat_cbftemplate, 0)
-        numbers = ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
-        if filename.endswith(numbers):
+        m = re.search(r"\d+$", filename)
+        if m is not None:
             # Note for future reference. Appending underscore causes more hassle and
             # high probability of users accidentally overwriting data. Use a dash
             filename = filename + "-"
-            logger.warning(
+            logger.info(
                 "Requested filename ends in a number. Appended dash: %s" % filename
             )
+
     # historical - use chip_name instead of filename
     chip_name = filename
 
