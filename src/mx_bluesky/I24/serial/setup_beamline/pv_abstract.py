@@ -48,7 +48,9 @@ class Eiger:
         round(a * b, 3) for a, b in zip(image_size_pixels, pixel_size_mm)
     )
 
-    det_y_threshold = 200.0
+    det_y_threshold = 200.0  # FIXME
+    # Note. On beamline this is on -22 for eiger, needs to be double
+    # checked in GDA and fixed
     det_y_target = 220.0
 
     class pv:
