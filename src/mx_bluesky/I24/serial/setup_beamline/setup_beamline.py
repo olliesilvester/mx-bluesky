@@ -14,8 +14,7 @@ class UnknownDetectorType(Exception):
 
 def get_detector_type() -> Detector:
     det_y = caget(pv.det_y)
-    if float(det_y) >= Eiger.det_y_threshold:
-        # Set to >= to trick it till threshold value is fixed
+    if float(det_y) < Eiger.det_y_threshold:
         logger.info("Eiger detector in use.")
         return Eiger()
     elif float(det_y) > Pilatus.det_y_threshold:
