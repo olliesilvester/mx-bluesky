@@ -1,12 +1,12 @@
 visit 		/dls/i24/data/2023/cm33852-4/
 chip_name 	blank
-protein_name 	test_20230919/quattro
-n_exposures 	1
+protein_name 	test_20230919/pp-run3
+n_exposures 	5
 chip_type 	0
 map_type 	1
-pump_repeat 	0
-pumpexptime 	0
-pumpdelay 	0
+pump_repeat 	2
+pumpexptime 	0.005
+pumpdelay 	0.015
 prepumpexptime 	0
 exptime 	0.01
 dcdetdist 	1320

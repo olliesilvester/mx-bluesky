@@ -78,7 +78,7 @@ edm_serial/
 # or created during collection
 **/parameters/*.json
 **/parameters/*.txt
-**/parameters/fixed-target/*.txt
-**/parameters/fixed-target/cs/fiducial_*.txt
-**/parameters/fixed-target/*.json
-**/parameters/fixed-target/**/*.map
+**/parameters/fixed_target/*.txt
+**/parameters/fixed_target/cs/fiducial_*.txt
+**/parameters/fixed_target/*.json
+**/parameters/fixed_target/**/*.map
