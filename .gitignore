@@ -77,7 +77,8 @@ edm_serial/
 # Parameter files that could be modified by hand by scientists
 # or created during collection
 **/parameters/*.json
+**/parameters/*.txt
 **/parameters/fixed-target/*.txt
-**/parameters/fixed-target/cs/fiducials_*.txt
+**/parameters/fixed-target/cs/fiducial_*.txt
 **/parameters/fixed-target/*.json
-**/parameters/fixed-target/*/*.map
+**/parameters/fixed-target/**/*.map

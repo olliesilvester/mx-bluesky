@@ -1,5 +1,5 @@
 01status    P3011 	1
-02status    P3021 	0
+02status    P3021 	1
 03status    P3031 	0
 04status    P3041 	0
 05status    P3051 	0
@@ -12,8 +12,8 @@
 12status    P3121 	0
 13status    P3131 	0
 14status    P3141 	0
-15status    P3151 	0
-16status    P3161 	0
+15status    P3151 	1
+16status    P3161 	1
 17status    P3171 	0
 18status    P3181 	0
 19status    P3191 	0
