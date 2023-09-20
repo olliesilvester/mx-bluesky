@@ -284,7 +284,7 @@ def run_extruderi24(args=None):
         logger.warning(
             """TEMPORARY HACK!
             Running a Single image pilatus data collection to create directory."""
-        )
+        )  # See https://github.com/DiamondLightSource/mx_bluesky/issues/45
         num_shots = 1
         sup.pilatus("quickshot-internaltrig", [filepath, filename, num_shots, exp_time])
         logger.debug("Sleep 2s waiting for pilatus to arm")
