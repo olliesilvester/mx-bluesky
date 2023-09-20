@@ -960,15 +960,14 @@ def pumpprobe_calc():
     repeat3 = 6 * 20 * (movetime + (pumpexptime + exptime) / 2)
     repeat5 = 10 * 20 * (movetime + (pumpexptime + exptime) / 2)
     repeat10 = 20 * 20 * (movetime + (pumpexptime + exptime) / 2)
-    caput(pv.me14e_gp104, round(repeat1, 4))
-    logger.info("repeat1 (%s): %s s" % (pv.me14e_gp104, round(repeat1, 4)))
-    caput(pv.me14e_gp105, round(repeat2, 4))
-    logger.info("repeat2 (%s): %s s" % (pv.me14e_gp105, round(repeat2, 4)))
-    caput(pv.me14e_gp106, round(repeat3, 4))
-    logger.info("repeat3 (%s): %s s" % (pv.me14e_gp106, round(repeat3, 4)))
-    caput(pv.me14e_gp107, round(repeat5, 4))
-    logger.info("repeat5 (%s): %s s" % (pv.me14e_gp107, round(repeat5, 4)))
-    caput(pv.me14e_gp108, round(repeat10, 4))
+    for pv, repeat in (
+        (pv.me14e_gp104, repeat1),
+        (pv.me14e_gp105, repeat2),
+        ...
+    ):
+        rounded = round(repeat, 4)
+        caput(pv, rounded)
+        logger.info(..., pv, rounded)
     logger.info("repeat10 (%s): %s s" % (pv.me14e_gp108, round(repeat10, 4)))
     logger.debug("PP calculations done")
 
