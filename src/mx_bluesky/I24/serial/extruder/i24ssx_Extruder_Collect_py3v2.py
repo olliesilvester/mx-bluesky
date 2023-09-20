@@ -288,8 +288,7 @@ def run_extruderi24(args=None):
         num_imgs = 1
         sup.pilatus("quickshot-internaltrig", [filepath, filename, num_imgs, exp_time])
         logger.debug("Sleep 2s waiting for pilatus to arm")
-        sleep(2)
-        sleep(0.5)
+        sleep(2.5)
         caput(pv.pilat_acquire, "0")  # Disarm pilatus
         sleep(0.5)
         caput(pv.pilat_acquire, "1")  # Arm pilatus
