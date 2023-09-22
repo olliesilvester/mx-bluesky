@@ -1,5 +1,5 @@
 import json
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import ANY, MagicMock, call, mock_open, patch
 
 import pytest
 
@@ -178,3 +178,12 @@ def test_pumpprobe_calc(fake_caget, fake_caput):
     pumpprobe_calc()
     assert fake_caget.call_count == 2
     assert fake_caput.call_count == 5
+    fake_caput.assert_has_calls(
+        [
+            call(ANY, 0.62),
+            call(ANY, 1.24),
+            call(ANY, 1.86),
+            call(ANY, 3.1),
+            call(ANY, 6.2),
+        ]
+    )
