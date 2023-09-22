@@ -2125,7 +2125,7 @@ offColor index 16
 topShadowColor index 7
 botShadowColor index 7
 controlPv "ME14E-MO-CHIP-01:PMAC_STRING"
-pressValue "#2J:-10"
+pressValue "#2J:10"
 releaseValue "#2P"
 3d
 font "helvetica-medium-r-18.0"
@@ -2237,7 +2237,7 @@ offColor index 16
 topShadowColor index 7
 botShadowColor index 7
 controlPv "ME14E-MO-CHIP-01:PMAC_STRING"
-pressValue "#2J:-60"
+pressValue "#2J:60"
 releaseValue "#2P"
 offLabel "-3"
 3d
@@ -2260,7 +2260,7 @@ offColor index 16
 topShadowColor index 7
 botShadowColor index 7
 controlPv "ME14E-MO-CHIP-01:PMAC_STRING"
-pressValue "#2J:60"
+pressValue "#2J:-60"
 releaseValue "#2P"
 offLabel "+3"
 3d
@@ -2283,7 +2283,7 @@ offColor index 16
 topShadowColor index 7
 botShadowColor index 7
 controlPv "ME14E-MO-CHIP-01:PMAC_STRING"
-pressValue "#2J:10"
+pressValue "#2J:-10"
 releaseValue "#2P"
 3d
 font "helvetica-medium-r-18.0"
@@ -2305,7 +2305,7 @@ offColor index 19
 topShadowColor index 7
 botShadowColor index 7
 controlPv "ME14E-MO-CHIP-01:PMAC_STRING"
-pressValue "#2J:31750"
+pressValue "#2J:-31750"
 releaseValue "#2P"
 onLabel "Y+Y"
 offLabel "+Y+"
@@ -2377,7 +2377,7 @@ offColor index 19
 topShadowColor index 7
 botShadowColor index 7
 controlPv "ME14E-MO-CHIP-01:PMAC_STRING"
-pressValue "#2J:-31750"
+pressValue "#2J:31750"
 releaseValue "#2P"
 onLabel "Y-Y"
 offLabel "-Y-"
@@ -2493,7 +2493,7 @@ offColor index 17
 topShadowColor index 7
 botShadowColor index 7
 controlPv "ME14E-MO-CHIP-01:PMAC_STRING"
-pressValue "#2J:-3750"
+pressValue "#2J:3750"
 releaseValue "#2P"
 offLabel "-3"
 3d
@@ -2516,7 +2516,7 @@ offColor index 17
 topShadowColor index 7
 botShadowColor index 7
 controlPv "ME14E-MO-CHIP-01:PMAC_STRING"
-pressValue "#2J:-1250"
+pressValue "#2J:1250"
 releaseValue "#2P"
 offLabel "-1"
 3d
@@ -2539,7 +2539,7 @@ offColor index 17
 topShadowColor index 7
 botShadowColor index 7
 controlPv "ME14E-MO-CHIP-01:PMAC_STRING"
-pressValue "#2J:3750"
+pressValue "#2J:-3750"
 releaseValue "#2P"
 offLabel "+3"
 3d
@@ -2562,7 +2562,7 @@ offColor index 17
 topShadowColor index 7
 botShadowColor index 7
 controlPv "ME14E-MO-CHIP-01:PMAC_STRING"
-pressValue "#2J:1250"
+pressValue "#2J:-1250"
 releaseValue "#2P"
 offLabel "+1"
 3d

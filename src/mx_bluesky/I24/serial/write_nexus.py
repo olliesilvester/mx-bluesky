@@ -12,13 +12,13 @@ def call_nexgen(
     chip_prog_dict,
     start_time,
     param_file_tuple,
-    expt_type="fixed_target",
+    expt_type="fixed-target",
     total_numb_imgs=None,
 ):
     det_type = str(caget(pv.me14e_gp101))
     print(f"det_type: {det_type}")
 
-    if expt_type == "fixed_target":
+    if expt_type == "fixed-target":
         (
             chip_name,
             visit,

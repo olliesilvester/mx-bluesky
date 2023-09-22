@@ -7,6 +7,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import re
 import shutil
 import sys
 import time
@@ -125,16 +126,20 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
     map_type = caget(pv.me14e_gp2)
     chip_type = caget(pv.me14e_gp1)
     det_type = caget(pv.me14e_gp101)
+
+    # If file name ends in a digit this causes processing/pilatus pain.
+    # Append an underscore
     if det_type == "pilatus":
         caput(pv.pilat_cbftemplate, 0)
-        numbers = ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
-        if filename.endswith(numbers):
+        m = re.search(r"\d+$", filename)
+        if m is not None:
             # Note for future reference. Appending underscore causes more hassle and
             # high probability of users accidentally overwriting data. Use a dash
             filename = filename + "-"
-            logger.warning(
+            logger.info(
                 "Requested filename ends in a number. Appended dash: %s" % filename
             )
+
     # historical - use chip_name instead of filename
     chip_name = filename
 
@@ -744,7 +749,7 @@ def fiducial(point: int = 1, param_path: Path | str = CS_FILES_PATH):
     logger.info("MTR\tRBV\tRAW\tCorr\tf_value")
     logger.info("MTR1\t%1.4f\t%i\t%i\t%1.4f" % (rbv_1, raw_1, mtr1_dir, f_x))
     logger.info("MTR2\t%1.4f\t%i\t%i\t%1.4f" % (rbv_2, raw_2, mtr2_dir, f_y))
-    logger.info("MTR3\t%1.4f\t%i\t%i\t%1.4f" % (rbv_3, raw_3, mtr3_dir, f_y))
+    logger.info("MTR3\t%1.4f\t%i\t%i\t%1.4f" % (rbv_3, raw_3, mtr3_dir, f_z))
 
     with open(param_path / f"fiducial_{point}.txt", "w") as f:
         f.write("MTR\tRBV\tRAW\tCorr\tf_value\n")
@@ -955,11 +960,17 @@ def pumpprobe_calc():
     repeat3 = 6 * 20 * (movetime + (pumpexptime + exptime) / 2)
     repeat5 = 10 * 20 * (movetime + (pumpexptime + exptime) / 2)
     repeat10 = 20 * 20 * (movetime + (pumpexptime + exptime) / 2)
-    logger.info("repeat1 (%s): %s s" % (pv.me14e_gp104, round(repeat1, 4)))
-    logger.info("repeat2 (%s): %s s" % (pv.me14e_gp105, round(repeat2, 4)))
-    logger.info("repeat3 (%s): %s s" % (pv.me14e_gp106, round(repeat3, 4)))
-    logger.info("repeat5 (%s): %s s" % (pv.me14e_gp107, round(repeat5, 4)))
-    logger.info("repeat10 (%s): %s s" % (pv.me14e_gp108, round(repeat10, 4)))
+    for pv_name, repeat in (
+        (pv.me14e_gp104, repeat1),
+        (pv.me14e_gp105, repeat2),
+        (pv.me14e_gp106, repeat3),
+        (pv.me14e_gp107, repeat5),
+        (pv.me14e_gp108, repeat10),
+    ):
+        rounded = round(repeat, 4)
+        caput(pv_name, rounded)
+        logger.info("Repeat (%s): %s s" % (pv_name, rounded))
+    # logger.info("repeat10 (%s): %s s" % (pv.me14e_gp108, round(repeat10, 4)))
     logger.debug("PP calculations done")
 
 

@@ -22,8 +22,8 @@ class Pilatus:
         round(a * b, 3) for a, b in zip(image_size_pixels, pixel_size_mm)
     )
 
-    det_y_threshold = 50.0
-    det_y_target = 0.0
+    det_y_threshold = 560.0
+    det_y_target = 566.0
 
     class pv:
         detector_distance = pv.pilat_detdist
@@ -48,8 +48,8 @@ class Eiger:
         round(a * b, 3) for a, b in zip(image_size_pixels, pixel_size_mm)
     )
 
-    det_y_threshold = 200.0
-    det_y_target = 220.0
+    det_y_threshold = -10.0
+    det_y_target = -22.0
 
     class pv:
         detector_distance = pv.eiger_detdist
