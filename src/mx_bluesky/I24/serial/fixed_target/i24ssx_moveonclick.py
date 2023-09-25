@@ -3,10 +3,13 @@ Move on click gui for fixed targets at I24
 Robin Owen 12 Jan 2021
 """
 import logging
+from typing import Dict
 
 import cv2 as cv
+from dodal.devices.oav.oav_parameters import OAVParameters
 
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_Manager_py3v1 as manager
+from mx_bluesky.I24.serial.parameters.constants import OAV_CONFIG_FILES
 from mx_bluesky.I24.serial.setup_beamline import caput, pv
 
 logger = logging.getLogger("I24ssx.moveonclick")
@@ -16,6 +19,19 @@ logger = logging.getLogger("I24ssx.moveonclick")
 beamX = 599  # 577
 beamY = 388  # 409
 zoomcalibrator = 6  # 8 seems to work well for zoom 2
+
+
+def get_beam_centre(oav_config: Dict[str, str] = OAV_CONFIG_FILES):
+    """Extract the beam centre x/y positions from the display.configuration file.
+
+    Args:
+        oav_config:
+    """
+    # I think context might be xraycentering  or PinTip here, but need to double check
+    oav_params = OAVParameters("xrayCentring")
+    beamX, beamY = (oav_params.beam_centre_x, oav_params.beam_centre_y)
+    # etc etc
+    return beamX, beamY
 
 
 # Register clicks and move chip stages
