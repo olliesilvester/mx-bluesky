@@ -5,9 +5,9 @@ Robin Owen 12 Jan 2021
 import logging
 from typing import Dict, Tuple
 
+import bluesky.plan_stubs as bps
 import cv2 as cv
-
-# from dodal.beamlines import i24
+from dodal.beamlines import i24
 from dodal.devices.oav.oav_parameters import OAVParameters
 
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_Manager_py3v1 as manager
@@ -29,9 +29,15 @@ def get_beam_centre(oav_config: Dict[str, str] = OAV_CONFIG_FILES) -> Tuple[int,
     Args:
         oav_config (dict, optional): Dictionary of file locations for oav config.
     """
+
+    def read_zoom_level():
+        oav = i24.oav()
+        zoom_level = yield from bps.rd(oav.zoom_controller.level)
+        return float(zoom_level)
+
     # Use xraycentering as context, not super relevant here.
     oav_params = OAVParameters("xrayCentring", **oav_config)
-    oav_params.zoom = 1.0
+    oav_params.zoom = read_zoom_level()
     beamX, beamY = (oav_params.beam_centre_i, oav_params.beam_centre_j)
     return beamX, beamY
 
