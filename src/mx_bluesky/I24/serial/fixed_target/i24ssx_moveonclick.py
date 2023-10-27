@@ -3,9 +3,11 @@ Move on click gui for fixed targets at I24
 Robin Owen 12 Jan 2021
 """
 import logging
-from typing import Dict
+from typing import Dict, Tuple
 
 import cv2 as cv
+
+# from dodal.beamlines import i24
 from dodal.devices.oav.oav_parameters import OAVParameters
 
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_Manager_py3v1 as manager
@@ -21,16 +23,16 @@ beamY = 388  # 409
 zoomcalibrator = 6  # 8 seems to work well for zoom 2
 
 
-def get_beam_centre(oav_config: Dict[str, str] = OAV_CONFIG_FILES):
+def get_beam_centre(oav_config: Dict[str, str] = OAV_CONFIG_FILES) -> Tuple[int, int]:
     """Extract the beam centre x/y positions from the display.configuration file.
 
     Args:
-        oav_config:
+        oav_config (dict, optional): Dictionary of file locations for oav config.
     """
-    # I think context might be xraycentering  or PinTip here, but need to double check
-    oav_params = OAVParameters("xrayCentring")
-    beamX, beamY = (oav_params.beam_centre_x, oav_params.beam_centre_y)
-    # etc etc
+    # Use xraycentering as context, not super relevant here.
+    oav_params = OAVParameters("xrayCentring", **oav_config)
+    oav_params.zoom = 1.0
+    beamX, beamY = (oav_params.beam_centre_i, oav_params.beam_centre_j)
     return beamX, beamY
 
 
