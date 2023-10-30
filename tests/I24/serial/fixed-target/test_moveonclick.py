@@ -1,17 +1,13 @@
-from typing import Dict
-
-# from unittest.mock import patch
 import pytest
+from bluesky.run_engine import RunEngine
 from dodal.beamlines import i24
 from dodal.devices.oav.oav_detector import OAV
+from dodal.devices.oav.oav_parameters import OAVParameters
 
-from mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick import get_beam_centre
-
-# @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick.caput")
-# def test_onMouse(fake_caput):
-#    with patch("mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick.cv"):
-#        onMouse(4, 0, 0, "", "")
-#    assert fake_caput.call_count == 2
+from mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick import (
+    _get_beam_centre,
+    _read_zoom_level,
+)
 
 
 @pytest.fixture
@@ -20,16 +16,22 @@ def fake_oav() -> OAV:
 
 
 @pytest.fixture
-def mock_oavconfig(dummy_jCameraSettings, dummy_oav_config, dummy_display_config):
-    return {
+def mock_oavparams(dummy_jCameraSettings, dummy_oav_config, dummy_display_config):
+    fake_config = {
         "zoom_params_file": dummy_jCameraSettings.name,
         "oav_config_json": dummy_oav_config.name,
         "display_config": dummy_display_config.name,
     }
+    return OAVParameters("xrayCentring", **fake_config)
 
 
-# FIXME Does't work for 1.0, not sure what's wronge but I think something
-# on how zoom is set in oav_params
+def test_read_zoom_level(fake_oav):
+    fake_oav.zoom_controller.level.sim_put("3.0")
+    RE = RunEngine(call_returns_result=True)
+    zoom_level = RE(_read_zoom_level(fake_oav)).plan_result
+    assert zoom_level == 3.0
+
+
 @pytest.mark.parametrize(
     "zoom_level, expected_beamX, expected_beamY",
     [("1.0", 475, 309), ("2.0", 638, 392), ("3.0", 638, 392)],
@@ -39,9 +41,9 @@ def test_get_beam_centre(
     expected_beamX,
     expected_beamY,
     fake_oav: OAV,
-    mock_oavconfig: Dict,
+    mock_oavparams: OAVParameters,
 ):
     fake_oav.zoom_controller.level.sim_put(zoom_level)
-    beamX, beamY = get_beam_centre(fake_oav, mock_oavconfig)
+    beamX, beamY = _get_beam_centre(fake_oav, mock_oavparams)
     assert beamX == expected_beamX
     assert beamY == expected_beamY
