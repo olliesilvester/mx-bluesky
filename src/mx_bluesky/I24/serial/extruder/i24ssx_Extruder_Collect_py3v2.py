@@ -15,7 +15,8 @@ from pathlib import Path
 from time import sleep
 
 from mx_bluesky.I24.serial import log
-from mx_bluesky.I24.serial.dcid import DCID, SSXType
+from mx_bluesky.I24.serial.dcid import DCID
+from mx_bluesky.I24.serial.parameters import SSXType
 from mx_bluesky.I24.serial.parameters.constants import PARAM_FILE_PATH
 from mx_bluesky.I24.serial.setup_beamline import caget, caput, pv
 from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup

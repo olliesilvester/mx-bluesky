@@ -8,11 +8,11 @@ import os
 import re
 import subprocess
 import warnings
-from enum import Enum
 from functools import lru_cache
 
 import requests
 
+from mx_bluesky.I24.serial.parameters import SSXType
 from mx_bluesky.I24.serial.setup_beamline import (
     Detector,
     Eiger,
@@ -51,11 +51,6 @@ def get_auth_header() -> dict:
     with open(CREDENTIALS_LOCATION) as f:
         token = f.read().strip()
     return {"Authorization": "Bearer " + token}
-
-
-class SSXType(Enum):
-    FIXED = "Serial Fixed"
-    EXTRUDER = "Serial Jet"
 
 
 class DCID:

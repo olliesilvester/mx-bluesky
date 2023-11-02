@@ -1,4 +1,11 @@
+from enum import Enum
 from pathlib import Path
+
+
+class SSXType(Enum):
+    FIXED = "Serial Fixed"
+    EXTRUDER = "Serial Jet"
+
 
 PARAM_FILE_PATH = Path("src/mx_bluesky/I24/serial/parameters").expanduser().resolve()
 PARAM_FILE_PATH_FT = (
