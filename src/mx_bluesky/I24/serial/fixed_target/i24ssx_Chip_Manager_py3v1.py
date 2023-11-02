@@ -27,7 +27,7 @@ from mx_bluesky.I24.serial.parameters.constants import (
     PVAR_FILE_PATH,
 )
 from mx_bluesky.I24.serial.setup_beamline import caget, caput, pv
-from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
+from mx_bluesky.I24.serial.setup_beamline.setup_detector import get_detector_type
 
 logger = logging.getLogger("I24ssx.chip_manager")
 
@@ -85,7 +85,7 @@ def initialise():
 
     # Define detector in use
     logger.debug("Define detector in use.")
-    det_type = sup.get_detector_type()
+    det_type = get_detector_type()
 
     caput(pv.pilat_cbftemplate, 0)
 

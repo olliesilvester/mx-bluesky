@@ -5,18 +5,6 @@ import pytest
 from mx_bluesky.I24.serial.setup_beamline import setup_beamline
 
 
-@patch("mx_bluesky.I24.serial.setup_beamline.setup_beamline.caget")
-def test_get_detector_type(fake_caget):
-    fake_caget.return_value = -22
-    assert setup_beamline.get_detector_type().name == "eiger"
-
-
-@patch("mx_bluesky.I24.serial.setup_beamline.setup_beamline.caget")
-def test_get_detector_type_finds_pilatus(fake_caget):
-    fake_caget.return_value = 566
-    assert setup_beamline.get_detector_type().name == "pilatus"
-
-
 @patch("mx_bluesky.I24.serial.setup_beamline.setup_beamline.caput")
 def test_beamline_collect(fake_caput):
     setup_beamline.beamline("collect")

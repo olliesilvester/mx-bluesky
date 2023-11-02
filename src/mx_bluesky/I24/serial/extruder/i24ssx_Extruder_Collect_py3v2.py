@@ -19,6 +19,7 @@ from mx_bluesky.I24.serial.dcid import DCID, SSXType
 from mx_bluesky.I24.serial.parameters.constants import PARAM_FILE_PATH
 from mx_bluesky.I24.serial.setup_beamline import caget, caput, pv
 from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
+from mx_bluesky.I24.serial.setup_beamline.setup_detector import get_detector_type
 from mx_bluesky.I24.serial.write_nexus import call_nexgen
 
 usage = "%(prog)s command [options]"
@@ -49,7 +50,7 @@ def initialise_extruderi24(args=None):
     logger.info("Visit defined %s" % visit)
 
     # Define detector in use
-    det_type = sup.get_detector_type()
+    det_type = get_detector_type()
 
     caput(pv.ioc12_gp2, "test")
     caput(pv.ioc12_gp3, "testrun")
