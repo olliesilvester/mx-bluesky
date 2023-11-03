@@ -107,8 +107,6 @@ inheritance_graph_attrs = {"rankdir": "TB"}
 rst_epilog = """
 .. _Diamond Light Source: http://www.diamond.ac.uk
 .. _black: https://github.com/psf/black
-.. _flake8: https://flake8.pycqa.org/en/latest/
-.. _isort: https://github.com/PyCQA/isort
 .. _mypy: http://mypy-lang.org/
 .. _pre-commit: https://pre-commit.com/
 """
