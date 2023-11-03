@@ -58,7 +58,7 @@ def get_beam_centre_from_oav(oav_config: Dict = OAV_CONFIG_FILES):
 # Register clicks and move chip stages
 def onMouse(event, x, y, flags, param):
     beamX, beamY = get_beam_centre_from_oav()
-    if event == cv.EVENT_LBUTTONUP:  # cv.EVENT_LBUTTONUP is an int! (=4)
+    if event == cv.EVENT_LBUTTONUP:
         logger.info("Clicked X and Y %s %s" % (x, y))
         xmove = -1 * (beamX - x) * zoomcalibrator
         ymove = 1 * (beamY - y) * zoomcalibrator
