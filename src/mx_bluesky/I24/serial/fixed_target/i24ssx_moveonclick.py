@@ -37,10 +37,9 @@ def _get_beam_centre(oav: OAV, oav_params: OAVParameters):
     """
     RE = RunEngine(call_returns_result=True)
 
-    oav_params.zoom = RE(_read_zoom_level(oav)).plan_result
+    zoom_level = RE(_read_zoom_level(oav)).plan_result
 
-    oav_params._extract_beam_position()
-    beamX, beamY = (oav_params.beam_centre_i, oav_params.beam_centre_j)
+    beamX, beamY = oav_params.get_beam_position_from_zoom(zoom_level)
     return beamX, beamY
 
 
