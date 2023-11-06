@@ -1,3 +1,6 @@
+from unittest.mock import ANY, call, patch
+
+import cv2 as cv
 import pytest
 from bluesky.run_engine import RunEngine
 from dodal.beamlines import i24
@@ -7,6 +10,7 @@ from dodal.devices.oav.oav_parameters import OAVParameters
 from mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick import (
     _get_beam_centre,
     _read_zoom_level,
+    onMouse,
 )
 
 
@@ -23,6 +27,20 @@ def mock_oavparams(dummy_jCameraSettings, dummy_oav_config, dummy_display_config
         "display_config": dummy_display_config.name,
     }
     return OAVParameters("xrayCentring", **fake_config)
+
+
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick.caput")
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick.get_beam_centre_from_oav")
+def test_onMouse__gets_beam_position_and_sends_correct_str(fake_beam_pos, fake_caput):
+    fake_beam_pos.side_effect = [(15, 10)]
+    onMouse(cv.EVENT_LBUTTONUP, 0, 0, "", "")
+    assert fake_caput.call_count == 2
+    fake_caput.assert_has_calls(
+        [
+            call(ANY, "#1J:-90"),
+            call(ANY, "#2J:60"),
+        ]
+    )
 
 
 def test_read_zoom_level(fake_oav):
