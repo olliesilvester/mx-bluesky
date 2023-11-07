@@ -13,7 +13,7 @@ from dodal.devices.oav.oav_detector import OAV
 from dodal.devices.oav.oav_parameters import OAVParameters
 
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_Manager_py3v1 as manager
-from mx_bluesky.I24.serial.parameters.constants import OAV_CONFIG_FILES
+from mx_bluesky.I24.serial.parameters.constants import OAV1_CAM, OAV_CONFIG_FILES
 from mx_bluesky.I24.serial.setup_beamline import caput, pv
 
 logger = logging.getLogger("I24ssx.moveonclick")
@@ -68,9 +68,92 @@ def onMouse(event, x, y, flags, param):
         caput(pv.me14e_pmac_str, ymovepmacstring)
 
 
-if __name__ == "__main__":
+def update_ui(frame):
+    # Get beam x and y values
+    beamX, beamY = get_beam_centre_from_oav()
+
+    # Overlay text and beam centre
+    cv.ellipse(
+        frame, (beamX, beamY), (12, 8), 0.0, 0.0, 360, (0, 255, 255), thickness=2
+    )
+    # putText(frame,'text',bottomLeftCornerOfText, font, fontScale, fontColor, thickness, lineType)
+    cv.putText(
+        frame,
+        "Key bindings",
+        (20, 40),
+        cv.FONT_HERSHEY_COMPLEX_SMALL,
+        1,
+        (0, 255, 255),
+        1,
+        1,
+    )
+    cv.putText(
+        frame,
+        "Q / A : go to / set as f0",
+        (25, 70),
+        cv.FONT_HERSHEY_COMPLEX_SMALL,
+        0.8,
+        (0, 255, 255),
+        1,
+        1,
+    )
+    cv.putText(
+        frame,
+        "W / S : go to / set as f1",
+        (25, 90),
+        cv.FONT_HERSHEY_COMPLEX_SMALL,
+        0.8,
+        (0, 255, 255),
+        1,
+        1,
+    )
+    cv.putText(
+        frame,
+        "E / D : go to / set as f2",
+        (25, 110),
+        cv.FONT_HERSHEY_COMPLEX_SMALL,
+        0.8,
+        (0, 255, 255),
+        1,
+        1,
+    )
+    cv.putText(
+        frame,
+        "I / O : in /out of focus",
+        (25, 130),
+        cv.FONT_HERSHEY_COMPLEX_SMALL,
+        0.8,
+        (0, 255, 255),
+        1,
+        1,
+    )
+    cv.putText(
+        frame,
+        "C : Create CS",
+        (25, 150),
+        cv.FONT_HERSHEY_COMPLEX_SMALL,
+        0.8,
+        (0, 255, 255),
+        1,
+        1,
+    )
+    cv.putText(
+        frame,
+        "esc : close window",
+        (25, 170),
+        cv.FONT_HERSHEY_COMPLEX_SMALL,
+        0.8,
+        (0, 255, 255),
+        1,
+        1,
+    )
+    cv.imshow("OAV1view", frame)
+
+
+def start_viewer(oav1: str = OAV1_CAM):
     # Create a video caputure from OAV1
-    cap = cv.VideoCapture("http://bl24i-di-serv-01.diamond.ac.uk:8080/OAV1.mjpg.mjpg")
+    cap = cv.VideoCapture(oav1)
+    # cap = cv.VideoCapture("http://bl24i-di-serv-01.diamond.ac.uk:8080/OAV1.mjpg.mjpg")
 
     # Create window named OAV1view and set onmouse to this
     cv.namedWindow("OAV1view")
@@ -83,85 +166,8 @@ if __name__ == "__main__":
     # Loop until escape key is pressed. Keyboard shortcuts here
     while success:
         success, frame = cap.read()
-        # Get beam x and y values
-        beamX, beamY = get_beam_centre_from_oav()
 
-        # Overlay text and beam centre
-        cv.ellipse(
-            frame, (beamX, beamY), (12, 8), 0.0, 0.0, 360, (0, 255, 255), thickness=2
-        )
-        # putText(frame,'text',bottomLeftCornerOfText, font, fontScale, fontColor, thickness, lineType)
-        cv.putText(
-            frame,
-            "Key bindings",
-            (20, 40),
-            cv.FONT_HERSHEY_COMPLEX_SMALL,
-            1,
-            (0, 255, 255),
-            1,
-            1,
-        )
-        cv.putText(
-            frame,
-            "Q / A : go to / set as f0",
-            (25, 70),
-            cv.FONT_HERSHEY_COMPLEX_SMALL,
-            0.8,
-            (0, 255, 255),
-            1,
-            1,
-        )
-        cv.putText(
-            frame,
-            "W / S : go to / set as f1",
-            (25, 90),
-            cv.FONT_HERSHEY_COMPLEX_SMALL,
-            0.8,
-            (0, 255, 255),
-            1,
-            1,
-        )
-        cv.putText(
-            frame,
-            "E / D : go to / set as f2",
-            (25, 110),
-            cv.FONT_HERSHEY_COMPLEX_SMALL,
-            0.8,
-            (0, 255, 255),
-            1,
-            1,
-        )
-        cv.putText(
-            frame,
-            "I / O : in /out of focus",
-            (25, 130),
-            cv.FONT_HERSHEY_COMPLEX_SMALL,
-            0.8,
-            (0, 255, 255),
-            1,
-            1,
-        )
-        cv.putText(
-            frame,
-            "C : Create CS",
-            (25, 150),
-            cv.FONT_HERSHEY_COMPLEX_SMALL,
-            0.8,
-            (0, 255, 255),
-            1,
-            1,
-        )
-        cv.putText(
-            frame,
-            "esc : close window",
-            (25, 170),
-            cv.FONT_HERSHEY_COMPLEX_SMALL,
-            0.8,
-            (0, 255, 255),
-            1,
-            1,
-        )
-        cv.imshow("OAV1view", frame)
+        update_ui(frame)
 
         k = cv.waitKey(1)
         if k == 113:  # Q
@@ -204,3 +210,7 @@ if __name__ == "__main__":
 
     # Clear cameraCapture instance
     cap.release()
+
+
+if __name__ == "__main__":
+    start_viewer()
