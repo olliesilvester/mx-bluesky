@@ -12,6 +12,10 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/42_beam_center_from_file/"
   },
   {
+    "version": "53_use_ruff",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/53_use_ruff/"
+  },
+  {
     "version": "check-screens-still-work",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/check-screens-still-work/"
   },
