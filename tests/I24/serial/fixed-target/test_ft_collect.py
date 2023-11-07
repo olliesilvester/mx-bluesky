@@ -59,7 +59,7 @@ def test_get_chip_prog_values():
         0,
         n_exposures=2,
     )
-    assert type(chip_dict) is dict
+    assert isinstance(chip_dict, dict)
     assert chip_dict["X_NUM_STEPS"][1] == 20 and chip_dict["X_NUM_BLOCKS"][1] == 8
     assert chip_dict["PUMP_REPEAT"][1] == 0
     assert chip_dict["N_EXPOSURES"][1] == 2
