@@ -1,7 +1,7 @@
 Run linting using pre-commit
 ============================
 
-Code linting is handled by black_, flake8_ and isort_ run under pre-commit_.
+Code linting is handled by black_, ruff run under pre-commit_.
 
 Running pre-commit
 ------------------
@@ -23,11 +23,7 @@ repository::
 
     $ black .
 
-Likewise with isort::
-
-    $ isort .
-
-If you get any flake8 issues you will have to fix those manually.
+If you get any ruff issues you will have to fix those manually.
 
 VSCode support
 --------------
