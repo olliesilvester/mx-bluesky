@@ -16,9 +16,6 @@ from mx_bluesky.I24.serial.setup_beamline.ca import caget  # , caput
 from mx_bluesky.I24.serial.setup_beamline.pv_abstract import (
     Detector,
     Eiger,
-    ExperimentType,
-    Extruder,
-    FixedTarget,
     Pilatus,
 )
 
@@ -32,11 +29,6 @@ def setup_logging():
 
 class UnknownDetectorType(Exception):
     pass
-
-
-def _read_detector_stage_position(det_stage: DetectorMotion):
-    yield from bps.rd(det_stage.y)
-    yield from bps.rd(det_stage.z)
 
 
 def get_detector_type() -> Detector:
@@ -53,44 +45,28 @@ def get_detector_type() -> Detector:
         raise UnknownDetectorType("Detector not found.")
 
 
-def check_detector_position(det_stage: DetectorMotion, tolerance: int = 10):
-    """Check that detector is in the right position (ie if pilatus not in place \
-    for eiger) and/or that it's within allowed range (see tolerance)
-    """
-    det_y = yield from bps.rd(det_stage.y)
-    print(det_y)
-
-
-def move_detector_stage(det_stage: DetectorMotion, target: float):
+def _move_detector_stage(det_stage: DetectorMotion, target: float):
+    logger.info(f"Moving detector stage to target position: {target}.")
     yield from bps.abs_set(
         det_stage.y,
         target,
+        wait=True,
     )
-    "Plan goes here"
 
 
 def setup_detector_stage(expt_type: str):
-    expt: ExperimentType
-    expt = FixedTarget() if expt_type == "fixed-target" else Extruder()
-    detector_stage = i24.detector_motion()
-    current_detector = get_detector_type().name
-    logger.info(
-        f"Detector type PV for {expt_type} currently set to: {current_detector}."
-    )
-    requested_detector = caget(expt.pv.det_type)  # Set with MUX on edm screen
-    logger.info(f"Requested detector: {requested_detector}.")
     RE = RunEngine()
-    if current_detector == requested_detector:
-        # check that the position is actually correct, if not move
-        logger.info("Detector already in place")
-    else:
-        det_y_target = (
-            Eiger.det_y_target
-            if "eiger" in requested_detector
-            else Pilatus.det_y_target
-        )
-        RE(move_detector_stage(detector_stage, det_y_target))
-        print("call plan to move")
+    # Grab the correct PV depending on experiment
+    # Its value is set with MUX on edm screen
+    det_type = pv.me14e_gp101 if expt_type == "fixed-target" else pv.ioc12_gp15
+    requested_detector = caget(det_type)
+    logger.info(f"Requested detector: {requested_detector}.")
+    det_y_target = (
+        Eiger.det_y_target if "eiger" in requested_detector else Pilatus.det_y_target
+    )
+    # Use dodal device for move
+    detector_stage = i24.detector_motion()
+    RE(_move_detector_stage(detector_stage, det_y_target))
     logger.info("Detector setup done.")
 
 
