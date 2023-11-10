@@ -45,17 +45,16 @@ def get_detector_type() -> Detector:
         raise UnknownDetectorType("Detector not found.")
 
 
-def _move_detector_stage(det_stage: DetectorMotion, target: float):
+def _move_detector_stage(detector_stage: DetectorMotion, target: float):
     logger.info(f"Moving detector stage to target position: {target}.")
     yield from bps.abs_set(
-        det_stage.y,
+        detector_stage.y,
         target,
         wait=True,
     )
 
 
-def setup_detector_stage(expt_type: str):
-    RE = RunEngine()
+def setup_detector_stage(detector_stage: DetectorMotion, expt_type: str):
     # Grab the correct PV depending on experiment
     # Its value is set with MUX on edm screen
     det_type = pv.me14e_gp101 if expt_type == "fixed-target" else pv.ioc12_gp15
@@ -64,14 +63,15 @@ def setup_detector_stage(expt_type: str):
     det_y_target = (
         Eiger.det_y_target if "eiger" in requested_detector else Pilatus.det_y_target
     )
-    # Use dodal device for move
-    detector_stage = i24.detector_motion()
-    RE(_move_detector_stage(detector_stage, det_y_target))
+    yield from _move_detector_stage(detector_stage, det_y_target)
     logger.info("Detector setup done.")
 
 
 if __name__ == "__main__":
     setup_logging()
+    RE = RunEngine()
+    # Use dodal device for move
+    detector_stage = i24.detector_motion()
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -82,4 +82,4 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    setup_detector_stage(args.expt)
+    RE(setup_detector_stage(detector_stage, args.expt))
