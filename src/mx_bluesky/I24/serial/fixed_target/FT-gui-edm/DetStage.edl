@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 2848
-y 688
+x 3172
+y 731
 w 450
 h 180
 font "arial-medium-r-18.0"
@@ -107,13 +107,13 @@ w 160
 h 42
 fgColor index 14
 bgColor index 49
-topShadowColor index 0
-botShadowColor index 14
+topShadowColor index 1
+botShadowColor index 11
 font "arial-medium-r-18.0"
 buttonLabel "Move Stage"
 numCmds 1
 command {
-  0 "python SCRIPTS_LOCATION/setup_beamline/setup_detector.py fixed-target"
+  0 "python SCRIPTS_LOCATION/setup_beamline/setup_detector.py \"Serial Fixed\""
 }
 endObjectProperties
 

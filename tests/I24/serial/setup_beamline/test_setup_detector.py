@@ -7,6 +7,7 @@ from dodal.beamlines import i24
 from dodal.devices.i24.I24_detector_motion import DetectorMotion
 from ophyd.status import Status
 
+from mx_bluesky.I24.serial.parameters.constants import SSXType
 from mx_bluesky.I24.serial.setup_beamline import Eiger
 from mx_bluesky.I24.serial.setup_beamline.setup_detector import (
     get_detector_type,
@@ -48,5 +49,5 @@ def test_setup_detector_stage_for_eiger(fake_caget, fake_detector_motion):
     RE = RunEngine()
     fake_caget.return_value = "eiger"
 
-    RE(setup_detector_stage(fake_detector_motion, "fixed-target"))
+    RE(setup_detector_stage(fake_detector_motion, SSXType.FIXED.value))
     assert fake_detector_motion.y.user_readback.get() == Eiger.det_y_target

@@ -11,6 +11,7 @@ from dodal.beamlines import i24
 from dodal.devices.i24.I24_detector_motion import DetectorMotion
 
 from mx_bluesky.I24.serial import log
+from mx_bluesky.I24.serial.parameters.constants import SSXType
 from mx_bluesky.I24.serial.setup_beamline import pv
 from mx_bluesky.I24.serial.setup_beamline.ca import caget  # , caput
 from mx_bluesky.I24.serial.setup_beamline.pv_abstract import (
@@ -58,7 +59,7 @@ def _move_detector_stage(detector_stage: DetectorMotion, target: float):
 def setup_detector_stage(detector_stage: DetectorMotion, expt_type: str):
     # Grab the correct PV depending on experiment
     # Its value is set with MUX on edm screen
-    det_type = pv.me14e_gp101 if expt_type == "fixed-target" else pv.ioc12_gp15
+    det_type = pv.me14e_gp101 if expt_type == SSXType.FIXED.value else pv.ioc12_gp15
     requested_detector = caget(det_type)
     logger.info(f"Requested detector: {requested_detector}.")
     det_y_target = (
@@ -78,7 +79,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "expt",
         type=str,
-        choices=["extruder", "fixed-target"],
+        choices=["Serial Jet", "Serial Fixed"],
         help="Type of serial experiment being run.",
     )
 
