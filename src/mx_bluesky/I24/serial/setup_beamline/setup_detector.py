@@ -13,7 +13,7 @@ from dodal.devices.i24.I24_detector_motion import DetectorMotion
 from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.parameters.constants import SSXType
 from mx_bluesky.I24.serial.setup_beamline import pv
-from mx_bluesky.I24.serial.setup_beamline.ca import caget  # , caput
+from mx_bluesky.I24.serial.setup_beamline.ca import caget
 from mx_bluesky.I24.serial.setup_beamline.pv_abstract import (
     Detector,
     Eiger,
@@ -21,6 +21,11 @@ from mx_bluesky.I24.serial.setup_beamline.pv_abstract import (
 )
 
 logger = logging.getLogger("I24ssx.sup_det")
+
+EXPT_TYPE_DETECTOR_PVS = {
+    SSXType.FIXED: pv.me14e_gp101,
+    SSXType.EXTRUDER: pv.ioc12_gp15,
+}
 
 
 def setup_logging():
@@ -56,10 +61,10 @@ def _move_detector_stage(detector_stage: DetectorMotion, target: float):
     )
 
 
-def setup_detector_stage(detector_stage: DetectorMotion, expt_type: str):
+def setup_detector_stage(detector_stage: DetectorMotion, expt_type: SSXType):
     # Grab the correct PV depending on experiment
     # Its value is set with MUX on edm screen
-    det_type = pv.me14e_gp101 if expt_type == SSXType.FIXED.value else pv.ioc12_gp15
+    det_type = EXPT_TYPE_DETECTOR_PVS[expt_type]
     requested_detector = caget(det_type)
     logger.info(f"Requested detector: {requested_detector}.")
     det_y_target = (
@@ -71,17 +76,16 @@ def setup_detector_stage(detector_stage: DetectorMotion, expt_type: str):
 
 if __name__ == "__main__":
     setup_logging()
-    RE = RunEngine()
-    # Use dodal device for move
-    detector_stage = i24.detector_motion()
-
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "expt",
         type=str,
-        choices=["Serial Jet", "Serial Fixed"],
+        choices=[expt.value for expt in SSXType],
         help="Type of serial experiment being run.",
     )
-
     args = parser.parse_args()
-    RE(setup_detector_stage(detector_stage, args.expt))
+    expt_type = SSXType(args.expt)
+    RE = RunEngine()
+    # Use dodal device for move
+    detector_stage = i24.detector_motion()
+    RE(setup_detector_stage(detector_stage, expt_type))

@@ -7,7 +7,8 @@ from dodal.beamlines import i24
 from dodal.devices.i24.I24_detector_motion import DetectorMotion
 from ophyd.status import Status
 
-from mx_bluesky.I24.serial.setup_beamline import Eiger
+from mx_bluesky.I24.serial.parameters.constants import SSXType
+from mx_bluesky.I24.serial.setup_beamline import Eiger, Pilatus
 from mx_bluesky.I24.serial.setup_beamline.setup_detector import (
     get_detector_type,
     setup_detector_stage,
@@ -46,7 +47,11 @@ def test_get_detector_type_finds_pilatus(fake_caget):
 @patch("mx_bluesky.I24.serial.setup_beamline.setup_detector.caget")
 def test_setup_detector_stage_for_eiger(fake_caget, fake_detector_motion):
     RE = RunEngine()
-    fake_caget.return_value = "eiger"
 
-    RE(setup_detector_stage(fake_detector_motion, "Serial Fixed"))
+    fake_caget.return_value = "eiger"
+    RE(setup_detector_stage(fake_detector_motion, SSXType.FIXED))
     assert fake_detector_motion.y.user_readback.get() == Eiger.det_y_target
+
+    fake_caget.return_value = "pilatus"
+    RE(setup_detector_stage(fake_detector_motion, SSXType.EXTRUDER))
+    assert fake_detector_motion.y.user_readback.get() == Pilatus.det_y_target
