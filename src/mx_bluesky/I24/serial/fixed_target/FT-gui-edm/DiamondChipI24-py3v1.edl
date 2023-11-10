@@ -4,7 +4,7 @@ major 4
 minor 0
 release 1
 x 2685
-y 150
+y 187
 w 1030
 h 950
 font "arial-medium-r-18.0"
@@ -4076,8 +4076,8 @@ w 105
 h 30
 fgColor index 14
 bgColor index 49
-topShadowColor index 0
-botShadowColor index 14
+topShadowColor index 1
+botShadowColor index 11
 font "arial-medium-r-16.0"
 buttonLabel "Detector"
 numPvs 4

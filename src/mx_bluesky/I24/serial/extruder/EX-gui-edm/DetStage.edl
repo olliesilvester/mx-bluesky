@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 2848
-y 688
+x 3338
+y 498
 w 450
 h 180
 font "arial-medium-r-18.0"
@@ -78,7 +78,7 @@ fgColour index 14
 bgColour index 4
 topShadowColour index 1
 botShadowColour index 8
-controlPv "ME-14E-MO-IOC-01:GP101"
+controlPv "BL24I-EA-IOC-12:GP15"
 font "arial-medium-r-18.0"
 numItems 2
 symbolTag {
@@ -113,7 +113,7 @@ font "arial-medium-r-18.0"
 buttonLabel "Move Stage"
 numCmds 1
 command {
-  0 "python SCRIPTS_LOCATION/setup_beamline/setup_detector.py fixed-target"
+  0 "python SCRIPTS_LOCATION/setup_beamline/setup_detector.py extruder"
 }
 endObjectProperties
 
