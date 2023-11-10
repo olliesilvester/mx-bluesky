@@ -33,7 +33,8 @@ class UnknownDetectorType(Exception):
 
 def get_detector_type() -> Detector:
     det_y = caget(pv.det_y)
-    # Note to self, I should also be able to use detmotion for this too!
+    # DetectorMotion should also be used for this.
+    # This should be part of https://github.com/DiamondLightSource/mx_bluesky/issues/51
     if float(det_y) < Eiger.det_y_threshold:
         logger.info("Eiger detector in use.")
         return Eiger()
