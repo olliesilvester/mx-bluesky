@@ -4,7 +4,7 @@ major 4
 minor 0
 release 1
 x 2685
-y 76
+y 187
 w 1030
 h 950
 font "arial-medium-r-18.0"
@@ -1699,7 +1699,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 495
+x 496
 y 860
 w 66
 h 21
@@ -3263,7 +3263,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 710
+x 700
 y 830
 w 195
 h 18
@@ -3340,7 +3340,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 740
+x 762
 y 860
 w 133
 h 18
@@ -3360,7 +3360,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 785
+x 804
 y 890
 w 91
 h 18
@@ -3993,7 +3993,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 442
+x 465
 y 883
 w 97
 h 18
@@ -4063,3 +4063,27 @@ offLabel "Reset"
 3d
 font "arial-medium-r-14.0"
 endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 4
+release 0
+x 695
+y 905
+w 105
+h 30
+fgColor index 14
+bgColor index 49
+topShadowColor index 1
+botShadowColor index 11
+font "arial-medium-r-16.0"
+buttonLabel "Detector"
+numPvs 4
+numDsps 1
+displayFileName {
+  0 "EDM_LOCATION/DetStage.edl"
+}
+endObjectProperties
+

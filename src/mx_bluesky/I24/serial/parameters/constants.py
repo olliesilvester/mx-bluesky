@@ -1,4 +1,11 @@
+from enum import Enum
 from pathlib import Path
+
+
+class SSXType(Enum):
+    FIXED = "Serial Fixed"
+    EXTRUDER = "Serial Jet"
+
 
 OAV_CONFIG_FILES = {
     "zoom_params_file": "/dls_sw/i24/software/gda/config/xml/jCameraManZoomLevels.xml",
