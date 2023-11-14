@@ -5,11 +5,7 @@ Robin Owen 12 Jan 2021
 import logging
 from typing import Dict
 
-import bluesky.plan_stubs as bps
 import cv2 as cv
-from bluesky.run_engine import RunEngine
-from dodal.beamlines import i24
-from dodal.devices.oav.oav_detector import OAV
 from dodal.devices.oav.oav_parameters import OAVParameters
 
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_Manager_py3v1 as manager
@@ -23,40 +19,31 @@ logger = logging.getLogger("I24ssx.moveonclick")
 zoomcalibrator = 6  # 8 seems to work well for zoom 2
 
 
-def _read_zoom_level(oav: OAV):
-    zoom_level = yield from bps.rd(oav.zoom_controller.level)
-    return float(zoom_level)
-
-
-def _get_beam_centre(oav: OAV, oav_params: OAVParameters):
+def _get_beam_centre(oav_params: OAVParameters):
     """Extract the beam centre x/y positions from the display.configuration file.
 
     Args:
-        oav (OAV): OAV device for i24.
         oav_params (OAVParamters): the OAV parameters.
     """
-    RE = RunEngine(call_returns_result=True)
-
-    zoom_level = RE(_read_zoom_level(oav)).plan_result
-
-    beamX, beamY = oav_params.get_beam_position_from_zoom(zoom_level)
+    # Set to 1.0, as this is the only value that is updated in display config
+    # on the beamline (all other beam positions will be invalid)
+    beamX, beamY = oav_params.get_beam_position_from_zoom(1.0)
     return beamX, beamY
 
 
 # TODO In the future, this should be done automatically in the OAV device
 # See https://github.com/DiamondLightSource/dodal/issues/224
-def get_beam_centre_from_oav(oav_config: Dict = OAV_CONFIG_FILES):
-    # Get I24 oav device from dodal
-    oav = i24.oav()
+def get_beam_centre(oav_config: Dict = OAV_CONFIG_FILES):
+    # Get I24 oav parameters from dodal
     # Use xraycentering as context, not super relevant here.
     oav_params = OAVParameters("xrayCentring", **oav_config)
 
-    return _get_beam_centre(oav, oav_params)
+    return _get_beam_centre(oav_params)
 
 
 # Register clicks and move chip stages
 def onMouse(event, x, y, flags, param):
-    beamX, beamY = get_beam_centre_from_oav()
+    beamX, beamY = get_beam_centre()
     if event == cv.EVENT_LBUTTONUP:
         logger.info("Clicked X and Y %s %s" % (x, y))
         xmove = -1 * (beamX - x) * zoomcalibrator
@@ -70,7 +57,7 @@ def onMouse(event, x, y, flags, param):
 
 def update_ui(frame):
     # Get beam x and y values
-    beamX, beamY = get_beam_centre_from_oav()
+    beamX, beamY = get_beam_centre()
 
     # Overlay text and beam centre
     cv.ellipse(
