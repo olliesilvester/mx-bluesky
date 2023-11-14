@@ -51,6 +51,8 @@ def _get_logging_file_path() -> Path:
     logging_path: Path
 
     if beamline:
+        # Until this https://github.com/DiamondLightSource/mx_bluesky/issues/45 is fixed
+        # Logs should go to the current visit directory or something
         logging_path = Path("/dls_sw/" + beamline + "/logs/serial/")
     else:
         logging_path = Path("./tmp/logs/")
