@@ -4,13 +4,12 @@ Utilities for defining the detector in use, and moving the stage.
 import argparse
 import logging
 import time
+from enum import IntEnum
 
 import bluesky.plan_stubs as bps
 from bluesky.run_engine import RunEngine
 from dodal.beamlines import i24
 from dodal.devices.i24.I24_detector_motion import DetectorMotion
-
-from enum import IntEnum
 
 from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.parameters.constants import SSXType

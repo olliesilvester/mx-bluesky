@@ -10,9 +10,9 @@ from ophyd.status import Status
 from mx_bluesky.I24.serial.parameters.constants import SSXType
 from mx_bluesky.I24.serial.setup_beamline import Eiger, Pilatus
 from mx_bluesky.I24.serial.setup_beamline.setup_detector import (
+    DetRequest,
     get_detector_type,
     setup_detector_stage,
-    DetRequest,
 )
 
 
