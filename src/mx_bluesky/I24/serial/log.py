@@ -51,13 +51,18 @@ def _get_logging_file_path() -> Path:
     logging_path: Path
 
     if beamline:
-        # Until this https://github.com/DiamondLightSource/mx_bluesky/issues/45 is fixed
-        # Logs should go to the current visit directory or something
         logging_path = Path("/dls_sw/" + beamline + "/logs/serial/")
     else:
         logging_path = Path("./tmp/logs/")
 
-    Path(logging_path).mkdir(parents=True, exist_ok=True)
+    try:
+        Path(logging_path).mkdir(parents=True, exist_ok=True)
+    except OSError:
+        # Until https://github.com/DiamondLightSource/mx_bluesky/issues/45 is fixed
+        # Logs could also go to the current visit directory, but not always possible
+        # when testing
+        logging_path = Path("~/serial_logs/").expanduser().resolve()
+        Path(logging_path).mkdir(parents=True, exist_ok=True)
     return logging_path
 
 
