@@ -4,6 +4,7 @@ Utilities for defining the detector in use, and moving the stage.
 import argparse
 import logging
 import time
+from enum import IntEnum
 
 import bluesky.plan_stubs as bps
 from bluesky.run_engine import RunEngine
@@ -26,6 +27,11 @@ EXPT_TYPE_DETECTOR_PVS = {
     SSXType.FIXED: pv.me14e_gp101,
     SSXType.EXTRUDER: pv.ioc12_gp15,
 }
+
+
+class DetRequest(IntEnum):
+    eiger = 0
+    pilatus = 1
 
 
 def setup_logging():
@@ -64,11 +70,14 @@ def _move_detector_stage(detector_stage: DetectorMotion, target: float):
 def setup_detector_stage(detector_stage: DetectorMotion, expt_type: SSXType):
     # Grab the correct PV depending on experiment
     # Its value is set with MUX on edm screen
-    det_type = EXPT_TYPE_DETECTOR_PVS[expt_type]
-    requested_detector = caget(det_type)
+    det_type_pv = EXPT_TYPE_DETECTOR_PVS[expt_type]
+    det_type = caget(det_type_pv)
+    requested_detector = (
+        Eiger.name if int(det_type) == DetRequest.eiger else Pilatus.name
+    )
     logger.info(f"Requested detector: {requested_detector}.")
     det_y_target = (
-        Eiger.det_y_target if "eiger" in requested_detector else Pilatus.det_y_target
+        Eiger.det_y_target if requested_detector == "eiger" else Pilatus.det_y_target
     )
     yield from _move_detector_stage(detector_stage, det_y_target)
     logger.info("Detector setup done.")
