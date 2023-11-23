@@ -26,8 +26,11 @@ from mx_bluesky.I24.serial.parameters.constants import (
     PARAM_FILE_PATH_FT,
     PVAR_FILE_PATH,
 )
-from mx_bluesky.I24.serial.setup_beamline import caget, caput, pv
-from mx_bluesky.I24.serial.setup_beamline.setup_detector import get_detector_type
+from mx_bluesky.I24.serial.setup_beamline import Eiger, Pilatus, caget, caput, pv
+from mx_bluesky.I24.serial.setup_beamline.setup_detector import (
+    DetRequest,
+    get_detector_type,
+)
 
 logger = logging.getLogger("I24ssx.chip_manager")
 
@@ -126,6 +129,14 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
     map_type = caget(pv.me14e_gp2)
     chip_type = caget(pv.me14e_gp1)
     det_type = caget(pv.me14e_gp101)
+
+    # Small temporary hack for the MUX which only sets to a number
+    # But if not run (eg. because detector already in place) the value could be
+    # The detector name
+    if det_type in ["eiger", "pilatus"]:
+        pass
+    else:
+        det_type = Eiger.name if det_type == DetRequest.eiger else Pilatus.name
 
     # If file name ends in a digit this causes processing/pilatus pain.
     # Append an underscore
