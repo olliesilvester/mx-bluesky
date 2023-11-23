@@ -3,13 +3,15 @@ Move on click gui for fixed targets at I24
 Robin Owen 12 Jan 2021
 """
 import logging
-from typing import Dict
 
+import bluesky.plan_stubs as bps
 import cv2 as cv
-from dodal.devices.oav.oav_parameters import OAVParameters
+from bluesky.run_engine import RunEngine
+from dodal.beamlines import i24
+from dodal.devices.oav.oav_detector import OAV
 
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_Manager_py3v1 as manager
-from mx_bluesky.I24.serial.parameters.constants import OAV1_CAM, OAV_CONFIG_FILES
+from mx_bluesky.I24.serial.parameters.constants import OAV1_CAM
 from mx_bluesky.I24.serial.setup_beamline import caput, pv
 
 logger = logging.getLogger("I24ssx.moveonclick")
@@ -19,26 +21,28 @@ logger = logging.getLogger("I24ssx.moveonclick")
 zoomcalibrator = 6  # 8 seems to work well for zoom 2
 
 
-def _get_beam_centre(oav_params: OAVParameters):
+def _get_beam_centre(oav: OAV):
     """Extract the beam centre x/y positions from the display.configuration file.
 
     Args:
-        oav_params (OAVParamters): the OAV parameters.
+        oav (OAV): the OAV device.
     """
     # Set to 1.0, as this is the only value that is updated in display config
     # on the beamline (all other beam positions will be invalid)
-    beamX, beamY = oav_params.get_beam_position_from_zoom(1.0)
-    return beamX, beamY
+    yield from bps.abs_set(oav.zoom_controller, "1.0", wait=True)
+
+    return oav.parameters.beam_centre_i, oav.parameters.beam_centre_j
 
 
 # TODO In the future, this should be done automatically in the OAV device
 # See https://github.com/DiamondLightSource/dodal/issues/224
-def get_beam_centre(oav_config: Dict = OAV_CONFIG_FILES):
-    # Get I24 oav parameters from dodal
-    # Use xraycentering as context, not super relevant here.
-    oav_params = OAVParameters("xrayCentring", **oav_config)
+def get_beam_centre():
+    # Get I24 oav device from dodal
+    oav = i24.oav()
 
-    return _get_beam_centre(oav_params)
+    RE = RunEngine(call_returns_result=True)
+    beamX, beamY = RE(_get_beam_centre(oav)).plan_result
+    return beamX, beamY
 
 
 # Register clicks and move chip stages
