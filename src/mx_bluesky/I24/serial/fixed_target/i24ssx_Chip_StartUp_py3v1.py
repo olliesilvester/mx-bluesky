@@ -46,26 +46,26 @@ def scrape_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
         elif line.startswith("protein_name"):
             sub_dir = entry[1]
         elif "n_exposures" in entry[0].lower():
-            n_exposures = entry[1]
+            n_exposures = int(entry[1])
         elif "chip_type" in entry[0].lower():
-            chip_type = entry[1]
+            chip_type = int(entry[1])
         elif "map_type" in entry[0].lower():
-            map_type = entry[1]
+            map_type = int(entry[1])
         elif "pump_repeat" in entry[0].lower():
-            pump_repeat = entry[1]
+            pump_repeat = int(entry[1])
 
     for line in f:
         entry = line.rstrip().split()
         if "pumpexptime" == entry[0].lower().strip():
-            pumpexptime = entry[1]
+            pumpexptime = float(entry[1])
         if "exptime" in entry[0].lower():
-            exptime = entry[1]
+            exptime = float(entry[1])
         if "dcdetdist" in entry[0].lower():
-            dcdetdist = entry[1]
+            dcdetdist = float(entry[1])
         if "prepumpexptime" in entry[0].lower():
-            prepumpexptime = entry[1]
+            prepumpexptime = int(entry[1])
         if "pumpdelay" in entry[0].lower():
-            pumpdelay = entry[1]
+            pumpdelay = int(entry[1])
         if "det_type" in entry[0].lower():
             det_type = entry[1]
     return (
