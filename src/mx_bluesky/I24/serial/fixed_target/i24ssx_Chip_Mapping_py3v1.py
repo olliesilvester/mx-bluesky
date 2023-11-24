@@ -10,6 +10,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from mx_bluesky.I24.serial import log
+from mx_bluesky.I24.serial.fixed_target.ft_utils import ChipType
 from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1 import (
     check_files,
     get_format,
@@ -89,7 +90,7 @@ def convert_chip_to_hex(fid, chip_type):
     check_files(["%s.full" % chip_type])
     with open("%s.full" % fid[:-5], "w") as g:
         # Normal
-        if chip_type in ["0", "1"]:
+        if chip_type in [ChipType.Oxford, ChipType.OxfordInner]:
             shot_order_list = get_shot_order(chip_type)
             logger.info("Shot Order List: \n")
             logger.info("%s" % shot_order_list[:14])
