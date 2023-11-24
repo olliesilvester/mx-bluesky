@@ -71,7 +71,7 @@ def moveto(args):
     place = args.place
     logger.info("Move to: %s" % place)
 
-    det_type = caget(pv.ioc12_gp15)
+    det_type = get_detector_type()
 
     if place == "laseron":
         if det_type == "pilatus":
@@ -106,7 +106,7 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH):
     num_imgs = caget(pv.ioc12_gp4)
     exp_time = caget(pv.ioc12_gp5)
     det_dist = caget(pv.ioc12_gp7)
-    det_type = caget(pv.ioc12_gp15)
+    det_type = get_detector_type()
     if int(caget(pv.ioc12_gp6)) == 1:
         pump_status = "true"
     else:
