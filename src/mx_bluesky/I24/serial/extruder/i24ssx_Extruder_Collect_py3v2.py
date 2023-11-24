@@ -74,18 +74,18 @@ def moveto(args):
     det_type = get_detector_type()
 
     if place == "laseron":
-        if det_type == "pilatus":
+        if det_type.name == "pilatus":
             caput(pv.zebra1_out1_ttl, 60.0)
             caput(pv.zebra1_soft_in_b0, 1.0)
-        elif det_type == "eiger":
+        elif det_type.name == "eiger":
             caput(pv.zebra1_out2_ttl, 60.0)
             caput(pv.zebra1_soft_in_b0, 1.0)
 
     if place == "laseroff":
-        if det_type == "pilatus":
+        if det_type.name == "pilatus":
             caput(pv.zebra1_soft_in_b0, 0.0)
             caput(pv.zebra1_out1_ttl, 0.0)
-        elif det_type == "eiger":
+        elif det_type.name == "eiger":
             caput(pv.zebra1_soft_in_b0, 0.0)
             caput(pv.zebra1_out2_ttl, 0.0)
 
@@ -116,7 +116,7 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH):
 
     # If file name ends in a digit this causes processing/pilatus pain.
     # Append an underscore
-    if det_type == "pilatus":
+    if det_type.name == "pilatus":
         m = re.search(r"\d+$", filename)
         if m is not None:
             # Note for future reference. Appending underscore causes more hassle and
@@ -133,7 +133,7 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH):
         f.write("num_imgs \t%s\n" % num_imgs)
         f.write("exp_time \t%s\n" % exp_time)
         f.write("det_dist \t%s\n" % det_dist)
-        f.write("det_type \t%s\n" % det_type)
+        f.write("det_type \t%s\n" % det_type.name)
         f.write("pump_probe \t%s\n" % pump_status)
         f.write("pump_exp \t%s\n" % pump_exp)
         f.write("pump_delay \t%s\n" % pump_delay)
@@ -145,7 +145,7 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH):
     logger.info("num_imgs %s" % num_imgs)
     logger.info("exp_time %s" % exp_time)
     logger.info("det_dist %s" % det_dist)
-    logger.info("det_type %s" % det_type)
+    logger.info("det_type %s" % det_type.name)
     logger.info("pump_probe %s" % pump_status)
     logger.info("pump_exp %s" % pump_exp)
     logger.info("pump_delay %s" % pump_delay)

@@ -9,7 +9,7 @@ from mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2 import (
     run_extruderi24,
     scrape_parameter_file,
 )
-from mx_bluesky.I24.serial.setup_beamline import Eiger
+from mx_bluesky.I24.serial.setup_beamline import Eiger, Pilatus
 
 params_file_str = """visit foo
 directory bar
@@ -58,31 +58,29 @@ def test_initialise_extruder(fake_log, fake_det, fake_caput, fake_caget):
 
 
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
-@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
-def test_moveto_enterhutch(fake_caget, fake_caput, dummy_parser):
+@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.get_detector_type")
+def test_moveto_enterhutch(fake_det, fake_caput, dummy_parser):
     fake_args = dummy_parser.parse_args(["enterhutch"])
+    fake_det.return_value = Eiger()
     moveto(fake_args)
-    assert fake_caget.call_count == 1
     assert fake_caput.call_count == 1
 
 
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
-@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
-def test_moveto_laseron_for_eiger(fake_caget, fake_caput, dummy_parser):
-    fake_caget.return_value = "eiger"
+@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.get_detector_type")
+def test_moveto_laseron_for_eiger(fake_det, fake_caput, dummy_parser):
+    fake_det.return_value = Eiger()
     fake_args = dummy_parser.parse_args(["laseron"])
     moveto(fake_args)
-    assert fake_caget.call_count == 1
     assert fake_caput.call_count == 2
 
 
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
-@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
-def test_moveto_laseroff_for_pilatus(fake_caget, fake_caput, dummy_parser):
-    fake_caget.return_value = "pilatus"
+@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.get_detector_type")
+def test_moveto_laseroff_for_pilatus(fake_det, fake_caput, dummy_parser):
+    fake_det.return_value = Pilatus()
     fake_args = dummy_parser.parse_args(["laseroff"])
     moveto(fake_args)
-    assert fake_caget.call_count == 1
     assert fake_caput.call_count == 2
 
 
@@ -95,9 +93,11 @@ def test_moveto_laseroff_for_pilatus(fake_caget, fake_caput, dummy_parser):
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sup")
+@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.get_detector_type")
 def test_run_extruder_with_eiger(
-    fake_sup, fake_caget, fake_caput, fake_nexgen, fake_dcid
+    fake_det, fake_sup, fake_caget, fake_caput, fake_nexgen, fake_dcid
 ):
+    fake_det.return_value = Eiger()
     run_extruderi24()
     assert fake_nexgen.call_count == 1
     assert fake_dcid.call_count == 1
