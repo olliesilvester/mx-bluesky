@@ -18,7 +18,7 @@ from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.dcid import DCID
 from mx_bluesky.I24.serial.parameters import SSXType
 from mx_bluesky.I24.serial.parameters.constants import PARAM_FILE_PATH
-from mx_bluesky.I24.serial.setup_beamline import caget, caput, pv
+from mx_bluesky.I24.serial.setup_beamline import Eiger, Pilatus, caget, caput, pv
 from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
 from mx_bluesky.I24.serial.setup_beamline.setup_detector import get_detector_type
 from mx_bluesky.I24.serial.write_nexus import call_nexgen
@@ -74,18 +74,18 @@ def moveto(args):
     det_type = get_detector_type()
 
     if place == "laseron":
-        if det_type.name == "pilatus":
+        if isinstance(det_type, Pilatus):
             caput(pv.zebra1_out1_ttl, 60.0)
             caput(pv.zebra1_soft_in_b0, 1.0)
-        elif det_type.name == "eiger":
+        elif isinstance(det_type, Eiger):
             caput(pv.zebra1_out2_ttl, 60.0)
             caput(pv.zebra1_soft_in_b0, 1.0)
 
     if place == "laseroff":
-        if det_type.name == "pilatus":
+        if isinstance(det_type, Pilatus):
             caput(pv.zebra1_soft_in_b0, 0.0)
             caput(pv.zebra1_out1_ttl, 0.0)
-        elif det_type.name == "eiger":
+        elif isinstance(det_type, Eiger):
             caput(pv.zebra1_soft_in_b0, 0.0)
             caput(pv.zebra1_out2_ttl, 0.0)
 
