@@ -1,3 +1,10 @@
+"""
+Define a mapping between the edm screens/IOC enum inputs fro the general purpose PVs and
+the map/chip/pump settings.
+The enum values should not be changed unless they are also modified in the drop down
+menu in the edm screen, as their order should always match.
+New ones may be added if needed in the future.
+"""
 from enum import IntEnum
 
 
