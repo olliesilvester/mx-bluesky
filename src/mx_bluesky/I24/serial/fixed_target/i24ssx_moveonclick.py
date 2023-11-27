@@ -4,7 +4,6 @@ Robin Owen 12 Jan 2021
 """
 import logging
 
-import bluesky.plan_stubs as bps
 import cv2 as cv
 from bluesky.run_engine import RunEngine
 from dodal.beamlines import i24
@@ -27,10 +26,6 @@ def _get_beam_centre(oav: OAV):
     Args:
         oav (OAV): the OAV device.
     """
-    # Set to 1.0, as this is the only value that is updated in display config
-    # on the beamline (all other beam positions will be invalid)
-    yield from bps.abs_set(oav.zoom_controller, "1.0", wait=True)
-
     return oav.parameters.beam_centre_i, oav.parameters.beam_centre_j
 
 
