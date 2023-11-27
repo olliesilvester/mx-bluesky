@@ -16,9 +16,9 @@ chip_name chip
 protein_name protK
 n_exposures 1
 chip_type 0
-map_type None
+map_type 0
 dcdetdist 100
-det_type eig
+det_type eiger
 exptime 0.01
 pump_repeat 0
 pumpexptime 0
@@ -33,23 +33,24 @@ pumpdelay 0"""
 def test_scrape_parameter_file():
     res = scrape_parameter_file()
     assert res[0] == "chip"
+    assert res[4] == 0 and res[5] == 0  # chip and map type
     assert len(res) == 13
 
 
 def test_fiducials():
-    assert len(fiducials("0")) == 0
-    assert len(fiducials("1")) == 0
+    assert len(fiducials(0)) == 0
+    assert len(fiducials(1)) == 0
 
 
 def test_get_format_for_oxford_chip():
     # oxford chip
-    fmt = get_format("0")
+    fmt = get_format(0)
     assert fmt == [8, 8, 20, 20, 0.125, 0.800, 0.800]
 
 
 def test_get_format_for_oxford_minichip():
     # 1 block of oxford chip
-    fmt = get_format("3")
+    fmt = get_format(3)
     assert fmt == [1, 1, 20, 20, 0.125, 0.0, 0.0]
 
 

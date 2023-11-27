@@ -5,7 +5,9 @@ import time
 
 import requests
 
-from mx_bluesky.I24.serial.setup_beamline import caget, cagetstring, pv
+from mx_bluesky.I24.serial.fixed_target.ft_utils import ChipType, MappingType
+from mx_bluesky.I24.serial.setup_beamline import Eiger, caget, cagetstring, pv
+from mx_bluesky.I24.serial.setup_beamline.setup_detector import get_detector_type
 
 
 def call_nexgen(
@@ -15,7 +17,7 @@ def call_nexgen(
     expt_type="fixed-target",
     total_numb_imgs=None,
 ):
-    det_type = str(caget(pv.me14e_gp101))
+    det_type = get_detector_type()
     print(f"det_type: {det_type}")
 
     if expt_type == "fixed-target":
@@ -34,7 +36,7 @@ def call_nexgen(
             prepumpexptime,
             det_type,
         ) = param_file_tuple
-        if map_type == 0 or int(chip_type) == 2:
+        if map_type == MappingType.NoMap or chip_type == ChipType.Custom:
             currentchipmap = "fullchip"
         else:
             currentchipmap = "/dls_sw/i24/scripts/fastchips/litemaps/currentchip.map"
@@ -77,7 +79,7 @@ def call_nexgen(
     transmission = (float(caget(pv.pilat_filtertrasm)),)
     wavelength = float(caget(pv.dcm_lambda))
 
-    if det_type == "eiger":
+    if det_type == Eiger.name:
         print("nexgen here")
         print(chip_prog_dict)
 

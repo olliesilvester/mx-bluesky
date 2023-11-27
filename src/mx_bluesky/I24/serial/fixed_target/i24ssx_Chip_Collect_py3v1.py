@@ -16,6 +16,11 @@ import numpy as np
 
 from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.dcid import DCID
+from mx_bluesky.I24.serial.fixed_target.ft_utils import (
+    ChipType,
+    MappingType,
+    PumpProbeSetting,
+)
 from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1 import (
     get_format,
     scrape_parameter_file,
@@ -24,6 +29,7 @@ from mx_bluesky.I24.serial.parameters import SSXType
 from mx_bluesky.I24.serial.parameters.constants import LITEMAP_PATH, PARAM_FILE_PATH_FT
 from mx_bluesky.I24.serial.setup_beamline import caget, cagetstring, caput, pv
 from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
+from mx_bluesky.I24.serial.setup_beamline.setup_detector import get_detector_type
 from mx_bluesky.I24.serial.write_nexus import call_nexgen
 
 logger = logging.getLogger("I24ssx.fixed_target")
@@ -66,7 +72,7 @@ def get_chip_prog_values(
     exptime=16,
     n_exposures=1,
 ):
-    if chip_type in ["0", "1", "3"]:
+    if chip_type in [ChipType.Oxford, ChipType.OxfordInner, ChipType.Minichip]:
         logger.info("This is an Oxford chip %s" % chip_type)
         # '1' = 'Oxford ' = [8, 8, 20, 20, 0.125, 3.175, 3.175]
         (
@@ -83,7 +89,7 @@ def get_chip_prog_values(
         x_block_size = ((x_num_steps - 1) * w2w) + b2b_horz
         y_block_size = ((y_num_steps - 1) * w2w) + b2b_vert
 
-    elif chip_type == "2":
+    elif chip_type == ChipType.Custom:
         # This is set by the user in the edm screen
         # The chip format might change every time and is read from PVs.
         logger.info("This is a Custom Chip")
@@ -99,24 +105,28 @@ def get_chip_prog_values(
         logger.warning("Unknown chip_type, chip_type = %s" % chip_type)
 
     # this is where p variables for fast laser expts will be set
-    if pump_repeat in ["0", "1", "2"]:
+    if pump_repeat in [
+        PumpProbeSetting.NoPP,
+        PumpProbeSetting.Short1,
+        PumpProbeSetting.Short2,
+    ]:
         pump_repeat_pvar = 0
-    elif pump_repeat == "3":
+    elif pump_repeat == PumpProbeSetting.Repeat1:
         pump_repeat_pvar = 1
-    elif pump_repeat == "4":
+    elif pump_repeat == PumpProbeSetting.Repeat2:
         pump_repeat_pvar = 2
-    elif pump_repeat == "5":
+    elif pump_repeat == PumpProbeSetting.Repeat3:
         pump_repeat_pvar = 3
-    elif pump_repeat == "6":
+    elif pump_repeat == PumpProbeSetting.Repeat5:
         pump_repeat_pvar = 5
-    elif pump_repeat == "7":
+    elif pump_repeat == PumpProbeSetting.Repeat10:
         pump_repeat_pvar = 10
     else:
         logger.warning("Unknown pump_repeat, pump_repeat = %s" % pump_repeat)
 
     logger.info("Pump repeat is %s, PVAR set to %s" % (pump_repeat, pump_repeat_pvar))
 
-    if pump_repeat == "2":
+    if pump_repeat == PumpProbeSetting.Short2:
         pump_in_probe = 1
     else:
         pump_in_probe = 0
@@ -157,20 +167,21 @@ def get_chip_prog_values(
 def load_motion_program_data(motion_program_dict, map_type, pump_repeat):
     logger.info("Loading motion program data for chip.")
     logger.info("Pump_repeat is %s" % pump_repeat)
-    if pump_repeat == "0":
-        if map_type == "0":
+    if pump_repeat == PumpProbeSetting.NoPP:
+        if map_type == MappingType.NoMap:
             prefix = 11
             logger.info(
                 "Map type is %s, setting program prefix to %s" % (map_type, prefix)
             )
-        elif map_type == "1":
+        elif map_type == MappingType.Lite:
             prefix = 12
-        elif map_type == "2":
+        elif map_type == MappingType.Full:
             prefix = 13
         else:
             logger.warning("Unknown Map Type, map_type = %s" % map_type)
             return
-    elif pump_repeat in ["1", "2", "3", "4", "5", "6", "7"]:
+    elif pump_repeat in [pp.value for pp in PumpProbeSetting if pp != 0]:
+        # Pump setting chosen
         prefix = 14
         logger.info("Setting program prefix to %s" % prefix)
     else:
@@ -191,20 +202,20 @@ def load_motion_program_data(motion_program_dict, map_type, pump_repeat):
 
 
 @log.log_on_entry
-def get_prog_num(chip_type, map_type, pump_repeat):
+def get_prog_num(chip_type: int, map_type: int, pump_repeat: int):
     logger.info("Get Program Number")
-    if str(pump_repeat) == "0":
-        if chip_type in ["0", "1"]:
+    if pump_repeat == PumpProbeSetting.NoPP:
+        if chip_type in [ChipType.Oxford, ChipType.OxfordInner]:
             logger.info("Pump_repeat: %s \tOxford Chip: %s" % (pump_repeat, chip_type))
-            if map_type == "0":
+            if map_type == MappingType.NoMap:
                 logger.info("Map type 0 = None")
                 logger.info("Program number: 11")
                 return 11
-            elif map_type == "1":
+            elif map_type == MappingType.Lite:
                 logger.info("Map type 1 = Mapping Lite")
                 logger.info("Program number: 12")
                 return 12
-            elif map_type == "2":
+            elif map_type == MappingType.Full:
                 logger.info("Map type 1 = Full Mapping")
                 logger.info("Program number: 13")  # once fixed return 13
                 msg = "Mapping Type FULL is broken as of 11.09.17"
@@ -213,11 +224,11 @@ def get_prog_num(chip_type, map_type, pump_repeat):
             else:
                 logger.debug("Unknown Mapping Type; map_type = %s" % map_type)
                 return 0
-        elif chip_type == "2":
+        elif chip_type == ChipType.Custom:
             logger.info("Pump_repeat: %s \tCustom Chip: %s" % (pump_repeat, chip_type))
             logger.info("Program number: 11")
             return 11
-        elif chip_type == "3":
+        elif chip_type == ChipType.Minichip:
             logger.info(
                 "Pump_repeat: %s \tMini Oxford Chip: %s" % (pump_repeat, chip_type)
             )
@@ -226,7 +237,7 @@ def get_prog_num(chip_type, map_type, pump_repeat):
         else:
             logger.debug("Unknown chip_type, chip_tpe = = %s" % chip_type)
             return 0
-    elif pump_repeat in ["1", "2", "3", "4", "5", "6", "7"]:
+    elif pump_repeat in [pp.value for pp in PumpProbeSetting if pp != 0]:
         logger.info("Pump_repeat: %s \t Chip Type: %s" % (pump_repeat, chip_type))
         logger.info("Map Type = Mapping Lite with Pump Probe")
         logger.info("Program number: 14")
@@ -256,8 +267,8 @@ def datasetsizei24():
         det_type,
     ) = scrape_parameter_file()
 
-    if map_type == "0":
-        if chip_type == "2":
+    if map_type == MappingType.NoMap:
+        if chip_type == ChipType.Custom:
             total_numb_imgs = int(int(caget(pv.me14e_gp6)) * int(caget(pv.me14e_gp7)))
             logger.info(
                 "Map type: None \tCustom chip \tNumber of images %s" % total_numb_imgs
@@ -270,7 +281,7 @@ def datasetsizei24():
                 % (chip_type, total_numb_imgs)
             )
 
-    elif map_type == "1":
+    elif map_type == MappingType.Lite:
         logger.info("Using Mapping Lite on chip type %s" % chip_type)
         chip_format = get_format(chip_type)[2:4]
         block_count = 0
@@ -289,7 +300,7 @@ def datasetsizei24():
         total_numb_imgs = np.prod(chip_format) * block_count * n_exposures
         logger.info("Calculated number of images: %s" % total_numb_imgs)
 
-    elif map_type == "2":
+    elif map_type == MappingType.Full:
         logger.error("Not Set Up For Full Mapping")
         raise ValueError("The beamline is currently not set for Full Mapping.")
 
@@ -441,7 +452,7 @@ def start_i24():
 
 @log.log_on_entry
 def finish_i24(chip_prog_dict, start_time):
-    det_type = str(caget(pv.me14e_gp101))
+    det_type = get_detector_type()
     logger.info("Finish I24 data collection with %s detector." % det_type)
 
     (
@@ -562,9 +573,9 @@ def main():
     logger.info("Getting Program Dictionary")
 
     # If alignment type is Oxford inner it is still an Oxford type chip
-    if str(chip_type) == "1":
+    if chip_type == ChipType.OxfordInner:
         logger.debug("Change chip type Oxford Inner to Oxford.")
-        chip_type = "0"
+        chip_type = ChipType.Oxford
 
     chip_prog_dict = get_chip_prog_values(
         chip_type,
@@ -600,19 +611,20 @@ def main():
     dcid.notify_start()
 
     param_file_tuple = scrape_parameter_file()
+    tot_num_imgs = datasetsizei24()
     if det_type == "eiger":
         logger.debug("Start nexus writing service.")
         call_nexgen(
             chip_prog_dict,
             start_time,
             param_file_tuple,
-            total_numb_imgs=datasetsizei24(),
+            total_numb_imgs=tot_num_imgs,
         )
 
     logger.info("Data Collection running")
 
     aborted = False
-    timeout_time = time.time() + datasetsizei24() * float(exptime) + 60
+    timeout_time = time.time() + tot_num_imgs * float(exptime) + 60
 
     # me14e_gp9 is the ABORT button
     if int(caget(pv.me14e_gp9)) == 0:

@@ -15,6 +15,7 @@ from typing import Dict, List
 import numpy as np
 
 from mx_bluesky.I24.serial import log
+from mx_bluesky.I24.serial.fixed_target.ft_utils import ChipType
 from mx_bluesky.I24.serial.parameters.constants import (
     HEADER_FILES_PATH,
     PARAM_FILE_PATH_FT,
@@ -46,26 +47,26 @@ def scrape_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
         elif line.startswith("protein_name"):
             sub_dir = entry[1]
         elif "n_exposures" in entry[0].lower():
-            n_exposures = entry[1]
+            n_exposures = int(entry[1])
         elif "chip_type" in entry[0].lower():
-            chip_type = entry[1]
+            chip_type = int(entry[1])
         elif "map_type" in entry[0].lower():
-            map_type = entry[1]
+            map_type = int(entry[1])
         elif "pump_repeat" in entry[0].lower():
-            pump_repeat = entry[1]
+            pump_repeat = int(entry[1])
 
     for line in f:
         entry = line.rstrip().split()
         if "pumpexptime" == entry[0].lower().strip():
-            pumpexptime = entry[1]
+            pumpexptime = float(entry[1])
         if "exptime" in entry[0].lower():
-            exptime = entry[1]
+            exptime = float(entry[1])
         if "dcdetdist" in entry[0].lower():
-            dcdetdist = entry[1]
+            dcdetdist = float(entry[1])
         if "prepumpexptime" in entry[0].lower():
-            prepumpexptime = entry[1]
+            prepumpexptime = int(entry[1])
         if "pumpdelay" in entry[0].lower():
-            pumpdelay = entry[1]
+            pumpdelay = int(entry[1])
         if "det_type" in entry[0].lower():
             det_type = entry[1]
     return (
@@ -115,11 +116,11 @@ def read_parameters(
 
 
 @log.log_on_entry
-def fiducials(chip_type):
-    if chip_type in ["0", "1", "3"]:
-        fiducial_list = []
+def fiducials(chip_type: int):
+    if chip_type in [ChipType.Oxford, ChipType.OxfordInner, ChipType.Minichip]:
+        fiducial_list: list = []
         # No fiducial for custom
-    elif chip_type == "2":
+    elif chip_type == ChipType.Custom:
         logger.warning("No fiducials for custom chip")
     else:
         logger.warning("Unknown chip_type, %s, in fiducials" % chip_type)
@@ -127,18 +128,18 @@ def fiducials(chip_type):
 
 
 @log.log_on_entry
-def get_format(chip_type):
-    if chip_type == "0":  # Oxford
+def get_format(chip_type: int):
+    if chip_type == ChipType.Oxford:
         w2w = 0.125
         b2b_horz = 0.800
         b2b_vert = 0.800
         chip_format = [8, 8, 20, 20]
-    elif chip_type == "1":  # Oxford Inner
+    elif chip_type == ChipType.OxfordInner:
         w2w = 0.600
         b2b_horz = 0.0
         b2b_vert = 0.0
         chip_format = [1, 1, 25, 25]
-    elif chip_type == "3":  # Mini oxford (1 block)
+    elif chip_type == ChipType.Minichip:
         w2w = 0.125
         b2b_horz = 0
         b2b_vert = 0
@@ -152,11 +153,11 @@ def get_format(chip_type):
     return cell_format
 
 
-def get_xy(addr, chip_type):
+def get_xy(addr: str, chip_type: int):
     entry = addr.split("_")[-2:]
     R, C = entry[0][0], entry[0][1]
     r2, c2 = entry[1][0], entry[1][1]
-    blockR = string.uppercase.index(R)
+    blockR = string.ascii_uppercase.index(R)
     blockC = int(C) - 1
     lowercase_list = list(string.ascii_lowercase + string.ascii_uppercase + "0")
     windowR = lowercase_list.index(r2)

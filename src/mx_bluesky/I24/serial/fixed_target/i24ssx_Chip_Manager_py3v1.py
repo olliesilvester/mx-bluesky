@@ -19,6 +19,7 @@ import numpy as np
 from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_Mapping_py3v1 as mapping
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_StartUp_py3v1 as startup
+from mx_bluesky.I24.serial.fixed_target.ft_utils import ChipType
 from mx_bluesky.I24.serial.parameters.constants import (
     CS_FILES_PATH,
     FULLMAP_PATH,
@@ -125,7 +126,7 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
     n_exposures = caget(pv.me14e_gp3)
     map_type = caget(pv.me14e_gp2)
     chip_type = caget(pv.me14e_gp1)
-    det_type = caget(pv.me14e_gp101)
+    det_type = get_detector_type()
 
     # If file name ends in a digit this causes processing/pilatus pain.
     # Append an underscore
@@ -215,7 +216,7 @@ def define_current_chip(
     print 'Setting Mapping Type to Lite'
     caput(pv.me14e_gp2, 1)
     """
-    chip_type = caget(pv.me14e_gp1)
+    chip_type = int(caget(pv.me14e_gp1))
     logger.info("Chip type:%s Chipid:%s" % (chip_type, chipid))
     if chipid == "oxford":
         caput(pv.me14e_gp1, 1)
@@ -524,7 +525,7 @@ def load_lite_map(litemap_path: Path | str = LITEMAP_PATH):
     }
     # fmt: on
     chip_type = int(caget(pv.me14e_gp1))
-    if chip_type in [0, 1]:
+    if chip_type in [ChipType.Oxford, ChipType.OxfordInner]:
         logger.info("Oxford Block Order")
         rows = ["A", "B", "C", "D", "E", "F", "G", "H"]
         columns = list(range(1, 10))
@@ -600,7 +601,7 @@ def moveto(place: str = "origin"):
     chip_type = int(caget(pv.me14e_gp1))
     logger.info("Chip type is%s" % chip_type)
 
-    if chip_type == 0 or chip_type == 3:
+    if chip_type == ChipType.Oxford or chip_type == ChipType.Minichip:
         # Oxford and minichip
         # As minichip is nothing more than a smaller oxford,
         # they should move the same way
@@ -615,7 +616,7 @@ def moveto(place: str = "origin"):
             caput(pv.me14e_stage_x, 0.0)
             caput(pv.me14e_stage_y, 25.40)
 
-    elif chip_type == 1:
+    elif chip_type == ChipType.OxfordInner:
         logger.info("Oxford Inner Move")
         if place == "origin":
             caput(pv.me14e_stage_x, 0.0)
@@ -627,7 +628,7 @@ def moveto(place: str = "origin"):
             caput(pv.me14e_stage_x, 0.0)
             caput(pv.me14e_stage_y, 24.60)
 
-    elif chip_type == 2:
+    elif chip_type == ChipType.Custom:
         logger.info("Custom Chip Move")
         if place == "origin":
             caput(pv.me14e_stage_x, 0.0)
@@ -922,7 +923,7 @@ def cs_maker():
     caput(pv.me14e_pmac_str, "#1hmz#2hmz#3hmz")
     sleep(0.1)
     logger.info("Chip_type is %s" % chip_type)
-    if str(chip_type) == "0":
+    if chip_type == 0:
         caput(pv.me14e_pmac_str, "!x0.4y0.4")
         sleep(0.1)
         caput(pv.me14e_pmac_str, "#1hmz#2hmz#3hmz")
@@ -980,10 +981,10 @@ def block_check():
     while True:
         if int(caget(pv.me14e_gp9)) == 0:
             chip_type = int(caget(pv.me14e_gp1))
-            if chip_type == 3:
+            if chip_type == ChipType.Minichip:
                 logger.info("Oxford mini chip in use.")
                 block_start_list = scrape_pvar_file("minichip_oxford.pvar")
-            elif chip_type == 2:
+            elif chip_type == ChipType.Custom:
                 logger.error("This is a custom chip, no block check available!")
                 raise ValueError(
                     "Chip type set to 'custom', which has no block check."
