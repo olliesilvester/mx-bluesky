@@ -12,10 +12,10 @@ from mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick import (
 @pytest.mark.parametrize(
     "beam_position, expected_1J, expected_2J",
     [
-        ((15, 10), "#1J:-90", "#2J:60"),
-        ((100, 150), "#1J:-600", "#2J:900"),
-        ((475, 309), "#1J:-2850", "#2J:1854"),
-        ((638, 392), "#1J:-3828", "#2J:2352"),
+        ((15, 10), "#1J:-90", "#2J:-60"),
+        ((100, 150), "#1J:-600", "#2J:-900"),
+        ((475, 309), "#1J:-2850", "#2J:-1854"),
+        ((638, 392), "#1J:-3828", "#2J:-2352"),
     ],
 )
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick.caput")
