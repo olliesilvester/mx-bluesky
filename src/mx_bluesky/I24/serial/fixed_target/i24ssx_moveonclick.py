@@ -36,12 +36,8 @@ def _get_beam_centre(oav: OAV):
 def get_beam_centre():
     # Get I24 oav device from dodal
     oav = i24.oav()
-    # from time import sleep
-    # sleep(0.2)
 
     beamX, beamY = _get_beam_centre(oav)
-    # RE = RunEngine(call_returns_result=True)
-    # beamX, beamY = RE(_get_beam_centre(oav)).plan_result
     return beamX, beamY
 
 
