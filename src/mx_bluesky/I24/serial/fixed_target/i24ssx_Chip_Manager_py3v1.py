@@ -157,7 +157,7 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
         f.write("prepumpexptime \t%s\n" % prepumpexptime)
         f.write("exptime \t%s\n" % exptime)
         f.write("dcdetdist \t%s\n" % dcdetdist)
-        f.write("det_type \t%s\n" % det_type)
+        f.write("det_type \t%s\n" % det_type.name)
 
     logger.info("Information written to file")
     logger.info("visit: %s" % visit)
@@ -170,7 +170,7 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
     logger.info("pumpexptime: %s" % pumpexptime)
     logger.info("pumpdelay: %s" % pumpdelay)
     logger.info("prepumpexptime: %s" % prepumpexptime)
-    logger.info("detector type: %s" % det_type)
+    logger.info("detector type: %s" % det_type.name)
 
     if map_type == "2":
         # This step creates some header files (.addr, .spec), containing the parameters,
