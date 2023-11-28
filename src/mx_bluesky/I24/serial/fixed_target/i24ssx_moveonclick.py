@@ -5,7 +5,6 @@ Robin Owen 12 Jan 2021
 import logging
 
 import cv2 as cv
-from bluesky.run_engine import RunEngine
 from dodal.beamlines import i24
 from dodal.devices.oav.oav_detector import OAV
 
@@ -26,7 +25,10 @@ def _get_beam_centre(oav: OAV):
     Args:
         oav (OAV): the OAV device.
     """
-    return oav.parameters.beam_centre_i, oav.parameters.beam_centre_j
+    beamX, beamY = oav.parameters.beam_centre_i, oav.parameters.beam_centre_j
+    beamX *= 1292 / 1024
+    beamY *= 964 / 768
+    return int(beamX), int(beamY)
 
 
 # TODO In the future, this should be done automatically in the OAV device
@@ -34,9 +36,12 @@ def _get_beam_centre(oav: OAV):
 def get_beam_centre():
     # Get I24 oav device from dodal
     oav = i24.oav()
+    # from time import sleep
+    # sleep(0.2)
 
-    RE = RunEngine(call_returns_result=True)
-    beamX, beamY = RE(_get_beam_centre(oav)).plan_result
+    beamX, beamY = _get_beam_centre(oav)
+    # RE = RunEngine(call_returns_result=True)
+    # beamX, beamY = RE(_get_beam_centre(oav)).plan_result
     return beamX, beamY
 
 
@@ -46,7 +51,7 @@ def onMouse(event, x, y, flags, param):
     if event == cv.EVENT_LBUTTONUP:
         logger.info("Clicked X and Y %s %s" % (x, y))
         xmove = -1 * (beamX - x) * zoomcalibrator
-        ymove = 1 * (beamY - y) * zoomcalibrator
+        ymove = -1 * (beamY - y) * zoomcalibrator
         logger.info("Moving X and Y %s %s" % (xmove, ymove))
         xmovepmacstring = "#1J:" + str(xmove)
         ymovepmacstring = "#2J:" + str(ymove)
