@@ -369,8 +369,8 @@ def get_beamsize() -> tuple[float | None, float | None]:
         "focus5010d": ("50x10", 50, 10),
         "focus3010d": ("30x10", 30, 10),
     }
-    v_mode = caget("BL24I-OP-PSU-02:GROUP0:TARGETC")
-    h_mode = caget("BL24I-OP-PSU-02:GROUP1:TARGETC")
+    v_mode = caget("BL24I-OP-MFM-01:G0:TARGETAPPLY")
+    h_mode = caget("BL24I-OP-MFM-01:G1:TARGETAPPLY")
     # Validate these and note an error otherwise
     if not v_mode.startswith("VMFM") or v_mode[4:] not in focus_modes:
         logger.error("Unrecognised vertical beam mode %s", v_mode)

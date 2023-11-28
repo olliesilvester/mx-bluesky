@@ -58,7 +58,7 @@ def copy_files_to_data_location(
         dest_dir = Path(dest_dir)
     dest_dir.mkdir(parents=True, exist_ok=True)
     shutil.copy2(param_path / "parameters.txt", dest_dir / "parameters.txt")
-    if map_type == "1":
+    if map_type == MappingType.Lite:
         shutil.copy2(map_file / "currentchip.map", dest_dir / "currentchip.map")
 
 
