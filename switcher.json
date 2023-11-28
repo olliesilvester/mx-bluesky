@@ -8,10 +8,6 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/11_I24-exercise-motors/"
   },
   {
-    "version": "61_use-enums-for-mus-options",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/61_use-enums-for-mus-options/"
-  },
-  {
     "version": "check-screens-still-work",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/check-screens-still-work/"
   },
@@ -22,6 +18,10 @@
   {
     "version": "make_jupyter_easier",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/make_jupyter_easier/"
+  },
+  {
+    "version": "test20231128",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/test20231128/"
   },
   {
     "version": "wto16239_draft1",
