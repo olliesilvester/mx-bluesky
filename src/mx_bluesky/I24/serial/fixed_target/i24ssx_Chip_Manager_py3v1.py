@@ -19,7 +19,7 @@ import numpy as np
 from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_Mapping_py3v1 as mapping
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_StartUp_py3v1 as startup
-from mx_bluesky.I24.serial.fixed_target.ft_utils import ChipType
+from mx_bluesky.I24.serial.fixed_target.ft_utils import ChipType, MappingType
 from mx_bluesky.I24.serial.parameters.constants import (
     CS_FILES_PATH,
     FULLMAP_PATH,
@@ -157,7 +157,7 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
         f.write("prepumpexptime \t%s\n" % prepumpexptime)
         f.write("exptime \t%s\n" % exptime)
         f.write("dcdetdist \t%s\n" % dcdetdist)
-        f.write("det_type \t%s\n" % det_type)
+        f.write("det_type \t%s\n" % str(det_type))
 
     logger.info("Information written to file")
     logger.info("visit: %s" % visit)
@@ -170,9 +170,8 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
     logger.info("pumpexptime: %s" % pumpexptime)
     logger.info("pumpdelay: %s" % pumpdelay)
     logger.info("prepumpexptime: %s" % prepumpexptime)
-    logger.info("detector type: %s" % det_type)
-
-    if map_type == "2":
+    logger.info("detector type: %s" % str(det_type))
+    if map_type == MappingType.Full:
         # This step creates some header files (.addr, .spec), containing the parameters,
         # that are only needed when full mapping is in use.
         logger.debug("Running start up now.")
@@ -757,6 +756,7 @@ def fiducial(point: int = 1, param_path: Path | str = CS_FILES_PATH):
         f.write("MTR1\t%1.4f\t%i\t%i\t%1.4f\n" % (rbv_1, raw_1, mtr1_dir, f_x))
         f.write("MTR2\t%1.4f\t%i\t%i\t%1.4f\n" % (rbv_2, raw_2, mtr2_dir, f_y))
         f.write("MTR3\t%1.4f\t%i\t%i\t%1.4f" % (rbv_3, raw_3, mtr3_dir, f_z))
+    logger.info(f"Fiducial {point} set.")
 
 
 def scrape_mtr_fiducials(point: int, param_path: Path | str = CS_FILES_PATH):

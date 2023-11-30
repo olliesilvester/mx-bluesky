@@ -64,9 +64,9 @@ def scrape_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
         if "dcdetdist" in entry[0].lower():
             dcdetdist = float(entry[1])
         if "prepumpexptime" in entry[0].lower():
-            prepumpexptime = int(entry[1])
+            prepumpexptime = float(entry[1])
         if "pumpdelay" in entry[0].lower():
-            pumpdelay = int(entry[1])
+            pumpdelay = float(entry[1])
         if "det_type" in entry[0].lower():
             det_type = entry[1]
     return (
