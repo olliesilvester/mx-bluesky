@@ -36,6 +36,9 @@ class Pilatus:
         beamx = pv.pilat_beamx
         beamy = pv.pilat_beamy
 
+    def __str__(self) -> str:
+        return self.name
+
 
 class Eiger:
     id = 94
@@ -61,6 +64,9 @@ class Eiger:
         sequence_id = pv.eiger_seqID
         beamx = pv.eiger_beamx
         beamy = pv.eiger_beamy
+
+    def __str__(self) -> str:
+        return self.name
 
 
 Detector = Union[Pilatus, Eiger]
