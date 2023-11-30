@@ -757,7 +757,7 @@ def fiducial(point: int = 1, param_path: Path | str = CS_FILES_PATH):
         f.write("MTR1\t%1.4f\t%i\t%i\t%1.4f\n" % (rbv_1, raw_1, mtr1_dir, f_x))
         f.write("MTR2\t%1.4f\t%i\t%i\t%1.4f\n" % (rbv_2, raw_2, mtr2_dir, f_y))
         f.write("MTR3\t%1.4f\t%i\t%i\t%1.4f" % (rbv_3, raw_3, mtr3_dir, f_z))
-    logger.info("Fiducial %s set." % point)
+    logger.info(f"Fiducial {point} set.")
 
 
 def scrape_mtr_fiducials(point: int, param_path: Path | str = CS_FILES_PATH):
