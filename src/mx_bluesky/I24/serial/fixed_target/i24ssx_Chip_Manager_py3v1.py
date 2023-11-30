@@ -19,7 +19,7 @@ import numpy as np
 from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_Mapping_py3v1 as mapping
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_StartUp_py3v1 as startup
-from mx_bluesky.I24.serial.fixed_target.ft_utils import ChipType
+from mx_bluesky.I24.serial.fixed_target.ft_utils import ChipType, MappingType
 from mx_bluesky.I24.serial.parameters.constants import (
     CS_FILES_PATH,
     FULLMAP_PATH,
@@ -171,7 +171,7 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
     logger.info("pumpdelay: %s" % pumpdelay)
     logger.info("prepumpexptime: %s" % prepumpexptime)
     logger.info("detector type: %s" % str(det_type))
-    if map_type == "2":
+    if map_type == MappingType.Full:
         # This step creates some header files (.addr, .spec), containing the parameters,
         # that are only needed when full mapping is in use.
         logger.debug("Running start up now.")
