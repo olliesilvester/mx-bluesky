@@ -26,6 +26,8 @@ def _get_beam_centre(oav: OAV):
         oav (OAV): the OAV device.
     """
     beamX, beamY = oav.parameters.beam_centre_i, oav.parameters.beam_centre_j
+    # Re-scale beam position to an image of 1024x768 to get the correct values
+    # See https://github.com/DiamondLightSource/dodal/issues/249
     beamX *= 1292 / 1024
     beamY *= 964 / 768
     return int(beamX), int(beamY)
