@@ -184,6 +184,10 @@ def load_motion_program_data(motion_program_dict, map_type, pump_repeat):
         # Pump setting chosen
         prefix = 14
         logger.info("Setting program prefix to %s" % prefix)
+        caput(pv.me14e_pmac_str, "P1439=0")
+        if bool(caget(pv.me14e_gp111)) is True:
+            logger.info("Checker pattern setting enabled.")
+            caput(pv.me14e_pmac_str, "P1439=1")
     else:
         logger.warning("Unknown Pump repeat, pump_repeat = %s" % pump_repeat)
         return
