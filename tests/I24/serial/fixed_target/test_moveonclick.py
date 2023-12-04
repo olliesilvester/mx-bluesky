@@ -36,13 +36,6 @@ def test_onMouse_gets_beam_position_and_sends_correct_str(
             call.set(expected_2J),
         ]
     )
-    # assert fake_caput.call_count == 2
-    # fake_caput.assert_has_calls(
-    #     [
-    #         call(ANY, expected_1J),
-    #         call(ANY, expected_2J),
-    #     ]
-    # )
 
 
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick.cv")
