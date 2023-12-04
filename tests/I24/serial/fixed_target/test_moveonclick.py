@@ -18,24 +18,31 @@ from mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick import (
         ((638, 392), "#1J:-3828", "#2J:-2352"),
     ],
 )
-@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick.caput")
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick.i24.pmac")
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick.get_beam_centre")
 def test_onMouse_gets_beam_position_and_sends_correct_str(
     fake_get_beam_pos,
-    fake_caput,
+    fake_pmac,
     beam_position,
     expected_1J,
     expected_2J,
 ):
     fake_get_beam_pos.side_effect = [beam_position]
-    onMouse(cv.EVENT_LBUTTONUP, 0, 0, "", "")
-    assert fake_caput.call_count == 2
-    fake_caput.assert_has_calls(
+    fake_pmac.pmac_string = MagicMock()
+    onMouse(cv.EVENT_LBUTTONUP, 0, 0, "", param=fake_pmac)
+    fake_pmac.pmac_string.assert_has_calls(
         [
-            call(ANY, expected_1J),
-            call(ANY, expected_2J),
+            call.set(expected_1J),
+            call.set(expected_2J),
         ]
     )
+    # assert fake_caput.call_count == 2
+    # fake_caput.assert_has_calls(
+    #     [
+    #         call(ANY, expected_1J),
+    #         call(ANY, expected_2J),
+    #     ]
+    # )
 
 
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick.cv")
