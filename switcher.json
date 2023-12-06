@@ -4,6 +4,10 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/main/"
   },
   {
+    "version": "v0.0.1",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.1/"
+  },
+  {
     "version": "11_I24-exercise-motors",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/11_I24-exercise-motors/"
   },
@@ -20,12 +24,12 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/i24-parameters/"
   },
   {
-    "version": "pre_v0.0.1",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/pre_v0.0.1/"
+    "version": "make_jupyter_easier",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/make_jupyter_easier/"
   },
   {
-    "version": "v0.0.1",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.1/"
+    "version": "pre_v0.0.1",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/pre_v0.0.1/"
   },
   {
     "version": "wto16239_draft1",
