@@ -10,7 +10,6 @@ from dodal.devices.oav.oav_detector import OAV
 
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_Manager_py3v1 as manager
 from mx_bluesky.I24.serial.parameters.constants import OAV1_CAM
-from mx_bluesky.I24.serial.setup_beamline import caput, pv
 
 logger = logging.getLogger("I24ssx.moveonclick")
 
@@ -45,6 +44,7 @@ def get_beam_centre():
 
 # Register clicks and move chip stages
 def onMouse(event, x, y, flags, param):
+    pmac = param
     beamX, beamY = get_beam_centre()
     if event == cv.EVENT_LBUTTONUP:
         logger.info("Clicked X and Y %s %s" % (x, y))
@@ -53,8 +53,8 @@ def onMouse(event, x, y, flags, param):
         logger.info("Moving X and Y %s %s" % (xmove, ymove))
         xmovepmacstring = "#1J:" + str(xmove)
         ymovepmacstring = "#2J:" + str(ymove)
-        caput(pv.me14e_pmac_str, xmovepmacstring)
-        caput(pv.me14e_pmac_str, ymovepmacstring)
+        pmac.pmac_string.set(xmovepmacstring)
+        pmac.pmac_string.set(ymovepmacstring)
 
 
 def update_ui(frame):
@@ -140,12 +140,14 @@ def update_ui(frame):
 
 
 def start_viewer(oav1: str = OAV1_CAM):
+    # Get PMAC device
+    pmac = i24.pmac()
     # Create a video caputure from OAV1
     cap = cv.VideoCapture(oav1)
 
     # Create window named OAV1view and set onmouse to this
     cv.namedWindow("OAV1view")
-    cv.setMouseCallback("OAV1view", onMouse)  # type: ignore
+    cv.setMouseCallback("OAV1view", onMouse, param=pmac)  # type: ignore
 
     logger.info("Showing camera feed. Press escape to close")
     # Read captured video and store them in success and frame
@@ -165,7 +167,7 @@ def start_viewer(oav1: str = OAV1_CAM):
         if k == 101:  # E
             manager.moveto("f2")
         if k == 97:  # A
-            caput(pv.me14e_pmac_str, r"\#1hmz\#2hmz\#3hmz")
+            pmac.pmac_string.set(r"\#1hmz\#2hmz\#3hmz")
             print("Current position set as origin")
         if k == 115:  # S
             manager.fiducial(1)
@@ -176,21 +178,21 @@ def start_viewer(oav1: str = OAV1_CAM):
         if k == 98:  # B
             manager.block_check()  # doesn't work well for blockcheck as image doesn't update
         if k == 104:  # H
-            caput(pv.me14e_pmac_str, "#2J:-10")
+            pmac.pmac_string.set("#2J:-10")
         if k == 110:  # N
-            caput(pv.me14e_pmac_str, "#2J:10")
+            pmac.pmac_string.set("#2J:10")
         if k == 109:  # M
-            caput(pv.me14e_pmac_str, "#1J:-10")
+            pmac.pmac_string.set("#1J:-10")
         if k == 98:  # B
-            caput(pv.me14e_pmac_str, "#1J:10")
+            pmac.pmac_string.set("#1J:10")
         if k == 105:  # I
-            caput(pv.me14e_pmac_str, "#3J:-150")
+            pmac.pmac_string.set("#3J:-150")
         if k == 111:  # O
-            caput(pv.me14e_pmac_str, "#3J:150")
+            pmac.pmac_string.set("#3J:150")
         if k == 117:  # U
-            caput(pv.me14e_pmac_str, "#3J:-1000")
+            pmac.pmac_string.set("#3J:-1000")
         if k == 112:  # P
-            caput(pv.me14e_pmac_str, "#3J:1000")
+            pmac.pmac_string.set("#3J:1000")
         if k == 0x1B:  # esc
             cv.destroyWindow("OAV1view")
             print("Pressed escape. Closing window")
