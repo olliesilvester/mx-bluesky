@@ -11,8 +11,11 @@ import time
 from datetime import datetime
 from pathlib import Path
 from time import sleep
+from typing import Dict, List
 
 import numpy as np
+from dodal.beamlines import i24
+from dodal.devices.i24.pmac import PMAC
 
 from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.dcid import DCID
@@ -164,7 +167,9 @@ def get_chip_prog_values(
 
 
 @log.log_on_entry
-def load_motion_program_data(motion_program_dict, map_type, pump_repeat):
+def load_motion_program_data(
+    pmac: PMAC, motion_program_dict: Dict[str, List], map_type: int, pump_repeat: int
+):
     logger.info("Loading motion program data for chip.")
     logger.info("Pump_repeat is %s" % pump_repeat)
     if pump_repeat == PumpProbeSetting.NoPP:
@@ -184,6 +189,10 @@ def load_motion_program_data(motion_program_dict, map_type, pump_repeat):
         # Pump setting chosen
         prefix = 14
         logger.info("Setting program prefix to %s" % prefix)
+        pmac.pmac_string.set("P1439=0")
+        if bool(caget(pv.me14e_gp111)) is True:
+            logger.info("Checker pattern setting enabled.")
+            pmac.pmac_string.set("P1439=1")
     else:
         logger.warning("Unknown Pump repeat, pump_repeat = %s" % pump_repeat)
         return
@@ -196,7 +205,7 @@ def load_motion_program_data(motion_program_dict, map_type, pump_repeat):
         value = str(v[1])
         s = "P%s=%s" % (str(pvar), str(value))
         logger.info("%s \t %s" % (key, s))
-        caput(pv.me14e_pmac_str, s)
+        pmac.pmac_string.set(s)
         sleep(0.02)
     sleep(0.2)
 
@@ -537,6 +546,8 @@ def finish_i24(chip_prog_dict, start_time):
 
 
 def main():
+    # Dodal devices
+    pmac = i24.pmac()
     # ABORT BUTTON
     logger.info("Running a chip collection on I24")
     caput(pv.me14e_gp9, 0)
@@ -587,7 +598,7 @@ def main():
         n_exposures=n_exposures,
     )
     logger.info("Loading Motion Program Data")
-    load_motion_program_data(chip_prog_dict, map_type, pump_repeat)
+    load_motion_program_data(pmac, chip_prog_dict, map_type, pump_repeat)
 
     start_time, dcid = start_i24()
 

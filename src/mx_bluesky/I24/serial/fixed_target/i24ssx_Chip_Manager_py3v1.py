@@ -128,6 +128,8 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
     chip_type = caget(pv.me14e_gp1)
     det_type = get_detector_type()
 
+    checkerpattern = bool(caget(pv.me14e_gp111))
+
     # If file name ends in a digit this causes processing/pilatus pain.
     # Append an underscore
     if det_type == "pilatus":
@@ -158,19 +160,21 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
         f.write("exptime \t%s\n" % exptime)
         f.write("dcdetdist \t%s\n" % dcdetdist)
         f.write("det_type \t%s\n" % str(det_type))
+        f.write("checkerpattern \t%s\n" % str(checkerpattern))
 
     logger.info("Information written to file")
-    logger.info("visit: %s" % visit)
-    logger.info("filename: %s" % chip_name)
-    logger.info("protein_name: %s" % protein_name)
-    logger.info("n_exposures: %s" % n_exposures)
-    logger.info("chip_type: %s" % chip_type)
-    logger.info("map_type: %s" % map_type)
-    logger.info("pump_repeat: %s" % pump_repeat)
-    logger.info("pumpexptime: %s" % pumpexptime)
-    logger.info("pumpdelay: %s" % pumpdelay)
-    logger.info("prepumpexptime: %s" % prepumpexptime)
-    logger.info("detector type: %s" % str(det_type))
+    logger.info(f"visit: {visit}")
+    logger.info(f"filename: {chip_name}")
+    logger.info(f"protein_name: {protein_name}")
+    logger.info(f"n_exposures: {n_exposures}")
+    logger.info(f"chip_type: {chip_type}")
+    logger.info(f"map_type: {map_type}")
+    logger.info(f"pump_repeat: {pump_repeat}")
+    logger.info(f"pumpexptime: {pumpexptime}")
+    logger.info(f"pumpdelay: {pumpdelay}")
+    logger.info(f"prepumpexptime: {prepumpexptime}")
+    logger.info(f"detector type: {str(det_type)}")
+    logger.info(f"checker pattern: {checkerpattern}")
     if map_type == MappingType.Full:
         # This step creates some header files (.addr, .spec), containing the parameters,
         # that are only needed when full mapping is in use.

@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 1570
-y 705
+x 3174
+y 381
 w 900
 h 700
 font "arial-medium-r-18.0"
@@ -1557,5 +1557,56 @@ value {
   " laser delay+dwell > total X-ray exposure"
 }
 autoSize
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 6
+y 275
+w 191
+h 27
+font "arial-bold-r-24.0"
+fgColor index 12
+bgColor index 0
+useDisplayBg
+value {
+  "Checker Pattern"
+}
+autoSize
+endObjectProperties
+
+# (Menu Mux)
+object menuMuxClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 207
+y 276
+w 82
+h 24
+fgColor index 14
+bgColor index 3
+topShadowColor index 1
+botShadowColor index 8
+controlPv "ME14E-MO-IOC-01:GP111"
+font "arial-medium-r-18.0"
+numItems 2
+symbolTag {
+  0 "False"
+  1 "True"
+}
+symbol0 {
+  0 "NN"
+  1 "ML"
+}
+value0 {
+  0 "none"
+  1 "True"
+}
 endObjectProperties
 

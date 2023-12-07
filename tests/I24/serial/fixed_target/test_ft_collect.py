@@ -1,4 +1,4 @@
-from unittest.mock import mock_open, patch
+from unittest.mock import MagicMock, call, mock_open, patch
 
 import pytest
 
@@ -6,6 +6,7 @@ from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1 import (
     datasetsizei24,
     get_chip_prog_values,
     get_prog_num,
+    load_motion_program_data,
     start_i24,
 )
 
@@ -77,6 +78,38 @@ def test_get_chip_prog_values():
 )
 def test_get_prog_number(chip_type, map_type, pump_repeat, expected_prog):
     assert get_prog_num(chip_type, map_type, pump_repeat) == expected_prog
+
+
+@pytest.mark.parametrize(
+    "map_type, pump_repeat, checker, expected_calls",
+    [
+        (0, 0, False, ["P1100=1"]),  # Full chip, no pump probe, no checker
+        (1, 0, False, ["P1200=1"]),  # Mapping lite, no pp, no checker
+        (
+            1,
+            2,
+            False,
+            ["P1439=0", "P1400=1"],
+        ),  # Map irrelevant, pp to Repeat1, no checker
+        (
+            0,
+            3,
+            True,
+            ["P1439=0", "P1439=1", "P1400=1"],
+        ),  # Map irrelevant, pp to Repeat2, checker enabled
+    ],
+)
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.i24.pmac")
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.caget")
+def test_load_motion_program_data_(
+    fake_caget, fake_pmac, map_type, pump_repeat, checker, expected_calls
+):
+    test_dict = {"N_EXPOSURES": [0, 1]}
+    fake_caget.return_value = checker
+    fake_pmac.pmac_string = MagicMock()
+    load_motion_program_data(fake_pmac, test_dict, map_type, pump_repeat)
+    call_list = [call.set(i) for i in expected_calls]
+    fake_pmac.pmac_string.assert_has_calls(call_list)
 
 
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.datasetsizei24")
