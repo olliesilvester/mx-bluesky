@@ -51,6 +51,8 @@ def onMouse(event, x, y, flags, param):
         xmove = -1 * (beamX - x) * zoomcalibrator
         ymove = -1 * (beamY - y) * zoomcalibrator
         logger.info("Moving X and Y %s %s" % (xmove, ymove))
+        # pmac.x.move(xmove)
+        # pmac.y.move(ymove)
         xmovepmacstring = "#1J:" + str(xmove)
         ymovepmacstring = "#2J:" + str(ymove)
         pmac.pmac_string.set(xmovepmacstring)
@@ -178,21 +180,21 @@ def start_viewer(oav1: str = OAV1_CAM):
         if k == 98:  # B
             manager.block_check()  # doesn't work well for blockcheck as image doesn't update
         if k == 104:  # H
-            pmac.pmac_string.set("#2J:-10")
+            pmac.y.move("-10")
         if k == 110:  # N
-            pmac.pmac_string.set("#2J:10")
+            pmac.y.move("10")
         if k == 109:  # M
-            pmac.pmac_string.set("#1J:-10")
+            pmac.x.move("-10")
         if k == 98:  # B
-            pmac.pmac_string.set("#1J:10")
+            pmac.x.move("10")
         if k == 105:  # I
-            pmac.pmac_string.set("#3J:-150")
+            pmac.z.move("-150")
         if k == 111:  # O
-            pmac.pmac_string.set("#3J:150")
+            pmac.z.move("150")
         if k == 117:  # U
-            pmac.pmac_string.set("#3J:-1000")
+            pmac.z.move("-1000")
         if k == 112:  # P
-            pmac.pmac_string.set("#3J:1000")
+            pmac.z.move("1000")
         if k == 0x1B:  # esc
             cv.destroyWindow("OAV1view")
             print("Pressed escape. Closing window")
