@@ -51,12 +51,8 @@ def onMouse(event, x, y, flags, param):
         xmove = -1 * (beamX - x) * zoomcalibrator
         ymove = -1 * (beamY - y) * zoomcalibrator
         logger.info("Moving X and Y %s %s" % (xmove, ymove))
-        # pmac.x.move(xmove)
-        # pmac.y.move(ymove)
-        xmovepmacstring = "#1J:" + str(xmove)
-        ymovepmacstring = "#2J:" + str(ymove)
-        pmac.pmac_string.set(xmovepmacstring)
-        pmac.pmac_string.set(ymovepmacstring)
+        pmac.x.move(xmove)
+        pmac.y.move(ymove)
 
 
 def update_ui(frame):
