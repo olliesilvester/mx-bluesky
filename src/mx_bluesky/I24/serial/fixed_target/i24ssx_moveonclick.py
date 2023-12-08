@@ -154,11 +154,11 @@ def start_viewer(oav1: str = OAV1_CAM):
 
         k = cv.waitKey(1)
         if k == 113:  # Q
-            manager.moveto("zero")
+            manager.moveto("zero", pmac)
         if k == 119:  # W
-            manager.moveto("f1")
+            manager.moveto("f1", pmac)
         if k == 101:  # E
-            manager.moveto("f2")
+            manager.moveto("f2", pmac)
         if k == 97:  # A
             pmac.home_stages()
             print("Current position set as origin")
