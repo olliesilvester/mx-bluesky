@@ -15,6 +15,8 @@ from pathlib import Path
 from time import sleep
 
 import numpy as np
+from dodal.beamlines import i24
+from dodal.devices.i24.pmac import PMAC
 
 from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_Mapping_py3v1 as mapping
@@ -599,8 +601,15 @@ def load_full_map(fullmap_path: Path | str = FULLMAP_PATH):
 
 
 @log.log_on_entry
-def moveto(place: str = "origin"):
+def moveto(place: str = "origin", pmac: PMAC = None):
+    if not pmac:
+        pmac = i24.pmac()
     logger.info("Move to: %s" % place)
+    if place == "zero":
+        logger.info("Chip aspecific move.")
+        caput(pv.me14e_pmac_str, "!x0y0z0")
+        return
+
     chip_type = int(caget(pv.me14e_gp1))
     logger.info("Chip type is%s" % chip_type)
 
@@ -645,7 +654,11 @@ def moveto(place: str = "origin"):
 
     else:
         logger.warning("Unknown chip_type move")
+    return
 
+
+@log.log_on_entry
+def moveto_preset(place: str):
     # Non Chip Specific Move
     if place == "zero":
         logger.info("Moving to %s" % place)
@@ -672,26 +685,30 @@ def moveto(place: str = "origin"):
         caput(pv.me14e_stage_y, -7.8)
         caput(pv.me14e_stage_z, 0.0)
 
-    elif place == "laser1on":  # these are in laser edm
+
+@log.log_on_entry
+def laser_control(laser_setting: str):
+    logger.info("Move to: %s" % laser_setting)
+    if laser_setting == "laser1on":  # these are in laser edm
         logger.info("Laser 1 /BNC2 shutter is open")
         # Use M712 = 0 if triggering on falling edge. M712 =1 if on rising edge
         # Be sure to also change laser1off
         # caput(pv.me14e_pmac_str, ' M712=0 M711=1')
         caput(pv.me14e_pmac_str, " M712=1 M711=1")
 
-    elif place == "laser1off":
+    elif laser_setting == "laser1off":
         logger.info("Laser 1 shutter is closed")
         caput(pv.me14e_pmac_str, " M712=0 M711=1")
 
-    elif place == "laser2on":
+    elif laser_setting == "laser2on":
         logger.info("Laser 2 / BNC3 shutter is open")
         caput(pv.me14e_pmac_str, " M812=1 M811=1")
 
-    elif place == "laser2off":
+    elif laser_setting == "laser2off":
         logger.info("Laser 2 shutter is closed")
         caput(pv.me14e_pmac_str, " M812=0 M811=1")
 
-    elif place == "laser1burn":
+    elif laser_setting == "laser1burn":
         led_burn_time = caget(pv.me14e_gp103)
         logger.info("Laser 1  on")
         logger.info("Burn time is %s s" % led_burn_time)
@@ -700,7 +717,7 @@ def moveto(place: str = "origin"):
         logger.info("Laser 1 off")
         caput(pv.me14e_pmac_str, " M712=0 M711=1")
 
-    elif place == "laser2burn":
+    elif laser_setting == "laser2burn":
         led_burn_time = caget(pv.me14e_gp109)
         logger.info("Laser 2 on")
         logger.info("burntime %s s" % led_burn_time)
@@ -1030,6 +1047,12 @@ def parse_args_and_run_parsed_function(args):
     )
     parser_moveto.add_argument("place", type=str)
     parser_moveto.set_defaults(func=moveto)
+    parser_preset = subparsers.add_parser("preset_pos")
+    parser_preset.add_argument("place", type=str)
+    parser_preset.set_defaults(func=moveto_preset)
+    parser_laser = subparsers.add_parser("laser_control")
+    parser_laser.add_argument("laser_setting", type=str)
+    parser_laser.set_defaults(func=laser_control)
     parser_fid = subparsers.add_parser("fiducial")
     parser_fid.add_argument("point", type=int)
     parser_fid.set_defaults(func=fiducial)
