@@ -5,7 +5,7 @@ The enum values should not be changed unless they are also modified in the drop 
 menu in the edm screen, as their order should always match.
 New ones may be added if needed in the future.
 """
-from enum import IntEnum
+from enum import Enum, IntEnum
 
 
 class MappingType(IntEnum):
@@ -30,3 +30,9 @@ class PumpProbeSetting(IntEnum):
     Repeat3 = 5
     Repeat5 = 6
     Repeat10 = 7
+
+
+class Fiducials(str, Enum):
+    fid0 = "zero"
+    fid1 = "f1"
+    fid2 = "f2"
