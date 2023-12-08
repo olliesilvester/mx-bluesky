@@ -162,7 +162,8 @@ def start_viewer(oav1: str = OAV1_CAM):
         if k == 97:  # A
             # pmac.x/y/z.home(direction) -> what direction is it? forward or reverse?
             # or: pmac.home_stages(direction)
-            pmac.pmac_string.set(r"\#1hmz\#2hmz\#3hmz")
+            pmac.home_stages("forward")
+            # pmac.pmac_string.set(r"\#1hmz\#2hmz\#3hmz")
             print("Current position set as origin")
         if k == 115:  # S
             manager.fiducial(1)
