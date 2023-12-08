@@ -7,6 +7,7 @@ from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1 import (
     cs_maker,
     cs_reset,
     moveto,
+    moveto_preset,
     parse_args_and_run_parsed_function,
     pumpprobe_calc,
     scrape_mtr_directions,
@@ -55,6 +56,20 @@ def test_moveto_chip_unknown(fake_pmac):
     fake_pmac.pmac_string = MagicMock()
     moveto("zero", fake_pmac)
     fake_pmac.pmac_string.assert_has_calls([call.set("!x0y0z0")])
+
+
+@pytest.mark.parametrize(
+    "pos_request, expected_num_caput",
+    [
+        ("load_position", 3),
+        ("collect_position", 6),
+        ("microdrop_position", 3),
+    ],
+)
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caput")
+def test_moveto_preset(fake_caput, pos_request, expected_num_caput):
+    moveto_preset(pos_request)
+    assert fake_caput.call_count == expected_num_caput
 
 
 @patch(
