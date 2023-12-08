@@ -26,31 +26,35 @@ MTR3 0 0 -1 0"""
 cs_json = '{"scalex":1, "scaley":2, "scalez":3, "skew":-0.5, "Sx_dir":1, "Sy_dir":-1, "Sz_dir":0}'
 
 
-@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caput")
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.i24.pmac")
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caget")
-def test_moveto_oxford_origin(fake_caget, fake_caput):
+def test_moveto_oxford_origin(fake_caget, fake_pmac):
     fake_caget.return_value = 0
-    moveto("origin")
+    fake_pmac.x = MagicMock()
+    fake_pmac.y = MagicMock()
+    moveto("origin", fake_pmac)
     assert fake_caget.call_count == 1
-    assert fake_caput.call_count == 2
+    fake_pmac.x.assert_has_calls([call.move(0.0)])
+    fake_pmac.y.assert_has_calls([call.move(0.0)])
 
 
-@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caput")
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.i24.pmac")
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caget")
-def test_moveto_oxford_inner_f1(fake_caget, fake_caput):
+def test_moveto_oxford_inner_f1(fake_caget, fake_pmac):
     fake_caget.return_value = 1
-    moveto("f1")
+    fake_pmac.x = MagicMock()
+    fake_pmac.y = MagicMock()
+    moveto("f1", fake_pmac)
     assert fake_caget.call_count == 1
-    assert fake_caput.call_count == 2
+    fake_pmac.x.assert_has_calls([call.move(24.60)])
+    fake_pmac.y.assert_has_calls([call.move(0.0)])
 
 
-@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caput")
-@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caget")
-def test_moveto_chip_unknown(fake_caget, fake_caput):
-    fake_caget.return_value = 4
-    moveto("zero")
-    assert fake_caget.call_count == 1
-    assert fake_caput.call_count == 1
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.i24.pmac")
+def test_moveto_chip_unknown(fake_pmac):
+    fake_pmac.pmac_string = MagicMock()
+    moveto("zero", fake_pmac)
+    fake_pmac.pmac_string.assert_has_calls([call.set("!x0y0z0")])
 
 
 @patch(

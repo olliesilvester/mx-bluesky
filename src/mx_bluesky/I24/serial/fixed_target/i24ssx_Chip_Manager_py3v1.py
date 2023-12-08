@@ -607,7 +607,7 @@ def moveto(place: str = "origin", pmac: PMAC = None):
     logger.info("Move to: %s" % place)
     if place == "zero":
         logger.info("Chip aspecific move.")
-        caput(pv.me14e_pmac_str, "!x0y0z0")
+        pmac.pmac_string.set("!x0y0z0")
         return
 
     chip_type = int(caget(pv.me14e_gp1))
@@ -619,38 +619,38 @@ def moveto(place: str = "origin", pmac: PMAC = None):
         # they should move the same way
         logger.info("Oxford Move")
         if place == "origin":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 0.0)
+            pmac.x.move(0.0)
+            pmac.y.move(0.0)
         if place == "f1":
-            caput(pv.me14e_stage_x, 25.40)
-            caput(pv.me14e_stage_y, 0.0)
+            pmac.x.move(25.40)
+            pmac.y.move(0.0)
         if place == "f2":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 25.40)
+            pmac.x.move(0.0)
+            pmac.y.move(25.40)
 
     elif chip_type == ChipType.OxfordInner:
         logger.info("Oxford Inner Move")
         if place == "origin":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 0.0)
+            pmac.x.move(0.0)
+            pmac.y.move(0.0)
         if place == "f1":
-            caput(pv.me14e_stage_x, 24.60)
-            caput(pv.me14e_stage_y, 0.0)
+            pmac.x.move(24.60)
+            pmac.y.move(0.0)
         if place == "f2":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 24.60)
+            pmac.x.move(0.0)
+            pmac.y.move(24.60)
 
     elif chip_type == ChipType.Custom:
         logger.info("Custom Chip Move")
         if place == "origin":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 0.0)
+            pmac.x.move(0.0)
+            pmac.y.move(0.0)
         if place == "f1":
-            caput(pv.me14e_stage_x, 25.40)
-            caput(pv.me14e_stage_y, 0.0)
+            pmac.x.move(25.40)
+            pmac.y.move(0.0)
         if place == "f2":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 25.40)
+            pmac.x.move(0.0)
+            pmac.y.move(25.40)
 
     else:
         logger.warning("Unknown chip_type move")
