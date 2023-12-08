@@ -12,10 +12,10 @@ from mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick import (
 @pytest.mark.parametrize(
     "beam_position, expected_xmove, expected_ymove",
     [
-        ((15, 10), -90, -60),
-        ((100, 150), -600, -900),
-        ((475, 309), -2850, -1854),
-        ((638, 392), -3828, -2352),
+        ((15, 10), "#1J:-90", "#2J:-60"),
+        ((100, 150), "#1J:-600", "#2J:-900"),
+        ((475, 309), "#1J:-2850", "#2J:-1854"),
+        ((638, 392), "#1J:-3828", "#2J:-2352"),
     ],
 )
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick.i24.pmac")
@@ -28,11 +28,14 @@ def test_onMouse_gets_beam_position_and_sends_correct_str(
     expected_ymove,
 ):
     fake_get_beam_pos.side_effect = [beam_position]
-    fake_pmac.x = MagicMock()
-    fake_pmac.y = MagicMock()
+    fake_pmac.pmac_string = MagicMock()
     onMouse(cv.EVENT_LBUTTONUP, 0, 0, "", param=fake_pmac)
-    fake_pmac.x.assert_has_calls([call.move(expected_xmove)])
-    fake_pmac.y.assert_has_calls([call.move(expected_ymove)])
+    fake_pmac.pmac_string.assert_has_calls(
+        [
+            call.set(expected_xmove),
+            call.set(expected_ymove),
+        ]
+    )
 
 
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick.cv")

@@ -27,8 +27,6 @@ def _get_beam_centre(oav: OAV):
     return oav.parameters.beam_centre_i, oav.parameters.beam_centre_j
 
 
-# TODO In the future, this should be done automatically in the OAV device
-# See https://github.com/DiamondLightSource/dodal/issues/224
 def get_beam_centre():
     # Get I24 oav device from dodal
     oav = i24.oav()
@@ -46,8 +44,10 @@ def onMouse(event, x, y, flags, param):
         xmove = -1 * (beamX - x) * zoomcalibrator
         ymove = -1 * (beamY - y) * zoomcalibrator
         logger.info("Moving X and Y %s %s" % (xmove, ymove))
-        pmac.x.move(xmove)
-        pmac.y.move(ymove)
+        xmovepmacstring = "#1J:" + str(xmove)
+        ymovepmacstring = "#2J:" + str(ymove)
+        pmac.pmac_string.set(xmovepmacstring)
+        pmac.pmac_string.set(ymovepmacstring)
 
 
 def update_ui(frame):
@@ -160,10 +160,7 @@ def start_viewer(oav1: str = OAV1_CAM):
         if k == 101:  # E
             manager.moveto("f2")
         if k == 97:  # A
-            # pmac.x/y/z.home(direction) -> what direction is it? forward or reverse?
-            # or: pmac.home_stages(direction)
-            pmac.home_stages("forward")
-            # pmac.pmac_string.set(r"\#1hmz\#2hmz\#3hmz")
+            pmac.home_stages()
             print("Current position set as origin")
         if k == 115:  # S
             manager.fiducial(1)
@@ -174,21 +171,21 @@ def start_viewer(oav1: str = OAV1_CAM):
         if k == 98:  # B
             manager.block_check()  # doesn't work well for blockcheck as image doesn't update
         if k == 104:  # H
-            pmac.y.move("-10")
+            pmac.pmac_string.set("#2J:-10")
         if k == 110:  # N
-            pmac.y.move("10")
+            pmac.pmac_string.set("#2J:10")
         if k == 109:  # M
-            pmac.x.move("-10")
+            pmac.pmac_string.set("#1J:-10")
         if k == 98:  # B
-            pmac.x.move("10")
+            pmac.pmac_string.set("#1J:10")
         if k == 105:  # I
-            pmac.z.move("-150")
+            pmac.pmac_string.set("#3J:-150")
         if k == 111:  # O
-            pmac.z.move("150")
+            pmac.pmac_string.set("#3J:150")
         if k == 117:  # U
-            pmac.z.move("-1000")
+            pmac.pmac_string.set("#3J:-1000")
         if k == 112:  # P
-            pmac.z.move("1000")
+            pmac.pmac_string.set("#3J:-1000")
         if k == 0x1B:  # esc
             cv.destroyWindow("OAV1view")
             print("Pressed escape. Closing window")
