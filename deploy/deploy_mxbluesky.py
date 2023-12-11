@@ -62,11 +62,18 @@ def get_release_dir_from_args(repo: repo) -> str:
         choices=recognised_beamlines,
         help="The beamline to deploy mx-bluesky to",
     )
+    parser.add_argument(
+        "--dev-path",
+        type=str,
+        help="Path for dev deployment.",
+    )
 
     args = parser.parse_args()
     if args.beamline == "dev":
         print("Running as dev")
-        return "/tmp/mxbluesky_release_test/bluesky"
+        if not args.dev_path:
+            raise ValueError("The path for the dev install hasn't been specified.")
+        return os.path.join(args.dev_path, "mxbluesky_release_test/bluesky")
     else:
         return f"/dls_sw/{args.beamline}/software/bluesky"
 
