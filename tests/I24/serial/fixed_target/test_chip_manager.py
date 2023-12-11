@@ -58,18 +58,39 @@ def test_moveto_chip_unknown(fake_pmac):
     fake_pmac.pmac_string.assert_has_calls([call.set("!x0y0z0")])
 
 
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caput")
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.i24.pmac")
+def test_moveto_preset(fake_pmac, fake_caput):
+    fake_pmac.pmac_string = MagicMock()
+    moveto_preset("zero", fake_pmac)
+    fake_pmac.pmac_string.assert_has_calls([call.set("!x0y0z0")])
+
+    moveto_preset("load_position", fake_pmac)
+    assert fake_caput.call_count == 3
+
+
 @pytest.mark.parametrize(
-    "pos_request, expected_num_caput",
+    "pos_request, expected_num_caput, expected_pmac_move",
     [
-        ("load_position", 3),
-        ("collect_position", 6),
-        ("microdrop_position", 3),
+        ("collect_position", 3, [0.0, 0.0, 0.0]),
+        ("microdrop_position", 0, [6.0, -7.8, 0.0]),
     ],
 )
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caput")
-def test_moveto_preset(fake_caput, pos_request, expected_num_caput):
-    moveto_preset(pos_request)
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.i24.pmac")
+def test_moveto_preset_with_pmac_move(
+    fake_pmac,
+    fake_caput,
+    pos_request,
+    expected_num_caput,
+    expected_pmac_move,
+):
+    moveto_preset(pos_request, fake_pmac)
     assert fake_caput.call_count == expected_num_caput
+
+    fake_pmac.x.assert_has_calls([call.move(expected_pmac_move[0])])
+    fake_pmac.y.assert_has_calls([call.move(expected_pmac_move[1])])
+    fake_pmac.z.assert_has_calls([call.move(expected_pmac_move[2])])
 
 
 @patch(

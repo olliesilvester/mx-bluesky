@@ -658,11 +658,13 @@ def moveto(place: str = "origin", pmac: PMAC = None):
 
 
 @log.log_on_entry
-def moveto_preset(place: str):
+def moveto_preset(place: str, pmac: PMAC = None):
+    if not PMAC:
+        pmac = i24.pmac()
     # Non Chip Specific Move
     if place == "zero":
         logger.info("Moving to %s" % place)
-        caput(pv.me14e_pmac_str, "!x0y0z0")
+        pmac.pmac_string.set("!x0y0z0")
 
     elif place == "load_position":
         logger.info("load position")
@@ -673,22 +675,24 @@ def moveto_preset(place: str):
     elif place == "collect_position":
         logger.info("collect position")
         caput(pv.me14e_filter, 20)
-        caput(pv.me14e_stage_x, 0.0)
-        caput(pv.me14e_stage_y, 0.0)
-        caput(pv.me14e_stage_z, 0.0)
+        pmac.x.move(0.0)
+        pmac.y.move(0.0)
+        pmac.z.move(0.0)
         caput(pv.bs_mp_select, "Data Collection")
         caput(pv.bl_mp_select, "In")
 
     elif place == "microdrop_position":
         logger.info("microdrop align position")
-        caput(pv.me14e_stage_x, 6.0)
-        caput(pv.me14e_stage_y, -7.8)
-        caput(pv.me14e_stage_z, 0.0)
+        pmac.x.move(6.0)
+        pmac.y.move(-7.8)
+        pmac.z.move(0.0)
 
 
 @log.log_on_entry
-def laser_control(laser_setting: str):
+def laser_control(laser_setting: str, pmac: PMAC = None):
     logger.info("Move to: %s" % laser_setting)
+    if not pmac:
+        pmac = i24.pmac()
     if laser_setting == "laser1on":  # these are in laser edm
         logger.info("Laser 1 /BNC2 shutter is open")
         # Use M712 = 0 if triggering on falling edge. M712 =1 if on rising edge
