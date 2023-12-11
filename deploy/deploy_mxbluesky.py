@@ -130,6 +130,19 @@ if __name__ == "__main__":
     if p.returncode != 0:
         raise CalledProcessError(p.returncode, p.args)
 
+    # If on beamline I24 also deploy the screens to run ssx collections
+    if "i24" in release_area:
+        print("Setting up edm screens for serial collections on I24.")
+        with Popen(
+            "./deploy/deploy_edm_for_ssx.sh",
+            stdout=PIPE,
+            bufsize=1,
+            universal_newlines=True,
+        ) as p:
+            if p.stdout is not None:
+                for line in p.stdout:
+                    print(line, end="")
+
     move_symlink = input(
         """Move symlink (y/n)? WARNING: this will affect the running version!
 Only do so if you have informed the beamline scientist and you're sure mx_bluesky is not running.
