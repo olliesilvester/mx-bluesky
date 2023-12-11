@@ -114,7 +114,7 @@ if __name__ == "__main__":
 
     if mx_repo.name == "mx_bluesky":
         with Popen(
-            "./dls_dev_env.sh", stdout=PIPE, bufsize=1, universal_newlines=True
+            "./dls_dev_setup.sh", stdout=PIPE, bufsize=1, universal_newlines=True
         ) as p:
             if p.stdout is not None:
                 for line in p.stdout:
