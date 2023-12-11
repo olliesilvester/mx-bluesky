@@ -6,6 +6,7 @@ import pytest
 from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1 import (
     cs_maker,
     cs_reset,
+    laser_control,
     moveto,
     moveto_preset,
     parse_args_and_run_parsed_function,
@@ -91,6 +92,33 @@ def test_moveto_preset_with_pmac_move(
     fake_pmac.x.assert_has_calls([call.move(expected_pmac_move[0])])
     fake_pmac.y.assert_has_calls([call.move(expected_pmac_move[1])])
     fake_pmac.z.assert_has_calls([call.move(expected_pmac_move[2])])
+
+
+@pytest.mark.parametrize(
+    "laser_setting, expected_pmac_string",
+    [
+        ("laser1on", " M712=1 M711=1"),
+        ("laser1off", " M712=0 M711=1"),
+        ("laser2on", " M812=1 M811=1"),
+        ("laser2off", " M812=0 M811=1"),
+    ],
+)
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.i24.pmac")
+def test_laser_control_on_and_off(fake_pmac, laser_setting, expected_pmac_string):
+    laser_control(laser_setting, fake_pmac)
+
+    fake_pmac.pmac_string.assert_has_calls([call.set(expected_pmac_string)])
+
+
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caget")
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.i24.pmac")
+def test_laser_control_burn_setting(fake_pmac, fake_caget):
+    fake_caget.return_value = 0.1
+    laser_control("laser1burn", fake_pmac)
+
+    fake_pmac.pmac_string.assert_has_calls(
+        [call.set(" M712=1 M711=1"), call.set(" M712=0 M711=1")]
+    )
 
 
 @patch(
