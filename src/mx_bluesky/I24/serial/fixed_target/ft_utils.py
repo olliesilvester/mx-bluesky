@@ -33,6 +33,7 @@ class PumpProbeSetting(IntEnum):
 
 
 class Fiducials(str, Enum):
-    fid0 = "zero"
+    origin = "origin"
+    zero = "zero"
     fid1 = "f1"
     fid2 = "f2"

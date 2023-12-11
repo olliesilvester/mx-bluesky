@@ -21,7 +21,7 @@ from dodal.devices.i24.pmac import PMAC
 from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_Mapping_py3v1 as mapping
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_StartUp_py3v1 as startup
-from mx_bluesky.I24.serial.fixed_target.ft_utils import ChipType, MappingType
+from mx_bluesky.I24.serial.fixed_target.ft_utils import ChipType, Fiducials, MappingType
 from mx_bluesky.I24.serial.parameters.constants import (
     CS_FILES_PATH,
     FULLMAP_PATH,
@@ -605,7 +605,7 @@ def moveto(place: str = "origin", pmac: PMAC = None):
     if not pmac:
         pmac = i24.pmac()
     logger.info("Move to: %s" % place)
-    if place == "zero":
+    if place == Fiducials.zero:
         logger.info("Chip aspecific move.")
         pmac.pmac_string.set("!x0y0z0")
         return
@@ -618,37 +618,37 @@ def moveto(place: str = "origin", pmac: PMAC = None):
         # As minichip is nothing more than a smaller oxford,
         # they should move the same way
         logger.info("Oxford Move")
-        if place == "origin":
+        if place == Fiducials.origin:
             pmac.x.move(0.0)
             pmac.y.move(0.0)
-        if place == "f1":
+        if place == Fiducials.fid1:
             pmac.x.move(25.40)
             pmac.y.move(0.0)
-        if place == "f2":
+        if place == Fiducials.fid2:
             pmac.x.move(0.0)
             pmac.y.move(25.40)
 
     elif chip_type == ChipType.OxfordInner:
         logger.info("Oxford Inner Move")
-        if place == "origin":
+        if place == Fiducials.origin:
             pmac.x.move(0.0)
             pmac.y.move(0.0)
-        if place == "f1":
+        if place == Fiducials.fid1:
             pmac.x.move(24.60)
             pmac.y.move(0.0)
-        if place == "f2":
+        if place == Fiducials.fid2:
             pmac.x.move(0.0)
             pmac.y.move(24.60)
 
     elif chip_type == ChipType.Custom:
         logger.info("Custom Chip Move")
-        if place == "origin":
+        if place == Fiducials.origin:
             pmac.x.move(0.0)
             pmac.y.move(0.0)
-        if place == "f1":
+        if place == Fiducials.fid1:
             pmac.x.move(25.40)
             pmac.y.move(0.0)
-        if place == "f2":
+        if place == Fiducials.fid2:
             pmac.x.move(0.0)
             pmac.y.move(25.40)
 

@@ -3,6 +3,7 @@ from unittest.mock import ANY, MagicMock, call, mock_open, patch
 
 import pytest
 
+from mx_bluesky.I24.serial.fixed_target.ft_utils import Fiducials
 from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1 import (
     cs_maker,
     cs_reset,
@@ -34,7 +35,7 @@ def test_moveto_oxford_origin(fake_caget, fake_pmac):
     fake_caget.return_value = 0
     fake_pmac.x = MagicMock()
     fake_pmac.y = MagicMock()
-    moveto("origin", fake_pmac)
+    moveto(Fiducials.origin, fake_pmac)
     assert fake_caget.call_count == 1
     fake_pmac.x.assert_has_calls([call.move(0.0)])
     fake_pmac.y.assert_has_calls([call.move(0.0)])
@@ -46,7 +47,7 @@ def test_moveto_oxford_inner_f1(fake_caget, fake_pmac):
     fake_caget.return_value = 1
     fake_pmac.x = MagicMock()
     fake_pmac.y = MagicMock()
-    moveto("f1", fake_pmac)
+    moveto(Fiducials.fid1, fake_pmac)
     assert fake_caget.call_count == 1
     fake_pmac.x.assert_has_calls([call.move(24.60)])
     fake_pmac.y.assert_has_calls([call.move(0.0)])
