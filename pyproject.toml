@@ -29,6 +29,7 @@ requires-python = ">=3.9"
 
 [project.optional-dependencies]
 dev = [
+    "GitPython",
     "black",
     "mypy",
     "pipdeptree",
