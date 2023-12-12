@@ -67,9 +67,10 @@ class repo:
 
 # Get permission groups depending on beamline/dev install
 def get_permission_groups(beamline: str = None) -> List:
-    if not beamline:
-        return ["gda2", "dls_dasc"]
-    return [f"{beamline}_staff", "gda2", "dls_dasc"]
+    beamline_groups = ["gda2", "dls_dasc"]
+    if beamline:
+        beamline_groups.append(f"{beamline}_staff")
+    return beamline_groups
 
 
 # Get the release directory based off the beamline and the latest mx_bluesky version
