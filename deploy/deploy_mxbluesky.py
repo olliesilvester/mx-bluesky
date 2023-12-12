@@ -1,3 +1,7 @@
+"""
+Deploy latest release of mx_bluesky either on a beamline or in dev mode.
+"""
+
 import argparse
 import os
 from subprocess import PIPE, CalledProcessError, Popen
@@ -7,6 +11,16 @@ from git import Repo
 from packaging.version import Version
 
 recognised_beamlines = ["i24"]
+
+help_message = """
+To deploy mx_bluesky on a specific beamline, pass only the --beamline argument.
+This will put the latest release in /dls_sw/ixx/software/bluesky/mx_bluesky_v#.#.# and \
+set the permissions accordingly. \n
+To run in dev mode instead, only the --dev-path should be passed, a test release will \
+be placed in {dev_path}/mxbluesky_release_test/bluesky. \n
+Finally, if both a --beamline and a --dev-path are specified, a beamline-specific test \
+deployment will be put in the test directory.
+"""
 
 
 class repo:
@@ -63,8 +77,11 @@ def get_beamline_and_release_dir_from_args(repo: repo) -> Tuple[str, str]:
     if repo.name != "mx_bluesky":
         raise ValueError("This function should only be used with the mx_bluesky repo")
 
-    help_message = ""
-    parser = argparse.ArgumentParser(epilog=help_message)
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawTextHelpFormatter,
+        description=__doc__,
+        epilog=help_message,
+    )
     parser.add_argument(
         "--beamline",
         type=str,
@@ -79,7 +96,6 @@ def get_beamline_and_release_dir_from_args(repo: repo) -> Tuple[str, str]:
 
     args = parser.parse_args()
     if not args.beamline:
-        # if args.beamline == "dev":
         print("Running as dev")
         if not args.dev_path:
             raise ValueError("The path for the dev install hasn't been specified.")
