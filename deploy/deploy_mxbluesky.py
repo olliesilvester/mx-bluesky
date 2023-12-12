@@ -115,6 +115,15 @@ def get_beamline_and_release_dir_from_args(repo: repo) -> Tuple[str, str]:
         return args.beamline, f"/dls_sw/{args.beamline}/software/bluesky"
 
 
+def run_process_and_print_output(proc_to_run):
+    with Popen(proc_to_run, stdout=PIPE, bufsize=1, universal_newlines=True) as p:
+        if p.stdout is not None:
+            for line in p.stdout:
+                print(line, end="")
+    if p.returncode != 0:
+        raise CalledProcessError(p.returncode, p.args)
+
+
 if __name__ == "__main__":
     mx_repo = repo(
         name="mx_bluesky",
@@ -157,28 +166,12 @@ if __name__ == "__main__":
     print(f"Setting up environment in {mx_repo.deploy_location}")
 
     if mx_repo.name == "mx_bluesky":
-        with Popen(
-            "./dls_dev_setup.sh", stdout=PIPE, bufsize=1, universal_newlines=True
-        ) as p:
-            if p.stdout is not None:
-                for line in p.stdout:
-                    print(line, end="")
-
-    if p.returncode != 0:
-        raise CalledProcessError(p.returncode, p.args)
+        run_process_and_print_output("./dls_dev_setup.sh")
 
     # If on beamline I24 also deploy the screens to run ssx collections
     if beamline == "i24":
         print("Setting up edm screens for serial collections on I24.")
-        with Popen(
-            "./deploy/deploy_edm_for_ssx.sh",
-            stdout=PIPE,
-            bufsize=1,
-            universal_newlines=True,
-        ) as p:
-            if p.stdout is not None:
-                for line in p.stdout:
-                    print(line, end="")
+        run_process_and_print_output("./deploy/deploy_edm_for_ssx.sh")
 
     move_symlink = input(
         """Move symlink (y/n)? WARNING: this will affect the running version!
