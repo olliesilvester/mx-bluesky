@@ -4,20 +4,12 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/main/"
   },
   {
-    "version": "v0.0.1",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.1/"
-  },
-  {
     "version": "11_I24-exercise-motors",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/11_I24-exercise-motors/"
   },
   {
     "version": "54_use-motor-record-for-pmac-move",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/54_use-motor-record-for-pmac-move/"
-  },
-  {
-    "version": "9_set_up_deply_script",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/9_set_up_deply_script/"
   },
   {
     "version": "check-screens-still-work",
@@ -30,6 +22,10 @@
   {
     "version": "pre_v0.0.1",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/pre_v0.0.1/"
+  },
+  {
+    "version": "v0.0.1",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.1/"
   },
   {
     "version": "wto16239_draft1",
