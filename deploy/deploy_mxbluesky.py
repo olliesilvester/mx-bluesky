@@ -1,11 +1,12 @@
 import argparse
 import os
 from subprocess import PIPE, CalledProcessError, Popen
+from typing import List, Tuple
 
 from git import Repo
 from packaging.version import Version
 
-recognised_beamlines = ["dev", "i24"]
+recognised_beamlines = ["i24"]
 
 
 class repo:
@@ -22,7 +23,7 @@ class repo:
         print(f"Found {self.name}_versions:\n{os.linesep.join(self.versions)}")
         self.latest_version_str = self.versions[0]
 
-    def deploy(self, url):
+    def deploy(self, url, beamline: str = None):
         print(f"Cloning latest version {self.name} into {self.deploy_location}")
 
         deploy_repo = Repo.init(self.deploy_location)
@@ -32,7 +33,7 @@ class repo:
         deploy_repo.git.checkout(self.latest_version_str)
 
         print("Setting permissions")
-        groups_to_give_permission = ["i24_staff", "gda2", "dls_dasc"]
+        groups_to_give_permission = get_permission_groups(beamline)
         setfacl_params = ",".join(
             [f"g:{group}:rwx" for group in groups_to_give_permission]
         )
@@ -50,17 +51,25 @@ class repo:
             )
 
 
+# Get permission groups depending on beamline/dev install
+def get_permission_groups(beamline: str = None) -> List:
+    if not beamline:
+        return ["gda2", "dls_dasc"]
+    return [f"{beamline}_staff", "gda2", "dls_dasc"]
+
+
 # Get the release directory based off the beamline and the latest mx_bluesky version
-def get_release_dir_from_args(repo: repo) -> str:
+def get_beamline_and_release_dir_from_args(repo: repo) -> Tuple[str, str]:
     if repo.name != "mx_bluesky":
         raise ValueError("This function should only be used with the mx_bluesky repo")
 
-    parser = argparse.ArgumentParser()
+    help_message = ""
+    parser = argparse.ArgumentParser(epilog=help_message)
     parser.add_argument(
-        "beamline",
+        "--beamline",
         type=str,
         choices=recognised_beamlines,
-        help="The beamline to deploy mx-bluesky to",
+        help="The beamline to deploy mx-bluesky to.",
     )
     parser.add_argument(
         "--dev-path",
@@ -69,13 +78,25 @@ def get_release_dir_from_args(repo: repo) -> str:
     )
 
     args = parser.parse_args()
-    if args.beamline == "dev":
+    if not args.beamline:
+        # if args.beamline == "dev":
         print("Running as dev")
         if not args.dev_path:
             raise ValueError("The path for the dev install hasn't been specified.")
-        return os.path.join(args.dev_path, "mxbluesky_release_test/bluesky")
+        return None, os.path.join(args.dev_path, "mxbluesky_release_test/bluesky")
+    elif args.beamline and args.dev_path:
+        print(
+            f"""
+            WARNING! Running a {args.beamline} deployment as dev, which will be placed
+            in {args.dev_path}.
+            """
+        )
+        return args.beamline, os.path.join(
+            args.dev_path, f"mxbluesky_{args.beamline}_release_test/bluesky"
+        )
     else:
-        return f"/dls_sw/{args.beamline}/software/bluesky"
+        print(f"Deploying on beamline {args.beamline}.")
+        return args.beamline, f"/dls_sw/{args.beamline}/software/bluesky"
 
 
 if __name__ == "__main__":
@@ -85,7 +106,7 @@ if __name__ == "__main__":
     )
 
     # Gives path to /bluesky
-    release_area = get_release_dir_from_args(mx_repo)
+    beamline, release_area = get_beamline_and_release_dir_from_args(mx_repo)
 
     release_area_version = os.path.join(
         release_area, f"mx_bluesky_{mx_repo.latest_version_str}"
@@ -102,7 +123,7 @@ if __name__ == "__main__":
     mx_repo.set_deploy_location(release_area_version)
 
     # Deploy mx_bluesky repo
-    mx_repo.deploy(mx_repo.origin.url)
+    mx_repo.deploy(mx_repo.origin.url, beamline)
 
     # Get version of dodal that latest mx_bluesky version uses
     with open(f"{release_area_version}/mx_bluesky/pyproject.toml", "r") as setup_file:
@@ -113,7 +134,7 @@ if __name__ == "__main__":
         ]
 
     # Now deploy the correct version of dodal
-    dodal_repo.deploy(dodal_url)
+    dodal_repo.deploy(dodal_url, beamline)
 
     # Set up environment and run /dls_dev_env.sh...
     os.chdir(mx_repo.deploy_location)
@@ -131,7 +152,7 @@ if __name__ == "__main__":
         raise CalledProcessError(p.returncode, p.args)
 
     # If on beamline I24 also deploy the screens to run ssx collections
-    if "i24" in release_area:
+    if beamline == "i24":
         print("Setting up edm screens for serial collections on I24.")
         with Popen(
             "./deploy/deploy_edm_for_ssx.sh",
