@@ -39,22 +39,22 @@ def get_beam_centre():
 
 # Register clicks and move chip stages
 def onMouse(event, x, y, flags, param):
-    pmac = param
-    beamX, beamY = get_beam_centre()
     if event == cv.EVENT_LBUTTONUP:
+        pmac = param
+        beamX, beamY = get_beam_centre()
         logger.info("Clicked X and Y %s %s" % (x, y))
         xmove = -1 * (beamX - x) * zoomcalibrator
         ymove = -1 * (beamY - y) * zoomcalibrator
         logger.info("Moving X and Y %s %s" % (xmove, ymove))
         xmovepmacstring = "#1J:" + str(xmove)
         ymovepmacstring = "#2J:" + str(ymove)
-        pmac.pmac_string.set(xmovepmacstring)
-        pmac.pmac_string.set(ymovepmacstring)
+        pmac.pmac_string.put(xmovepmacstring, wait=True)
+        pmac.pmac_string.put(ymovepmacstring, wait=True)
 
 
-def update_ui(frame):
+def update_ui(oav, frame):
     # Get beam x and y values
-    beamX, beamY = get_beam_centre()
+    beamX, beamY = _get_beam_centre(oav)
 
     # Overlay text and beam centre
     cv.ellipse(
@@ -136,7 +136,9 @@ def update_ui(frame):
 
 def start_viewer(oav1: str = OAV1_CAM):
     # Get PMAC device
+    print("Creating dodal devices")
     pmac = i24.pmac()
+    oav = i24.oav()
     # Create a video caputure from OAV1
     cap = cv.VideoCapture(oav1)
 
@@ -152,7 +154,7 @@ def start_viewer(oav1: str = OAV1_CAM):
     while success:
         success, frame = cap.read()
 
-        update_ui(frame)
+        update_ui(oav, frame)
 
         k = cv.waitKey(1)
         if k == 113:  # Q
