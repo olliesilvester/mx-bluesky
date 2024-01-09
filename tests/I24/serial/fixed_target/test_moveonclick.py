@@ -32,18 +32,19 @@ def test_onMouse_gets_beam_position_and_sends_correct_str(
     onMouse(cv.EVENT_LBUTTONUP, 0, 0, "", param=fake_pmac)
     fake_pmac.pmac_string.assert_has_calls(
         [
-            call.set(expected_1J),
-            call.set(expected_2J),
+            call.put(expected_1J, wait=True),
+            call.put(expected_2J, wait=True),
         ]
     )
 
 
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick.cv")
-@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick.get_beam_centre")
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick._get_beam_centre")
 def test_update_ui_uses_correct_beam_centre_for_ellipse(fake_beam_pos, fake_cv):
     mock_frame = MagicMock()
+    mock_oav = MagicMock()
     fake_beam_pos.side_effect = [(15, 10)]
-    update_ui(mock_frame)
+    update_ui(mock_oav, mock_frame)
     fake_cv.ellipse.assert_called_once()
     fake_cv.ellipse.assert_has_calls(
         [call(ANY, (15, 10), (12, 8), 0.0, 0.0, 360, (0, 255, 255), thickness=2)]
