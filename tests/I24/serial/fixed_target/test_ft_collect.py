@@ -101,14 +101,14 @@ def test_get_prog_number(chip_type, map_type, pump_repeat, expected_prog):
 )
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.i24.pmac")
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.caget")
-def test_load_motion_program_data_(
+def test_load_motion_program_data(
     fake_caget, fake_pmac, map_type, pump_repeat, checker, expected_calls
 ):
     test_dict = {"N_EXPOSURES": [0, 1]}
     fake_caget.return_value = checker
     fake_pmac.pmac_string = MagicMock()
     load_motion_program_data(fake_pmac, test_dict, map_type, pump_repeat)
-    call_list = [call.set(i) for i in expected_calls]
+    call_list = [call.put(i, wait=True) for i in expected_calls]
     fake_pmac.pmac_string.assert_has_calls(call_list)
 
 
