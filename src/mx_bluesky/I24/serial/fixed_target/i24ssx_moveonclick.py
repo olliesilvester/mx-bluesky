@@ -15,7 +15,7 @@ logger = logging.getLogger("I24ssx.moveonclick")
 
 # Set scale.
 # TODO See https://github.com/DiamondLightSource/mx_bluesky/issues/44
-zoomcalibrator = 6  # 8 seems to work well for zoom 2
+zoomcalibrator = 13.5  # 8 seems to work well for zoom 2
 
 
 def _get_beam_centre(oav: OAV):
@@ -27,21 +27,12 @@ def _get_beam_centre(oav: OAV):
     return oav.parameters.beam_centre_i, oav.parameters.beam_centre_j
 
 
-# TODO In the future, this should be done automatically in the OAV device
-# See https://github.com/DiamondLightSource/dodal/issues/224
-def get_beam_centre():
-    # Get I24 oav device from dodal
-    oav = i24.oav()
-
-    beamX, beamY = _get_beam_centre(oav)
-    return beamX, beamY
-
-
 # Register clicks and move chip stages
 def onMouse(event, x, y, flags, param):
     if event == cv.EVENT_LBUTTONUP:
-        pmac = param
-        beamX, beamY = get_beam_centre()
+        pmac = param[0]
+        oav = param[1]
+        beamX, beamY = _get_beam_centre(oav)
         logger.info("Clicked X and Y %s %s" % (x, y))
         xmove = -1 * (beamX - x) * zoomcalibrator
         ymove = -1 * (beamY - y) * zoomcalibrator
@@ -144,7 +135,7 @@ def start_viewer(oav1: str = OAV1_CAM):
 
     # Create window named OAV1view and set onmouse to this
     cv.namedWindow("OAV1view")
-    cv.setMouseCallback("OAV1view", onMouse, param=pmac)  # type: ignore
+    cv.setMouseCallback("OAV1view", onMouse, param=[pmac, oav])  # type: ignore
 
     logger.info("Showing camera feed. Press escape to close")
     # Read captured video and store them in success and frame
