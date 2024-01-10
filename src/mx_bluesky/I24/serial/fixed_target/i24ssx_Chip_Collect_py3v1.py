@@ -462,7 +462,7 @@ def start_i24():
 @log.log_on_entry
 def finish_i24(chip_prog_dict, start_time):
     det_type = get_detector_type()
-    logger.info("Finish I24 data collection with %s detector." % det_type)
+    logger.info("Finish I24 data collection with %s detector." % str(det_type))
 
     (
         chip_name,

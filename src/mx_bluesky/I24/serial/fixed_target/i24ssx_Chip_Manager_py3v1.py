@@ -132,7 +132,7 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
 
     # If file name ends in a digit this causes processing/pilatus pain.
     # Append an underscore
-    if det_type == "pilatus":
+    if str(det_type) == "pilatus":
         caput(pv.pilat_cbftemplate, 0)
         m = re.search(r"\d+$", filename)
         if m is not None:
