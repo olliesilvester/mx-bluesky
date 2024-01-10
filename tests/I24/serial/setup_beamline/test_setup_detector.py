@@ -11,6 +11,7 @@ from mx_bluesky.I24.serial.parameters.constants import SSXType
 from mx_bluesky.I24.serial.setup_beamline import Eiger, Pilatus
 from mx_bluesky.I24.serial.setup_beamline.setup_detector import (
     DetRequest,
+    _get_requested_detector,
     get_detector_type,
     setup_detector_stage,
 )
@@ -43,6 +44,22 @@ def test_get_detector_type(fake_caget):
 def test_get_detector_type_finds_pilatus(fake_caget):
     fake_caget.return_value = 566
     assert get_detector_type().name == "pilatus"
+
+
+@patch("mx_bluesky.I24.serial.setup_beamline.setup_detector.caget")
+def test_get_requested_detector(fake_caget):
+    fake_caget.return_value = "pilatus"
+    assert _get_requested_detector("some_pv") == Pilatus.name
+
+    fake_caget.return_value = "0"
+    assert _get_requested_detector("some_pv") == Eiger.name
+
+
+@patch("mx_bluesky.I24.serial.setup_beamline.setup_detector.caget")
+def test_get_requested_detector_raises_error_for_invalid_value(fake_caget):
+    fake_caget.return_value = "something"
+    with pytest.raises(ValueError):
+        _get_requested_detector("some_pv")
 
 
 @patch("mx_bluesky.I24.serial.setup_beamline.setup_detector.caget")
