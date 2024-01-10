@@ -57,7 +57,7 @@ def test_moveto_oxford_inner_f1(fake_caget, fake_pmac):
 def test_moveto_chip_unknown(fake_pmac):
     fake_pmac.pmac_string = MagicMock()
     moveto("zero", fake_pmac)
-    fake_pmac.pmac_string.assert_has_calls([call.set("!x0y0z0")])
+    fake_pmac.pmac_string.assert_has_calls([call.put("!x0y0z0", wait=True)])
 
 
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caput")
@@ -65,7 +65,7 @@ def test_moveto_chip_unknown(fake_pmac):
 def test_moveto_preset(fake_pmac, fake_caput):
     fake_pmac.pmac_string = MagicMock()
     moveto_preset("zero", fake_pmac)
-    fake_pmac.pmac_string.assert_has_calls([call.set("!x0y0z0")])
+    fake_pmac.pmac_string.assert_has_calls([call.put("!x0y0z0", wait=True)])
 
     moveto_preset("load_position", fake_pmac)
     assert fake_caput.call_count == 3
@@ -108,7 +108,7 @@ def test_moveto_preset_with_pmac_move(
 def test_laser_control_on_and_off(fake_pmac, laser_setting, expected_pmac_string):
     laser_control(laser_setting, fake_pmac)
 
-    fake_pmac.pmac_string.assert_has_calls([call.set(expected_pmac_string)])
+    fake_pmac.pmac_string.assert_has_calls([call.put(expected_pmac_string, wait=True)])
 
 
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caget")
@@ -118,7 +118,7 @@ def test_laser_control_burn_setting(fake_pmac, fake_caget):
     laser_control("laser1burn", fake_pmac)
 
     fake_pmac.pmac_string.assert_has_calls(
-        [call.set(" M712=1 M711=1"), call.set(" M712=0 M711=1")]
+        [call.put(" M712=1 M711=1", wait=True), call.put(" M712=0 M711=1", wait=True)]
     )
 
 

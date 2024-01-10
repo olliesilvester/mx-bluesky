@@ -607,7 +607,7 @@ def moveto(place: str = "origin", pmac: PMAC = None):
     logger.info("Move to: %s" % place)
     if place == Fiducials.zero:
         logger.info("Chip aspecific move.")
-        pmac.pmac_string.set("!x0y0z0")
+        pmac.pmac_string.put("!x0y0z0", wait=True)
         return
 
     chip_type = int(caget(pv.me14e_gp1))
@@ -664,7 +664,7 @@ def moveto_preset(place: str, pmac: PMAC = None):
     # Non Chip Specific Move
     if place == "zero":
         logger.info("Moving to %s" % place)
-        pmac.pmac_string.set("!x0y0z0")
+        pmac.pmac_string.put("!x0y0z0", wait=True)
 
     elif place == "load_position":
         logger.info("load position")
@@ -698,37 +698,37 @@ def laser_control(laser_setting: str, pmac: PMAC = None):
         # Use M712 = 0 if triggering on falling edge. M712 =1 if on rising edge
         # Be sure to also change laser1off
         # caput(pv.me14e_pmac_str, ' M712=0 M711=1')
-        pmac.pmac_string.set(" M712=1 M711=1")
+        pmac.pmac_string.put(" M712=1 M711=1", wait=True)
 
     elif laser_setting == "laser1off":
         logger.info("Laser 1 shutter is closed")
-        pmac.pmac_string.set(" M712=0 M711=1")
+        pmac.pmac_string.put(" M712=0 M711=1", wait=True)
 
     elif laser_setting == "laser2on":
         logger.info("Laser 2 / BNC3 shutter is open")
-        pmac.pmac_string(" M812=1 M811=1")
+        pmac.pmac_string.put(" M812=1 M811=1", wait=True)
 
     elif laser_setting == "laser2off":
         logger.info("Laser 2 shutter is closed")
-        pmac.pmac_string.set(" M812=0 M811=1")
+        pmac.pmac_string.put(" M812=0 M811=1", wait=True)
 
     elif laser_setting == "laser1burn":
         led_burn_time = caget(pv.me14e_gp103)
         logger.info("Laser 1  on")
         logger.info("Burn time is %s s" % led_burn_time)
-        pmac.pmac_string.set(" M712=1 M711=1")
+        pmac.pmac_string.put(" M712=1 M711=1", wait=True)
         sleep(int(float(led_burn_time)))
         logger.info("Laser 1 off")
-        pmac.pmac_string.set(" M712=0 M711=1")
+        pmac.pmac_string.put(" M712=0 M711=1", wait=True)
 
     elif laser_setting == "laser2burn":
         led_burn_time = caget(pv.me14e_gp109)
         logger.info("Laser 2 on")
         logger.info("burntime %s s" % led_burn_time)
-        pmac.pmac_string.set(" M812=1 M811=1")
+        pmac.pmac_string.put(" M812=1 M811=1", wait=True)
         sleep(int(float(led_burn_time)))
         logger.info("Laser 2 off")
-        pmac.pmac_string.set(" M812=0 M811=1")
+        pmac.pmac_string.put(" M812=0 M811=1", wait=True)
 
 
 @log.log_on_entry
