@@ -15,7 +15,7 @@ logger = logging.getLogger("I24ssx.moveonclick")
 
 # Set scale.
 # TODO See https://github.com/DiamondLightSource/mx_bluesky/issues/44
-zoomcalibrator = 13.5  # 8 seems to work well for zoom 2
+zoomcalibrator = 6  # 8 seems to work well for zoom 2
 
 
 def _get_beam_centre(oav: OAV):

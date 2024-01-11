@@ -16,7 +16,7 @@ OAV1_CAM = "http://bl24i-di-serv-01.diamond.ac.uk:8080/OAV1.mjpg.mjpg"
 
 HEADER_FILES_PATH = Path("/dls_sw/i24/scripts/fastchips/").expanduser().resolve()
 
-PARAM_FILE_PATH = Path(__file__).absolute()
+PARAM_FILE_PATH = Path(__file__).absolute().parent
 PARAM_FILE_PATH_FT = PARAM_FILE_PATH / "fixed_target"
 LITEMAP_PATH = PARAM_FILE_PATH / "fixed_target/litemaps"
 FULLMAP_PATH = PARAM_FILE_PATH / "fixed_target/fullmaps"
