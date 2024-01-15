@@ -796,7 +796,7 @@ def scrape_mtr_fiducials(point: int, param_path: Path | str = CS_FILES_PATH):
 
 
 @log.log_on_entry
-def cs_maker():
+def cs_maker(pmac: PMAC = None):
     """
     Coordinate system.
 
@@ -826,6 +826,9 @@ def cs_maker():
     This should be measured in situ prior to expriment, ie. measure by hand using
     opposite and adjacent RBV after calibration of scale factors.
     """
+    if not pmac:
+        pmac = i24.pmac()
+
     chip_type = int(caget(pv.me14e_gp1))
     fiducial_dict = {}
     fiducial_dict[0] = [25.400, 25.400]
@@ -937,39 +940,39 @@ def cs_maker():
     sqfact3 = np.sqrt(x3factor**2 + y3factor**2 + z3factor**2) / scalez
     logger.info("%1.4f \n %1.4f \n %1.4f" % (sqfact1, sqfact2, sqfact3))
     logger.info("Long wait, please be patient")
-    caput(pv.me14e_pmac_str, "!x0y0z0")
+    pmac.pmac_string.put("!x0y0z0", wait=True)
     sleep(2.5)
-    caput(pv.me14e_pmac_str, "&2")
-    caput(pv.me14e_pmac_str, cs1)
-    caput(pv.me14e_pmac_str, cs2)
-    caput(pv.me14e_pmac_str, cs3)
-    caput(pv.me14e_pmac_str, "!x0y0z0")
+    pmac.pmac_string.put("&2", wait=True)
+    pmac.pmac_string.put(cs1, wait=True)
+    pmac.pmac_string.put(cs2, wait=True)
+    pmac.pmac_string.put(cs3, wait=True)
+    pmac.pmac_string.put("!x0y0z0", wait=True)
     sleep(0.1)
-    caput(pv.me14e_pmac_str, "#1hmz#2hmz#3hmz")
+    pmac.home_stages()
     sleep(0.1)
     logger.info("Chip_type is %s" % chip_type)
     if chip_type == 0:
-        caput(pv.me14e_pmac_str, "!x0.4y0.4")
+        pmac.pmac_string.put("!x0.4y0.4", wait=True)
         sleep(0.1)
-        caput(pv.me14e_pmac_str, "#1hmz#2hmz#3hmz")
+        pmac.home_stages()
     else:
-        caput(pv.me14e_pmac_str, "#1hmz#2hmz#3hmz")
+        pmac.home_stages()
     logger.debug("CSmaker done.")
 
 
-def cs_reset():
+def cs_reset(pmac: PMAC = None):
+    """Used to clear CS when using Custom Chip"""
+    if not pmac:
+        pmac = i24.pmac()
     cs1 = "#1->-10000X+0Y+0Z"
     cs2 = "#2->+0X+10000Y+0Z"
     cs3 = "#3->0X+0Y+10000Z"
     strg = "\n".join([cs1, cs2, cs3])
     print(strg)
-    caput(pv.me14e_pmac_str, "&2")
-    sleep(0.5)
-    caput(pv.me14e_pmac_str, cs1)
-    sleep(0.5)
-    caput(pv.me14e_pmac_str, cs2)
-    sleep(0.5)
-    caput(pv.me14e_pmac_str, cs3)
+    pmac.pmac_string.put("&2", wait=True)
+    pmac.pmac_string.put(cs1, wait=True)
+    pmac.pmac_string.put(cs2, wait=True)
+    pmac.pmac_string.put(cs3, wait=True)
     logger.debug("CSreset Done")
 
 

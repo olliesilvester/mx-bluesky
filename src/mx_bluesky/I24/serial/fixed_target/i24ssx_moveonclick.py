@@ -168,7 +168,7 @@ def start_viewer(oav1: str = OAV1_CAM):
         if k == 100:  # D
             manager.fiducial(2)
         if k == 99:  # C
-            manager.cs_maker()
+            manager.cs_maker(pmac)
         if k == 98:  # B
             manager.block_check()  # doesn't work well for blockcheck as image doesn't update
         if k == 104:  # H
