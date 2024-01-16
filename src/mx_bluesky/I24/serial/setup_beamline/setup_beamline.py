@@ -564,6 +564,70 @@ def zebra1(action, args_list=None):
         caput(pv.zebra1_pc_gate_inp, "61")
         sleep(0.1)
 
+    elif action == "zebratrigger-eiger":
+        [
+            gate_start,
+            gate_width,
+            num_gates,
+            gate_step,
+            p1_delay,
+            p1_width,
+            p2_delay,
+            p2_width,
+        ] = args_list
+        caput(pv.zebra1_soft_in_b0, "0")
+        caput(pv.zebra1_pc_gate_sel, "Time")
+        caput(pv.zebra1_pc_pulse_sel, "External")
+        caput(pv.zebra1_and3_inp1, "61")
+        caput(pv.zebra1_and3_inp2, "52")
+        caput(pv.zebra1_and4_inp1, "61")
+        caput(pv.zebra1_and4_inp2, "53")
+        caput(pv.zebra1_out1_ttl, "35")
+        caput(pv.zebra1_out2_ttl, "34")
+        caput(pv.zebra1_pc_gate_inp, "61")
+        caput(pv.zebra1_pc_gate_start, gate_start)
+        caput(pv.zebra1_pc_gate_width, gate_width)
+        caput(pv.zebra1_pc_gate_step, gate_step)
+        caput(pv.zebra1_pc_gate_ngate, num_gates)
+        caput(pv.zebra1_pulse1_inp, "30")
+        caput(pv.zebra1_pulse1_delay, p1_delay)
+        caput(pv.zebra1_pulse1_width, p1_width)
+        caput(pv.zebra1_pulse2_inp, "30")
+        caput(pv.zebra1_pulse2_delay, p2_delay)
+        caput(pv.zebra1_pulse2_width, p2_width)
+
+    elif action == "zebratrigger-pilatus":
+        [
+            gate_start,
+            gate_width,
+            num_gates,
+            gate_step,
+            p1_delay,
+            p1_width,
+            p2_delay,
+            p2_width,
+        ] = args_list
+        caput(pv.zebra1_soft_in_b0, "0")
+        caput(pv.zebra1_pc_gate_sel, "Time")
+        caput(pv.zebra1_pc_pulse_sel, "External")
+        caput(pv.zebra1_and3_inp1, "61")
+        caput(pv.zebra1_and3_inp2, "52")
+        caput(pv.zebra1_and4_inp1, "61")
+        caput(pv.zebra1_and4_inp2, "53")
+        caput(pv.zebra1_out1_ttl, "34")
+        caput(pv.zebra1_out2_ttl, "35")
+        caput(pv.zebra1_pc_gate_inp, "61")
+        caput(pv.zebra1_pc_gate_start, gate_start)
+        caput(pv.zebra1_pc_gate_width, gate_width)
+        caput(pv.zebra1_pc_gate_step, gate_step)
+        caput(pv.zebra1_pc_gate_ngate, num_gates)
+        caput(pv.zebra1_pulse1_inp, "30")
+        caput(pv.zebra1_pulse1_delay, p1_delay)
+        caput(pv.zebra1_pulse1_width, p1_width)
+        caput(pv.zebra1_pulse2_inp, "30")
+        caput(pv.zebra1_pulse2_delay, p2_delay)
+        caput(pv.zebra1_pulse2_width, p2_width)
+
     elif action == "fastchip-pilatus":
         [num_gates, n_exposures, exptime] = args_list
         caput(pv.zebra1_soft_in_b0, "0")
