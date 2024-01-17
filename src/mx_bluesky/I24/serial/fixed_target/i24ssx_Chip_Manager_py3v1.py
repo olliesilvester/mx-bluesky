@@ -619,42 +619,41 @@ def moveto(place: str = "origin", pmac: PMAC = None):
         # they should move the same way
         logger.info("Oxford Move")
         if place == Fiducials.origin:
-            pmac.x.move(0.0, wait=True)
-            pmac.y.move(0.0, wait=True)
+            pmac.x.move(0.0)
+            pmac.y.move(0.0)
         if place == Fiducials.fid1:
-            pmac.x.move(25.40, wait=True)
-            pmac.y.move(0.0, wait=True)
+            pmac.x.move(25.40)
+            pmac.y.move(0.0)
         if place == Fiducials.fid2:
-            pmac.x.move(0.0, wait=True)
-            pmac.y.move(25.40, wait=True)
+            pmac.x.move(0.0)
+            pmac.y.move(25.40)
 
     elif chip_type == ChipType.OxfordInner:
         logger.info("Oxford Inner Move")
         if place == Fiducials.origin:
-            pmac.x.move(0.0, wait=True)
-            pmac.y.move(0.0, wait=True)
+            pmac.x.move(0.0)
+            pmac.y.move(0.0)
         if place == Fiducials.fid1:
-            pmac.x.move(24.60, wait=True)
-            pmac.y.move(0.0, wait=True)
+            pmac.x.move(24.60)
+            pmac.y.move(0.0)
         if place == Fiducials.fid2:
-            pmac.x.move(0.0, wait=True)
-            pmac.y.move(24.60, wait=True)
+            pmac.x.move(0.0)
+            pmac.y.move(24.60)
 
     elif chip_type == ChipType.Custom:
         logger.info("Custom Chip Move")
         if place == Fiducials.origin:
-            pmac.x.move(0.0, wait=True)
-            pmac.y.move(0.0, wait=True)
+            pmac.x.move(0.0)
+            pmac.y.move(0.0)
         if place == Fiducials.fid1:
-            pmac.x.move(25.40, wait=True)
-            pmac.y.move(0.0, wait=True)
+            pmac.x.move(25.40)
+            pmac.y.move(0.0)
         if place == Fiducials.fid2:
-            pmac.x.move(0.0, wait=True)
-            pmac.y.move(25.40, wait=True)
+            pmac.x.move(0.0)
+            pmac.y.move(25.40)
 
     else:
         logger.warning("Unknown chip_type move")
-    return
 
 
 @log.log_on_entry
@@ -675,17 +674,17 @@ def moveto_preset(place: str, pmac: PMAC = None):
     elif place == "collect_position":
         logger.info("collect position")
         caput(pv.me14e_filter, 20)
-        pmac.x.move(0.0, wait=True)
-        pmac.y.move(0.0, wait=True)
-        pmac.z.move(0.0, wait=True)
+        pmac.x.move(0.0)
+        pmac.y.move(0.0)
+        pmac.z.move(0.0)
         caput(pv.bs_mp_select, "Data Collection")
         caput(pv.bl_mp_select, "In")
 
     elif place == "microdrop_position":
         logger.info("microdrop align position")
-        pmac.x.move(6.0, wait=True)
-        pmac.y.move(-7.8, wait=True)
-        pmac.z.move(0.0, wait=True)
+        pmac.x.move(6.0)
+        pmac.y.move(-7.8)
+        pmac.z.move(0.0)
 
 
 @log.log_on_entry
