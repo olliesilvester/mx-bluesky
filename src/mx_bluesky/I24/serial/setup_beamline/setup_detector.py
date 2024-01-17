@@ -33,7 +33,7 @@ class DetRequest(IntEnum):
     eiger = 0
     pilatus = 1
 
-    def get_detector_str(self) -> str:
+    def __str__(self) -> str:
         return self.name
 
 
@@ -78,7 +78,7 @@ def _get_requested_detector(det_type_pv: str):
     else:
         try:
             det_type = int(det_type)
-            return DetRequest(det_type).get_detector_str()
+            return str(DetRequest(det_type))
         except ValueError:
             raise
 
