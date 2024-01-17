@@ -20,6 +20,15 @@ class ChipType(IntEnum):
     Custom = 2
     Minichip = 3  # Mini oxford, 1 city block only
 
+    def get_approx_chip_size(self) -> float:
+        """Returns an approximation of the chip size for the move during alignment \
+            of the fiducials
+        """
+        if self.name == "OxfordInner":
+            return 24.60
+        else:
+            return 25.40
+
 
 class PumpProbeSetting(IntEnum):
     NoPP = 0

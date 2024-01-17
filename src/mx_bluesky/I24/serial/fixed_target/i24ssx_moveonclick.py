@@ -186,7 +186,7 @@ def start_viewer(oav1: str = OAV1_CAM):
         if k == 117:  # U
             pmac.pmac_string.set("#3J:-1000")
         if k == 112:  # P
-            pmac.pmac_string.set("#3J:-1000")
+            pmac.pmac_string.set("#3J:1000")
         if k == 0x1B:  # esc
             cv.destroyWindow("OAV1view")
             print("Pressed escape. Closing window")
