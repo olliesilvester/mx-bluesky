@@ -604,56 +604,31 @@ def load_full_map(fullmap_path: Path | str = FULLMAP_PATH):
 def moveto(place: str = "origin", pmac: PMAC = None):
     if not pmac:
         pmac = i24.pmac()
-    logger.info("Move to: %s" % place)
+    logger.info(f"Move to: {place}")
     if place == Fiducials.zero:
         logger.info("Chip aspecific move.")
         pmac.pmac_string.put("!x0y0z0", wait=True)
         return
 
     chip_type = int(caget(pv.me14e_gp1))
-    logger.info("Chip type is%s" % chip_type)
-
-    if chip_type == ChipType.Oxford or chip_type == ChipType.Minichip:
-        # Oxford and minichip
-        # As minichip is nothing more than a smaller oxford,
-        # they should move the same way
-        logger.info("Oxford Move")
-        if place == Fiducials.origin:
-            pmac.x.move(0.0)
-            pmac.y.move(0.0)
-        if place == Fiducials.fid1:
-            pmac.x.move(25.40)
-            pmac.y.move(0.0)
-        if place == Fiducials.fid2:
-            pmac.x.move(0.0)
-            pmac.y.move(25.40)
-
-    elif chip_type == ChipType.OxfordInner:
-        logger.info("Oxford Inner Move")
-        if place == Fiducials.origin:
-            pmac.x.move(0.0)
-            pmac.y.move(0.0)
-        if place == Fiducials.fid1:
-            pmac.x.move(24.60)
-            pmac.y.move(0.0)
-        if place == Fiducials.fid2:
-            pmac.x.move(0.0)
-            pmac.y.move(24.60)
-
-    elif chip_type == ChipType.Custom:
-        logger.info("Custom Chip Move")
-        if place == Fiducials.origin:
-            pmac.x.move(0.0)
-            pmac.y.move(0.0)
-        if place == Fiducials.fid1:
-            pmac.x.move(25.40)
-            pmac.y.move(0.0)
-        if place == Fiducials.fid2:
-            pmac.x.move(0.0)
-            pmac.y.move(25.40)
-
-    else:
+    logger.info(f"Chip type is {chip_type}")
+    if chip_type not in list(ChipType):
         logger.warning("Unknown chip_type move")
+        return
+
+    logger.info(f"{str(ChipType(chip_type))} Move")
+    chip_move = ChipType(chip_type).get_approx_chip_size()
+
+    def move_xy(x, y):
+        pmac.x.move(x)
+        pmac.y.move(y)
+
+    if place == Fiducials.origin:
+        move_xy(0.0, 0.0)
+    if place == Fiducials.fid1:
+        move_xy(chip_move, 0.0)
+    if place == Fiducials.fid2:
+        move_xy(0.0, chip_move)
 
 
 @log.log_on_entry
