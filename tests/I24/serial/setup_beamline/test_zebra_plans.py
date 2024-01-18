@@ -1,23 +1,17 @@
 from functools import partial
 from unittest.mock import MagicMock
 
-import pytest
-from bluesky.run_engine import RunEngine
-from dodal.beamlines import i24
-from dodal.devices.zebra import Zebra
+from dodal.devices.zebra import SOFT_IN2, Zebra
 from ophyd.status import Status
 
-from mx_bluesky.I24.serial.setup_beamline.zebra_plans import arm_zebra, disarm_zebra
+from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
+    arm_zebra,
+    disarm_zebra,
+    setup_zebra_for_quickshot_plan,
+)
 
 
-@pytest.fixture
-def zebra() -> Zebra:
-    return i24.zebra(fake_with_ophyd_sim=True)
-
-
-def test_arm_and_disarm_zebra(zebra: Zebra):
-    RE = RunEngine()
-
+def test_arm_and_disarm_zebra(zebra: Zebra, RE):
     zebra.pc.arm.TIMEOUT = 0.5
 
     def side_effect(set_armed: int, _):
@@ -39,3 +33,18 @@ def test_arm_and_disarm_zebra(zebra: Zebra):
     zebra.pc.arm.armed.set(1)
     RE(disarm_zebra(zebra))
     assert not zebra.pc.is_armed()
+
+
+def test_setup_zebra_for_quickshot(zebra: Zebra, RE):
+    RE(
+        setup_zebra_for_quickshot_plan(
+            zebra, gate_start=1.0, gate_width=0.01, wait=True
+        )
+    )
+    assert zebra.pc.arm_source.get() == "Soft"
+    assert zebra.pc.gate_start.get() == 1.0
+    assert zebra.pc.gate_input.get() == SOFT_IN2
+
+
+def test_setup_zebra_for_extruder_pp_collection_with_eiger(zebra: Zebra, RE):
+    pass
