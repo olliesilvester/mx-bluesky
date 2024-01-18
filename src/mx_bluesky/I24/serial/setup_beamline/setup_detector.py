@@ -33,6 +33,9 @@ class DetRequest(IntEnum):
     eiger = 0
     pilatus = 1
 
+    def __str__(self) -> str:
+        return self.name
+
 
 def setup_logging():
     logfile = time.strftime("SSXdetectorOps_%d%B%y.log").lower()
