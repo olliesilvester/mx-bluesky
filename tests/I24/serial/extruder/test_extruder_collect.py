@@ -4,8 +4,6 @@ from unittest.mock import mock_open, patch
 import pytest
 
 # from dodal.devices.zebra import Zebra
-from tests.I24.serial.conftest import zebra
-
 from mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2 import (
     initialise_extruderi24,
     moveto,
@@ -52,38 +50,38 @@ def test_scrape_parameter_file():
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.get_detector_type")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.logger")
-def test_initialise_extruder(fake_log, fake_det, fake_caput, fake_caget):
+def test_initialise_extruder(fake_log, fake_det, fake_caput, fake_caget, RE):
     fake_caget.return_value = "/path/to/visit"
     fake_det.return_value = Eiger()
-    initialise_extruderi24()
+    RE(initialise_extruderi24())
     assert fake_caput.call_count == 10
     assert fake_caget.call_count == 1
 
 
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.get_detector_type")
-def test_moveto_enterhutch(fake_det, fake_caput, dummy_parser):
+def test_moveto_enterhutch(fake_det, fake_caput, dummy_parser, RE):
     fake_args = dummy_parser.parse_args(["enterhutch"])
     fake_det.return_value = Eiger()
-    moveto(fake_args)
+    RE(moveto(fake_args))
     assert fake_caput.call_count == 1
 
 
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.get_detector_type")
-def test_moveto_laseron_for_eiger(fake_det, fake_caput, dummy_parser):
+def test_moveto_laseron_for_eiger(fake_det, fake_caput, dummy_parser, RE):
     fake_det.return_value = Eiger()
     fake_args = dummy_parser.parse_args(["laseron"])
-    moveto(fake_args)
+    RE(moveto(fake_args))
     assert fake_caput.call_count == 2
 
 
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.get_detector_type")
-def test_moveto_laseroff_for_pilatus(fake_det, fake_caput, dummy_parser):
+def test_moveto_laseroff_for_pilatus(fake_det, fake_caput, dummy_parser, RE):
     fake_det.return_value = Pilatus()
     fake_args = dummy_parser.parse_args(["laseroff"])
-    moveto(fake_args)
+    RE(moveto(fake_args))
     assert fake_caput.call_count == 2
 
 
@@ -91,21 +89,26 @@ def test_moveto_laseroff_for_pilatus(fake_det, fake_caput, dummy_parser):
     "mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.open",
     mock_open(read_data=params_file_str),
 )
+@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sleep")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.DCID")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.call_nexgen")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sup")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.get_detector_type")
-@patch(
-    "mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.i24.zebra",
-    return_value=zebra,
-)
 def test_run_extruder_with_eiger(
-    fake_zebra, fake_det, fake_sup, fake_caget, fake_caput, fake_nexgen, fake_dcid
+    fake_det,
+    fake_sup,
+    fake_caget,
+    fake_caput,
+    fake_nexgen,
+    fake_dcid,
+    fake_sleep,
+    RE,
+    zebra,
 ):
     fake_det.return_value = Eiger()
-    run_extruderi24()
+    RE(run_extruderi24())
     assert fake_nexgen.call_count == 1
     assert fake_dcid.call_count == 1
     # Check temporary piilatus hack is in there
