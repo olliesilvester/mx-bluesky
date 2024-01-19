@@ -14,6 +14,7 @@ class MappingType(IntEnum):
     Full = 2
 
 
+# FIXME See https://github.com/DiamondLightSource/mx_bluesky/issues/77
 class ChipType(IntEnum):
     Oxford = 0
     OxfordInner = 1
