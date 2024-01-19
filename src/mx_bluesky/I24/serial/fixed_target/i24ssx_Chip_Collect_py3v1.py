@@ -13,9 +13,12 @@ from pathlib import Path
 from time import sleep
 from typing import Dict, List
 
+import bluesky.plan_stubs as bps
 import numpy as np
+from bluesky.run_engine import RunEngine
 from dodal.beamlines import i24
 from dodal.devices.i24.pmac import PMAC
+from dodal.devices.zebra import Zebra
 
 from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.dcid import DCID
@@ -33,6 +36,12 @@ from mx_bluesky.I24.serial.parameters.constants import LITEMAP_PATH, PARAM_FILE_
 from mx_bluesky.I24.serial.setup_beamline import caget, cagetstring, caput, pv
 from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
 from mx_bluesky.I24.serial.setup_beamline.setup_detector import get_detector_type
+from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
+    arm_zebra,
+    disarm_zebra,
+    setup_zebra_for_fastchip_plan,
+    zebra_return_to_normal_plan,
+)
 from mx_bluesky.I24.serial.write_nexus import call_nexgen
 
 logger = logging.getLogger("I24ssx.fixed_target")
@@ -324,7 +333,7 @@ def datasetsizei24():
 
 
 @log.log_on_entry
-def start_i24():
+def start_i24(zebra: Zebra):
     """Returns a tuple of (start_time, dcid)"""
     logger.info("Start I24 data collection.")
     start_time = datetime.now()
@@ -358,7 +367,7 @@ def start_i24():
 
     logger.debug("Acquire Region")
 
-    num_gates = int(total_numb_imgs) / int(n_exposures)
+    num_gates = int(total_numb_imgs) // int(n_exposures)
 
     logger.info("Total number of images: %d" % total_numb_imgs)
     logger.info("Number of exposures: %s" % n_exposures)
@@ -391,9 +400,11 @@ def start_i24():
         )
 
         logger.debug("Arm Pilatus. Arm Zebra.")
-        sup.zebra1("fastchip-pilatus", [num_gates, n_exposures, exptime])
+        yield from setup_zebra_for_fastchip_plan(
+            zebra, det_type, num_gates, n_exposures, exptime
+        )
         caput(pv.pilat_acquire, "1")  # Arm pilatus
-        caput(pv.zebra1_pc_arm, "1")  # Arm zebra fastchip-pilatus
+        yield from arm_zebra(zebra)
         caput(pv.pilat_filename, filename)
         time.sleep(1.5)
 
@@ -437,8 +448,10 @@ def start_i24():
         )
 
         logger.debug("Arm Zebra.")
-        sup.zebra1("fastchip-eiger", [num_gates, n_exposures, exptime])
-        caput(pv.zebra1_pc_arm, "1")  # Arm zebra fastchip-eiger
+        yield from setup_zebra_for_fastchip_plan(
+            zebra, det_type, num_gates, n_exposures, exptime
+        )
+        yield from arm_zebra(zebra)
 
         time.sleep(1.5)
 
@@ -460,7 +473,7 @@ def start_i24():
 
 
 @log.log_on_entry
-def finish_i24(chip_prog_dict, start_time):
+def finish_i24(chip_prog_dict: Dict, start_time: str, zebra: Zebra):
     det_type = get_detector_type()
     logger.info("Finish I24 data collection with %s detector." % det_type)
 
@@ -490,19 +503,21 @@ def finish_i24(chip_prog_dict, start_time):
         logger.info("Finish I24 Pilatus")
         filename = filename + "_" + caget(pv.pilat_filenum)
         logger.debug("Close the fast shutter.")
-        caput(pv.zebra1_soft_in_b1, "No")
+        # Disable SOFT_IN:B1
+        yield from bps.abs_set(zebra.inputs.soft_in_2, 0, wait=True)
         logger.debug("Disarm the zebra.")
-        caput(pv.zebra1_pc_arm_out, "0")
-        sup.zebra1("return-to-normal")
+        yield from disarm_zebra(zebra)
+        yield from zebra_return_to_normal_plan(zebra)
         sup.pilatus("return-to-normal")
         sleep(0.2)
     elif det_type == "eiger":
         logger.info("Finish I24 Eiger")
         logger.debug("Close the fast shutter.")
-        caput(pv.zebra1_soft_in_b1, "No")
+        # Disable SOFT_IN:B1
+        yield from bps.abs_set(zebra.inputs.soft_in_2, 0, wait=True)
         logger.debug("Disarm the zebra.")
-        caput(pv.zebra1_pc_arm_out, "0")
-        sup.zebra1("return-to-normal")
+        yield from disarm_zebra(zebra)
+        yield from zebra_return_to_normal_plan(zebra)
         sup.eiger("return-to-normal")
         filename = cagetstring(pv.eiger_ODfilenameRBV)
 
@@ -548,6 +563,7 @@ def finish_i24(chip_prog_dict, start_time):
 def main():
     # Dodal devices
     pmac = i24.pmac()
+    zebra = i24.zebra()
     # ABORT BUTTON
     logger.info("Running a chip collection on I24")
     caput(pv.me14e_gp9, 0)
@@ -600,7 +616,7 @@ def main():
     logger.info("Loading Motion Program Data")
     load_motion_program_data(pmac, chip_prog_dict, map_type, pump_repeat)
 
-    start_time, dcid = start_i24()
+    start_time, dcid = yield from start_i24(zebra)
 
     logger.info("Moving to Start")
     caput(pv.me14e_pmac_str, "!x0y0z0")
@@ -608,9 +624,9 @@ def main():
 
     prog_num = get_prog_num(chip_type, map_type, pump_repeat)
 
-    # Now ready for data collection. Open fast shutter
+    # Now ready for data collection. Open fast shutter (zebra gate)
     logger.debug("Opening fast shutter.")
-    caput(pv.zebra1_soft_in_b1, "1")  # Open fast shutter (zebra gate)
+    yield from bps.abs_set(zebra.inputs.soft_in_2, 1, wait=True)  # Enable SOFT_IN:B1
 
     logger.info("Run PMAC with program number %d" % prog_num)
     logger.info("pmac str = &2b%dr" % prog_num)
@@ -676,7 +692,7 @@ def main():
         logger.info("Data Collection ended due to GP 9 not equalling 0")
 
     logger.debug("Closing fast shutter")
-    caput(pv.zebra1_soft_in_b1, "No")  # Close the fast shutter
+    yield from bps.abs_set(zebra.inputs.soft_in_2, 0, wait=True)
     sleep(2.0)
 
     if det_type == "pilatus":
@@ -689,7 +705,7 @@ def main():
         caput(pv.eiger_acquire, 0)
         caput(pv.eiger_ODcapture, "Done")
 
-    end_time = finish_i24(chip_prog_dict, start_time)
+    end_time = yield from finish_i24(chip_prog_dict, start_time, zebra)
     dcid.collection_complete(end_time, aborted=aborted)
     logger.debug("Notify DCID of end of collection.")
     dcid.notify_end()
@@ -702,5 +718,6 @@ def main():
 
 if __name__ == "__main__":
     setup_logging()
+    RE = RunEngine()
 
-    main()
+    RE(main())

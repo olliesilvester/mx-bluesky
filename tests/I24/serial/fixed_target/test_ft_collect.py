@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock, call, mock_open, patch
 
 import pytest
+from dodal.devices.zebra import Zebra
 
 from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1 import (
     datasetsizei24,
@@ -117,15 +118,24 @@ def test_load_motion_program_data_(
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.caput")
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.caget")
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.sup")
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.sleep")
 @patch(
     "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.scrape_parameter_file"
 )
 def test_start_i24_with_eiger(
-    fake_params, fake_sup, fake_caget, fake_caput, fake_dcid, fake_size
+    fake_params,
+    fake_sleep,
+    fake_sup,
+    fake_caget,
+    fake_caput,
+    fake_dcid,
+    fake_size,
+    zebra: Zebra,
+    RE,
 ):
     fake_size.return_value = 800
     fake_params.return_value = tuple(params.values())
-    start_i24()
+    RE(start_i24(zebra))
     assert fake_sup.beamline.call_count == 2
     assert fake_sup.eiger.call_count == 1
     # Pilatus gets called for hack to create directory
