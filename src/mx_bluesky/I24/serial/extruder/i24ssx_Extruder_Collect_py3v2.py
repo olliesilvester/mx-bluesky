@@ -28,7 +28,9 @@ from mx_bluesky.I24.serial.setup_beamline.setup_detector import get_detector_typ
 from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
     arm_zebra,
     disarm_zebra,
+    setup_zebra_for_extruder_with_pump_probe_plan,
     setup_zebra_for_quickshot_plan,
+    zebra_return_to_normal_plan,
 )
 from mx_bluesky.I24.serial.write_nexus import call_nexgen
 
@@ -273,18 +275,17 @@ def run_extruderi24(args=None):
             logger.info("Pump exposure time %s" % pump_exp)
             logger.info("Pump delay time %s" % pump_delay)
             sup.pilatus("fastchip", [filepath, filename, num_imgs, exp_time])
-            sup.zebra1(
-                "zebratrigger-pilatus",
-                [
-                    gate_start,
-                    gate_width,
-                    num_gates,
-                    gate_step,
-                    p1_delay,
-                    p1_width,
-                    p2_delay,
-                    p2_width,
-                ],
+            yield from setup_zebra_for_extruder_with_pump_probe_plan(
+                zebra,
+                det_type,
+                gate_start,
+                gate_width,
+                gate_step,
+                num_gates,
+                p1_delay,
+                p1_width,
+                p2_delay,
+                p2_width,
             )
         elif pump_status == "false":
             logger.info("Static experiment: no photoexcitation")
@@ -322,18 +323,17 @@ def run_extruderi24(args=None):
             logger.info("Pump exposure time %s" % pump_exp)
             logger.info("Pump delay time %s" % pump_delay)
             sup.eiger("triggered", [filepath, filename, num_imgs, exp_time])
-            sup.zebra1(
-                "zebratrigger-eiger",
-                [
-                    gate_start,
-                    gate_width,
-                    num_gates,
-                    gate_step,
-                    p1_delay,
-                    p1_width,
-                    p2_delay,
-                    p2_width,
-                ],
+            yield from setup_zebra_for_extruder_with_pump_probe_plan(
+                zebra,
+                det_type,
+                gate_start,
+                gate_width,
+                gate_step,
+                num_gates,
+                p1_delay,
+                p1_width,
+                p2_delay,
+                p2_width,
             )
         elif pump_status == "false":
             logger.info("Static experiment: no photoexcitation")
@@ -440,7 +440,7 @@ def run_extruderi24(args=None):
 
     # Clean Up
     logger.info("Setting zebra back to normal")
-    sup.zebra1("return-to-normal")
+    yield from zebra_return_to_normal_plan(zebra)
     if det_type == "pilatus":
         sup.pilatus("return-to-normal")
     elif det_type == "eiger":
