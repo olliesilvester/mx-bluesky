@@ -71,7 +71,17 @@ def _move_detector_stage(detector_stage: DetectorMotion, target: float):
 
 
 # Workaround in case the PV value has been set to the detector name
-def _get_requested_detector(det_type_pv: str):
+def _get_requested_detector(det_type_pv: str) -> str:
+    """Get the requested detector name from the PV value.
+
+    Args:
+        det_type_pv (str): PV associated to the detector request. This is usually a \
+            general purpose PV set up for the serial collection which could contain \
+            a string or and int.
+
+    Returns:
+        str: The detector name as a string, currently "eiger" or "pilatus".
+    """
     det_type = caget(det_type_pv)
     if det_type in ["pilatus", "eiger"]:
         return det_type
