@@ -27,7 +27,7 @@ from mx_bluesky.I24.serial.parameters.constants import (
     PARAM_FILE_PATH_FT,
     PVAR_FILE_PATH,
 )
-from mx_bluesky.I24.serial.setup_beamline import caget, caput, pv
+from mx_bluesky.I24.serial.setup_beamline import Pilatus, caget, caput, pv
 from mx_bluesky.I24.serial.setup_beamline.setup_detector import get_detector_type
 
 logger = logging.getLogger("I24ssx.chip_manager")
@@ -132,7 +132,7 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
 
     # If file name ends in a digit this causes processing/pilatus pain.
     # Append an underscore
-    if str(det_type) == "pilatus":
+    if isinstance(det_type, Pilatus):
         caput(pv.pilat_cbftemplate, 0)
         m = re.search(r"\d+$", filename)
         if m is not None:
