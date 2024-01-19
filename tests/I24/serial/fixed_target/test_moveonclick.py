@@ -46,8 +46,10 @@ def test_onMouse_gets_beam_position_and_sends_correct_str(
     onMouse(cv.EVENT_LBUTTONUP, 0, 0, "", param=[fake_pmac, fake_oav])
     fake_pmac.pmac_string.assert_has_calls(
         [
-            call.put(expected_1J, wait=True),
-            call.put(expected_2J, wait=True),
+            call.set(expected_1J),
+            call.set().wait(),
+            call.set(expected_2J),
+            call.set().wait(),
         ]
     )
 

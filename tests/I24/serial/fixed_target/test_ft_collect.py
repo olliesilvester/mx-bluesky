@@ -108,7 +108,10 @@ def test_load_motion_program_data(
     fake_caget.return_value = checker
     fake_pmac.pmac_string = MagicMock()
     load_motion_program_data(fake_pmac, test_dict, map_type, pump_repeat)
-    call_list = [call.put(i, wait=True) for i in expected_calls]
+    call_list = []
+    for i in expected_calls:
+        call_list.append(call.set(i))
+        call_list.append(call.set().wait())
     fake_pmac.pmac_string.assert_has_calls(call_list)
 
 
