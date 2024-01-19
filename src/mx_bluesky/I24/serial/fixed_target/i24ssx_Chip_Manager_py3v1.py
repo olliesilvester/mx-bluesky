@@ -620,8 +620,9 @@ def moveto(place: str = "origin", pmac: PMAC = None):
     chip_move = ChipType(chip_type).get_approx_chip_size()
 
     def move_xy(x, y):
-        pmac.x.move(x)
-        pmac.y.move(y)
+        move_status = pmac.x.move(x, wait=False)
+        move_status &= pmac.y.move(y, wait=False)
+        move_status.wait()
 
     if place == Fiducials.origin:
         move_xy(0.0, 0.0)
@@ -635,6 +636,13 @@ def moveto(place: str = "origin", pmac: PMAC = None):
 def moveto_preset(place: str, pmac: PMAC = None):
     if not PMAC:
         pmac = i24.pmac()
+
+    def move_xyz(x, y, z):
+        move_status = pmac.x.move(x, wait=False)
+        move_status &= pmac.y.move(y, wait=False)
+        move_status &= pmac.z.move(z, wait=False)
+        move_status.wait()
+
     # Non Chip Specific Move
     if place == "zero":
         logger.info("Moving to %s" % place)
@@ -649,17 +657,13 @@ def moveto_preset(place: str, pmac: PMAC = None):
     elif place == "collect_position":
         logger.info("collect position")
         caput(pv.me14e_filter, 20)
-        pmac.x.move(0.0)
-        pmac.y.move(0.0)
-        pmac.z.move(0.0)
+        move_xyz(0.0, 0.0, 0.0)
         caput(pv.bs_mp_select, "Data Collection")
         caput(pv.bl_mp_select, "In")
 
     elif place == "microdrop_position":
         logger.info("microdrop align position")
-        pmac.x.move(6.0)
-        pmac.y.move(-7.8)
-        pmac.z.move(0.0)
+        move_xyz(6.0, -7.8, 0.0)
 
 
 @log.log_on_entry
