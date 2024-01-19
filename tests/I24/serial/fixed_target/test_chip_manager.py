@@ -31,50 +31,37 @@ MTR3 0 0 -1 0"""
 cs_json = '{"scalex":1, "scaley":2, "scalez":3, "skew":-0.5, "Sx_dir":1, "Sy_dir":-1, "Sz_dir":0}'
 
 
-@patch(
-    "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.i24.pmac",
-    autospec=True,
-)
+@pytest.fixture
+def fake_pmac() -> MagicMock:
+    mock_pmac: PMAC = MagicMock(spec=PMAC)
+    return mock_pmac
+
+
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caget")
-def test_moveto_oxford_origin(fake_caget: MagicMock, fake_pmac: PMAC):
+def test_moveto_oxford_origin(fake_caget: MagicMock, fake_pmac: MagicMock):
     fake_caget.return_value = 0
-    fake_pmac.x = MagicMock()
-    fake_pmac.y = MagicMock()
     moveto(Fiducials.origin, fake_pmac)
     assert fake_caget.call_count == 1
     fake_pmac.x.assert_has_calls([call.move(0.0, wait=False)])
     fake_pmac.y.assert_has_calls([call.move(0.0, wait=False)])
 
 
-@patch(
-    "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.i24.pmac",
-    autospec=True,
-)
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caget")
-def test_moveto_oxford_inner_f1(fake_caget: MagicMock, fake_pmac: PMAC):
+def test_moveto_oxford_inner_f1(fake_caget: MagicMock, fake_pmac: MagicMock):
     fake_caget.return_value = 1
-    fake_pmac.x = MagicMock()
-    fake_pmac.y = MagicMock()
     moveto(Fiducials.fid1, fake_pmac)
     assert fake_caget.call_count == 1
     fake_pmac.x.assert_has_calls([call.move(24.60, wait=False)])
     fake_pmac.y.assert_has_calls([call.move(0.0, wait=False)])
 
 
-@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.i24.pmac")
-def test_moveto_chip_unknown(fake_pmac: PMAC):
-    fake_pmac.pmac_string = MagicMock()
+def test_moveto_chip_unknown(fake_pmac: MagicMock):
     moveto("zero", fake_pmac)
     fake_pmac.pmac_string.assert_has_calls([call.put("!x0y0z0", wait=True)])
 
 
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caput")
-@patch(
-    "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.i24.pmac",
-    autospec=True,
-)
-def test_moveto_preset(fake_pmac: PMAC, fake_caput: MagicMock):
-    fake_pmac.pmac_string = MagicMock()
+def test_moveto_preset(fake_caput: MagicMock, fake_pmac: MagicMock):
     moveto_preset("zero", fake_pmac)
     fake_pmac.pmac_string.assert_has_calls([call.put("!x0y0z0", wait=True)])
 
@@ -90,20 +77,13 @@ def test_moveto_preset(fake_pmac: PMAC, fake_caput: MagicMock):
     ],
 )
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caput")
-@patch(
-    "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.i24.pmac",
-    autospec=True,
-)
 def test_moveto_preset_with_pmac_move(
-    fake_pmac: PMAC,
     fake_caput: MagicMock,
     pos_request: str,
     expected_num_caput: int,
     expected_pmac_move: List,
+    fake_pmac: MagicMock,
 ):
-    fake_pmac.x = MagicMock()
-    fake_pmac.y = MagicMock()
-    fake_pmac.z = MagicMock()
     moveto_preset(pos_request, fake_pmac)
     assert fake_caput.call_count == expected_num_caput
 
@@ -121,27 +101,17 @@ def test_moveto_preset_with_pmac_move(
         ("laser2off", " M812=0 M811=1"),
     ],
 )
-@patch(
-    "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.i24.pmac",
-    autospec=True,
-)
 def test_laser_control_on_and_off(
-    fake_pmac: PMAC, laser_setting: str, expected_pmac_string: str
+    laser_setting: str, expected_pmac_string: str, fake_pmac: MagicMock
 ):
-    fake_pmac.pmac_string = MagicMock()
     laser_control(laser_setting, fake_pmac)
 
     fake_pmac.pmac_string.assert_has_calls([call.put(expected_pmac_string, wait=True)])
 
 
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caget")
-@patch(
-    "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.i24.pmac",
-    autospec=True,
-)
-def test_laser_control_burn_setting(fake_pmac: PMAC, fake_caget: MagicMock):
+def test_laser_control_burn_setting(fake_caget: MagicMock, fake_pmac: MagicMock):
     fake_caget.return_value = 0.1
-    fake_pmac.pmac_string = MagicMock()
     laser_control("laser1burn", fake_pmac)
 
     fake_pmac.pmac_string.assert_has_calls(
@@ -169,12 +139,7 @@ def test_scrape_mtr_fiducials():
     assert res == (0.0, 1.0, 0.0)
 
 
-@patch(
-    "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.i24.pmac",
-    autospec=True,
-)
-def test_cs_reset(fake_pmac: PMAC):
-    fake_pmac.pmac_string = MagicMock()
+def test_cs_reset(fake_pmac: MagicMock):
     cs_reset(fake_pmac)
     fake_pmac.pmac_string.assert_has_calls(
         [
@@ -190,10 +155,6 @@ def test_cs_reset(fake_pmac: PMAC):
     "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.open",
     mock_open(read_data='{"a":11, "b":12,}'),
 )
-@patch(
-    "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.i24.pmac",
-    autospec=True,
-)
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caget")
 @patch(
     "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.scrape_mtr_directions"
@@ -205,11 +166,10 @@ def test_cs_maker_raises_error_for_invalid_json(
     fake_fid: MagicMock,
     fake_dir: MagicMock,
     fake_caget: MagicMock,
-    fake_pmac: PMAC,
+    fake_pmac: MagicMock,
 ):
     fake_dir.return_value = (1, 1, 1)
     fake_fid.return_value = (0, 0, 0)
-    fake_pmac.pmac_string = MagicMock()
     with pytest.raises(json.JSONDecodeError):
         cs_maker(fake_pmac)
 
@@ -217,10 +177,6 @@ def test_cs_maker_raises_error_for_invalid_json(
 @patch(
     "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.open",
     mock_open(read_data='{"scalex":11, "skew":12}'),
-)
-@patch(
-    "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.i24.pmac",
-    autospec=True,
 )
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caget")
 @patch(
@@ -233,11 +189,10 @@ def test_cs_maker_raises_error_for_missing_key_in_json(
     fake_fid: MagicMock,
     fake_dir: MagicMock,
     fake_caget: MagicMock,
-    fake_pmac: PMAC,
+    fake_pmac: MagicMock,
 ):
     fake_dir.return_value = (1, 1, 1)
     fake_fid.return_value = (0, 0, 0)
-    fake_pmac.pmac_string = MagicMock()
     with pytest.raises(KeyError):
         cs_maker(fake_pmac)
 
@@ -245,10 +200,6 @@ def test_cs_maker_raises_error_for_missing_key_in_json(
 @patch(
     "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.open",
     mock_open(read_data=cs_json),
-)
-@patch(
-    "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.i24.pmac",
-    autospec=True,
 )
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caget")
 @patch(
@@ -261,11 +212,10 @@ def test_cs_maker_raises_error_for_wrong_direction_in_json(
     fake_fid: MagicMock,
     fake_dir: MagicMock,
     fake_caget: MagicMock,
-    fake_pmac: PMAC,
+    fake_pmac: MagicMock,
 ):
     fake_dir.return_value = (1, 1, 1)
     fake_fid.return_value = (0, 0, 0)
-    fake_pmac.pmac_string = MagicMock()
     with pytest.raises(ValueError):
         cs_maker(fake_pmac)
 
