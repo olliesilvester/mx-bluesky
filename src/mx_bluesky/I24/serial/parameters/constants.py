@@ -18,7 +18,7 @@ HEADER_FILES_PATH = Path("/dls_sw/i24/scripts/fastchips/").expanduser().resolve(
 
 PARAM_FILE_PATH = Path(__file__).absolute().parent
 PARAM_FILE_PATH_FT = PARAM_FILE_PATH / "fixed_target"
-LITEMAP_PATH = PARAM_FILE_PATH / "fixed_target/litemaps"
-FULLMAP_PATH = PARAM_FILE_PATH / "fixed_target/fullmaps"
-PVAR_FILE_PATH = PARAM_FILE_PATH / "fixed_target/pvar_files"
-CS_FILES_PATH = PARAM_FILE_PATH / "fixed_target/cs"
+LITEMAP_PATH = PARAM_FILE_PATH_FT / "litemaps"
+FULLMAP_PATH = PARAM_FILE_PATH_FT / "fullmaps"
+PVAR_FILE_PATH = PARAM_FILE_PATH_FT / "pvar_files"
+CS_FILES_PATH = PARAM_FILE_PATH_FT / "cs"
