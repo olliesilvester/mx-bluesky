@@ -14,6 +14,10 @@ from datetime import datetime
 from pathlib import Path
 from time import sleep
 
+import bluesky.plan_stubs as bps
+from bluesky.run_engine import RunEngine
+from dodal.beamlines import i24
+
 from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.dcid import DCID
 from mx_bluesky.I24.serial.parameters import SSXType
@@ -21,6 +25,11 @@ from mx_bluesky.I24.serial.parameters.constants import PARAM_FILE_PATH
 from mx_bluesky.I24.serial.setup_beamline import Eiger, Pilatus, caget, caput, pv
 from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
 from mx_bluesky.I24.serial.setup_beamline.setup_detector import get_detector_type
+from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
+    arm_zebra,
+    disarm_zebra,
+    setup_zebra_for_quickshot_plan,
+)
 from mx_bluesky.I24.serial.write_nexus import call_nexgen
 
 usage = "%(prog)s command [options]"
@@ -64,6 +73,7 @@ def initialise_extruderi24(args=None):
     caput(pv.ioc12_gp15, det_type.name)
     caput(pv.pilat_cbftemplate, 0)
     logger.info("Initialisation complete.")
+    yield from bps.null()
 
 
 @log.log_on_entry
@@ -91,6 +101,7 @@ def moveto(args):
 
     if place == "enterhutch":
         caput(pv.det_z, 1480)
+    yield from bps.null()
 
 
 @log.log_on_entry
@@ -194,6 +205,8 @@ def scrape_parameter_file(param_path: Path | str = PARAM_FILE_PATH):
 
 @log.log_on_entry
 def run_extruderi24(args=None):
+    # Get dodal devices
+    zebra = i24.zebra()
     start_time = datetime.now()
     logger.info("Collection start time: %s" % start_time.ctime())
 
@@ -278,7 +291,7 @@ def run_extruderi24(args=None):
             sup.pilatus("quickshot", [filepath, filename, num_imgs, exp_time])
             gate_start = 1.0
             gate_width = (float(exp_time) * float(num_imgs)) + float(0.5)
-            sup.zebra1("quickshot", [gate_start, gate_width])
+            yield from setup_zebra_for_quickshot_plan(zebra, gate_start, gate_width)
 
     elif det_type == "eiger":
         logger.info("Using Eiger detector")
@@ -327,7 +340,7 @@ def run_extruderi24(args=None):
             gate_start = 1.0
             gate_width = (float(exp_time) * float(num_imgs)) + float(0.5)
             sup.eiger("quickshot", [filepath, filename, num_imgs, exp_time])
-            sup.zebra1("quickshot", [gate_start, gate_width])
+            yield from setup_zebra_for_quickshot_plan(zebra, gate_start, gate_width)
     else:
         err = "Unknown Detector Type, det_type = %s" % det_type
         logger.error(err)
@@ -346,7 +359,8 @@ def run_extruderi24(args=None):
 
     # Collect
     logger.info("Fast shutter opening")
-    caput(pv.zebra1_soft_in_b1, 1)
+    # Enable SOFT_IN:B1
+    yield from bps.abs_set(zebra.inputs.soft_in_2, 1, wait=True)
     if det_type == "pilatus":
         logger.info("Pilatus acquire ON")
         caput(pv.pilat_acquire, 1)
@@ -365,7 +379,7 @@ def run_extruderi24(args=None):
     timeout_time = time.time() + int(num_imgs) * float(exp_time) + 10
 
     if int(caget(pv.ioc12_gp8)) == 0:  # ioc12_gp8 is the ABORT button
-        caput(pv.zebra1_pc_arm, 1)
+        yield from arm_zebra(zebra)
         sleep(gate_start)
         i = 0
         text_list = ["|", "/", "-", "\\"]
@@ -383,7 +397,7 @@ def run_extruderi24(args=None):
                     caput(pv.eiger_acquire, 0)
                 sleep(1.0)
                 break
-            elif int(caget(pv.zebra1_pc_arm_out)) != 1:
+            elif not zebra.pc.is_armed():
                 # As soon as the zebra1_pc_arm_out is not 1 anymore, exit.
                 # Epics checks the geobrick and updates this PV once the collection is done.
                 logger.info("----> Zebra disarmed  <----")
@@ -406,9 +420,11 @@ def run_extruderi24(args=None):
 
     caput(pv.ioc12_gp8, 1)
     logger.info("Fast shutter closing")
-    caput(pv.zebra1_soft_in_b1, 0)
+    # Disable SOFT_IN:B1
+    yield from bps.abs_set(zebra.inputs.soft_in_2, 0, wait=True)
+
+    yield from disarm_zebra(zebra)
     logger.info("\nZebra DISARMED")
-    caput(pv.zebra1_pc_disarm, 1)
 
     end_time = datetime.now()
 
@@ -442,6 +458,7 @@ def run_extruderi24(args=None):
 
 if __name__ == "__main__":
     setup_logging()
+    RE = RunEngine()
 
     parser = argparse.ArgumentParser(usage=usage, description=__doc__)
     subparsers = parser.add_subparsers(
@@ -473,4 +490,4 @@ if __name__ == "__main__":
     parser_mv.set_defaults(func=moveto)
 
     args = parser.parse_args()
-    args.func(args)
+    RE(args.func(args))

@@ -3,6 +3,9 @@ from unittest.mock import mock_open, patch
 
 import pytest
 
+# from dodal.devices.zebra import Zebra
+from tests.I24.serial.conftest import zebra
+
 from mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2 import (
     initialise_extruderi24,
     moveto,
@@ -94,8 +97,12 @@ def test_moveto_laseroff_for_pilatus(fake_det, fake_caput, dummy_parser):
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sup")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.get_detector_type")
+@patch(
+    "mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.i24.zebra",
+    return_value=zebra,
+)
 def test_run_extruder_with_eiger(
-    fake_det, fake_sup, fake_caget, fake_caput, fake_nexgen, fake_dcid
+    fake_zebra, fake_det, fake_sup, fake_caget, fake_caput, fake_nexgen, fake_dcid
 ):
     fake_det.return_value = Eiger()
     run_extruderi24()
