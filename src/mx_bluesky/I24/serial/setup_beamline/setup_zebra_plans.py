@@ -84,7 +84,7 @@ def setup_zebra_for_extruder_with_pump_probe_plan(
 ):
     logger.info("Setup ZEBRA for pump probe extruder collection.")
     # SOFT_IN:B0 disabled
-    yield from bps.abs_set(zebra.inputs.soft_in_1, 0, group=group)
+    yield from bps.abs_set(zebra.inputs.soft_in_1, DISCONNECT, group=group)
 
     # Set gate to "Time" and pulse source to "External"
     yield from bps.abs_set(zebra.pc.gate_source, PC_GATE_SOURCE_TIME, group=group)
@@ -162,7 +162,7 @@ def zebra_return_to_normal_plan(
     yield from bps.abs_set(zebra.output.out_4, OR1, group=group)
 
     # Reset rotation axis and direction to "omega" and positive
-    yield from bps.abs_set(zebra.pc.gate_trigger, I24Axes.OMEGA, group=group)
+    yield from bps.abs_set(zebra.pc.gate_trigger, I24Axes.OMEGA.value, group=group)
     yield from bps.abs_set(zebra.pc.dir, RotationDirection.POSITIVE, group=group)
 
     #
@@ -175,3 +175,7 @@ def zebra_return_to_normal_plan(
 
     if wait:
         yield from bps.wait(group)
+
+
+def setup_zebra_for_fastchip_plan():
+    pass
