@@ -12,6 +12,7 @@ from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
     arm_zebra,
     disarm_zebra,
     setup_zebra_for_extruder_with_pump_probe_plan,
+    setup_zebra_for_fastchip_plan,
     setup_zebra_for_quickshot_plan,
     zebra_return_to_normal_plan,
 )
@@ -59,6 +60,7 @@ def test_setup_zebra_for_extruder_pp_collection(zebra: Zebra, RE):
             zebra, "pilatus", *inputs_list, wait=True
         )
     )
+    # Check that SOFT_IN:B0 gets disabled
     assert zebra.output.out_1.get() == AND3
 
     assert zebra.pc.gate_start.get() == 1.0
@@ -78,3 +80,35 @@ def test_zebra_return_to_normal(zebra: Zebra, RE):
 
     assert zebra.output.out_3.get() == DISCONNECT
     assert zebra.output.pulse_1_input.get() == DISCONNECT
+
+
+def test_setup_zebra_for_fastchip(zebra: Zebra, RE):
+    num_gates = 400
+    num_exposures = 2
+    exposure_time = 0.001
+    # With Eiger
+    RE(
+        setup_zebra_for_fastchip_plan(
+            zebra, "eiger", num_gates, num_exposures, exposure_time, wait=True
+        )
+    )
+    # Check that SOFT_IN:B0 gets disabled
+    assert zebra.output.out_1.get() == AND3
+
+    # Check ttl out1 is set to AND3
+    assert zebra.output.out_1.get() == AND3
+    assert zebra.pc.num_gates.get() == num_gates
+    assert zebra.pc.pulse_max.get() == num_exposures
+    assert zebra.pc.pulse_width.get() == exposure_time - 0.0001
+
+    # With Pilatus
+    RE(
+        setup_zebra_for_fastchip_plan(
+            zebra, "pilatus", num_gates, num_exposures, exposure_time, wait=True
+        )
+    )
+    # Check ttl out2 is set to AND3
+    assert zebra.output.out_2.get() == AND3
+    assert zebra.pc.pulse_width.get() == exposure_time / 2
+
+    assert zebra.pc.pulse_step.get() == exposure_time + 0.0001

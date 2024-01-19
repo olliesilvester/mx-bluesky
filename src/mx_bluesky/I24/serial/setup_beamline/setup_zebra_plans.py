@@ -6,14 +6,18 @@ from dodal.devices.zebra import (
     AND4,
     DISCONNECT,
     IN1_TTL,
+    IN3_TTL,
     OR1,
     PC_ARM,
     PC_ARM_SOURCE_SOFT,
     PC_GATE,
+    PC_GATE_SOURCE_EXTERNAL,
     PC_GATE_SOURCE_POSITION,
     PC_GATE_SOURCE_TIME,
+    PC_PULSE,
     PC_PULSE_SOURCE_EXTERNAL,
     PC_PULSE_SOURCE_POSITION,
+    PC_PULSE_SOURCE_TIME,
     PULSE1,
     PULSE2,
     SOFT_IN2,
@@ -177,5 +181,48 @@ def zebra_return_to_normal_plan(
         yield from bps.wait(group)
 
 
-def setup_zebra_for_fastchip_plan():
-    pass
+def setup_zebra_for_fastchip_plan(
+    zebra: Zebra,
+    det_type: str,
+    num_gates: int,
+    num_exposures: int,
+    exposure_time: float,
+    group: str = "setup_zebra_for_fastchip",
+    wait: bool = False,
+):
+    logger.info("Setup ZEBRA for a fixed target collection.")
+    # SOFT_IN:B0 disabled
+    yield from bps.abs_set(zebra.inputs.soft_in_1, DISCONNECT, group=group)
+    yield from bps.abs_set(zebra.pc.gate_source, PC_GATE_SOURCE_EXTERNAL, group=group)
+    yield from bps.abs_set(zebra.pc.pulse_source, PC_PULSE_SOURCE_TIME, group=group)
+
+    # Logic Gates
+    yield from bps.abs_set(zebra.logic_gates.and_gate_3.source_1, SOFT_IN2, group=group)
+    yield from bps.abs_set(zebra.logic_gates.and_gate_3.source_2, PC_PULSE, group=group)
+
+    yield from bps.abs_set(zebra.pc.gate_input, IN3_TTL, group=group)
+
+    # Set TTL out depending on detector type
+    # And calculate some of the other settings
+    if det_type == "eiger":
+        yield from bps.abs_set(zebra.output.out_1, AND3, group=group)
+        # Sawtooth with a small drop to make it work for eiger
+        pulse_width = exposure_time - 0.0001
+    if det_type == "pilatus":
+        yield from bps.abs_set(zebra.output.out_2, AND3, group=group)
+        # Sawtooth
+        pulse_width = exposure_time / 2
+
+    # 100us buffer needed to avoid missing some of the triggers
+    exptime_buffer = exposure_time + 0.0001
+
+    # Number of gates is the number of windows collected
+    yield from bps.abs_set(zebra.pc.num_gates, num_gates, group=group)
+
+    yield from bps.abs_set(zebra.pc.pulse_start, 0, group=group)
+    yield from bps.abs_set(zebra.pc.pulse_step, exptime_buffer, group=group)
+    yield from bps.abs_set(zebra.pc.pulse_width, pulse_width, group=group)
+    yield from bps.abs_set(zebra.pc.pulse_max, num_exposures, group=group)
+
+    if wait:
+        yield from bps.wait(group)
