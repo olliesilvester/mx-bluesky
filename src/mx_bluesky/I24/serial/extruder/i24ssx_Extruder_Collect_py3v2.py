@@ -17,6 +17,7 @@ from time import sleep
 import bluesky.plan_stubs as bps
 from bluesky.run_engine import RunEngine
 from dodal.beamlines import i24
+from dodal.devices.zebra import Zebra
 
 from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.dcid import DCID
@@ -79,7 +80,9 @@ def initialise_extruderi24(args=None):
 
 
 @log.log_on_entry
-def moveto(args):
+def moveto(args, zebra: Zebra = None):
+    if not zebra:
+        zebra = i24.zebra()
     place = args.place
     logger.info("Move to: %s" % place)
 
@@ -87,23 +90,23 @@ def moveto(args):
 
     if place == "laseron":
         if isinstance(det_type, Pilatus):
-            caput(pv.zebra1_out1_ttl, 60.0)
-            caput(pv.zebra1_soft_in_b0, 1.0)
+            yield from bps.abs_set(zebra.output.out_1, 60.0)
+            yield from bps.abs_set(zebra.inputs.soft_in_1, 1.0)
         elif isinstance(det_type, Eiger):
-            caput(pv.zebra1_out2_ttl, 60.0)
-            caput(pv.zebra1_soft_in_b0, 1.0)
+            yield from bps.abs_set(zebra.output.out_2, 60.0)
+            yield from bps.abs_set(zebra.inputs.soft_in_1, 1.0)
 
     if place == "laseroff":
         if isinstance(det_type, Pilatus):
-            caput(pv.zebra1_soft_in_b0, 0.0)
-            caput(pv.zebra1_out1_ttl, 0.0)
+            yield from bps.abs_set(zebra.output.out_1, 0.0)
+            yield from bps.abs_set(zebra.inputs.soft_in_1, 0.0)
         elif isinstance(det_type, Eiger):
-            caput(pv.zebra1_soft_in_b0, 0.0)
-            caput(pv.zebra1_out2_ttl, 0.0)
+            yield from bps.abs_set(zebra.output.out_2, 0.0)
+            yield from bps.abs_set(zebra.inputs.soft_in_1, 0.0)
 
     if place == "enterhutch":
         caput(pv.det_z, 1480)
-    yield from bps.null()
+        yield from bps.null()
 
 
 @log.log_on_entry
@@ -398,7 +401,7 @@ def run_extruderi24(args=None):
                 sleep(1.0)
                 break
             elif not zebra.pc.is_armed():
-                # As soon as the zebra1_pc_arm_out is not 1 anymore, exit.
+                # As soon as zebra is disarmed, exit.
                 # Epics checks the geobrick and updates this PV once the collection is done.
                 logger.info("----> Zebra disarmed  <----")
                 break

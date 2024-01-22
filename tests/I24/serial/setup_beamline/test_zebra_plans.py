@@ -68,20 +68,6 @@ def test_setup_zebra_for_extruder_pp_collection(zebra: Zebra, RE):
     assert zebra.output.pulse_2_delay.get() == 0.05
 
 
-def test_zebra_return_to_normal(zebra: Zebra, RE):
-    RE(zebra_return_to_normal_plan(zebra, wait=True))
-    assert not zebra.pc.is_armed()
-    assert (
-        zebra.pc.gate_source.get() == PC_GATE_SOURCE_POSITION
-        and zebra.pc.pulse_source.get() == PC_PULSE_SOURCE_POSITION
-    )
-    assert zebra.pc.gate_trigger.get() == "Enc2"
-    assert zebra.pc.gate_start.get() == 0
-
-    assert zebra.output.out_3.get() == DISCONNECT
-    assert zebra.output.pulse_1_input.get() == DISCONNECT
-
-
 def test_setup_zebra_for_fastchip(zebra: Zebra, RE):
     num_gates = 400
     num_exposures = 2
@@ -112,3 +98,17 @@ def test_setup_zebra_for_fastchip(zebra: Zebra, RE):
     assert zebra.pc.pulse_width.get() == exposure_time / 2
 
     assert zebra.pc.pulse_step.get() == exposure_time + 0.0001
+
+
+def test_zebra_return_to_normal(zebra: Zebra, RE):
+    RE(zebra_return_to_normal_plan(zebra, wait=True))
+    assert not zebra.pc.is_armed()
+    assert (
+        zebra.pc.gate_source.get() == PC_GATE_SOURCE_POSITION
+        and zebra.pc.pulse_source.get() == PC_PULSE_SOURCE_POSITION
+    )
+    assert zebra.pc.gate_trigger.get() == "Enc2"
+    assert zebra.pc.gate_start.get() == 0
+
+    assert zebra.output.out_3.get() == DISCONNECT
+    assert zebra.output.pulse_1_input.get() == DISCONNECT

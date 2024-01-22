@@ -60,29 +60,31 @@ def test_initialise_extruder(fake_log, fake_det, fake_caput, fake_caget, RE):
 
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.get_detector_type")
-def test_moveto_enterhutch(fake_det, fake_caput, dummy_parser, RE):
+def test_moveto_enterhutch(fake_det, fake_caput, dummy_parser, zebra, RE):
     fake_args = dummy_parser.parse_args(["enterhutch"])
     fake_det.return_value = Eiger()
-    RE(moveto(fake_args))
+    RE(moveto(fake_args, zebra))
     assert fake_caput.call_count == 1
 
 
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.get_detector_type")
-def test_moveto_laseron_for_eiger(fake_det, fake_caput, dummy_parser, RE):
+def test_moveto_laseron_for_eiger(fake_det, fake_caput, dummy_parser, zebra, RE):
     fake_det.return_value = Eiger()
     fake_args = dummy_parser.parse_args(["laseron"])
-    RE(moveto(fake_args))
-    assert fake_caput.call_count == 2
+    RE(moveto(fake_args, zebra))
+    assert zebra.output.out_2.get() == 60.0
+    assert zebra.inputs.soft_in_1.get() == 1.0
 
 
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.get_detector_type")
-def test_moveto_laseroff_for_pilatus(fake_det, fake_caput, dummy_parser, RE):
+def test_moveto_laseroff_for_pilatus(fake_det, fake_caput, dummy_parser, zebra, RE):
     fake_det.return_value = Pilatus()
     fake_args = dummy_parser.parse_args(["laseroff"])
-    RE(moveto(fake_args))
-    assert fake_caput.call_count == 2
+    RE(moveto(fake_args, zebra))
+    assert zebra.output.out_1.get() == 0.0
+    assert zebra.inputs.soft_in_1.get() == 0.0
 
 
 @patch(

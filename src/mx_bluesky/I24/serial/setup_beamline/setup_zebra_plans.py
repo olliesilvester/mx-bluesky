@@ -140,47 +140,6 @@ def setup_zebra_for_extruder_with_pump_probe_plan(
     logger.info("Finished setting up zebra.")
 
 
-def zebra_return_to_normal_plan(
-    zebra: Zebra, group: str = "zebra-return-to-normal", wait: bool = False
-):
-    """A plan to reset the Zebra at the end of a collection."""
-    if zebra.pc.is_armed():
-        yield from disarm_zebra(zebra)
-        yield from bps.sleep(0.1)
-
-    # Reset PC_GATE and PC_SOURCE to "Position"
-    yield from bps.abs_set(zebra.pc.gate_source, PC_GATE_SOURCE_POSITION, group=group)
-    yield from bps.abs_set(zebra.pc.pulse_source, PC_PULSE_SOURCE_POSITION, group=group)
-
-    yield from bps.abs_set(zebra.pc.gate_input, SOFT_IN3, group=group)
-    yield from bps.abs_set(zebra.pc.num_gates, 1, group=group)
-    yield from bps.abs_set(zebra.pc.pulse_input, DISCONNECT, group=group)
-
-    # Logic Gates
-    yield from bps.abs_set(zebra.logic_gates.and_gate_3.source_1, PC_ARM, group=group)
-    yield from bps.abs_set(zebra.logic_gates.and_gate_3.source_2, IN1_TTL, group=group)
-
-    # TTL out
-    yield from bps.abs_set(zebra.output.out_2, PC_GATE, group=group)
-    yield from bps.abs_set(zebra.output.out_3, DISCONNECT, group=group)
-    yield from bps.abs_set(zebra.output.out_4, OR1, group=group)
-
-    # Reset rotation axis and direction to "omega" and positive
-    yield from bps.abs_set(zebra.pc.gate_trigger, I24Axes.OMEGA.value, group=group)
-    yield from bps.abs_set(zebra.pc.dir, RotationDirection.POSITIVE, group=group)
-
-    #
-    yield from bps.abs_set(zebra.pc.gate_start, 0, group=group)
-    yield from bps.abs_set(zebra.pc.pulse_width, 0, group=group)
-    yield from bps.abs_set(zebra.pc.pulse_step, 0, group=group)
-
-    yield from bps.abs_set(zebra.output.pulse_1_input, DISCONNECT, group=group)
-    yield from bps.abs_set(zebra.output.pulse_2_input, DISCONNECT, group=group)
-
-    if wait:
-        yield from bps.wait(group)
-
-
 def setup_zebra_for_fastchip_plan(
     zebra: Zebra,
     det_type: str,
@@ -226,3 +185,47 @@ def setup_zebra_for_fastchip_plan(
 
     if wait:
         yield from bps.wait(group)
+    logger.info("Finished setting up zebra.")
+
+
+def zebra_return_to_normal_plan(
+    zebra: Zebra, group: str = "zebra-return-to-normal", wait: bool = False
+):
+    """A plan to reset the Zebra at the end of a collection."""
+    if zebra.pc.is_armed():
+        logger.info("Zebra is still armed. Disarming before proceeding.")
+        yield from disarm_zebra(zebra)
+        yield from bps.sleep(0.1)
+
+    # Reset PC_GATE and PC_SOURCE to "Position"
+    yield from bps.abs_set(zebra.pc.gate_source, PC_GATE_SOURCE_POSITION, group=group)
+    yield from bps.abs_set(zebra.pc.pulse_source, PC_PULSE_SOURCE_POSITION, group=group)
+
+    yield from bps.abs_set(zebra.pc.gate_input, SOFT_IN3, group=group)
+    yield from bps.abs_set(zebra.pc.num_gates, 1, group=group)
+    yield from bps.abs_set(zebra.pc.pulse_input, DISCONNECT, group=group)
+
+    # Logic Gates
+    yield from bps.abs_set(zebra.logic_gates.and_gate_3.source_1, PC_ARM, group=group)
+    yield from bps.abs_set(zebra.logic_gates.and_gate_3.source_2, IN1_TTL, group=group)
+
+    # TTL out
+    yield from bps.abs_set(zebra.output.out_2, PC_GATE, group=group)
+    yield from bps.abs_set(zebra.output.out_3, DISCONNECT, group=group)
+    yield from bps.abs_set(zebra.output.out_4, OR1, group=group)
+
+    # Reset rotation axis and direction to "omega" and positive
+    yield from bps.abs_set(zebra.pc.gate_trigger, I24Axes.OMEGA.value, group=group)
+    yield from bps.abs_set(zebra.pc.dir, RotationDirection.POSITIVE, group=group)
+
+    #
+    yield from bps.abs_set(zebra.pc.gate_start, 0, group=group)
+    yield from bps.abs_set(zebra.pc.pulse_width, 0, group=group)
+    yield from bps.abs_set(zebra.pc.pulse_step, 0, group=group)
+
+    yield from bps.abs_set(zebra.output.pulse_1_input, DISCONNECT, group=group)
+    yield from bps.abs_set(zebra.output.pulse_2_input, DISCONNECT, group=group)
+
+    if wait:
+        yield from bps.wait(group)
+    logger.info("Zebra settings back to normal.")
