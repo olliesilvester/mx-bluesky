@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 798
-y 149
+x 2685
+y 224
 w 1030
 h 950
 font "arial-medium-r-18.0"
@@ -3983,7 +3983,7 @@ buttonLabel "Stages"
 numPvs 4
 numDsps 1
 displayFileName {
-  0 "EDM_LOCATION/ME14E-motors.edl"
+  0 "/dls_sw/work/R3.14.12.3/ioc/ME14E/BL/data/ME14E-motors.edl"
 }
 endObjectProperties
 
