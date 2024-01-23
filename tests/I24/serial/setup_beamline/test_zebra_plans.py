@@ -64,8 +64,8 @@ def test_setup_zebra_for_extruder_pp_collection(zebra: Zebra, RE):
     assert zebra.output.out_1.get() == AND3
 
     assert zebra.pc.gate_start.get() == 1.0
-    assert zebra.output.pulse_1_delay.get() == 0.0
-    assert zebra.output.pulse_2_delay.get() == 0.05
+    assert zebra.output.pulse_1.pulse_dly.get() == 0.0
+    assert zebra.output.pulse_2.pulse_dly.get() == 0.05
 
 
 def test_setup_zebra_for_fastchip(zebra: Zebra, RE):
@@ -111,4 +111,4 @@ def test_zebra_return_to_normal(zebra: Zebra, RE):
     assert zebra.pc.gate_start.get() == 0
 
     assert zebra.output.out_3.get() == DISCONNECT
-    assert zebra.output.pulse_1_input.get() == DISCONNECT
+    assert zebra.output.pulse_1.pulse_inp.get() == DISCONNECT
