@@ -4,14 +4,6 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/main/"
   },
   {
-    "version": "v0.0.2",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.2/"
-  },
-  {
-    "version": "v0.0.1",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.1/"
-  },
-  {
     "version": "10_use-zebra-device",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/10_use-zebra-device/"
   },
@@ -40,8 +32,12 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/pre_v0.0.2/"
   },
   {
-    "version": "test-fixes",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/test-fixes/"
+    "version": "v0.0.1",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.1/"
+  },
+  {
+    "version": "v0.0.2",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.2/"
   },
   {
     "version": "wto16239_draft1",
