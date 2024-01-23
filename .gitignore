@@ -84,4 +84,4 @@ edm_serial/
 **/parameters/fixed_target/*.txt
 **/parameters/fixed_target/cs/fiducial_*.txt
 **/parameters/fixed_target/*.json
-**/parameters/fixed_target/**/*.map
+**/parameters/fixed_target/*/*.map
