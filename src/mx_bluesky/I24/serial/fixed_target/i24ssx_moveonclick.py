@@ -9,6 +9,7 @@ from dodal.beamlines import i24
 from dodal.devices.oav.oav_detector import OAV
 
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_Manager_py3v1 as manager
+from mx_bluesky.I24.serial.fixed_target.ft_utils import Fiducials
 from mx_bluesky.I24.serial.parameters.constants import OAV1_CAM
 
 logger = logging.getLogger("I24ssx.moveonclick")
@@ -27,34 +28,25 @@ def _get_beam_centre(oav: OAV):
     return oav.parameters.beam_centre_i, oav.parameters.beam_centre_j
 
 
-# TODO In the future, this should be done automatically in the OAV device
-# See https://github.com/DiamondLightSource/dodal/issues/224
-def get_beam_centre():
-    # Get I24 oav device from dodal
-    oav = i24.oav()
-
-    beamX, beamY = _get_beam_centre(oav)
-    return beamX, beamY
-
-
 # Register clicks and move chip stages
 def onMouse(event, x, y, flags, param):
-    pmac = param
-    beamX, beamY = get_beam_centre()
     if event == cv.EVENT_LBUTTONUP:
+        pmac = param[0]
+        oav = param[1]
+        beamX, beamY = _get_beam_centre(oav)
         logger.info("Clicked X and Y %s %s" % (x, y))
         xmove = -1 * (beamX - x) * zoomcalibrator
         ymove = -1 * (beamY - y) * zoomcalibrator
         logger.info("Moving X and Y %s %s" % (xmove, ymove))
         xmovepmacstring = "#1J:" + str(xmove)
         ymovepmacstring = "#2J:" + str(ymove)
-        pmac.pmac_string.set(xmovepmacstring)
-        pmac.pmac_string.set(ymovepmacstring)
+        pmac.pmac_string.set(xmovepmacstring).wait()
+        pmac.pmac_string.set(ymovepmacstring).wait()
 
 
-def update_ui(frame):
+def update_ui(oav, frame):
     # Get beam x and y values
-    beamX, beamY = get_beam_centre()
+    beamX, beamY = _get_beam_centre(oav)
 
     # Overlay text and beam centre
     cv.ellipse(
@@ -136,13 +128,15 @@ def update_ui(frame):
 
 def start_viewer(oav1: str = OAV1_CAM):
     # Get PMAC device
+    print("Creating dodal devices")
     pmac = i24.pmac()
+    oav = i24.oav()
     # Create a video caputure from OAV1
     cap = cv.VideoCapture(oav1)
 
     # Create window named OAV1view and set onmouse to this
     cv.namedWindow("OAV1view")
-    cv.setMouseCallback("OAV1view", onMouse, param=pmac)  # type: ignore
+    cv.setMouseCallback("OAV1view", onMouse, param=[pmac, oav])  # type: ignore
 
     logger.info("Showing camera feed. Press escape to close")
     # Read captured video and store them in success and frame
@@ -152,42 +146,42 @@ def start_viewer(oav1: str = OAV1_CAM):
     while success:
         success, frame = cap.read()
 
-        update_ui(frame)
+        update_ui(oav, frame)
 
         k = cv.waitKey(1)
         if k == 113:  # Q
-            manager.moveto("zero")
+            manager.moveto(Fiducials.zero, pmac)
         if k == 119:  # W
-            manager.moveto("f1")
+            manager.moveto(Fiducials.fid1, pmac)
         if k == 101:  # E
-            manager.moveto("f2")
+            manager.moveto(Fiducials.fid2, pmac)
         if k == 97:  # A
-            pmac.pmac_string.set(r"\#1hmz\#2hmz\#3hmz")
+            pmac.home_stages()
             print("Current position set as origin")
         if k == 115:  # S
             manager.fiducial(1)
         if k == 100:  # D
             manager.fiducial(2)
         if k == 99:  # C
-            manager.cs_maker()
+            manager.cs_maker(pmac)
         if k == 98:  # B
             manager.block_check()  # doesn't work well for blockcheck as image doesn't update
         if k == 104:  # H
-            pmac.pmac_string.set("#2J:-10")
+            pmac.pmac_string.set("#2J:-10").wait()
         if k == 110:  # N
-            pmac.pmac_string.set("#2J:10")
+            pmac.pmac_string.set("#2J:10").wait()
         if k == 109:  # M
-            pmac.pmac_string.set("#1J:-10")
+            pmac.pmac_string.set("#1J:-10").wait()
         if k == 98:  # B
-            pmac.pmac_string.set("#1J:10")
+            pmac.pmac_string.set("#1J:10").wait()
         if k == 105:  # I
-            pmac.pmac_string.set("#3J:-150")
+            pmac.pmac_string.set("#3J:-150").wait()
         if k == 111:  # O
-            pmac.pmac_string.set("#3J:150")
+            pmac.pmac_string.set("#3J:150").wait()
         if k == 117:  # U
-            pmac.pmac_string.set("#3J:-1000")
+            pmac.pmac_string.set("#3J:-1000").wait()
         if k == 112:  # P
-            pmac.pmac_string.set("#3J:1000")
+            pmac.pmac_string.set("#3J:1000").wait()
         if k == 0x1B:  # esc
             cv.destroyWindow("OAV1view")
             print("Pressed escape. Closing window")

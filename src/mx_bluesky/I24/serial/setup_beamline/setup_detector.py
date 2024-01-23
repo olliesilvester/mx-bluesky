@@ -70,14 +70,34 @@ def _move_detector_stage(detector_stage: DetectorMotion, target: float):
     )
 
 
+# Workaround in case the PV value has been set to the detector name
+def _get_requested_detector(det_type_pv: str) -> str:
+    """Get the requested detector name from the PV value.
+
+    Args:
+        det_type_pv (str): PV associated to the detector request. This is usually a \
+            general purpose PV set up for the serial collection which could contain \
+            a string or and int.
+
+    Returns:
+        str: The detector name as a string, currently "eiger" or "pilatus".
+    """
+    det_type = caget(det_type_pv)
+    if det_type in ["pilatus", "eiger"]:
+        return det_type
+    else:
+        try:
+            det_type = int(det_type)
+            return str(DetRequest(det_type))
+        except ValueError:
+            raise
+
+
 def setup_detector_stage(detector_stage: DetectorMotion, expt_type: SSXType):
     # Grab the correct PV depending on experiment
     # Its value is set with MUX on edm screen
     det_type_pv = EXPT_TYPE_DETECTOR_PVS[expt_type]
-    det_type = caget(det_type_pv)
-    requested_detector = (
-        Eiger.name if int(det_type) == DetRequest.eiger else Pilatus.name
-    )
+    requested_detector = _get_requested_detector(det_type_pv)
     logger.info(f"Requested detector: {requested_detector}.")
     det_y_target = (
         Eiger.det_y_target if requested_detector == "eiger" else Pilatus.det_y_target

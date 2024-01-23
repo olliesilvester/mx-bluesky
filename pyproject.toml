@@ -16,6 +16,7 @@ dependencies = [
     "bluesky",
     "ophyd",
     "pyepics",
+    "caproto",
     "jupyterlab",
     "matplotlib",
     "requests",

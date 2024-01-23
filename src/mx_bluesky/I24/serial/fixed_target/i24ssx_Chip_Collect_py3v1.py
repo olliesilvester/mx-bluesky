@@ -198,10 +198,10 @@ def load_motion_program_data(
         # Pump setting chosen
         prefix = 14
         logger.info("Setting program prefix to %s" % prefix)
-        pmac.pmac_string.set("P1439=0")
+        pmac.pmac_string.set("P1439=0").wait()
         if bool(caget(pv.me14e_gp111)) is True:
             logger.info("Checker pattern setting enabled.")
-            pmac.pmac_string.set("P1439=1")
+            pmac.pmac_string.set("P1439=1").wait()
     else:
         logger.warning("Unknown Pump repeat, pump_repeat = %s" % pump_repeat)
         return
@@ -214,7 +214,7 @@ def load_motion_program_data(
         value = str(v[1])
         s = "P%s=%s" % (str(pvar), str(value))
         logger.info("%s \t %s" % (key, s))
-        pmac.pmac_string.set(s)
+        pmac.pmac_string.set(s).wait()
         sleep(0.02)
     sleep(0.2)
 
@@ -475,7 +475,7 @@ def start_i24(zebra: Zebra):
 @log.log_on_entry
 def finish_i24(chip_prog_dict: Dict, start_time: str, zebra: Zebra):
     det_type = get_detector_type()
-    logger.info("Finish I24 data collection with %s detector." % det_type)
+    logger.info("Finish I24 data collection with %s detector." % str(det_type))
 
     (
         chip_name,
