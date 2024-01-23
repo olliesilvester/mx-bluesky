@@ -9,6 +9,7 @@ from dodal.beamlines import i24
 from dodal.devices.oav.oav_detector import OAV
 
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_Manager_py3v1 as manager
+from mx_bluesky.I24.serial.fixed_target.ft_utils import Fiducials
 from mx_bluesky.I24.serial.parameters.constants import OAV1_CAM
 
 logger = logging.getLogger("I24ssx.moveonclick")
@@ -149,20 +150,20 @@ def start_viewer(oav1: str = OAV1_CAM):
 
         k = cv.waitKey(1)
         if k == 113:  # Q
-            manager.moveto("zero")
+            manager.moveto(Fiducials.zero, pmac)
         if k == 119:  # W
-            manager.moveto("f1")
+            manager.moveto(Fiducials.fid1, pmac)
         if k == 101:  # E
-            manager.moveto("f2")
+            manager.moveto(Fiducials.fid2, pmac)
         if k == 97:  # A
-            pmac.pmac_string.set(r"\#1hmz\#2hmz\#3hmz").wait()
+            pmac.home_stages()
             print("Current position set as origin")
         if k == 115:  # S
             manager.fiducial(1)
         if k == 100:  # D
             manager.fiducial(2)
         if k == 99:  # C
-            manager.cs_maker()
+            manager.cs_maker(pmac)
         if k == 98:  # B
             manager.block_check()  # doesn't work well for blockcheck as image doesn't update
         if k == 104:  # H

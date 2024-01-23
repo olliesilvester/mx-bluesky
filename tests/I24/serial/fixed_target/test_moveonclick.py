@@ -2,6 +2,8 @@ from unittest.mock import ANY, MagicMock, call, patch
 
 import cv2 as cv
 import pytest
+from dodal.devices.i24.pmac import PMAC
+from dodal.devices.oav.oav_detector import OAV
 
 from mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick import (
     onMouse,
@@ -11,7 +13,7 @@ from mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick import (
 
 
 @pytest.mark.parametrize(
-    "beam_position, expected_1J, expected_2J",
+    "beam_position, expected_xmove, expected_ymove",
     [
         (
             (15, 10),
@@ -30,25 +32,22 @@ from mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick import (
         ),
     ],
 )
-@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick.i24.pmac")
-@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick.i24.oav")
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_moveonclick._get_beam_centre")
 def test_onMouse_gets_beam_position_and_sends_correct_str(
     fake_get_beam_pos,
-    fake_oav,
-    fake_pmac,
     beam_position,
-    expected_1J,
-    expected_2J,
+    expected_xmove,
+    expected_ymove,
 ):
     fake_get_beam_pos.side_effect = [beam_position]
-    fake_pmac.pmac_string = MagicMock()
+    fake_pmac: PMAC = MagicMock(spec=PMAC)
+    fake_oav: OAV = MagicMock(spec=OAV)
     onMouse(cv.EVENT_LBUTTONUP, 0, 0, "", param=[fake_pmac, fake_oav])
     fake_pmac.pmac_string.assert_has_calls(
         [
-            call.set(expected_1J),
+            call.set(expected_xmove),
             call.set().wait(),
-            call.set(expected_2J),
+            call.set(expected_ymove),
             call.set().wait(),
         ]
     )

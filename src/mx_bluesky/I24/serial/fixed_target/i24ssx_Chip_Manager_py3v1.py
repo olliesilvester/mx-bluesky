@@ -15,11 +15,13 @@ from pathlib import Path
 from time import sleep
 
 import numpy as np
+from dodal.beamlines import i24
+from dodal.devices.i24.pmac import PMAC
 
 from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_Mapping_py3v1 as mapping
 from mx_bluesky.I24.serial.fixed_target import i24ssx_Chip_StartUp_py3v1 as startup
-from mx_bluesky.I24.serial.fixed_target.ft_utils import ChipType, MappingType
+from mx_bluesky.I24.serial.fixed_target.ft_utils import ChipType, Fiducials, MappingType
 from mx_bluesky.I24.serial.parameters.constants import (
     CS_FILES_PATH,
     FULLMAP_PATH,
@@ -599,57 +601,52 @@ def load_full_map(fullmap_path: Path | str = FULLMAP_PATH):
 
 
 @log.log_on_entry
-def moveto(place: str = "origin"):
-    logger.info("Move to: %s" % place)
+def moveto(place: str = "origin", pmac: PMAC = None):
+    if not pmac:
+        pmac = i24.pmac()
+    logger.info(f"Move to: {place}")
+    if place == Fiducials.zero:
+        logger.info("Chip aspecific move.")
+        pmac.pmac_string.set("!x0y0z0").wait()
+        return
+
     chip_type = int(caget(pv.me14e_gp1))
-    logger.info("Chip type is%s" % chip_type)
-
-    if chip_type == ChipType.Oxford or chip_type == ChipType.Minichip:
-        # Oxford and minichip
-        # As minichip is nothing more than a smaller oxford,
-        # they should move the same way
-        logger.info("Oxford Move")
-        if place == "origin":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f1":
-            caput(pv.me14e_stage_x, 25.40)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f2":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 25.40)
-
-    elif chip_type == ChipType.OxfordInner:
-        logger.info("Oxford Inner Move")
-        if place == "origin":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f1":
-            caput(pv.me14e_stage_x, 24.60)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f2":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 24.60)
-
-    elif chip_type == ChipType.Custom:
-        logger.info("Custom Chip Move")
-        if place == "origin":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f1":
-            caput(pv.me14e_stage_x, 25.40)
-            caput(pv.me14e_stage_y, 0.0)
-        if place == "f2":
-            caput(pv.me14e_stage_x, 0.0)
-            caput(pv.me14e_stage_y, 25.40)
-
-    else:
+    logger.info(f"Chip type is {chip_type}")
+    if chip_type not in list(ChipType):
         logger.warning("Unknown chip_type move")
+        return
+
+    logger.info(f"{str(ChipType(chip_type))} Move")
+    chip_move = ChipType(chip_type).get_approx_chip_size()
+
+    def move_xy(x, y):
+        move_status = pmac.x.move(x, wait=False)
+        move_status &= pmac.y.move(y, wait=False)
+        move_status.wait()
+
+    if place == Fiducials.origin:
+        move_xy(0.0, 0.0)
+    if place == Fiducials.fid1:
+        move_xy(chip_move, 0.0)
+    if place == Fiducials.fid2:
+        move_xy(0.0, chip_move)
+
+
+@log.log_on_entry
+def moveto_preset(place: str, pmac: PMAC = None):
+    if not PMAC:
+        pmac = i24.pmac()
+
+    def move_xyz(x, y, z):
+        move_status = pmac.x.move(x, wait=False)
+        move_status &= pmac.y.move(y, wait=False)
+        move_status &= pmac.z.move(z, wait=False)
+        move_status.wait()
 
     # Non Chip Specific Move
     if place == "zero":
         logger.info("Moving to %s" % place)
-        caput(pv.me14e_pmac_str, "!x0y0z0")
+        pmac.pmac_string.set("!x0y0z0").wait()
 
     elif place == "load_position":
         logger.info("load position")
@@ -660,54 +657,56 @@ def moveto(place: str = "origin"):
     elif place == "collect_position":
         logger.info("collect position")
         caput(pv.me14e_filter, 20)
-        caput(pv.me14e_stage_x, 0.0)
-        caput(pv.me14e_stage_y, 0.0)
-        caput(pv.me14e_stage_z, 0.0)
+        move_xyz(0.0, 0.0, 0.0)
         caput(pv.bs_mp_select, "Data Collection")
         caput(pv.bl_mp_select, "In")
 
     elif place == "microdrop_position":
         logger.info("microdrop align position")
-        caput(pv.me14e_stage_x, 6.0)
-        caput(pv.me14e_stage_y, -7.8)
-        caput(pv.me14e_stage_z, 0.0)
+        move_xyz(6.0, -7.8, 0.0)
 
-    elif place == "laser1on":  # these are in laser edm
+
+@log.log_on_entry
+def laser_control(laser_setting: str, pmac: PMAC = None):
+    logger.info("Move to: %s" % laser_setting)
+    if not pmac:
+        pmac = i24.pmac()
+    if laser_setting == "laser1on":  # these are in laser edm
         logger.info("Laser 1 /BNC2 shutter is open")
         # Use M712 = 0 if triggering on falling edge. M712 =1 if on rising edge
         # Be sure to also change laser1off
         # caput(pv.me14e_pmac_str, ' M712=0 M711=1')
-        caput(pv.me14e_pmac_str, " M712=1 M711=1")
+        pmac.pmac_string.set(" M712=1 M711=1").wait()
 
-    elif place == "laser1off":
+    elif laser_setting == "laser1off":
         logger.info("Laser 1 shutter is closed")
-        caput(pv.me14e_pmac_str, " M712=0 M711=1")
+        pmac.pmac_string.set(" M712=0 M711=1").wait()
 
-    elif place == "laser2on":
+    elif laser_setting == "laser2on":
         logger.info("Laser 2 / BNC3 shutter is open")
-        caput(pv.me14e_pmac_str, " M812=1 M811=1")
+        pmac.pmac_string.set(" M812=1 M811=1").wait()
 
-    elif place == "laser2off":
+    elif laser_setting == "laser2off":
         logger.info("Laser 2 shutter is closed")
-        caput(pv.me14e_pmac_str, " M812=0 M811=1")
+        pmac.pmac_string.set(" M812=0 M811=1").wait()
 
-    elif place == "laser1burn":
+    elif laser_setting == "laser1burn":
         led_burn_time = caget(pv.me14e_gp103)
         logger.info("Laser 1  on")
         logger.info("Burn time is %s s" % led_burn_time)
-        caput(pv.me14e_pmac_str, " M712=1 M711=1")
+        pmac.pmac_string.set(" M712=1 M711=1").wait()
         sleep(int(float(led_burn_time)))
         logger.info("Laser 1 off")
-        caput(pv.me14e_pmac_str, " M712=0 M711=1")
+        pmac.pmac_string.set(" M712=0 M711=1").wait()
 
-    elif place == "laser2burn":
+    elif laser_setting == "laser2burn":
         led_burn_time = caget(pv.me14e_gp109)
         logger.info("Laser 2 on")
         logger.info("burntime %s s" % led_burn_time)
-        caput(pv.me14e_pmac_str, " M812=1 M811=1")
+        pmac.pmac_string.set(" M812=1 M811=1").wait()
         sleep(int(float(led_burn_time)))
         logger.info("Laser 2 off")
-        caput(pv.me14e_pmac_str, " M812=0 M811=1")
+        pmac.pmac_string.set(" M812=0 M811=1").wait()
 
 
 @log.log_on_entry
@@ -775,7 +774,7 @@ def scrape_mtr_fiducials(point: int, param_path: Path | str = CS_FILES_PATH):
 
 
 @log.log_on_entry
-def cs_maker():
+def cs_maker(pmac: PMAC = None):
     """
     Coordinate system.
 
@@ -805,6 +804,9 @@ def cs_maker():
     This should be measured in situ prior to expriment, ie. measure by hand using
     opposite and adjacent RBV after calibration of scale factors.
     """
+    if not pmac:
+        pmac = i24.pmac()
+
     chip_type = int(caget(pv.me14e_gp1))
     fiducial_dict = {}
     fiducial_dict[0] = [25.400, 25.400]
@@ -916,39 +918,39 @@ def cs_maker():
     sqfact3 = np.sqrt(x3factor**2 + y3factor**2 + z3factor**2) / scalez
     logger.info("%1.4f \n %1.4f \n %1.4f" % (sqfact1, sqfact2, sqfact3))
     logger.info("Long wait, please be patient")
-    caput(pv.me14e_pmac_str, "!x0y0z0")
+    pmac.pmac_string.set("!x0y0z0").wait()
     sleep(2.5)
-    caput(pv.me14e_pmac_str, "&2")
-    caput(pv.me14e_pmac_str, cs1)
-    caput(pv.me14e_pmac_str, cs2)
-    caput(pv.me14e_pmac_str, cs3)
-    caput(pv.me14e_pmac_str, "!x0y0z0")
+    pmac.pmac_string.set("&2").wait()
+    pmac.pmac_string.set(cs1).wait()
+    pmac.pmac_string.set(cs2).wait()
+    pmac.pmac_string.set(cs3).wait()
+    pmac.pmac_string.set("!x0y0z0").wait()
     sleep(0.1)
-    caput(pv.me14e_pmac_str, "#1hmz#2hmz#3hmz")
+    pmac.home_stages()
     sleep(0.1)
     logger.info("Chip_type is %s" % chip_type)
     if chip_type == 0:
-        caput(pv.me14e_pmac_str, "!x0.4y0.4")
+        pmac.pmac_string.set("!x0.4y0.4").wait()
         sleep(0.1)
-        caput(pv.me14e_pmac_str, "#1hmz#2hmz#3hmz")
+        pmac.home_stages()
     else:
-        caput(pv.me14e_pmac_str, "#1hmz#2hmz#3hmz")
+        pmac.home_stages()
     logger.debug("CSmaker done.")
 
 
-def cs_reset():
+def cs_reset(pmac: PMAC = None):
+    """Used to clear CS when using Custom Chip"""
+    if not pmac:
+        pmac = i24.pmac()
     cs1 = "#1->-10000X+0Y+0Z"
     cs2 = "#2->+0X+10000Y+0Z"
     cs3 = "#3->0X+0Y+10000Z"
     strg = "\n".join([cs1, cs2, cs3])
     print(strg)
-    caput(pv.me14e_pmac_str, "&2")
-    sleep(0.5)
-    caput(pv.me14e_pmac_str, cs1)
-    sleep(0.5)
-    caput(pv.me14e_pmac_str, cs2)
-    sleep(0.5)
-    caput(pv.me14e_pmac_str, cs3)
+    pmac.pmac_string.set("&2").wait()
+    pmac.pmac_string.set(cs1).wait()
+    pmac.pmac_string.set(cs2).wait()
+    pmac.pmac_string.set(cs3).wait()
     logger.debug("CSreset Done")
 
 
@@ -1030,6 +1032,12 @@ def parse_args_and_run_parsed_function(args):
     )
     parser_moveto.add_argument("place", type=str)
     parser_moveto.set_defaults(func=moveto)
+    parser_preset = subparsers.add_parser("preset_pos")
+    parser_preset.add_argument("place", type=str)
+    parser_preset.set_defaults(func=moveto_preset)
+    parser_laser = subparsers.add_parser("laser_control")
+    parser_laser.add_argument("laser_setting", type=str)
+    parser_laser.set_defaults(func=laser_control)
     parser_fid = subparsers.add_parser("fiducial")
     parser_fid.add_argument("point", type=int)
     parser_fid.set_defaults(func=fiducial)
