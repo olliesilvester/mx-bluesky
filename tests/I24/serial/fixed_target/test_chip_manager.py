@@ -57,13 +57,13 @@ def test_moveto_oxford_inner_f1(fake_caget: MagicMock, fake_pmac: MagicMock):
 
 def test_moveto_chip_unknown(fake_pmac: MagicMock):
     moveto("zero", fake_pmac)
-    fake_pmac.pmac_string.assert_has_calls([call.put("!x0y0z0", wait=True)])
+    fake_pmac.pmac_string.assert_has_calls([call.set("!x0y0z0"), call.set().wait()])
 
 
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caput")
 def test_moveto_preset(fake_caput: MagicMock, fake_pmac: MagicMock):
     moveto_preset("zero", fake_pmac)
-    fake_pmac.pmac_string.assert_has_calls([call.put("!x0y0z0", wait=True)])
+    fake_pmac.pmac_string.assert_has_calls([call.set("!x0y0z0"), call.set().wait()])
 
     moveto_preset("load_position", fake_pmac)
     assert fake_caput.call_count == 3
@@ -106,7 +106,9 @@ def test_laser_control_on_and_off(
 ):
     laser_control(laser_setting, fake_pmac)
 
-    fake_pmac.pmac_string.assert_has_calls([call.put(expected_pmac_string, wait=True)])
+    fake_pmac.pmac_string.assert_has_calls(
+        [call.set(expected_pmac_string), call.set().wait()]
+    )
 
 
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Manager_py3v1.caget")
@@ -115,7 +117,12 @@ def test_laser_control_burn_setting(fake_caget: MagicMock, fake_pmac: MagicMock)
     laser_control("laser1burn", fake_pmac)
 
     fake_pmac.pmac_string.assert_has_calls(
-        [call.put(" M712=1 M711=1", wait=True), call.put(" M712=0 M711=1", wait=True)]
+        [
+            call.set(" M712=1 M711=1"),
+            call.set().wait(),
+            call.set(" M712=0 M711=1"),
+            call.set().wait(),
+        ]
     )
 
 
@@ -143,10 +150,14 @@ def test_cs_reset(fake_pmac: MagicMock):
     cs_reset(fake_pmac)
     fake_pmac.pmac_string.assert_has_calls(
         [
-            call.put("&2", wait=True),
-            call.put("#1->-10000X+0Y+0Z", wait=True),
-            call.put("#2->+0X+10000Y+0Z", wait=True),
-            call.put("#3->0X+0Y+10000Z", wait=True),
+            call.set("&2"),
+            call.set().wait(),
+            call.set("#1->-10000X+0Y+0Z"),
+            call.set().wait(),
+            call.set("#2->+0X+10000Y+0Z"),
+            call.set().wait(),
+            call.set("#3->0X+0Y+10000Z"),
+            call.set().wait(),
         ]
     )
 
