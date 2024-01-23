@@ -122,18 +122,18 @@ def setup_zebra_for_extruder_with_pump_probe_plan(
     logger.info(
         f"Pulse1 starting at {pulse1_delay} with width set to laser dwell {pulse1_width}."
     )
-    yield from bps.abs_set(zebra.output.pulse_1_input, PC_GATE, group=group)
-    yield from bps.abs_set(zebra.output.pulse_1_delay, pulse1_delay, group=group)
-    yield from bps.abs_set(zebra.output.pulse_1_width, pulse1_width, group=group)
+    yield from bps.abs_set(zebra.output.pulse_1.pulse_inp, PC_GATE, group=group)
+    yield from bps.abs_set(zebra.output.pulse_1.pulse_dly, pulse1_delay, group=group)
+    yield from bps.abs_set(zebra.output.pulse_1.pulse_wid, pulse1_width, group=group)
     logger.info(
         f"""
         Pulse2 starting at laser delay {pulse2_delay} with width set to \
         exposure time {pulse2_delay}
         """
     )
-    yield from bps.abs_set(zebra.output.pulse_2_input, PC_GATE, group=group)
-    yield from bps.abs_set(zebra.output.pulse_2_delay, pulse2_delay, group=group)
-    yield from bps.abs_set(zebra.output.pulse_2_width, pulse2_width, group=group)
+    yield from bps.abs_set(zebra.output.pulse_2.pulse_inp, PC_GATE, group=group)
+    yield from bps.abs_set(zebra.output.pulse_2.pulse_dly, pulse2_delay, group=group)
+    yield from bps.abs_set(zebra.output.pulse_2.pulse_wid, pulse2_width, group=group)
 
     if wait:
         yield from bps.wait(group)
@@ -223,8 +223,8 @@ def zebra_return_to_normal_plan(
     yield from bps.abs_set(zebra.pc.pulse_width, 0, group=group)
     yield from bps.abs_set(zebra.pc.pulse_step, 0, group=group)
 
-    yield from bps.abs_set(zebra.output.pulse_1_input, DISCONNECT, group=group)
-    yield from bps.abs_set(zebra.output.pulse_2_input, DISCONNECT, group=group)
+    yield from bps.abs_set(zebra.output.pulse_1.pulse_inp, DISCONNECT, group=group)
+    yield from bps.abs_set(zebra.output.pulse_2.pulse_inp, DISCONNECT, group=group)
 
     if wait:
         yield from bps.wait(group)
