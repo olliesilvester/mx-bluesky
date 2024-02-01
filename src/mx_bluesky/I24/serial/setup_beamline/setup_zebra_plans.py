@@ -39,6 +39,14 @@ def disarm_zebra(zebra: Zebra):
     yield from bps.abs_set(zebra.pc.arm, ArmDemand.DISARM, wait=True)
 
 
+def setup_pc_sources(
+    zebra: Zebra, gate_source: int, pulse_source: int, group: str = "pc_sources"
+):
+    yield from bps.abs_set(zebra.pc.gate_source, gate_source, group=group)
+    yield from bps.abs_set(zebra.pc.pulse_source, pulse_source, group=group)
+    yield from bps.wait(group)
+
+
 def setup_zebra_for_quickshot_plan(
     zebra: Zebra,
     gate_start: float,
@@ -56,8 +64,7 @@ def setup_zebra_for_quickshot_plan(
     """
     logger.info("Setup ZEBRA for quickshot collection.")
     yield from bps.abs_set(zebra.pc.arm_source, PC_ARM_SOURCE_SOFT, group=group)
-    yield from bps.abs_set(zebra.pc.gate_source, PC_GATE_SOURCE_TIME, group=group)
-    yield from bps.abs_set(zebra.pc.pulse_source, PC_PULSE_SOURCE_EXTERNAL, group=group)
+    yield from setup_pc_sources(zebra, PC_GATE_SOURCE_TIME, PC_PULSE_SOURCE_EXTERNAL)
 
     logger.info(f"Gate start set to {gate_start}, with width {gate_width}.")
     yield from bps.abs_set(zebra.pc.gate_start, gate_start, group=group)
@@ -91,8 +98,7 @@ def setup_zebra_for_extruder_with_pump_probe_plan(
     yield from bps.abs_set(zebra.inputs.soft_in_1, DISCONNECT, group=group)
 
     # Set gate to "Time" and pulse source to "External"
-    yield from bps.abs_set(zebra.pc.gate_source, PC_GATE_SOURCE_TIME, group=group)
-    yield from bps.abs_set(zebra.pc.pulse_source, PC_PULSE_SOURCE_EXTERNAL, group=group)
+    yield from setup_pc_sources(zebra, PC_GATE_SOURCE_TIME, PC_PULSE_SOURCE_EXTERNAL)
 
     # Logic gates
     yield from bps.abs_set(zebra.logic_gates.and_gate_3.source_1, SOFT_IN2, group=group)
@@ -152,8 +158,7 @@ def setup_zebra_for_fastchip_plan(
     logger.info("Setup ZEBRA for a fixed target collection.")
     # SOFT_IN:B0 disabled
     yield from bps.abs_set(zebra.inputs.soft_in_1, DISCONNECT, group=group)
-    yield from bps.abs_set(zebra.pc.gate_source, PC_GATE_SOURCE_EXTERNAL, group=group)
-    yield from bps.abs_set(zebra.pc.pulse_source, PC_PULSE_SOURCE_TIME, group=group)
+    yield from setup_pc_sources(zebra, PC_GATE_SOURCE_EXTERNAL, PC_PULSE_SOURCE_TIME)
 
     # Logic Gates
     yield from bps.abs_set(zebra.logic_gates.and_gate_3.source_1, SOFT_IN2, group=group)
@@ -187,6 +192,13 @@ def setup_zebra_for_fastchip_plan(
     logger.info("Finished setting up zebra.")
 
 
+def position_compare_off(zebra: Zebra, group: str = "position_compare_off"):
+    yield from bps.abs_set(zebra.pc.gate_start, 0, group=group)
+    yield from bps.abs_set(zebra.pc.pulse_width, 0, group=group)
+    yield from bps.abs_set(zebra.pc.pulse_step, 0, group=group)
+    yield from bps.wait(group=group)
+
+
 def zebra_return_to_normal_plan(
     zebra: Zebra, group: str = "zebra-return-to-normal", wait: bool = False
 ):
@@ -197,8 +209,9 @@ def zebra_return_to_normal_plan(
         yield from bps.sleep(0.1)
 
     # Reset PC_GATE and PC_SOURCE to "Position"
-    yield from bps.abs_set(zebra.pc.gate_source, PC_GATE_SOURCE_POSITION, group=group)
-    yield from bps.abs_set(zebra.pc.pulse_source, PC_PULSE_SOURCE_POSITION, group=group)
+    yield from setup_pc_sources(
+        zebra, PC_GATE_SOURCE_POSITION, PC_PULSE_SOURCE_POSITION
+    )
 
     yield from bps.abs_set(zebra.pc.gate_input, SOFT_IN3, group=group)
     yield from bps.abs_set(zebra.pc.num_gates, 1, group=group)
@@ -218,9 +231,7 @@ def zebra_return_to_normal_plan(
     yield from bps.abs_set(zebra.pc.dir, RotationDirection.POSITIVE, group=group)
 
     #
-    yield from bps.abs_set(zebra.pc.gate_start, 0, group=group)
-    yield from bps.abs_set(zebra.pc.pulse_width, 0, group=group)
-    yield from bps.abs_set(zebra.pc.pulse_step, 0, group=group)
+    yield from position_compare_off(zebra)
 
     yield from bps.abs_set(zebra.output.pulse_1.pulse_inp, DISCONNECT, group=group)
     yield from bps.abs_set(zebra.output.pulse_2.pulse_inp, DISCONNECT, group=group)

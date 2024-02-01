@@ -3,6 +3,7 @@ from dodal.devices.zebra import (
     AND4,
     DISCONNECT,
     PC_GATE_SOURCE_POSITION,
+    PC_GATE_SOURCE_TIME,
     PC_PULSE_SOURCE_POSITION,
     SOFT_IN2,
     Zebra,
@@ -11,6 +12,8 @@ from dodal.devices.zebra import (
 from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
     arm_zebra,
     disarm_zebra,
+    position_compare_off,
+    setup_pc_sources,
     setup_zebra_for_extruder_with_pump_probe_plan,
     setup_zebra_for_fastchip_plan,
     setup_zebra_for_quickshot_plan,
@@ -26,6 +29,13 @@ def test_arm_and_disarm_zebra(zebra: Zebra, RE):
 
     RE(disarm_zebra(zebra))
     assert not zebra.pc.is_armed()
+
+
+def test_setup_pc_sources(zebra: Zebra, RE):
+    RE(setup_pc_sources(zebra, PC_GATE_SOURCE_TIME, PC_PULSE_SOURCE_POSITION))
+
+    assert zebra.pc.gate_source.get() == PC_GATE_SOURCE_TIME
+    assert zebra.pc.pulse_source.get() == PC_PULSE_SOURCE_POSITION
 
 
 def test_setup_zebra_for_quickshot(zebra: Zebra, RE):
@@ -98,6 +108,14 @@ def test_setup_zebra_for_fastchip(zebra: Zebra, RE):
     assert zebra.pc.pulse_width.get() == exposure_time / 2
 
     assert zebra.pc.pulse_step.get() == exposure_time + 0.0001
+
+
+def test_position_compare_off(zebra: Zebra, RE):
+    RE(position_compare_off(zebra))
+
+    assert zebra.pc.gate_start.get() == 0
+    assert zebra.pc.pulse_width.get() == 0
+    assert zebra.pc.pulse_step.get() == 0
 
 
 def test_zebra_return_to_normal(zebra: Zebra, RE):
