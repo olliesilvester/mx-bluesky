@@ -13,6 +13,7 @@ from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
     arm_zebra,
     disarm_zebra,
     position_compare_off,
+    reset_zebra_at_end_plan,
     setup_pc_sources,
     setup_zebra_for_extruder_with_pump_probe_plan,
     setup_zebra_for_fastchip_plan,
@@ -130,3 +131,10 @@ def test_zebra_return_to_normal(zebra: Zebra, RE):
 
     assert zebra.output.out_3.get() == DISCONNECT
     assert zebra.output.pulse_1.pulse_inp.get() == DISCONNECT
+
+
+def test_reset_zebra_plan(zebra: Zebra, RE):
+    RE(reset_zebra_at_end_plan(zebra))
+
+    assert zebra.inputs.soft_in_2.get() == DISCONNECT
+    assert not zebra.pc.is_armed()

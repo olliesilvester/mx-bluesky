@@ -38,9 +38,8 @@ from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
 from mx_bluesky.I24.serial.setup_beamline.setup_detector import get_detector_type
 from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
     arm_zebra,
-    disarm_zebra,
+    reset_zebra_at_end_plan,
     setup_zebra_for_fastchip_plan,
-    zebra_return_to_normal_plan,
 )
 from mx_bluesky.I24.serial.write_nexus import call_nexgen
 
@@ -502,22 +501,12 @@ def finish_i24(chip_prog_dict: Dict, start_time: str, zebra: Zebra):
     if det_type == "pilatus":
         logger.info("Finish I24 Pilatus")
         filename = filename + "_" + caget(pv.pilat_filenum)
-        logger.debug("Close the fast shutter.")
-        # Disable SOFT_IN:B1
-        yield from bps.abs_set(zebra.inputs.soft_in_2, 0, wait=True)
-        logger.debug("Disarm the zebra.")
-        yield from disarm_zebra(zebra)
-        yield from zebra_return_to_normal_plan(zebra)
+        yield from reset_zebra_at_end_plan(zebra)
         sup.pilatus("return-to-normal")
         sleep(0.2)
     elif det_type == "eiger":
         logger.info("Finish I24 Eiger")
-        logger.debug("Close the fast shutter.")
-        # Disable SOFT_IN:B1
-        yield from bps.abs_set(zebra.inputs.soft_in_2, 0, wait=True)
-        logger.debug("Disarm the zebra.")
-        yield from disarm_zebra(zebra)
-        yield from zebra_return_to_normal_plan(zebra)
+        yield from reset_zebra_at_end_plan(zebra)
         sup.eiger("return-to-normal")
         filename = cagetstring(pv.eiger_ODfilenameRBV)
 

@@ -239,3 +239,12 @@ def zebra_return_to_normal_plan(
     if wait:
         yield from bps.wait(group)
     logger.info("Zebra settings back to normal.")
+
+
+def reset_zebra_at_end_plan(zebra: Zebra):
+    logger.debug("Close the fast shutter.")
+    # Disable SOFT_IN:B1
+    yield from bps.abs_set(zebra.inputs.soft_in_2, DISCONNECT, wait=0)
+    logger.debug("Disarm the zebra.")
+    yield from disarm_zebra(zebra)
+    yield from zebra_return_to_normal_plan(zebra, wait=True)
