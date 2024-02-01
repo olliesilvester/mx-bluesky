@@ -13,6 +13,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 from time import sleep
+from typing import Optional
 
 import bluesky.plan_stubs as bps
 from bluesky.run_engine import RunEngine
@@ -80,7 +81,7 @@ def initialise_extruderi24(args=None):
 
 
 @log.log_on_entry
-def moveto(args, zebra: Zebra = None):
+def moveto(args, zebra: Optional[Zebra] = None):
     if not zebra:
         zebra = i24.zebra()
     place = args.place
@@ -289,13 +290,16 @@ def run_extruderi24(args=None):
                 p1_width,
                 p2_delay,
                 p2_width,
+                wait=True,
             )
         elif pump_status == "false":
             logger.info("Static experiment: no photoexcitation")
             sup.pilatus("quickshot", [filepath, filename, num_imgs, exp_time])
             gate_start = 1.0
             gate_width = (float(exp_time) * float(num_imgs)) + float(0.5)
-            yield from setup_zebra_for_quickshot_plan(zebra, gate_start, gate_width)
+            yield from setup_zebra_for_quickshot_plan(
+                zebra, gate_start, gate_width, wait=True
+            )
 
     elif det_type == "eiger":
         logger.info("Using Eiger detector")
@@ -337,13 +341,16 @@ def run_extruderi24(args=None):
                 p1_width,
                 p2_delay,
                 p2_width,
+                wait=True,
             )
         elif pump_status == "false":
             logger.info("Static experiment: no photoexcitation")
             gate_start = 1.0
             gate_width = (float(exp_time) * float(num_imgs)) + float(0.5)
             sup.eiger("quickshot", [filepath, filename, num_imgs, exp_time])
-            yield from setup_zebra_for_quickshot_plan(zebra, gate_start, gate_width)
+            yield from setup_zebra_for_quickshot_plan(
+                zebra, gate_start, gate_width, wait=True
+            )
     else:
         err = "Unknown Detector Type, det_type = %s" % det_type
         logger.error(err)

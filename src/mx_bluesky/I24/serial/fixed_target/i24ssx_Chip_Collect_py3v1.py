@@ -401,7 +401,7 @@ def start_i24(zebra: Zebra):
 
         logger.debug("Arm Pilatus. Arm Zebra.")
         yield from setup_zebra_for_fastchip_plan(
-            zebra, det_type, num_gates, n_exposures, exptime
+            zebra, det_type, num_gates, n_exposures, exptime, wait=True
         )
         caput(pv.pilat_acquire, "1")  # Arm pilatus
         yield from arm_zebra(zebra)
@@ -449,7 +449,7 @@ def start_i24(zebra: Zebra):
 
         logger.debug("Arm Zebra.")
         yield from setup_zebra_for_fastchip_plan(
-            zebra, det_type, num_gates, n_exposures, exptime
+            zebra, det_type, num_gates, n_exposures, exptime, wait=True
         )
         yield from arm_zebra(zebra)
 
