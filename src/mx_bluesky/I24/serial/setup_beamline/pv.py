@@ -90,17 +90,6 @@ eiger_beamy = "BL24I-EA-EIGER-01:CAM:BeamY"
 eiger_omegaincr = "BL24I-EA-EIGER-01:CAM:OmegaIncr"
 eiger_ODfilenameRBV = "BL24I-EA-EIGER-01:OD:FP:FileName_RBV"
 
-# eiger_filenumber    = 'BL24I-EA-PILAT-01:cam1:FileNumber'
-# eiger_imagemode     = 'BL24I-EA-PILAT-01:cam1:ImageMode'
-# eiger_filetemplate  = 'BL24I-EA-PILAT-01:cam1:FileTemplate'
-# eiger_delaytime     = 'BL24I-EA-PILAT-01:cam1:DelayTime'
-# eiger_filtertrasm   = 'BL24I-EA-PILAT-01:cam1:FilterTransm'
-# eiger_filetemplate  = 'BL24I-EA-PILAT-01:cam1:FileTemplate'
-# eiger_startangle    = 'BL24I-EA-PILAT-01:cam1:StartAngle'
-# eiger_angleincr     = 'BL24I-EA-PILAT-01:cam1:AngleIncr'
-
-# eiger_cbftemplate   = 'BL24I-EA-PILAT-01:cam1:CbfTemplateFile'
-
 # ZEBRA
 zebra1_and3_inp1 = "BL24I-EA-ZEBRA-01:AND3_INP1"
 zebra1_and3_inp2 = "BL24I-EA-ZEBRA-01:AND3_INP2"
