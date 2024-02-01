@@ -165,12 +165,11 @@ def setup_zebra_for_fastchip_plan(
     # And calculate some of the other settings
     if det_type == "eiger":
         yield from bps.abs_set(zebra.output.out_1, AND3, group=group)
-        # Sawtooth with a small drop to make it work for eiger
-        pulse_width = exposure_time - 0.0001
     if det_type == "pilatus":
         yield from bps.abs_set(zebra.output.out_2, AND3, group=group)
-        # Sawtooth
-        pulse_width = exposure_time / 2
+
+    # Sawtooth - needs a small drop to make it work for eiger
+    pulse_width = exposure_time - 0.0001 if det_type == "eiger" else exposure_time / 2
 
     # 100us buffer needed to avoid missing some of the triggers
     exptime_buffer = exposure_time + 0.0001
