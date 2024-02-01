@@ -3,7 +3,6 @@ from unittest.mock import mock_open, patch
 
 import pytest
 
-# from dodal.devices.zebra import Zebra
 from mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2 import (
     initialise_extruderi24,
     moveto,
