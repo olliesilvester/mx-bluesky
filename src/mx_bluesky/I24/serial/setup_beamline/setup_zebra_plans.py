@@ -73,6 +73,7 @@ def setup_zebra_for_quickshot_plan(
     """Set up the zebra for a static extruder experiment.
 
     Args:
+        zebra (Zebra): The zebra ophyd device.
         gate_start (float): _description_
         gate_width (float): _description_
         group (str): _description_
@@ -171,6 +172,26 @@ def setup_zebra_for_fastchip_plan(
     group: str = "setup_zebra_for_fastchip",
     wait: bool = False,
 ):
+    """Zebra setup for fixed-target triggering.
+
+    Position compare settings:
+        - The gate input is on IN3_TTL.
+        - The number of gates should be equal to the number of apertures to collect.
+        - Gate source set to 'External' and Pulse source set to 'Time'
+        - Trigger source set to the exposure time with a 100us buffer in order to \
+            avoid missing any triggers.
+        - The trigger width is calculated depending on which detector is in use.
+
+    The data collection output is OUT1_TTL for Eiger and OUT2_TTL for Pilatus and \
+    should be set to AND3.
+
+    Args:
+        zebra (Zebra): The zebra ophyd device.
+        det_type (str): Detector in use, current choices Eiger or Pilatus.
+        num_gates (int): Number of apertures to visit in a chip.
+        num_exposures (int): Number of times data is collected in each aperture.
+        exposure_time (float): Exposure time for each shot.
+    """
     logger.info("Setup ZEBRA for a fixed target collection.")
     # SOFT_IN:B0 disabled
     yield from bps.abs_set(zebra.inputs.soft_in_1, DISCONNECT, group=group)
@@ -185,9 +206,9 @@ def setup_zebra_for_fastchip_plan(
     # Set TTL out depending on detector type
     # And calculate some of the other settings
     if det_type == "eiger":
-        yield from bps.abs_set(zebra.output.out_1, AND3, group=group)
+        yield from bps.abs_set(zebra.output.out_pvs[TTL_EIGER], AND3, group=group)
     if det_type == "pilatus":
-        yield from bps.abs_set(zebra.output.out_2, AND3, group=group)
+        yield from bps.abs_set(zebra.output.out_pvs[TTL_PILATUS], AND3, group=group)
 
     # Sawtooth - needs a small drop to make it work for eiger
     pulse_width = exposure_time - 0.0001 if det_type == "eiger" else exposure_time / 2
@@ -218,7 +239,7 @@ def position_compare_off(zebra: Zebra, group: str = "position_compare_off"):
 def zebra_return_to_normal_plan(
     zebra: Zebra, group: str = "zebra-return-to-normal", wait: bool = False
 ):
-    """A plan to reset the Zebra at the end of a collection."""
+    """A plan to reset the Zebra settings at the end of a collection."""
     if zebra.pc.is_armed():
         logger.info("Zebra is still armed. Disarming before proceeding.")
         yield from disarm_zebra(zebra)
@@ -258,6 +279,9 @@ def zebra_return_to_normal_plan(
 
 
 def reset_zebra_at_end_plan(zebra: Zebra):
+    """
+    End of collection zebra operations: close fast shutter, disarm and reset settings.
+    """
     logger.debug("Close the fast shutter.")
     yield from close_fast_shutter(zebra)
     logger.debug("Disarm the zebra.")
