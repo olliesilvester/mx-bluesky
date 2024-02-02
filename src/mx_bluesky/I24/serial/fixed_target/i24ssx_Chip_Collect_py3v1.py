@@ -13,7 +13,6 @@ from pathlib import Path
 from time import sleep
 from typing import Dict, List
 
-import bluesky.plan_stubs as bps
 import numpy as np
 from bluesky.run_engine import RunEngine
 from dodal.beamlines import i24
@@ -38,6 +37,8 @@ from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
 from mx_bluesky.I24.serial.setup_beamline.setup_detector import get_detector_type
 from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
     arm_zebra,
+    close_fast_shutter,
+    open_fast_shutter,
     reset_zebra_at_end_plan,
     setup_zebra_for_fastchip_plan,
 )
@@ -615,7 +616,7 @@ def main():
 
     # Now ready for data collection. Open fast shutter (zebra gate)
     logger.debug("Opening fast shutter.")
-    yield from bps.abs_set(zebra.inputs.soft_in_2, 1, wait=True)  # Enable SOFT_IN:B1
+    yield from open_fast_shutter(zebra)
 
     logger.info("Run PMAC with program number %d" % prog_num)
     logger.info("pmac str = &2b%dr" % prog_num)
@@ -681,7 +682,7 @@ def main():
         logger.info("Data Collection ended due to GP 9 not equalling 0")
 
     logger.debug("Closing fast shutter")
-    yield from bps.abs_set(zebra.inputs.soft_in_2, 0, wait=True)
+    yield from close_fast_shutter(zebra)
     sleep(2.0)
 
     if det_type == "pilatus":
