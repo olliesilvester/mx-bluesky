@@ -29,6 +29,8 @@ from mx_bluesky.I24.serial.setup_beamline import Eiger, Pilatus, caget, caput, p
 from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
 from mx_bluesky.I24.serial.setup_beamline.setup_detector import get_detector_type
 from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
+    TTL_EIGER,
+    TTL_PILATUS,
     arm_zebra,
     close_fast_shutter,
     disarm_zebra,
@@ -94,18 +96,18 @@ def moveto(args, zebra: Optional[Zebra] = None):
 
     if place == "laseron":
         if isinstance(det_type, Pilatus):
-            yield from bps.abs_set(zebra.output.out_1, 60.0)
+            yield from bps.abs_set(zebra.output.out_pvs[TTL_EIGER], 60.0)
             yield from bps.abs_set(zebra.inputs.soft_in_1, 1.0)
         elif isinstance(det_type, Eiger):
-            yield from bps.abs_set(zebra.output.out_2, 60.0)
+            yield from bps.abs_set(zebra.output.out_pvs[TTL_PILATUS], 60.0)
             yield from bps.abs_set(zebra.inputs.soft_in_1, 1.0)
 
     if place == "laseroff":
         if isinstance(det_type, Pilatus):
-            yield from bps.abs_set(zebra.output.out_1, 0.0)
+            yield from bps.abs_set(zebra.output.out_pvs[TTL_EIGER], 0.0)
             yield from bps.abs_set(zebra.inputs.soft_in_1, 0.0)
         elif isinstance(det_type, Eiger):
-            yield from bps.abs_set(zebra.output.out_2, 0.0)
+            yield from bps.abs_set(zebra.output.out_pvs[TTL_PILATUS], 0.0)
             yield from bps.abs_set(zebra.inputs.soft_in_1, 0.0)
 
     if place == "enterhutch":
