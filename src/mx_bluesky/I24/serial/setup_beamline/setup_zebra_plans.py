@@ -29,8 +29,7 @@ from dodal.devices.zebra import (
     Zebra,
 )
 
-# Detector specific
-# ... Except not always true for extruder stuff???
+# Detector specific outs
 TTL_EIGER = 1
 TTL_PILATUS = 2
 
@@ -72,12 +71,12 @@ def setup_zebra_for_quickshot_plan(
 ):
     """Set up the zebra for a static extruder experiment.
 
+    Gate source set to 'External' and Pulse source set to 'Time'
+
     Args:
         zebra (Zebra): The zebra ophyd device.
         gate_start (float): _description_
         gate_width (float): _description_
-        group (str): _description_
-        wait (bool): _description_
     """
     logger.info("Setup ZEBRA for quickshot collection.")
     yield from bps.abs_set(zebra.pc.arm_source, PC_ARM_SOURCE_SOFT, group=group)
@@ -96,6 +95,16 @@ def setup_zebra_for_quickshot_plan(
     logger.info("Finished setting up zebra.")
 
 
+def set_logic_gates_for_porto_triggering(
+    zebra: Zebra, group: str = "porto_logic_gates"
+):
+    yield from bps.abs_set(zebra.logic_gates.and_gate_3.source_1, SOFT_IN2, group=group)
+    yield from bps.abs_set(zebra.logic_gates.and_gate_3.source_2, PULSE1, group=group)
+    yield from bps.abs_set(zebra.logic_gates.and_gate_4.source_1, SOFT_IN2, group=group)
+    yield from bps.abs_set(zebra.logic_gates.and_gate_4.source_2, PULSE2, group=group)
+    yield from bps.wait(group=group)
+
+
 def setup_zebra_for_extruder_with_pump_probe_plan(
     zebra: Zebra,
     det_type: str,
@@ -110,26 +119,41 @@ def setup_zebra_for_extruder_with_pump_probe_plan(
     group: str = "setup_zebra_for_extruder_pp",
     wait: bool = False,
 ):
+    """Zebra setup for extruder pump probe experiment with PORTO.
+
+    Position compare settings:
+        - The gate input is on SOFT_IN2.
+        - The number of gates should be equal to the number of images to collect.
+        - Gate source set to 'Time' and Pulse source set to 'External'
+
+    The data collection output is OUT1_TTL for Eiger and OUT2_TTL for Pilatus and \
+    should be set to AND3.
+    WARNING. When this plan is in use, some hardware changes have been made.
+    Because all four of the zebra ttl outputs are in use in this mode, when the \
+    detector in use is the Eiger, the Pilatus cable is repurposed to trigger the light \
+    source, and viceversa.
+
+    Args:
+        zebra (Zebra): The zebra ophyd device.
+        det_type (str): Detector in use, current choices are Eiger or Pilatus.
+    """
     logger.info("Setup ZEBRA for pump probe extruder collection.")
-    # SOFT_IN:B0 disabled
+    # SOFT_IN:B0 disabled, shutter in manual (?) mode
     yield from bps.abs_set(zebra.inputs.soft_in_1, DISCONNECT, group=group)
 
     # Set gate to "Time" and pulse source to "External"
     yield from setup_pc_sources(zebra, PC_GATE_SOURCE_TIME, PC_PULSE_SOURCE_EXTERNAL)
 
     # Logic gates
-    yield from bps.abs_set(zebra.logic_gates.and_gate_3.source_1, SOFT_IN2, group=group)
-    yield from bps.abs_set(zebra.logic_gates.and_gate_3.source_2, PULSE1, group=group)
-    yield from bps.abs_set(zebra.logic_gates.and_gate_4.source_1, SOFT_IN2, group=group)
-    yield from bps.abs_set(zebra.logic_gates.and_gate_4.source_2, PULSE2, group=group)
+    yield from set_logic_gates_for_porto_triggering(zebra)
 
     # Set TTL out depending on detector type
     if det_type == "eiger":
-        yield from bps.abs_set(zebra.output.out_1, AND4, group=group)
-        yield from bps.abs_set(zebra.output.out_2, AND3, group=group)
+        yield from bps.abs_set(zebra.output.out_pvs[TTL_EIGER], AND4, group=group)
+        yield from bps.abs_set(zebra.output.out_pvs[TTL_PILATUS], AND3, group=group)
     if det_type == "pilatus":
-        yield from bps.abs_set(zebra.output.out_1, AND3, group=group)
-        yield from bps.abs_set(zebra.output.out_2, AND4, group=group)
+        yield from bps.abs_set(zebra.output.out_pvs[TTL_EIGER], AND3, group=group)
+        yield from bps.abs_set(zebra.output.out_pvs[TTL_PILATUS], AND4, group=group)
 
     yield from bps.abs_set(zebra.pc.gate_input, SOFT_IN2, group=group)
     logger.info(f"Gate start set to {gate_start}, with width {gate_width}.")
@@ -139,7 +163,7 @@ def setup_zebra_for_extruder_with_pump_probe_plan(
     # Number of gates is the same as the number of images
     yield from bps.abs_set(zebra.pc.num_gates, num_gates, group=group)
 
-    # Settingd for extruder pump probe:
+    # Settings for extruder pump probe:
     # PULSE1_DLY is the start (0 usually), PULSE1_WID is the laser dwell set on edm
     # PULSE2_DLY is the laser delay set on edm, PULSE2_WID is the exposure time
     logger.info(
@@ -187,7 +211,7 @@ def setup_zebra_for_fastchip_plan(
 
     Args:
         zebra (Zebra): The zebra ophyd device.
-        det_type (str): Detector in use, current choices Eiger or Pilatus.
+        det_type (str): Detector in use, current choices are Eiger or Pilatus.
         num_gates (int): Number of apertures to visit in a chip.
         num_exposures (int): Number of times data is collected in each aperture.
         exposure_time (float): Exposure time for each shot.
@@ -258,7 +282,7 @@ def zebra_return_to_normal_plan(
     yield from bps.abs_set(zebra.logic_gates.and_gate_3.source_1, PC_ARM, group=group)
     yield from bps.abs_set(zebra.logic_gates.and_gate_3.source_2, IN1_TTL, group=group)
 
-    # TTL out
+    # Reset TTL out
     yield from bps.abs_set(zebra.output.out_2, PC_GATE, group=group)
     yield from bps.abs_set(zebra.output.out_3, DISCONNECT, group=group)
     yield from bps.abs_set(zebra.output.out_4, OR1, group=group)
