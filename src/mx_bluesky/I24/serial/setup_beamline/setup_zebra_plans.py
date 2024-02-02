@@ -23,10 +23,16 @@ from dodal.devices.zebra import (
     SOFT_IN2,
     SOFT_IN3,
     ArmDemand,
+    FastShutterAction,
     I24Axes,
     RotationDirection,
     Zebra,
 )
+
+# Detector specific
+# ... Except not always true for extruder stuff???
+TTL_EIGER = 1
+TTL_PILATUS = 2
 
 logger = logging.getLogger("I24ssx.setup_zebra")
 
@@ -37,6 +43,16 @@ def arm_zebra(zebra: Zebra):
 
 def disarm_zebra(zebra: Zebra):
     yield from bps.abs_set(zebra.pc.arm, ArmDemand.DISARM, wait=True)
+
+
+def open_fast_shutter(zebra: Zebra):
+    yield from bps.abs_set(zebra.inputs.soft_in_2, FastShutterAction.OPEN, wait=True)
+    logger.info("Fast shutter open.")
+
+
+def close_fast_shutter(zebra: Zebra):
+    yield from bps.abs_set(zebra.inputs.soft_in_2, FastShutterAction.CLOSE, wait=True)
+    logger.info("Fast shutter closed.")
 
 
 def setup_pc_sources(
@@ -243,8 +259,7 @@ def zebra_return_to_normal_plan(
 
 def reset_zebra_at_end_plan(zebra: Zebra):
     logger.debug("Close the fast shutter.")
-    # Disable SOFT_IN:B1
-    yield from bps.abs_set(zebra.inputs.soft_in_2, DISCONNECT, wait=0)
+    yield from close_fast_shutter(zebra)
     logger.debug("Disarm the zebra.")
     yield from disarm_zebra(zebra)
     yield from zebra_return_to_normal_plan(zebra, wait=True)

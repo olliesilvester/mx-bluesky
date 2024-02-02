@@ -3,6 +3,7 @@ Extruder data collection
 This version in python3 new Feb2021 by RLO
     - March 21 added logging and Eiger functionality
 """
+
 from __future__ import annotations
 
 import argparse
@@ -29,7 +30,9 @@ from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
 from mx_bluesky.I24.serial.setup_beamline.setup_detector import get_detector_type
 from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
     arm_zebra,
+    close_fast_shutter,
     disarm_zebra,
+    open_fast_shutter,
     setup_zebra_for_extruder_with_pump_probe_plan,
     setup_zebra_for_quickshot_plan,
     zebra_return_to_normal_plan,
@@ -369,8 +372,7 @@ def run_extruderi24(args=None):
 
     # Collect
     logger.info("Fast shutter opening")
-    # Enable SOFT_IN:B1
-    yield from bps.abs_set(zebra.inputs.soft_in_2, 1, wait=True)
+    yield from open_fast_shutter(zebra)
     if det_type == "pilatus":
         logger.info("Pilatus acquire ON")
         caput(pv.pilat_acquire, 1)
@@ -430,8 +432,7 @@ def run_extruderi24(args=None):
 
     caput(pv.ioc12_gp8, 1)
     logger.info("Fast shutter closing")
-    # Disable SOFT_IN:B1
-    yield from bps.abs_set(zebra.inputs.soft_in_2, 0, wait=True)
+    yield from close_fast_shutter(zebra)
 
     yield from disarm_zebra(zebra)
     logger.info("\nZebra DISARMED")
