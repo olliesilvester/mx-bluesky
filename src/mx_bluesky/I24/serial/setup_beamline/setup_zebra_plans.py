@@ -287,11 +287,11 @@ def reset_output_panel(zebra: Zebra, group: str = "reset_zebra_outputs"):
 def zebra_return_to_normal_plan(
     zebra: Zebra, group: str = "zebra-return-to-normal", wait: bool = False
 ):
-    """A plan to reset the Zebra settings at the end of a collection."""
-    if zebra.pc.is_armed():
-        logger.info("Zebra is still armed. Disarming before proceeding.")
-        yield from disarm_zebra(zebra)
-        yield from bps.sleep(0.1)
+    """A plan to reset the Zebra settings at the end of a collection.
+
+    This plan should only be run after disarming the Zebra.
+    """
+    yield from bps.abs_set(zebra.pc.reset, 1, group=group)
 
     # Reset PC_GATE and PC_SOURCE to "Position"
     yield from setup_pc_sources(
@@ -309,7 +309,7 @@ def zebra_return_to_normal_plan(
     # Reset TTL out
     yield from reset_output_panel(zebra)
 
-    # Reset rotation axis and direction to "omega" and positive
+    # Reset Pos Trigger and direction to rotation axis ("omega") and positive
     yield from bps.abs_set(zebra.pc.gate_trigger, I24Axes.OMEGA.value, group=group)
     yield from bps.abs_set(zebra.pc.dir, RotationDirection.POSITIVE, group=group)
 

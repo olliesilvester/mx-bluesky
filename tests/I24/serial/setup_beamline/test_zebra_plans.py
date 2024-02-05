@@ -139,7 +139,8 @@ def test_reset_output_panel(zebra: Zebra, RE):
 
 def test_zebra_return_to_normal(zebra: Zebra, RE):
     RE(zebra_return_to_normal_plan(zebra, wait=True))
-    assert not zebra.pc.is_armed()
+
+    assert zebra.pc.reset.get() == 1
     assert (
         zebra.pc.gate_source.get() == PC_GATE_SOURCE_POSITION
         and zebra.pc.pulse_source.get() == PC_PULSE_SOURCE_POSITION
