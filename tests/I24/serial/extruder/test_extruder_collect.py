@@ -1,10 +1,11 @@
 import argparse
-from unittest.mock import mock_open, patch
+from unittest.mock import ANY, call, mock_open, patch
 
 import pytest
 from dodal.devices.zebra import DISCONNECT, IN1_TTL
 
 from mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2 import (
+    enterhutch,
     initialise_extruderi24,
     moveto,
     run_extruderi24,
@@ -61,12 +62,10 @@ def test_initialise_extruder(fake_log, fake_det, fake_caput, fake_caget, RE):
 
 
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
-@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.get_detector_type")
-def test_moveto_enterhutch(fake_det, fake_caput, dummy_parser, zebra, RE):
-    fake_args = dummy_parser.parse_args(["enterhutch"])
-    fake_det.return_value = Eiger()
-    RE(moveto(fake_args, zebra))
+def test_enterhutch(fake_caput, RE):
+    RE(enterhutch())
     assert fake_caput.call_count == 1
+    fake_caput.assert_has_calls([call(ANY, 1480)])
 
 
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")

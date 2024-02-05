@@ -109,9 +109,11 @@ def moveto(args, zebra: Optional[Zebra] = None):
             yield from bps.abs_set(zebra.output.out_pvs[TTL_PILATUS], DISCONNECT)
         yield from set_shutter_mode(zebra, "manual")
 
-    if place == "enterhutch":
-        caput(pv.det_z, 1480)
-        yield from bps.null()
+
+@log.log_on_entry
+def enterhutch(args=None):
+    caput(pv.det_z, 1480)
+    yield from bps.null()
 
 
 @log.log_on_entry
@@ -470,10 +472,15 @@ if __name__ == "__main__":
     parser_mv.add_argument(
         "place",
         type=str,
-        choices=["laseron", "laseroff", "enterhutch"],
+        choices=["laseron", "laseroff"],
         help="Requested setting.",
     )
     parser_mv.set_defaults(func=moveto)
+    parser_hutch = subparsers.add_parser(
+        "enterhutch",
+        description="Move the detector stage before entering hutch.",
+    )
+    parser_hutch.set_defaults(func=enterhutch)
 
     args = parser.parse_args()
     RE(args.func(args))
