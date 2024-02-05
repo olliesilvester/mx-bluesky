@@ -1,3 +1,10 @@
+"""
+Zebra setup plans for extruder and fastchip serial collections.
+
+For clarification on the Zebra setup in either use case, please see
+https://confluence.diamond.ac.uk/display/MXTech/Zebra+settings+I24
+"""
+
 import logging
 
 import bluesky.plan_stubs as bps
@@ -132,17 +139,19 @@ def setup_zebra_for_extruder_with_pump_probe_plan(
 ):
     """Zebra setup for extruder pump probe experiment with PORTO.
 
+    For this use case, both the laser and detector set up is taken care by the Zebra.
+    WARNING. This means that some hardware changes have been made.
+    Because all four of the zebra ttl outputs are in use in this mode, when the \
+    detector in use is the Eiger, the Pilatus cable is repurposed to trigger the light \
+    source, and viceversa.
+
+    The data collection output is OUT1_TTL for Eiger and OUT2_TTL for Pilatus and \
+    should be set to AND3.
+
     Position compare settings:
         - The gate input is on SOFT_IN2.
         - The number of gates should be equal to the number of images to collect.
         - Gate source set to 'Time' and Pulse source set to 'External'
-
-    The data collection output is OUT1_TTL for Eiger and OUT2_TTL for Pilatus and \
-    should be set to AND3.
-    WARNING. When this plan is in use, some hardware changes have been made.
-    Because all four of the zebra ttl outputs are in use in this mode, when the \
-    detector in use is the Eiger, the Pilatus cable is repurposed to trigger the light \
-    source, and viceversa.
 
     Args:
         zebra (Zebra): The zebra ophyd device.
@@ -209,16 +218,23 @@ def setup_zebra_for_fastchip_plan(
 ):
     """Zebra setup for fixed-target triggering.
 
+    For this use case, the laser set up is taken care of by the geobrick, leaving only \
+    the detector side set up to the Zebra.
+    The data collection output is OUT1_TTL for Eiger and OUT2_TTL for Pilatus and \
+    should be set to AND3.
+
     Position compare settings:
         - The gate input is on IN3_TTL.
         - The number of gates should be equal to the number of apertures to collect.
         - Gate source set to 'External' and Pulse source set to 'Time'
         - Trigger source set to the exposure time with a 100us buffer in order to \
             avoid missing any triggers.
-        - The trigger width is calculated depending on which detector is in use.
-
-    The data collection output is OUT1_TTL for Eiger and OUT2_TTL for Pilatus and \
-    should be set to AND3.
+        - The trigger width is calculated depending on which detector is in use: the \
+            Pilatus only needs the trigger rising edge to collect for a set time, while \
+            the Eiger will only collect while the signal is high and will stop once \
+            a falling edge is detected. For this reason a sawtooth will be set to half \
+            the exposure time in the Pilatus case, and to the exposure time minus a \
+            small drop (~100um) for the Eiger.
 
     Args:
         zebra (Zebra): The zebra ophyd device.
