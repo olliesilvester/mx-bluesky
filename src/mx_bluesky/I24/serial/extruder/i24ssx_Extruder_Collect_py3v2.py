@@ -87,31 +87,40 @@ def initialise_extruderi24(args=None):
 
 
 @log.log_on_entry
-def moveto(args, zebra: Optional[Zebra] = None):
+def laser_check(args, zebra: Optional[Zebra] = None):
+    """Plan to check the laser beam from the viewer by pressing 'Laser On' and \
+    'Laser Off' buttons on the edm.
+
+    The 'Laser on' button sets the correct OUT_TTL pv for the detector in use to \
+    SOFT_IN1 and the shutter mode to auto.
+    The 'Laser off' button disconnects the OUT_TTL pv set by the previous step and \
+    resets the shutter mode to manual.
+    """
     if not zebra:
         zebra = i24.zebra()
-    place = args.place
-    logger.info("Move to: %s" % place)
+    mode = args.place
+    logger.info("Laser check: %s" % mode)
 
     det_type = get_detector_type()
 
-    if place == "laseron":
+    if mode == "laseron":
         if isinstance(det_type, Pilatus):
             yield from bps.abs_set(zebra.output.out_pvs[TTL_EIGER], SOFT_IN1)
-        elif isinstance(det_type, Eiger):
+        if isinstance(det_type, Eiger):
             yield from bps.abs_set(zebra.output.out_pvs[TTL_PILATUS], SOFT_IN1)
         yield from set_shutter_mode(zebra, "auto")
 
-    if place == "laseroff":
+    if mode == "laseroff":
         if isinstance(det_type, Pilatus):
             yield from bps.abs_set(zebra.output.out_pvs[TTL_EIGER], DISCONNECT)
-        elif isinstance(det_type, Eiger):
+        if isinstance(det_type, Eiger):
             yield from bps.abs_set(zebra.output.out_pvs[TTL_PILATUS], DISCONNECT)
         yield from set_shutter_mode(zebra, "manual")
 
 
 @log.log_on_entry
 def enterhutch(args=None):
+    """Move the detector stage before entering hutch."""
     caput(pv.det_z, 1480)
     yield from bps.null()
 
@@ -466,7 +475,7 @@ if __name__ == "__main__":
     )
     parser_run.set_defaults(func=run_extruderi24)
     parser_mv = subparsers.add_parser(
-        "moveto",
+        "laser_check",
         description="Move extruder to requested setting on I24.",
     )
     parser_mv.add_argument(
@@ -475,7 +484,7 @@ if __name__ == "__main__":
         choices=["laseron", "laseroff"],
         help="Requested setting.",
     )
-    parser_mv.set_defaults(func=moveto)
+    parser_mv.set_defaults(func=laser_check)
     parser_hutch = subparsers.add_parser(
         "enterhutch",
         description="Move the detector stage before entering hutch.",
