@@ -19,7 +19,7 @@ from typing import Optional
 import bluesky.plan_stubs as bps
 from bluesky.run_engine import RunEngine
 from dodal.beamlines import i24
-from dodal.devices.zebra import Zebra
+from dodal.devices.zebra import DISCONNECT, SOFT_IN1, Zebra
 
 from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.dcid import DCID
@@ -97,16 +97,16 @@ def moveto(args, zebra: Optional[Zebra] = None):
 
     if place == "laseron":
         if isinstance(det_type, Pilatus):
-            yield from bps.abs_set(zebra.output.out_pvs[TTL_EIGER], 60.0)
+            yield from bps.abs_set(zebra.output.out_pvs[TTL_EIGER], SOFT_IN1)
         elif isinstance(det_type, Eiger):
-            yield from bps.abs_set(zebra.output.out_pvs[TTL_PILATUS], 60.0)
+            yield from bps.abs_set(zebra.output.out_pvs[TTL_PILATUS], SOFT_IN1)
         yield from set_shutter_mode(zebra, "auto")
 
     if place == "laseroff":
         if isinstance(det_type, Pilatus):
-            yield from bps.abs_set(zebra.output.out_pvs[TTL_EIGER], 0.0)
+            yield from bps.abs_set(zebra.output.out_pvs[TTL_EIGER], DISCONNECT)
         elif isinstance(det_type, Eiger):
-            yield from bps.abs_set(zebra.output.out_pvs[TTL_PILATUS], 0.0)
+            yield from bps.abs_set(zebra.output.out_pvs[TTL_PILATUS], DISCONNECT)
         yield from set_shutter_mode(zebra, "manual")
 
     if place == "enterhutch":
