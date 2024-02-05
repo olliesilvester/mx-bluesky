@@ -6,6 +6,7 @@ https://confluence.diamond.ac.uk/display/MXTech/Zebra+settings+I24
 """
 
 import logging
+from typing import Optional
 
 import bluesky.plan_stubs as bps
 from dodal.devices.zebra import (
@@ -48,6 +49,33 @@ SHUTTER_MODE = {
 logger = logging.getLogger("I24ssx.setup_zebra")
 
 
+def get_zebra_settings_for_extruder(
+    plan_name: str,
+    exp_time: float,
+    num_imgs: int,
+    pump_exp: Optional[float] = None,
+    pump_delay: Optional[float] = None,
+):
+    """Calculates and returns gate start, width and step for extruder collections, \
+    depending on the plan being run.
+
+    Gate start is hard coded to 1.0 in all cases.
+    For a quickshot plan, only the gate width is needed and it is calculated from \
+    exposure time*number of images plus a 0.5 buffer.
+    For a pump probe plan, the gate width is calculated by adding the exposure time, \
+    pump exposure and pump delay. From this value, the gate step is obtained by adding \
+    a 0.01 buffer to the width. The value of this buffer is empirically determined.
+    """
+    gate_start = 1.0
+    if plan_name == "quickshot":
+        gate_width = exp_time * num_imgs + 0.5
+        return gate_start, gate_width, None
+    probepumpbuffer = 0.01
+    gate_width = pump_exp + pump_delay + exp_time
+    gate_step = gate_width + probepumpbuffer
+    return gate_start, gate_width, gate_step
+
+
 def arm_zebra(zebra: Zebra):
     yield from bps.abs_set(zebra.pc.arm, ArmDemand.ARM, wait=True)
 
@@ -82,29 +110,31 @@ def setup_pc_sources(
 
 def setup_zebra_for_quickshot_plan(
     zebra: Zebra,
-    gate_start: float,
-    gate_width: float,
+    exp_time: float,
+    num_images: int,
     group: str = "setup_zebra_for_quickshot",
     wait: bool = False,
 ):
     """Set up the zebra for a static extruder experiment.
 
-    Gate source set to 'External' and Pulse source set to 'Time'
+    Gate source set to 'External' and Pulse source set to 'Time'.
 
     Args:
         zebra (Zebra): The zebra ophyd device.
-        gate_start (float): _description_
-        gate_width (float): _description_
+        exp_time (float): Collection exposure time, in s.
+        num_images (float): Number of images to be collected.
     """
     logger.info("Setup ZEBRA for quickshot collection.")
     yield from bps.abs_set(zebra.pc.arm_source, PC_ARM_SOURCE_SOFT, group=group)
     yield from setup_pc_sources(zebra, PC_GATE_SOURCE_TIME, PC_PULSE_SOURCE_EXTERNAL)
 
+    gate_start, gate_width, _ = get_zebra_settings_for_extruder(
+        "quickshot", exp_time, num_images
+    )
     logger.info(f"Gate start set to {gate_start}, with width {gate_width}.")
     yield from bps.abs_set(zebra.pc.gate_start, gate_start, group=group)
     yield from bps.abs_set(zebra.pc.gate_width, gate_width, group=group)
 
-    # TODO Ask why this is repeated twice.
     yield from bps.abs_set(zebra.pc.gate_input, SOFT_IN2, group=group)
     yield from bps.sleep(0.1)
 
@@ -126,14 +156,11 @@ def set_logic_gates_for_porto_triggering(
 def setup_zebra_for_extruder_with_pump_probe_plan(
     zebra: Zebra,
     det_type: str,
-    gate_start: float,
-    gate_width: float,
-    gate_step: float,
-    num_gates: int,
-    pulse1_delay: float,
-    pulse1_width: float,
-    pulse2_delay: float,
-    pulse2_width: float,
+    exp_time: float,
+    num_images: int,
+    pump_exp: float,
+    pump_delay: float,
+    pulse1_delay: float = 0.0,
     group: str = "setup_zebra_for_extruder_pp",
     wait: bool = False,
 ):
@@ -151,11 +178,23 @@ def setup_zebra_for_extruder_with_pump_probe_plan(
     Position compare settings:
         - The gate input is on SOFT_IN2.
         - The number of gates should be equal to the number of images to collect.
-        - Gate source set to 'Time' and Pulse source set to 'External'
+        - Gate source set to 'Time' and Pulse source set to 'External'.
+
+    Pulse output settings:
+        - Pulse1 is the laser control on the Zebra. It is set with a 0.0 delay and a \
+            width equal to the requested laser dwell.
+        - Pulse2 is the detector control. It is set with a delay equal to the laser \
+            delay and a width equal to the exposure time.
 
     Args:
         zebra (Zebra): The zebra ophyd device.
         det_type (str): Detector in use, current choices are Eiger or Pilatus.
+        exp_time (float): Collection exposure time, in s.
+        num_images (int): Number of images to be collected.
+        pump_exp (float): Laser dwell, in s.
+        pump_delay (float): Laser delay, in s.
+        pulse1_delay (float, optional): Delay to start pulse1 (the laser control) after \
+            gate start. Defaults to 0.0.
     """
     logger.info("Setup ZEBRA for pump probe extruder collection.")
 
@@ -176,31 +215,40 @@ def setup_zebra_for_extruder_with_pump_probe_plan(
         yield from bps.abs_set(zebra.output.out_pvs[TTL_PILATUS], AND4, group=group)
 
     yield from bps.abs_set(zebra.pc.gate_input, SOFT_IN2, group=group)
-    logger.info(f"Gate start set to {gate_start}, with width {gate_width}.")
+
+    gate_start, gate_width, gate_step = get_zebra_settings_for_extruder(
+        "pump-probe", exp_time, num_images, pump_exp, pump_delay
+    )
+    logger.info(
+        f"""
+        Gate start set to {gate_start}, with calculated width {gate_width}
+        and step {gate_step}.
+        """
+    )
     yield from bps.abs_set(zebra.pc.gate_start, gate_start, group=group)
     yield from bps.abs_set(zebra.pc.gate_width, gate_width, group=group)
     yield from bps.abs_set(zebra.pc.gate_step, gate_step, group=group)
     # Number of gates is the same as the number of images
-    yield from bps.abs_set(zebra.pc.num_gates, num_gates, group=group)
+    yield from bps.abs_set(zebra.pc.num_gates, num_images, group=group)
 
     # Settings for extruder pump probe:
     # PULSE1_DLY is the start (0 usually), PULSE1_WID is the laser dwell set on edm
     # PULSE2_DLY is the laser delay set on edm, PULSE2_WID is the exposure time
     logger.info(
-        f"Pulse1 starting at {pulse1_delay} with width set to laser dwell {pulse1_width}."
+        f"Pulse1 starting at {pulse1_delay} with width set to laser dwell {pump_exp}."
     )
     yield from bps.abs_set(zebra.output.pulse_1.pulse_inp, PC_GATE, group=group)
     yield from bps.abs_set(zebra.output.pulse_1.pulse_dly, pulse1_delay, group=group)
-    yield from bps.abs_set(zebra.output.pulse_1.pulse_wid, pulse1_width, group=group)
+    yield from bps.abs_set(zebra.output.pulse_1.pulse_wid, pump_exp, group=group)
     logger.info(
         f"""
-        Pulse2 starting at laser delay {pulse2_delay} with width set to \
-        exposure time {pulse2_delay}
+        Pulse2 starting at laser delay {pump_delay} with width set to \
+        exposure time {exp_time}.
         """
     )
     yield from bps.abs_set(zebra.output.pulse_2.pulse_inp, PC_GATE, group=group)
-    yield from bps.abs_set(zebra.output.pulse_2.pulse_dly, pulse2_delay, group=group)
-    yield from bps.abs_set(zebra.output.pulse_2.pulse_wid, pulse2_width, group=group)
+    yield from bps.abs_set(zebra.output.pulse_2.pulse_dly, pump_delay, group=group)
+    yield from bps.abs_set(zebra.output.pulse_2.pulse_wid, exp_time, group=group)
 
     if wait:
         yield from bps.wait(group)

@@ -16,7 +16,7 @@ params_file_str = """visit foo
 directory bar
 filename boh
 num_imgs 1
-nexp_time 0.1
+exp_time 0.1
 det_dist 100
 det_type eiger
 pump_probe false
@@ -44,6 +44,8 @@ def test_scrape_parameter_file():
     res = scrape_parameter_file()
     assert res[0] == "foo"
     assert len(res) == 10
+    # Checking correct types
+    assert res[3] == 1 and res[4] == 0.1
 
 
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")

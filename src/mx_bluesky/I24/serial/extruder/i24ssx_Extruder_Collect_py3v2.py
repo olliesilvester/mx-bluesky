@@ -203,13 +203,13 @@ def scrape_parameter_file(param_path: Path | str = PARAM_FILE_PATH):
         visit,
         directory,
         filename,
-        num_imgs,
-        exp_time,
-        det_dist,
+        int(num_imgs),
+        float(exp_time),
+        float(det_dist),
         det_type,
         pump_status,
-        pump_exp,
-        pump_delay,
+        float(pump_exp),
+        float(pump_delay),
     )
 
 
@@ -253,23 +253,6 @@ def run_extruderi24(args=None):
     logger.info("Filepath %s" % filepath)
     logger.info("Filename %s" % filename)
 
-    # For zebra
-    # The below will need to be determined emprically. A value of 0.0 may be ok (????)
-    probepumpbuffer = 0.01
-
-    gate_start = 1.0
-    # Need to check these for pilatus.
-    # Added temprary hack in pilatus pump is false below as gate width wrong
-    gate_width = float(pump_exp) + float(pump_delay) + float(exp_time)
-    gate_step = float(gate_width) + float(probepumpbuffer)
-    logger.info("Calculated gate width %.4f" % gate_width)
-    logger.info("Calculated gate step %.4f" % gate_step)
-    num_gates = num_imgs
-    p1_delay = 0
-    p1_width = pump_exp
-    p2_delay = pump_delay
-    p2_width = exp_time
-
     if det_type == "pilatus":
         logger.debug("Using pilatus mini cbf")
         caput(pv.pilat_cbftemplate, 0)
@@ -286,23 +269,18 @@ def run_extruderi24(args=None):
             yield from setup_zebra_for_extruder_with_pump_probe_plan(
                 zebra,
                 det_type,
-                gate_start,
-                gate_width,
-                gate_step,
-                num_gates,
-                p1_delay,
-                p1_width,
-                p2_delay,
-                p2_width,
+                exp_time,
+                num_imgs,
+                pump_exp,
+                pump_delay,
+                pulse1_delay=0.0,
                 wait=True,
             )
         elif pump_status == "false":
             logger.info("Static experiment: no photoexcitation")
             sup.pilatus("quickshot", [filepath, filename, num_imgs, exp_time])
-            gate_start = 1.0
-            gate_width = (float(exp_time) * float(num_imgs)) + float(0.5)
             yield from setup_zebra_for_quickshot_plan(
-                zebra, gate_start, gate_width, wait=True
+                zebra, exp_time, num_imgs, wait=True
             )
 
     elif det_type == "eiger":
@@ -337,23 +315,18 @@ def run_extruderi24(args=None):
             yield from setup_zebra_for_extruder_with_pump_probe_plan(
                 zebra,
                 det_type,
-                gate_start,
-                gate_width,
-                gate_step,
-                num_gates,
-                p1_delay,
-                p1_width,
-                p2_delay,
-                p2_width,
+                exp_time,
+                num_imgs,
+                pump_exp,
+                pump_delay,
+                pulse1_delay=0.0,
                 wait=True,
             )
         elif pump_status == "false":
             logger.info("Static experiment: no photoexcitation")
-            gate_start = 1.0
-            gate_width = (float(exp_time) * float(num_imgs)) + float(0.5)
             sup.eiger("quickshot", [filepath, filename, num_imgs, exp_time])
             yield from setup_zebra_for_quickshot_plan(
-                zebra, gate_start, gate_width, wait=True
+                zebra, exp_time, num_imgs, wait=True
             )
     else:
         err = "Unknown Detector Type, det_type = %s" % det_type
@@ -389,11 +362,12 @@ def run_extruderi24(args=None):
         call_nexgen(None, start_time, param_file_tuple, "extruder")
 
     aborted = False
-    timeout_time = time.time() + int(num_imgs) * float(exp_time) + 10
+    timeout_time = time.time() + num_imgs * exp_time + 10
 
     if int(caget(pv.ioc12_gp8)) == 0:  # ioc12_gp8 is the ABORT button
+        gate_start = 1.0
         yield from arm_zebra(zebra)
-        sleep(gate_start)
+        sleep(gate_start)  # Sleep for the same length of gate_start, hard coded to 1
         i = 0
         text_list = ["|", "/", "-", "\\"]
         while True:

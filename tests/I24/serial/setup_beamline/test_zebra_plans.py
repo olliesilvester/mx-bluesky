@@ -14,6 +14,7 @@ from dodal.devices.zebra import (
 from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
     arm_zebra,
     disarm_zebra,
+    get_zebra_settings_for_extruder,
     position_compare_off,
     reset_output_panel,
     reset_zebra_when_collection_done_plan,
@@ -48,19 +49,29 @@ def test_setup_pc_sources(zebra: Zebra, RE):
     assert zebra.pc.pulse_source.get() == PC_PULSE_SOURCE_POSITION
 
 
+def test_get_zebra_settings_for_extruder_quickshot():
+    start, width, step = get_zebra_settings_for_extruder("quickshot", 0.001, 10)
+    assert start == 1.0
+    assert width == 0.51
+    assert step is None
+
+
+def test_get_zebra_settings_for_extruder_pumpprobe():
+    start, width, step = get_zebra_settings_for_extruder("pp", 0.01, 10, 0.005, 0.001)
+    assert start == 1.0
+    assert round(width, 3) == 0.016
+    assert round(step, 3) == 0.026
+
+
 def test_setup_zebra_for_quickshot(zebra: Zebra, RE):
-    RE(
-        setup_zebra_for_quickshot_plan(
-            zebra, gate_start=1.0, gate_width=0.01, wait=True
-        )
-    )
+    RE(setup_zebra_for_quickshot_plan(zebra, exp_time=0.001, num_images=10, wait=True))
     assert zebra.pc.arm_source.get() == "Soft"
     assert zebra.pc.gate_start.get() == 1.0
     assert zebra.pc.gate_input.get() == SOFT_IN2
 
 
 def test_setup_zebra_for_extruder_pp_collection(zebra: Zebra, RE):
-    inputs_list = (1.0, 0.1, 0.1, 10, 0.0, 0.001, 0.05, 0.02)
+    inputs_list = (0.01, 10, 0.005, 0.001)
     # With eiger
     RE(
         setup_zebra_for_extruder_with_pump_probe_plan(
@@ -85,7 +96,7 @@ def test_setup_zebra_for_extruder_pp_collection(zebra: Zebra, RE):
 
     assert zebra.pc.gate_start.get() == 1.0
     assert zebra.output.pulse_1.pulse_dly.get() == 0.0
-    assert zebra.output.pulse_2.pulse_dly.get() == 0.05
+    assert zebra.output.pulse_2.pulse_dly.get() == 0.001
 
 
 def test_setup_zebra_for_fastchip(zebra: Zebra, RE):
