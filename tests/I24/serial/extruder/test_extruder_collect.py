@@ -2,6 +2,7 @@ import argparse
 from unittest.mock import mock_open, patch
 
 import pytest
+from dodal.devices.zebra import DISCONNECT, IN1_TTL
 
 from mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2 import (
     initialise_extruderi24,
@@ -73,7 +74,7 @@ def test_moveto_laseron_for_eiger(fake_det, fake_caput, dummy_parser, zebra, RE)
     fake_args = dummy_parser.parse_args(["laseron"])
     RE(moveto(fake_args, zebra))
     assert zebra.output.out_2.get() == 60.0
-    assert zebra.inputs.soft_in_1.get() == 1.0
+    assert zebra.inputs.soft_in_1.get() == IN1_TTL
 
 
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
@@ -83,7 +84,7 @@ def test_moveto_laseroff_for_pilatus(fake_det, fake_caput, dummy_parser, zebra, 
     fake_args = dummy_parser.parse_args(["laseroff"])
     RE(moveto(fake_args, zebra))
     assert zebra.output.out_1.get() == 0.0
-    assert zebra.inputs.soft_in_1.get() == 0.0
+    assert zebra.inputs.soft_in_1.get() == DISCONNECT
 
 
 @patch(

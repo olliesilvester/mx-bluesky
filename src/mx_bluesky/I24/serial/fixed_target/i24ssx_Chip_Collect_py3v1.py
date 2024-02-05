@@ -1,6 +1,7 @@
 """
 Fixed target data collection
 """
+
 from __future__ import annotations
 
 import logging
@@ -39,7 +40,7 @@ from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
     arm_zebra,
     close_fast_shutter,
     open_fast_shutter,
-    reset_zebra_at_end_plan,
+    reset_zebra_when_collection_done_plan,
     setup_zebra_for_fastchip_plan,
 )
 from mx_bluesky.I24.serial.write_nexus import call_nexgen
@@ -502,12 +503,12 @@ def finish_i24(chip_prog_dict: Dict, start_time: str, zebra: Zebra):
     if det_type == "pilatus":
         logger.info("Finish I24 Pilatus")
         filename = filename + "_" + caget(pv.pilat_filenum)
-        yield from reset_zebra_at_end_plan(zebra)
+        yield from reset_zebra_when_collection_done_plan(zebra)
         sup.pilatus("return-to-normal")
         sleep(0.2)
     elif det_type == "eiger":
         logger.info("Finish I24 Eiger")
-        yield from reset_zebra_at_end_plan(zebra)
+        yield from reset_zebra_when_collection_done_plan(zebra)
         sup.eiger("return-to-normal")
         filename = cagetstring(pv.eiger_ODfilenameRBV)
 

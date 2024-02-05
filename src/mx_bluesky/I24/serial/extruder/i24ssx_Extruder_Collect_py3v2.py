@@ -35,6 +35,7 @@ from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
     close_fast_shutter,
     disarm_zebra,
     open_fast_shutter,
+    set_shutter_mode,
     setup_zebra_for_extruder_with_pump_probe_plan,
     setup_zebra_for_quickshot_plan,
     zebra_return_to_normal_plan,
@@ -97,18 +98,16 @@ def moveto(args, zebra: Optional[Zebra] = None):
     if place == "laseron":
         if isinstance(det_type, Pilatus):
             yield from bps.abs_set(zebra.output.out_pvs[TTL_EIGER], 60.0)
-            yield from bps.abs_set(zebra.inputs.soft_in_1, 1.0)
         elif isinstance(det_type, Eiger):
             yield from bps.abs_set(zebra.output.out_pvs[TTL_PILATUS], 60.0)
-            yield from bps.abs_set(zebra.inputs.soft_in_1, 1.0)
+        yield from set_shutter_mode(zebra, "auto")
 
     if place == "laseroff":
         if isinstance(det_type, Pilatus):
             yield from bps.abs_set(zebra.output.out_pvs[TTL_EIGER], 0.0)
-            yield from bps.abs_set(zebra.inputs.soft_in_1, 0.0)
         elif isinstance(det_type, Eiger):
             yield from bps.abs_set(zebra.output.out_pvs[TTL_PILATUS], 0.0)
-            yield from bps.abs_set(zebra.inputs.soft_in_1, 0.0)
+        yield from set_shutter_mode(zebra, "manual")
 
     if place == "enterhutch":
         caput(pv.det_z, 1480)

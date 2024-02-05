@@ -2,6 +2,8 @@ from dodal.devices.zebra import (
     AND3,
     AND4,
     DISCONNECT,
+    OR1,
+    PC_GATE,
     PC_GATE_SOURCE_POSITION,
     PC_GATE_SOURCE_TIME,
     PC_PULSE_SOURCE_POSITION,
@@ -13,7 +15,9 @@ from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
     arm_zebra,
     disarm_zebra,
     position_compare_off,
-    reset_zebra_at_end_plan,
+    reset_output_panel,
+    reset_zebra_when_collection_done_plan,
+    set_shutter_mode,
     setup_pc_sources,
     setup_zebra_for_extruder_with_pump_probe_plan,
     setup_zebra_for_fastchip_plan,
@@ -30,6 +34,11 @@ def test_arm_and_disarm_zebra(zebra: Zebra, RE):
 
     RE(disarm_zebra(zebra))
     assert not zebra.pc.is_armed()
+
+
+def test_set_shutter_mode(zebra: Zebra, RE):
+    RE(set_shutter_mode(zebra, "manual"))
+    assert zebra.inputs.soft_in_1.get() == DISCONNECT
 
 
 def test_setup_pc_sources(zebra: Zebra, RE):
@@ -119,6 +128,15 @@ def test_position_compare_off(zebra: Zebra, RE):
     assert zebra.pc.pulse_step.get() == 0
 
 
+def test_reset_output_panel(zebra: Zebra, RE):
+    RE(reset_output_panel(zebra))
+
+    assert zebra.output.out_2.get() == PC_GATE
+    assert zebra.output.out_4.get() == OR1
+    assert zebra.output.pulse_1.pulse_inp.get() == DISCONNECT
+    assert zebra.output.pulse_2.pulse_inp.get() == DISCONNECT
+
+
 def test_zebra_return_to_normal(zebra: Zebra, RE):
     RE(zebra_return_to_normal_plan(zebra, wait=True))
     assert not zebra.pc.is_armed()
@@ -134,7 +152,7 @@ def test_zebra_return_to_normal(zebra: Zebra, RE):
 
 
 def test_reset_zebra_plan(zebra: Zebra, RE):
-    RE(reset_zebra_at_end_plan(zebra))
+    RE(reset_zebra_when_collection_done_plan(zebra))
 
     assert zebra.inputs.soft_in_2.get() == DISCONNECT
     assert not zebra.pc.is_armed()

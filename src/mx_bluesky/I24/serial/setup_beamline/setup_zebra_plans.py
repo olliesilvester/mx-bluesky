@@ -33,6 +33,11 @@ from dodal.devices.zebra import (
 TTL_EIGER = 1
 TTL_PILATUS = 2
 
+SHUTTER_MODE = {
+    "manual": DISCONNECT,
+    "auto": IN1_TTL,
+}
+
 logger = logging.getLogger("I24ssx.setup_zebra")
 
 
@@ -52,6 +57,12 @@ def open_fast_shutter(zebra: Zebra):
 def close_fast_shutter(zebra: Zebra):
     yield from bps.abs_set(zebra.inputs.soft_in_2, FastShutterAction.CLOSE, wait=True)
     logger.info("Fast shutter closed.")
+
+
+def set_shutter_mode(zebra: Zebra, mode: str):
+    # SOFT_IN:B0 has to be disabled for manual mode
+    yield from bps.abs_set(zebra.inputs.soft_in_1, SHUTTER_MODE[mode], wait=True)
+    logger.info(f"Shutter mode set to {mode}.")
 
 
 def setup_pc_sources(
@@ -138,8 +149,8 @@ def setup_zebra_for_extruder_with_pump_probe_plan(
         det_type (str): Detector in use, current choices are Eiger or Pilatus.
     """
     logger.info("Setup ZEBRA for pump probe extruder collection.")
-    # SOFT_IN:B0 disabled, shutter in manual (?) mode
-    yield from bps.abs_set(zebra.inputs.soft_in_1, DISCONNECT, group=group)
+
+    yield from set_shutter_mode(zebra, "manual")
 
     # Set gate to "Time" and pulse source to "External"
     yield from setup_pc_sources(zebra, PC_GATE_SOURCE_TIME, PC_PULSE_SOURCE_EXTERNAL)
@@ -217,8 +228,9 @@ def setup_zebra_for_fastchip_plan(
         exposure_time (float): Exposure time for each shot.
     """
     logger.info("Setup ZEBRA for a fixed target collection.")
-    # SOFT_IN:B0 disabled
-    yield from bps.abs_set(zebra.inputs.soft_in_1, DISCONNECT, group=group)
+
+    yield from set_shutter_mode(zebra, "manual")
+
     yield from setup_pc_sources(zebra, PC_GATE_SOURCE_EXTERNAL, PC_PULSE_SOURCE_TIME)
 
     # Logic Gates
@@ -260,6 +272,18 @@ def position_compare_off(zebra: Zebra, group: str = "position_compare_off"):
     yield from bps.wait(group=group)
 
 
+def reset_output_panel(zebra: Zebra, group: str = "reset_zebra_outputs"):
+    # Reset TTL out
+    yield from bps.abs_set(zebra.output.out_2, PC_GATE, group=group)
+    yield from bps.abs_set(zebra.output.out_3, DISCONNECT, group=group)
+    yield from bps.abs_set(zebra.output.out_4, OR1, group=group)
+
+    yield from bps.abs_set(zebra.output.pulse_1.pulse_inp, DISCONNECT, group=group)
+    yield from bps.abs_set(zebra.output.pulse_2.pulse_inp, DISCONNECT, group=group)
+
+    yield from bps.wait(group=group)
+
+
 def zebra_return_to_normal_plan(
     zebra: Zebra, group: str = "zebra-return-to-normal", wait: bool = False
 ):
@@ -283,9 +307,7 @@ def zebra_return_to_normal_plan(
     yield from bps.abs_set(zebra.logic_gates.and_gate_3.source_2, IN1_TTL, group=group)
 
     # Reset TTL out
-    yield from bps.abs_set(zebra.output.out_2, PC_GATE, group=group)
-    yield from bps.abs_set(zebra.output.out_3, DISCONNECT, group=group)
-    yield from bps.abs_set(zebra.output.out_4, OR1, group=group)
+    yield from reset_output_panel(zebra)
 
     # Reset rotation axis and direction to "omega" and positive
     yield from bps.abs_set(zebra.pc.gate_trigger, I24Axes.OMEGA.value, group=group)
@@ -294,15 +316,12 @@ def zebra_return_to_normal_plan(
     #
     yield from position_compare_off(zebra)
 
-    yield from bps.abs_set(zebra.output.pulse_1.pulse_inp, DISCONNECT, group=group)
-    yield from bps.abs_set(zebra.output.pulse_2.pulse_inp, DISCONNECT, group=group)
-
     if wait:
         yield from bps.wait(group)
     logger.info("Zebra settings back to normal.")
 
 
-def reset_zebra_at_end_plan(zebra: Zebra):
+def reset_zebra_when_collection_done_plan(zebra: Zebra):
     """
     End of collection zebra operations: close fast shutter, disarm and reset settings.
     """
