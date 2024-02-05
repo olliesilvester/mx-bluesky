@@ -88,8 +88,8 @@ def initialise_extruderi24(args=None):
 
 @log.log_on_entry
 def laser_check(args, zebra: Optional[Zebra] = None):
-    """Plan to check the laser beam from the viewer by pressing 'Laser On' and \
-    'Laser Off' buttons on the edm.
+    """Plan to open the shutter and check the laser beam from the viewer by pressing \
+        'Laser On' and 'Laser Off' buttons on the edm.
 
     The 'Laser on' button sets the correct OUT_TTL pv for the detector in use to \
     SOFT_IN1 and the shutter mode to auto.
