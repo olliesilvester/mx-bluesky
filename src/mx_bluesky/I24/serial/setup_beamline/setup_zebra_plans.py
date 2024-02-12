@@ -113,7 +113,7 @@ def setup_zebra_for_quickshot_plan(
     exp_time: float,
     num_images: int,
     group: str = "setup_zebra_for_quickshot",
-    wait: bool = False,
+    wait: bool = True,
 ):
     """Set up the zebra for a static extruder experiment.
 
@@ -162,7 +162,7 @@ def setup_zebra_for_extruder_with_pump_probe_plan(
     pump_delay: float,
     pulse1_delay: float = 0.0,
     group: str = "setup_zebra_for_extruder_pp",
-    wait: bool = False,
+    wait: bool = True,
 ):
     """Zebra setup for extruder pump probe experiment with PORTO.
 
@@ -260,7 +260,7 @@ def setup_zebra_for_fastchip_plan(
     num_exposures: int,
     exposure_time: float,
     group: str = "setup_zebra_for_fastchip",
-    wait: bool = False,
+    wait: bool = True,
 ):
     """Zebra setup for fixed-target triggering.
 
@@ -347,7 +347,7 @@ def reset_output_panel(zebra: Zebra, group: str = "reset_zebra_outputs"):
 
 
 def zebra_return_to_normal_plan(
-    zebra: Zebra, group: str = "zebra-return-to-normal", wait: bool = False
+    zebra: Zebra, group: str = "zebra-return-to-normal", wait: bool = True
 ):
     """A plan to reset the Zebra settings at the end of a collection.
 
