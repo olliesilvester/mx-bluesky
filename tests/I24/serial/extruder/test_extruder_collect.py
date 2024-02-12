@@ -5,7 +5,7 @@ import pytest
 from dodal.devices.zebra import DISCONNECT, IN1_TTL
 
 from mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2 import (
-    enterhutch,
+    enter_hutch,
     initialise_extruderi24,
     laser_check,
     run_extruderi24,
@@ -31,7 +31,7 @@ def dummy_parser():
     parser.add_argument(
         "place",
         type=str,
-        choices=["laseron", "laseroff", "enterhutch"],
+        choices=["laseron", "laseroff"],
         help="Requested setting.",
     )
     yield parser
@@ -63,7 +63,7 @@ def test_initialise_extruder(fake_log, fake_det, fake_caput, fake_caget, RE):
 
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
 def test_enterhutch(fake_caput, RE):
-    RE(enterhutch())
+    RE(enter_hutch())
     assert fake_caput.call_count == 1
     fake_caput.assert_has_calls([call(ANY, 1480)])
 
