@@ -2,9 +2,11 @@ import argparse
 from unittest.mock import ANY, call, mock_open, patch
 
 import pytest
-from dodal.devices.zebra import DISCONNECT, IN1_TTL
+from dodal.devices.zebra import DISCONNECT, IN1_TTL, SOFT_IN1
 
 from mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2 import (
+    TTL_EIGER,
+    TTL_PILATUS,
     enter_hutch,
     initialise_extruderi24,
     laser_check,
@@ -68,26 +70,26 @@ def test_enterhutch(fake_caput, RE):
     fake_caput.assert_has_calls([call(ANY, 1480)])
 
 
-@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
+@pytest.mark.parametrize(
+    "laser_mode, det_type, expected_in1, expected_out",
+    [
+        ("laseron", Eiger(), IN1_TTL, SOFT_IN1),
+        ("laseroff", Eiger(), DISCONNECT, DISCONNECT),
+        ("laseron", Pilatus(), IN1_TTL, SOFT_IN1),
+        ("laseroff", Pilatus(), DISCONNECT, DISCONNECT),
+    ],
+)
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.get_detector_type")
-def test_laser_check_laseron_for_eiger(fake_det, fake_caput, dummy_parser, zebra, RE):
-    fake_det.return_value = Eiger()
-    fake_args = dummy_parser.parse_args(["laseron"])
-    RE(laser_check(fake_args, zebra))
-    assert zebra.output.out_2.get() == 60.0
-    assert zebra.inputs.soft_in_1.get() == IN1_TTL
-
-
-@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
-@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.get_detector_type")
-def test_laser_check_laseroff_for_pilatus(
-    fake_det, fake_caput, dummy_parser, zebra, RE
+def test_laser_check(
+    fake_det, laser_mode, expected_in1, expected_out, det_type, dummy_parser, zebra, RE
 ):
-    fake_det.return_value = Pilatus()
-    fake_args = dummy_parser.parse_args(["laseroff"])
+    fake_det.return_value = det_type
+    fake_args = dummy_parser.parse_args([laser_mode])
     RE(laser_check(fake_args, zebra))
-    assert zebra.output.out_1.get() == 0.0
-    assert zebra.inputs.soft_in_1.get() == DISCONNECT
+
+    TTL = TTL_EIGER if isinstance(det_type, Pilatus) else TTL_PILATUS
+    assert zebra.inputs.soft_in_1.get() == expected_in1
+    assert zebra.output.out_pvs[TTL].get() == expected_out
 
 
 @patch(
