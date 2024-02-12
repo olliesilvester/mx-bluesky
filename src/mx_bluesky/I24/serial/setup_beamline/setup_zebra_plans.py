@@ -166,7 +166,7 @@ def setup_zebra_for_extruder_with_pump_probe_plan(
 ):
     """Zebra setup for extruder pump probe experiment with PORTO.
 
-    For this use case, both the laser and detector set up is taken care by the Zebra.
+    For this use case, both the laser and detector set up is taken care of by the Zebra.
     WARNING. This means that some hardware changes have been made.
     Because all four of the zebra ttl outputs are in use in this mode, when the \
     detector in use is the Eiger, the Pilatus cable is repurposed to trigger the light \
