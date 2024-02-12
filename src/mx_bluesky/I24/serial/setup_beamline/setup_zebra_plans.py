@@ -207,12 +207,10 @@ def setup_zebra_for_extruder_with_pump_probe_plan(
     yield from set_logic_gates_for_porto_triggering(zebra)
 
     # Set TTL out depending on detector type
-    if det_type == "eiger":
-        yield from bps.abs_set(zebra.output.out_pvs[TTL_EIGER], AND4, group=group)
-        yield from bps.abs_set(zebra.output.out_pvs[TTL_PILATUS], AND3, group=group)
-    if det_type == "pilatus":
-        yield from bps.abs_set(zebra.output.out_pvs[TTL_EIGER], AND3, group=group)
-        yield from bps.abs_set(zebra.output.out_pvs[TTL_PILATUS], AND4, group=group)
+    DET_TTL = TTL_EIGER if det_type == "eiger" else TTL_PILATUS
+    LASER_TTL = TTL_PILATUS if det_type == "eiger" else TTL_EIGER
+    yield from bps.abs_set(zebra.output.out_pvs[DET_TTL], AND4, group=group)
+    yield from bps.abs_set(zebra.output.out_pvs[LASER_TTL], AND3, group=group)
 
     yield from bps.abs_set(zebra.pc.gate_input, SOFT_IN2, group=group)
 
