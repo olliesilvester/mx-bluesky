@@ -25,7 +25,7 @@ from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.dcid import DCID
 from mx_bluesky.I24.serial.parameters import SSXType
 from mx_bluesky.I24.serial.parameters.constants import PARAM_FILE_PATH
-from mx_bluesky.I24.serial.setup_beamline import Eiger, Pilatus, caget, caput, pv
+from mx_bluesky.I24.serial.setup_beamline import Pilatus, caget, caput, pv
 from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
 from mx_bluesky.I24.serial.setup_beamline.setup_detector import get_detector_type
 from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
@@ -44,6 +44,8 @@ from mx_bluesky.I24.serial.write_nexus import call_nexgen
 
 usage = "%(prog)s command [options]"
 logger = logging.getLogger("I24ssx.extruder")
+
+SAFE_DET_Z = 1480
 
 
 def setup_logging():
@@ -95,33 +97,33 @@ def laser_check(args, zebra: Optional[Zebra] = None):
     SOFT_IN1 and the shutter mode to auto.
     The 'Laser off' button disconnects the OUT_TTL pv set by the previous step and \
     resets the shutter mode to manual.
+
+    WARNING. When using the laser with the extruder, some hardware changes need to be made.
+    Because all four of the zebra ttl outputs are in use in this mode, when the \
+    detector in use is the Eiger, the Pilatus cable is repurposed to trigger the light \
+    source, and viceversa.
     """
     if not zebra:
         zebra = i24.zebra()
     mode = args.place
-    logger.info("Laser check: %s" % mode)
+    logger.info(f"Laser check: {mode}")
 
     det_type = get_detector_type()
 
+    LASER_TTL = TTL_EIGER if isinstance(det_type, Pilatus) else TTL_PILATUS
     if mode == "laseron":
-        if isinstance(det_type, Pilatus):
-            yield from bps.abs_set(zebra.output.out_pvs[TTL_EIGER], SOFT_IN1)
-        if isinstance(det_type, Eiger):
-            yield from bps.abs_set(zebra.output.out_pvs[TTL_PILATUS], SOFT_IN1)
+        yield from bps.abs_set(zebra.output.out_pvs[LASER_TTL], SOFT_IN1)
         yield from set_shutter_mode(zebra, "auto")
 
     if mode == "laseroff":
-        if isinstance(det_type, Pilatus):
-            yield from bps.abs_set(zebra.output.out_pvs[TTL_EIGER], DISCONNECT)
-        if isinstance(det_type, Eiger):
-            yield from bps.abs_set(zebra.output.out_pvs[TTL_PILATUS], DISCONNECT)
+        yield from bps.abs_set(zebra.output.out_pvs[LASER_TTL], DISCONNECT)
         yield from set_shutter_mode(zebra, "manual")
 
 
 @log.log_on_entry
-def enterhutch(args=None):
+def enter_hutch(args=None):
     """Move the detector stage before entering hutch."""
-    caput(pv.det_z, 1480)
+    caput(pv.det_z, SAFE_DET_Z)
     yield from bps.null()
 
 
@@ -489,7 +491,7 @@ if __name__ == "__main__":
         "enterhutch",
         description="Move the detector stage before entering hutch.",
     )
-    parser_hutch.set_defaults(func=enterhutch)
+    parser_hutch.set_defaults(func=enter_hutch)
 
     args = parser.parse_args()
     RE(args.func(args))
