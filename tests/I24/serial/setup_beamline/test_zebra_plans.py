@@ -62,7 +62,7 @@ def test_setup_zebra_for_quickshot(zebra: Zebra, RE):
     assert zebra.pc.gate_input.get() == SOFT_IN2
 
 
-def test_setup_zebra_for_extruder_pp_collection(zebra: Zebra, RE):
+def test_setup_zebra_for_extruder_pp_eiger_collection(zebra: Zebra, RE):
     inputs_list = (0.01, 10, 0.005, 0.001)
     # With eiger
     RE(
@@ -77,6 +77,9 @@ def test_setup_zebra_for_extruder_pp_collection(zebra: Zebra, RE):
     assert zebra.logic_gates.and_gate_3.source_1.get() == SOFT_IN2
     assert zebra.pc.num_gates.get() == 10
 
+
+def test_setup_zebra_for_extruder_pp_pilatus_collection(zebra: Zebra, RE):
+    inputs_list = (0.01, 10, 0.005, 0.001)
     # With pilatus
     RE(
         setup_zebra_for_extruder_with_pump_probe_plan(
