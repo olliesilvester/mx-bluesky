@@ -29,6 +29,7 @@ from mx_bluesky.I24.serial.setup_beamline import Pilatus, caget, caput, pv
 from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
 from mx_bluesky.I24.serial.setup_beamline.setup_detector import get_detector_type
 from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
+    GATE_START,
     TTL_EIGER,
     TTL_PILATUS,
     arm_zebra,
@@ -376,9 +377,8 @@ def run_extruderi24(args=None):
     timeout_time = time.time() + num_imgs * exp_time + 10
 
     if int(caget(pv.ioc12_gp8)) == 0:  # ioc12_gp8 is the ABORT button
-        gate_start = 1.0
         yield from arm_zebra(zebra)
-        sleep(gate_start)  # Sleep for the same length of gate_start, hard coded to 1
+        sleep(GATE_START)  # Sleep for the same length of gate_start, hard coded to 1
         i = 0
         text_list = ["|", "/", "-", "\\"]
         while True:

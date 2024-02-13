@@ -10,7 +10,7 @@ schematics corresponds to soft_in_2 in the code.
 """
 
 import logging
-from typing import Optional
+from typing import Tuple
 
 import bluesky.plan_stubs as bps
 from dodal.devices.zebra import (
@@ -50,34 +50,27 @@ SHUTTER_MODE = {
     "auto": IN1_TTL,
 }
 
+GATE_START = 1.0
+
 logger = logging.getLogger("I24ssx.setup_zebra")
 
 
 def get_zebra_settings_for_extruder(
-    plan_name: str,
     exp_time: float,
-    num_imgs: int,
-    pump_exp: Optional[float] = None,
-    pump_delay: Optional[float] = None,
-):
-    """Calculates and returns gate start, width and step for extruder collections, \
-    depending on the plan being run.
+    pump_exp: float,
+    pump_delay: float,
+) -> Tuple[float, float]:
+    """Calculates and returns gate width and step for extruder collections with pump \
+    probe.
 
-    Gate start is hard coded to 1.0 in all cases.
-    For a quickshot plan, only the gate width is needed and it is calculated from \
-    exposure time*number of images plus a 0.5 buffer.
-    For a pump probe plan, the gate width is calculated by adding the exposure time, \
-    pump exposure and pump delay. From this value, the gate step is obtained by adding \
-    a 0.01 buffer to the width. The value of this buffer is empirically determined.
+    The gate width is calculated by adding the exposure time, pump exposure and \
+    pump delay. From this value, the gate step is obtained by adding a 0.01 buffer to \
+    the width. The value of this buffer is empirically determined.
     """
-    gate_start = 1.0
-    if plan_name == "quickshot":
-        gate_width = exp_time * num_imgs + 0.5
-        return gate_start, gate_width, None
-    probepumpbuffer = 0.01
+    pump_probe_buffer = 0.01
     gate_width = pump_exp + pump_delay + exp_time
-    gate_step = gate_width + probepumpbuffer
-    return gate_start, gate_width, gate_step
+    gate_step = gate_width + pump_probe_buffer
+    return gate_width, gate_step
 
 
 def arm_zebra(zebra: Zebra):
@@ -122,6 +115,8 @@ def setup_zebra_for_quickshot_plan(
     """Set up the zebra for a static extruder experiment.
 
     Gate source set to 'External' and Pulse source set to 'Time'.
+    The gate start is set to 1.0 and the gate width is calculated from \
+    exposure time*number of images plus a 0.5 buffer.
 
     Args:
         zebra (Zebra): The zebra ophyd device.
@@ -132,11 +127,9 @@ def setup_zebra_for_quickshot_plan(
     yield from bps.abs_set(zebra.pc.arm_source, PC_ARM_SOURCE_SOFT, group=group)
     yield from setup_pc_sources(zebra, PC_GATE_SOURCE_TIME, PC_PULSE_SOURCE_EXTERNAL)
 
-    gate_start, gate_width, _ = get_zebra_settings_for_extruder(
-        "quickshot", exp_time, num_images
-    )
-    logger.info(f"Gate start set to {gate_start}, with width {gate_width}.")
-    yield from bps.abs_set(zebra.pc.gate_start, gate_start, group=group)
+    gate_width = exp_time * num_images + 0.5
+    logger.info(f"Gate start set to {GATE_START}, with width {gate_width}.")
+    yield from bps.abs_set(zebra.pc.gate_start, GATE_START, group=group)
     yield from bps.abs_set(zebra.pc.gate_width, gate_width, group=group)
 
     yield from bps.abs_set(zebra.pc.gate_input, SOFT_IN2, group=group)
@@ -218,16 +211,16 @@ def setup_zebra_for_extruder_with_pump_probe_plan(
 
     yield from bps.abs_set(zebra.pc.gate_input, SOFT_IN2, group=group)
 
-    gate_start, gate_width, gate_step = get_zebra_settings_for_extruder(
-        "pump-probe", exp_time, num_images, pump_exp, pump_delay
+    gate_width, gate_step = get_zebra_settings_for_extruder(
+        exp_time, pump_exp, pump_delay
     )
     logger.info(
         f"""
-        Gate start set to {gate_start}, with calculated width {gate_width}
+        Gate start set to {GATE_START}, with calculated width {gate_width}
         and step {gate_step}.
         """
     )
-    yield from bps.abs_set(zebra.pc.gate_start, gate_start, group=group)
+    yield from bps.abs_set(zebra.pc.gate_start, GATE_START, group=group)
     yield from bps.abs_set(zebra.pc.gate_width, gate_width, group=group)
     yield from bps.abs_set(zebra.pc.gate_step, gate_step, group=group)
     # Number of gates is the same as the number of images

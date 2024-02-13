@@ -49,16 +49,8 @@ def test_setup_pc_sources(zebra: Zebra, RE):
     assert zebra.pc.pulse_source.get() == PC_PULSE_SOURCE_POSITION
 
 
-def test_get_zebra_settings_for_extruder_quickshot():
-    start, width, step = get_zebra_settings_for_extruder("quickshot", 0.001, 10)
-    assert start == 1.0
-    assert width == 0.51
-    assert step is None
-
-
 def test_get_zebra_settings_for_extruder_pumpprobe():
-    start, width, step = get_zebra_settings_for_extruder("pp", 0.01, 10, 0.005, 0.001)
-    assert start == 1.0
+    width, step = get_zebra_settings_for_extruder(0.01, 0.005, 0.001)
     assert round(width, 3) == 0.016
     assert round(step, 3) == 0.026
 
