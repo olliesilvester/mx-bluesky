@@ -3,6 +3,10 @@ Zebra setup plans for extruder and fastchip serial collections.
 
 For clarification on the Zebra setup in either use case, please see
 https://confluence.diamond.ac.uk/display/MXTech/Zebra+settings+I24
+
+Note on soft inputs. In the code, soft inputs are 1 indexed following the numbering on
+the edm screen, while on the schematics they are 0 indexed. Thus, `Soft In 1` from the
+schematics corresponds to soft_in_2 in the code.
 """
 
 import logging
@@ -164,7 +168,7 @@ def setup_zebra_for_extruder_with_pump_probe_plan(
     group: str = "setup_zebra_for_extruder_pp",
     wait: bool = True,
 ):
-    """Zebra setup for extruder pump probe experiment with PORTO.
+    """Zebra setup for extruder pump probe experiment using PORTO laser triggering.
 
     For this use case, both the laser and detector set up is taken care of by the Zebra.
     WARNING. This means that some hardware changes have been made.
