@@ -90,8 +90,8 @@ def test_setup_zebra_for_extruder_pp_pilatus_collection(zebra: Zebra, RE):
     assert zebra.output.out_1.get() == AND3
 
     assert zebra.pc.gate_start.get() == 1.0
-    assert zebra.output.pulse_1.dly.get() == 0.0
-    assert zebra.output.pulse_2.dly.get() == 0.001
+    assert zebra.output.pulse_1.delay.get() == 0.0
+    assert zebra.output.pulse_2.delay.get() == 0.001
 
 
 def test_setup_zebra_for_fastchip(zebra: Zebra, RE):
@@ -139,8 +139,8 @@ def test_reset_output_panel(zebra: Zebra, RE):
 
     assert zebra.output.out_2.get() == PC_GATE
     assert zebra.output.out_4.get() == OR1
-    assert zebra.output.pulse_1.inp.get() == DISCONNECT
-    assert zebra.output.pulse_2.inp.get() == DISCONNECT
+    assert zebra.output.pulse_1.input.get() == DISCONNECT
+    assert zebra.output.pulse_2.input.get() == DISCONNECT
 
 
 def test_zebra_return_to_normal(zebra: Zebra, RE):
@@ -155,7 +155,7 @@ def test_zebra_return_to_normal(zebra: Zebra, RE):
     assert zebra.pc.gate_start.get() == 0
 
     assert zebra.output.out_3.get() == DISCONNECT
-    assert zebra.output.pulse_1.inp.get() == DISCONNECT
+    assert zebra.output.pulse_1.input.get() == DISCONNECT
 
 
 def test_reset_zebra_plan(zebra: Zebra, RE):

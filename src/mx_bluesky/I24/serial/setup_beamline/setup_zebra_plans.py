@@ -143,8 +143,10 @@ def setup_zebra_for_quickshot_plan(
 def set_logic_gates_for_porto_triggering(
     zebra: Zebra, group: str = "porto_logic_gates"
 ):
+    # To OUT2_TTL
     yield from bps.abs_set(zebra.logic_gates.and_gate_3.source_1, SOFT_IN2, group=group)
     yield from bps.abs_set(zebra.logic_gates.and_gate_3.source_2, PULSE1, group=group)
+    # To OUT1_TTL
     yield from bps.abs_set(zebra.logic_gates.and_gate_4.source_1, SOFT_IN2, group=group)
     yield from bps.abs_set(zebra.logic_gates.and_gate_4.source_2, PULSE2, group=group)
     yield from bps.wait(group=group)
@@ -232,18 +234,18 @@ def setup_zebra_for_extruder_with_pump_probe_plan(
     logger.info(
         f"Pulse1 starting at {pulse1_delay} with width set to laser dwell {pump_exp}."
     )
-    yield from bps.abs_set(zebra.output.pulse_1.inp, PC_GATE, group=group)
-    yield from bps.abs_set(zebra.output.pulse_1.dly, pulse1_delay, group=group)
-    yield from bps.abs_set(zebra.output.pulse_1.wid, pump_exp, group=group)
+    yield from bps.abs_set(zebra.output.pulse_1.input, PC_GATE, group=group)
+    yield from bps.abs_set(zebra.output.pulse_1.delay, pulse1_delay, group=group)
+    yield from bps.abs_set(zebra.output.pulse_1.width, pump_exp, group=group)
     logger.info(
         f"""
         Pulse2 starting at laser delay {pump_delay} with width set to \
         exposure time {exp_time}.
         """
     )
-    yield from bps.abs_set(zebra.output.pulse_2.inp, PC_GATE, group=group)
-    yield from bps.abs_set(zebra.output.pulse_2.dly, pump_delay, group=group)
-    yield from bps.abs_set(zebra.output.pulse_2.wid, exp_time, group=group)
+    yield from bps.abs_set(zebra.output.pulse_2.input, PC_GATE, group=group)
+    yield from bps.abs_set(zebra.output.pulse_2.delay, pump_delay, group=group)
+    yield from bps.abs_set(zebra.output.pulse_2.width, exp_time, group=group)
 
     if wait:
         yield from bps.wait(group)
@@ -337,8 +339,8 @@ def reset_output_panel(zebra: Zebra, group: str = "reset_zebra_outputs"):
     yield from bps.abs_set(zebra.output.out_3, DISCONNECT, group=group)
     yield from bps.abs_set(zebra.output.out_4, OR1, group=group)
 
-    yield from bps.abs_set(zebra.output.pulse_1.inp, DISCONNECT, group=group)
-    yield from bps.abs_set(zebra.output.pulse_2.inp, DISCONNECT, group=group)
+    yield from bps.abs_set(zebra.output.pulse_1.input, DISCONNECT, group=group)
+    yield from bps.abs_set(zebra.output.pulse_2.input, DISCONNECT, group=group)
 
     yield from bps.wait(group=group)
 
