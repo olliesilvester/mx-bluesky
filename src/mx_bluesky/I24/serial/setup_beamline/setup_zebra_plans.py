@@ -395,4 +395,5 @@ def reset_zebra_when_collection_done_plan(zebra: Zebra):
     yield from close_fast_shutter(zebra)
     logger.debug("Disarm the zebra.")
     yield from disarm_zebra(zebra)
+    logger.debug("Set zebra back to normal.")
     yield from zebra_return_to_normal_plan(zebra, wait=True)

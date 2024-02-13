@@ -32,13 +32,11 @@ from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
     TTL_EIGER,
     TTL_PILATUS,
     arm_zebra,
-    close_fast_shutter,
-    disarm_zebra,
     open_fast_shutter,
+    reset_zebra_when_collection_done_plan,
     set_shutter_mode,
     setup_zebra_for_extruder_with_pump_probe_plan,
     setup_zebra_for_quickshot_plan,
-    zebra_return_to_normal_plan,
 )
 from mx_bluesky.I24.serial.write_nexus import call_nexgen
 
@@ -419,11 +417,7 @@ def run_extruderi24(args=None):
         logger.warning("Data Collection ended due to GP 8 not equalling 0")
 
     caput(pv.ioc12_gp8, 1)
-    logger.info("Fast shutter closing")
-    yield from close_fast_shutter(zebra)
-
-    yield from disarm_zebra(zebra)
-    logger.info("\nZebra DISARMED")
+    yield from reset_zebra_when_collection_done_plan(zebra)
 
     end_time = datetime.now()
 
@@ -438,8 +432,6 @@ def run_extruderi24(args=None):
     sleep(0.5)
 
     # Clean Up
-    logger.info("Setting zebra back to normal")
-    yield from zebra_return_to_normal_plan(zebra)
     if det_type == "pilatus":
         sup.pilatus("return-to-normal")
     elif det_type == "eiger":
