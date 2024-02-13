@@ -15,8 +15,8 @@ from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
     arm_zebra,
     disarm_zebra,
     get_zebra_settings_for_extruder,
-    position_compare_off,
     reset_output_panel,
+    reset_pc_gate_and_pulse,
     reset_zebra_when_collection_done_plan,
     set_shutter_mode,
     setup_pc_sources,
@@ -131,8 +131,8 @@ def test_setup_zebra_for_fastchip(zebra: Zebra, RE):
     assert zebra.pc.pulse_step.get() == exposure_time + 0.0001
 
 
-def test_position_compare_off(zebra: Zebra, RE):
-    RE(position_compare_off(zebra))
+def test_reset_pc_gate_and_pulse(zebra: Zebra, RE):
+    RE(reset_pc_gate_and_pulse(zebra))
 
     assert zebra.pc.gate_start.get() == 0
     assert zebra.pc.pulse_width.get() == 0

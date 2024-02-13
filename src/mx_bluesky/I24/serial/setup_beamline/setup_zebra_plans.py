@@ -327,7 +327,7 @@ def setup_zebra_for_fastchip_plan(
     logger.info("Finished setting up zebra.")
 
 
-def position_compare_off(zebra: Zebra, group: str = "position_compare_off"):
+def reset_pc_gate_and_pulse(zebra: Zebra, group: str = "reset_pc"):
     yield from bps.abs_set(zebra.pc.gate_start, 0, group=group)
     yield from bps.abs_set(zebra.pc.pulse_width, 0, group=group)
     yield from bps.abs_set(zebra.pc.pulse_step, 0, group=group)
@@ -376,7 +376,7 @@ def zebra_return_to_normal_plan(
     yield from bps.abs_set(zebra.pc.dir, RotationDirection.POSITIVE, group=group)
 
     #
-    yield from position_compare_off(zebra)
+    yield from reset_pc_gate_and_pulse(zebra)
 
     if wait:
         yield from bps.wait(group)
