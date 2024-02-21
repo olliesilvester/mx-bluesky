@@ -30,7 +30,7 @@ def test_logging_file_path_on_beamline(mock_dir, mock_environ, mock_visit):
     mock_visit.return_value = Path("/path/to/i24/data")
     log_path = log._get_logging_file_path()
     assert mock_dir.call_count == 1
-    assert log_path.as_posix() == "/path/to/i24/data/logs/serial"
+    assert log_path.as_posix() == "/path/to/i24/data/tmp/logs/serial"
 
 
 def test_basic_logging_config(dummy_logger):
