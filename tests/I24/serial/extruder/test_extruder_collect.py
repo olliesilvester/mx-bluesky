@@ -27,6 +27,18 @@ pump_exp 0
 pump_delay 0"""
 
 
+params_file_str_pp = """visit foo
+directory bar
+filename boh
+num_imgs 1
+exp_time 0.1
+det_dist 100
+det_type pilatus
+pump_probe true
+pump_exp 0.01
+pump_delay 0.005"""
+
+
 @pytest.fixture
 def dummy_parser():
     parser = argparse.ArgumentParser()
@@ -96,6 +108,9 @@ def test_laser_check(
     "mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.open",
     mock_open(read_data=params_file_str),
 )
+@patch(
+    "mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.write_parameter_file"
+)
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sleep")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.DCID")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.call_nexgen")
@@ -103,7 +118,11 @@ def test_laser_check(
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sup")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.get_detector_type")
-def test_run_extruder_with_eiger(
+@patch(
+    "mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.setup_zebra_for_quickshot_plan"
+)
+def test_run_extruder_quickshot_with_eiger(
+    mock_quickshot_plan,
     fake_det,
     fake_sup,
     fake_caget,
@@ -111,6 +130,7 @@ def test_run_extruder_with_eiger(
     fake_nexgen,
     fake_dcid,
     fake_sleep,
+    fake_write_params,
     RE,
     zebra,
 ):
@@ -120,3 +140,44 @@ def test_run_extruder_with_eiger(
     assert fake_dcid.call_count == 1
     # Check temporary piilatus hack is in there
     assert fake_sup.pilatus.call_count == 2
+    mock_quickshot_plan.assert_called_once()
+
+
+@patch(
+    "mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.open",
+    mock_open(read_data=params_file_str_pp),
+)
+@patch(
+    "mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.write_parameter_file"
+)
+@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sleep")
+@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.DCID")
+@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
+@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
+@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sup")
+@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.get_detector_type")
+@patch(
+    "mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.setup_zebra_for_extruder_with_pump_probe_plan"
+)
+@patch(
+    "mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.reset_zebra_when_collection_done_plan"
+)
+def test_run_extruder_pump_probe_with_pilatus(
+    mock_reset_zebra_plan,
+    mock_pp_plan,
+    fake_det,
+    fake_sup,
+    fake_caget,
+    fake_caput,
+    fake_dcid,
+    fake_sleep,
+    fake_write_params,
+    RE,
+    zebra,
+):
+    # fake_i24.zebra.return_value = MagicMock()
+    fake_det.return_value = Pilatus()
+    RE(run_extruderi24())
+    assert fake_dcid.call_count == 1
+    mock_pp_plan.assert_called_once()
+    mock_reset_zebra_plan.assert_called_once()
