@@ -108,9 +108,6 @@ def test_laser_check(
     "mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.open",
     mock_open(read_data=params_file_str),
 )
-@patch(
-    "mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.write_parameter_file"
-)
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sleep")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.DCID")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.call_nexgen")
@@ -130,7 +127,6 @@ def test_run_extruder_quickshot_with_eiger(
     fake_nexgen,
     fake_dcid,
     fake_sleep,
-    fake_write_params,
     RE,
     zebra,
 ):
