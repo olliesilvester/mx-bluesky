@@ -111,6 +111,8 @@ def laser_check(args, zebra: Optional[Zebra] = None):
 
     LASER_TTL = TTL_EIGER if isinstance(det_type, Pilatus) else TTL_PILATUS
     if mode == "laseron":
+        # FIXME: do not use SOFT_IN1.
+        # See https://github.com/DiamondLightSource/mx_bluesky/issues/81
         yield from bps.abs_set(zebra.output.out_pvs[LASER_TTL], SOFT_IN1)
         yield from set_shutter_mode(zebra, "auto")
 
