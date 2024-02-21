@@ -276,10 +276,11 @@ def setup_zebra_for_fastchip_plan(
             avoid missing any triggers.
         - The trigger width is calculated depending on which detector is in use: the \
             Pilatus only needs the trigger rising edge to collect for a set time, while \
-            the Eiger will only collect while the signal is high and will stop once \
-            a falling edge is detected. For this reason a sawtooth will be set to half \
-            the exposure time in the Pilatus case, and to the exposure time minus a \
-            small drop (~100um) for the Eiger.
+            the Eiger (used here in Externally Interrupter Exposure Series mode) \
+            will only collect while the signal is high and will stop once a falling \
+            edge is detected. For this reason a square wave pulse width will be set to \
+            half the exposure time in the Pilatus case, and to the exposure time minus \
+            a small drop (~100um) for the Eiger.
 
     Args:
         zebra (Zebra): The zebra ophyd device.
@@ -307,7 +308,7 @@ def setup_zebra_for_fastchip_plan(
     if det_type == "pilatus":
         yield from bps.abs_set(zebra.output.out_pvs[TTL_PILATUS], AND3, group=group)
 
-    # Sawtooth - needs a small drop to make it work for eiger
+    # Square wave - needs a small drop to make it work for eiger
     pulse_width = exposure_time - 0.0001 if det_type == "eiger" else exposure_time / 2
 
     # 100us buffer needed to avoid missing some of the triggers
