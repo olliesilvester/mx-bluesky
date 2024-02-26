@@ -12,6 +12,12 @@ def dummy_logger():
     yield logger
 
 
+def _destroy_handlers(logger):
+    for handler in logger.handlers:
+        handler.close()
+    logger.handlers.clear()
+
+
 @patch("mx_bluesky.I24.serial.log.environ")
 @patch("mx_bluesky.I24.serial.log.Path.mkdir")
 def test_logging_file_path(mock_dir, mock_environ):
@@ -49,3 +55,4 @@ def test_logging_config_with_filehandler(
     assert dummy_logger.handlers[1].level == logging.DEBUG
     # Clear FileHandler to avoid other tests failing if it is kept open
     dummy_logger.removeHandler(dummy_logger.handlers[1])
+    _destroy_handlers(dummy_logger.parent)
