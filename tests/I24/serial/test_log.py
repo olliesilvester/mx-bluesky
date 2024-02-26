@@ -37,10 +37,15 @@ def test_basic_logging_config(dummy_logger):
 
 
 @patch("mx_bluesky.I24.serial.log.Path.mkdir")
-def test_logging_config_with_filehandler(mock_dir, dummy_logger):
-    log.config("dummy.log", delayed=True)
+@patch("mx_bluesky.I24.serial.log.set_up_all_logging_handlers")
+@patch("mx_bluesky.I24.serial.log.integrate_bluesky_and_ophyd_logging")
+def test_logging_config_with_filehandler(
+    mock_ophyd_log, mock_handlers, mock_dir, dummy_logger
+):
+    # dodal handlers mocked out
+    log.config("dummy.log", delayed=True, dev_mode=True)
     assert len(dummy_logger.handlers) == 2
-    assert mock_dir.call_count == 1
+    assert mock_dir.call_count == 2
     assert dummy_logger.handlers[1].level == logging.DEBUG
     # Clear FileHandler to avoid other tests failing if it is kept open
     dummy_logger.removeHandler(dummy_logger.handlers[1])

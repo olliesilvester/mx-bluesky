@@ -7,8 +7,16 @@ from os import environ
 from pathlib import Path
 from typing import Optional
 
+from dodal.log import (
+    ERROR_LOG_BUFFER_LINES,
+    integrate_bluesky_and_ophyd_logging,
+    set_up_all_logging_handlers,
+)
+from dodal.log import LOGGER as dodal_logger
+
 # Logging set up
 logging.getLogger("I24ssx").addHandler(logging.NullHandler())
+logging.getLogger("I24ssx").parent = dodal_logger
 
 logging_config = {
     "version": 1,
@@ -66,7 +74,12 @@ def _get_logging_file_path() -> Path:
     return logging_path
 
 
-def config(logfile: str | None = None, write_mode: str = "a", delayed: bool = False):
+def config(
+    logfile: str | None = None,
+    write_mode: str = "a",
+    delayed: bool = False,
+    dev_mode: bool = False,
+):
     """
     Configure the logging.
 
@@ -75,8 +88,19 @@ def config(logfile: str | None = None, write_mode: str = "a", delayed: bool = Fa
             for the logger to write to file the log output. Defaults to None.
         write_mode (str, optional): String indicating writing mode for the output \
             .log file. Defaults to "a".
+        dev_mode (bool, optional): If true, will log to graylog on localhost instead \
+            of production. Defaults to False.
     """
     logger = logging.getLogger("I24ssx")
+    handlers = set_up_all_logging_handlers(
+        dodal_logger,
+        _get_logging_file_path(),
+        "dodal.log",
+        dev_mode,
+        ERROR_LOG_BUFFER_LINES,
+    )
+    integrate_bluesky_and_ophyd_logging(dodal_logger, handlers)
+
     if logfile:
         logs = _get_logging_file_path() / logfile
         fileFormatter = logging.Formatter(
