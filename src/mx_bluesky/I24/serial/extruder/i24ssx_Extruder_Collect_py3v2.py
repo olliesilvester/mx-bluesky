@@ -399,7 +399,7 @@ def run_extruderi24(args=None):
                 break
             elif not zebra.pc.is_armed():
                 # As soon as zebra is disarmed, exit.
-                # Epics checks the geobrick and updates this PV once the collection is done.
+                # Epics updates this PV once the collection is done.
                 logger.info("----> Zebra disarmed  <----")
                 break
             elif time.time() >= timeout_time:
