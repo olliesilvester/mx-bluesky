@@ -30,6 +30,7 @@ def _params_file_location() -> Path:
     else:
         filepath = Path(__file__).absolute().parent
 
+    Path(filepath).mkdir(parents=True, exist_ok=True)
     return filepath
 
 
