@@ -75,10 +75,12 @@ def get_zebra_settings_for_extruder(
 
 def arm_zebra(zebra: Zebra):
     yield from bps.abs_set(zebra.pc.arm, ArmDemand.ARM, wait=True)
+    logger.info("Zebra armed.")
 
 
 def disarm_zebra(zebra: Zebra):
     yield from bps.abs_set(zebra.pc.arm, ArmDemand.DISARM, wait=True)
+    logger.info("Zebra disarmed.")
 
 
 def open_fast_shutter(zebra: Zebra):
