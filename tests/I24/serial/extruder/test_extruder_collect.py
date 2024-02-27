@@ -88,6 +88,7 @@ def test_moveto_laseroff_for_pilatus(fake_det, fake_caput, dummy_parser):
     "mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.open",
     mock_open(read_data=params_file_str),
 )
+@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.shutil")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.DCID")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.call_nexgen")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
@@ -95,7 +96,7 @@ def test_moveto_laseroff_for_pilatus(fake_det, fake_caput, dummy_parser):
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sup")
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.get_detector_type")
 def test_run_extruder_with_eiger(
-    fake_det, fake_sup, fake_caget, fake_caput, fake_nexgen, fake_dcid
+    fake_det, fake_sup, fake_caget, fake_caput, fake_nexgen, fake_dcid, fake_shutil
 ):
     fake_det.return_value = Eiger()
     run_extruderi24()

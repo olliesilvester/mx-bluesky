@@ -3,11 +3,13 @@ Extruder data collection
 This version in python3 new Feb2021 by RLO
     - March 21 added logging and Eiger functionality
 """
+
 from __future__ import annotations
 
 import argparse
 import logging
 import re
+import shutil
 import sys
 import time
 from datetime import datetime
@@ -437,6 +439,9 @@ def run_extruderi24(args=None):
     dcid.collection_complete(end_time, aborted=aborted)
     dcid.notify_end()
     logger.info("End Time = %s" % end_time.ctime())
+
+    # Copy parameter file
+    shutil.copy2(PARAM_FILE_PATH / "parameters.txt", Path(filepath) / "parameters.txt")
     return 1
 
 
