@@ -59,7 +59,6 @@ def _get_logging_file_path() -> Path:
     logging_path: Path
 
     if beamline:
-        # logging_path = Path("/dls_sw/" + beamline + "/logs/serial/")
         logging_path = _read_visit_from_file() / "tmp/serial/logs"
     else:
         logging_path = Path("./tmp/logs/")
