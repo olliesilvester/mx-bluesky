@@ -15,18 +15,37 @@ import time
 from datetime import datetime
 from pathlib import Path
 from time import sleep
+from typing import Optional
+
+import bluesky.plan_stubs as bps
+from bluesky.run_engine import RunEngine
+from dodal.beamlines import i24
+from dodal.devices.zebra import DISCONNECT, SOFT_IN1, Zebra
 
 from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.dcid import DCID
 from mx_bluesky.I24.serial.parameters import SSXType
 from mx_bluesky.I24.serial.parameters.constants import PARAM_FILE_PATH
-from mx_bluesky.I24.serial.setup_beamline import Eiger, Pilatus, caget, caput, pv
+from mx_bluesky.I24.serial.setup_beamline import Pilatus, caget, caput, pv
 from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
 from mx_bluesky.I24.serial.setup_beamline.setup_detector import get_detector_type
+from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
+    GATE_START,
+    TTL_EIGER,
+    TTL_PILATUS,
+    arm_zebra,
+    open_fast_shutter,
+    reset_zebra_when_collection_done_plan,
+    set_shutter_mode,
+    setup_zebra_for_extruder_with_pump_probe_plan,
+    setup_zebra_for_quickshot_plan,
+)
 from mx_bluesky.I24.serial.write_nexus import call_nexgen
 
 usage = "%(prog)s command [options]"
 logger = logging.getLogger("I24ssx.extruder")
+
+SAFE_DET_Z = 1480
 
 
 def setup_logging():
@@ -66,33 +85,48 @@ def initialise_extruderi24(args=None):
     caput(pv.ioc12_gp15, det_type.name)
     caput(pv.pilat_cbftemplate, 0)
     logger.info("Initialisation complete.")
+    yield from bps.null()
 
 
 @log.log_on_entry
-def moveto(args):
-    place = args.place
-    logger.info("Move to: %s" % place)
+def laser_check(args, zebra: Optional[Zebra] = None):
+    """Plan to open the shutter and check the laser beam from the viewer by pressing \
+        'Laser On' and 'Laser Off' buttons on the edm.
+
+    The 'Laser on' button sets the correct OUT_TTL pv for the detector in use to \
+    SOFT_IN1 and the shutter mode to auto.
+    The 'Laser off' button disconnects the OUT_TTL pv set by the previous step and \
+    resets the shutter mode to manual.
+
+    WARNING. When using the laser with the extruder, some hardware changes need to be made.
+    Because all four of the zebra ttl outputs are in use in this mode, when the \
+    detector in use is the Eiger, the Pilatus cable is repurposed to trigger the light \
+    source, and viceversa.
+    """
+    if not zebra:
+        zebra = i24.zebra()
+    mode = args.place
+    logger.info(f"Laser check: {mode}")
 
     det_type = get_detector_type()
 
-    if place == "laseron":
-        if isinstance(det_type, Pilatus):
-            caput(pv.zebra1_out1_ttl, 60.0)
-            caput(pv.zebra1_soft_in_b0, 1.0)
-        elif isinstance(det_type, Eiger):
-            caput(pv.zebra1_out2_ttl, 60.0)
-            caput(pv.zebra1_soft_in_b0, 1.0)
+    LASER_TTL = TTL_EIGER if isinstance(det_type, Pilatus) else TTL_PILATUS
+    if mode == "laseron":
+        # FIXME: do not use SOFT_IN1.
+        # See https://github.com/DiamondLightSource/mx_bluesky/issues/81
+        yield from bps.abs_set(zebra.output.out_pvs[LASER_TTL], SOFT_IN1)
+        yield from set_shutter_mode(zebra, "auto")
 
-    if place == "laseroff":
-        if isinstance(det_type, Pilatus):
-            caput(pv.zebra1_soft_in_b0, 0.0)
-            caput(pv.zebra1_out1_ttl, 0.0)
-        elif isinstance(det_type, Eiger):
-            caput(pv.zebra1_soft_in_b0, 0.0)
-            caput(pv.zebra1_out2_ttl, 0.0)
+    if mode == "laseroff":
+        yield from bps.abs_set(zebra.output.out_pvs[LASER_TTL], DISCONNECT)
+        yield from set_shutter_mode(zebra, "manual")
 
-    if place == "enterhutch":
-        caput(pv.det_z, 1480)
+
+@log.log_on_entry
+def enter_hutch(args=None):
+    """Move the detector stage before entering hutch."""
+    caput(pv.det_z, SAFE_DET_Z)
+    yield from bps.null()
 
 
 @log.log_on_entry
@@ -184,18 +218,20 @@ def scrape_parameter_file(param_path: Path | str = PARAM_FILE_PATH):
         visit,
         directory,
         filename,
-        num_imgs,
-        exp_time,
-        det_dist,
+        int(num_imgs),
+        float(exp_time),
+        float(det_dist),
         det_type,
         pump_status,
-        pump_exp,
-        pump_delay,
+        float(pump_exp),
+        float(pump_delay),
     )
 
 
 @log.log_on_entry
 def run_extruderi24(args=None):
+    # Get dodal devices
+    zebra = i24.zebra()
     start_time = datetime.now()
     logger.info("Collection start time: %s" % start_time.ctime())
 
@@ -232,23 +268,6 @@ def run_extruderi24(args=None):
     logger.info("Filepath %s" % filepath)
     logger.info("Filename %s" % filename)
 
-    # For zebra
-    # The below will need to be determined emprically. A value of 0.0 may be ok (????)
-    probepumpbuffer = 0.01
-
-    gate_start = 1.0
-    # Need to check these for pilatus.
-    # Added temprary hack in pilatus pump is false below as gate width wrong
-    gate_width = float(pump_exp) + float(pump_delay) + float(exp_time)
-    gate_step = float(gate_width) + float(probepumpbuffer)
-    logger.info("Calculated gate width %.4f" % gate_width)
-    logger.info("Calculated gate step %.4f" % gate_step)
-    num_gates = num_imgs
-    p1_delay = 0
-    p1_width = pump_exp
-    p2_delay = pump_delay
-    p2_width = exp_time
-
     if det_type == "pilatus":
         logger.debug("Using pilatus mini cbf")
         caput(pv.pilat_cbftemplate, 0)
@@ -262,25 +281,22 @@ def run_extruderi24(args=None):
             logger.info("Pump exposure time %s" % pump_exp)
             logger.info("Pump delay time %s" % pump_delay)
             sup.pilatus("fastchip", [filepath, filename, num_imgs, exp_time])
-            sup.zebra1(
-                "zebratrigger-pilatus",
-                [
-                    gate_start,
-                    gate_width,
-                    num_gates,
-                    gate_step,
-                    p1_delay,
-                    p1_width,
-                    p2_delay,
-                    p2_width,
-                ],
+            yield from setup_zebra_for_extruder_with_pump_probe_plan(
+                zebra,
+                det_type,
+                exp_time,
+                num_imgs,
+                pump_exp,
+                pump_delay,
+                pulse1_delay=0.0,
+                wait=True,
             )
         elif pump_status == "false":
             logger.info("Static experiment: no photoexcitation")
             sup.pilatus("quickshot", [filepath, filename, num_imgs, exp_time])
-            gate_start = 1.0
-            gate_width = (float(exp_time) * float(num_imgs)) + float(0.5)
-            sup.zebra1("quickshot", [gate_start, gate_width])
+            yield from setup_zebra_for_quickshot_plan(
+                zebra, exp_time, num_imgs, wait=True
+            )
 
     elif det_type == "eiger":
         logger.info("Using Eiger detector")
@@ -311,25 +327,22 @@ def run_extruderi24(args=None):
             logger.info("Pump exposure time %s" % pump_exp)
             logger.info("Pump delay time %s" % pump_delay)
             sup.eiger("triggered", [filepath, filename, num_imgs, exp_time])
-            sup.zebra1(
-                "zebratrigger-eiger",
-                [
-                    gate_start,
-                    gate_width,
-                    num_gates,
-                    gate_step,
-                    p1_delay,
-                    p1_width,
-                    p2_delay,
-                    p2_width,
-                ],
+            yield from setup_zebra_for_extruder_with_pump_probe_plan(
+                zebra,
+                det_type,
+                exp_time,
+                num_imgs,
+                pump_exp,
+                pump_delay,
+                pulse1_delay=0.0,
+                wait=True,
             )
         elif pump_status == "false":
             logger.info("Static experiment: no photoexcitation")
-            gate_start = 1.0
-            gate_width = (float(exp_time) * float(num_imgs)) + float(0.5)
             sup.eiger("quickshot", [filepath, filename, num_imgs, exp_time])
-            sup.zebra1("quickshot", [gate_start, gate_width])
+            yield from setup_zebra_for_quickshot_plan(
+                zebra, exp_time, num_imgs, wait=True
+            )
     else:
         err = "Unknown Detector Type, det_type = %s" % det_type
         logger.error(err)
@@ -348,7 +361,7 @@ def run_extruderi24(args=None):
 
     # Collect
     logger.info("Fast shutter opening")
-    caput(pv.zebra1_soft_in_b1, 1)
+    yield from open_fast_shutter(zebra)
     if det_type == "pilatus":
         logger.info("Pilatus acquire ON")
         caput(pv.pilat_acquire, 1)
@@ -364,11 +377,11 @@ def run_extruderi24(args=None):
         call_nexgen(None, start_time, param_file_tuple, "extruder")
 
     aborted = False
-    timeout_time = time.time() + int(num_imgs) * float(exp_time) + 10
+    timeout_time = time.time() + num_imgs * exp_time + 10
 
     if int(caget(pv.ioc12_gp8)) == 0:  # ioc12_gp8 is the ABORT button
-        caput(pv.zebra1_pc_arm, 1)
-        sleep(gate_start)
+        yield from arm_zebra(zebra)
+        sleep(GATE_START)  # Sleep for the same length of gate_start, hard coded to 1
         i = 0
         text_list = ["|", "/", "-", "\\"]
         while True:
@@ -385,9 +398,9 @@ def run_extruderi24(args=None):
                     caput(pv.eiger_acquire, 0)
                 sleep(1.0)
                 break
-            elif int(caget(pv.zebra1_pc_arm_out)) != 1:
-                # As soon as the zebra1_pc_arm_out is not 1 anymore, exit.
-                # Epics checks the geobrick and updates this PV once the collection is done.
+            elif not zebra.pc.is_armed():
+                # As soon as zebra is disarmed, exit.
+                # Epics updates this PV once the collection is done.
                 logger.info("----> Zebra disarmed  <----")
                 break
             elif time.time() >= timeout_time:
@@ -407,10 +420,7 @@ def run_extruderi24(args=None):
         logger.warning("Data Collection ended due to GP 8 not equalling 0")
 
     caput(pv.ioc12_gp8, 1)
-    logger.info("Fast shutter closing")
-    caput(pv.zebra1_soft_in_b1, 0)
-    logger.info("\nZebra DISARMED")
-    caput(pv.zebra1_pc_disarm, 1)
+    yield from reset_zebra_when_collection_done_plan(zebra)
 
     end_time = datetime.now()
 
@@ -425,8 +435,6 @@ def run_extruderi24(args=None):
     sleep(0.5)
 
     # Clean Up
-    logger.info("Setting zebra back to normal")
-    sup.zebra1("return-to-normal")
     if det_type == "pilatus":
         sup.pilatus("return-to-normal")
     elif det_type == "eiger":
@@ -447,6 +455,7 @@ def run_extruderi24(args=None):
 
 if __name__ == "__main__":
     setup_logging()
+    RE = RunEngine()
 
     parser = argparse.ArgumentParser(usage=usage, description=__doc__)
     subparsers = parser.add_subparsers(
@@ -466,16 +475,21 @@ if __name__ == "__main__":
     )
     parser_run.set_defaults(func=run_extruderi24)
     parser_mv = subparsers.add_parser(
-        "moveto",
+        "laser_check",
         description="Move extruder to requested setting on I24.",
     )
     parser_mv.add_argument(
         "place",
         type=str,
-        choices=["laseron", "laseroff", "enterhutch"],
+        choices=["laseron", "laseroff"],
         help="Requested setting.",
     )
-    parser_mv.set_defaults(func=moveto)
+    parser_mv.set_defaults(func=laser_check)
+    parser_hutch = subparsers.add_parser(
+        "enterhutch",
+        description="Move the detector stage before entering hutch.",
+    )
+    parser_hutch.set_defaults(func=enter_hutch)
 
     args = parser.parse_args()
-    args.func(args)
+    RE(args.func(args))
