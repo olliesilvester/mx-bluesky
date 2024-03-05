@@ -531,33 +531,6 @@ def xspress3(action, args_list=None):
     return 1
 
 
-def zebra1(action, args_list=None):
-    logger.debug("***** Entering zebra1")
-    logger.info("zebra1 - %s" % action)
-    if args_list:
-        for arg in args_list:
-            logger.debug("Argument: %s" % arg)
-
-    if action == "zlayer":
-        caput(pv.zebra1_soft_in_b2, "0")
-        caput(pv.zebra1_soft_in_b3, "0")
-        caput(pv.zebra1_pc_gate_sel, "External")
-        caput(pv.zebra1_pc_gate_inp, "62")
-        caput(pv.zebra1_pc_pulse_sel, "External")
-        caput(pv.zebra1_pc_pulse_inp, "1")
-        caput(pv.zebra1_and3_inp1, "29")
-        caput(pv.zebra1_and3_inp2, "1")
-        caput(pv.zebra1_out2_ttl, "34")
-        caput(pv.zebra1_out3_ttl, "52")
-        caput(pv.zebra1_out4_ttl, "35")
-
-    else:
-        logger.error("Unknown action for zebra1 method", action)
-        sleep(0.1)
-    logger.debug("***** leaving zebra1")
-    return 1
-
-
 def geobrick(action, args_list=None):
     logger.debug("***** Entering Geobrick 10")
     logger.info("geobrick - %s" % action)
