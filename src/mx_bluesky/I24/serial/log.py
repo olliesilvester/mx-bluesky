@@ -14,6 +14,8 @@ from dodal.log import (
 )
 from dodal.log import LOGGER as dodal_logger
 
+VISIT_PATH = Path("/dls_sw/i24/etc/ssx_current_visit.txt")
+
 # Logging set up
 logging.getLogger("I24ssx").addHandler(logging.NullHandler())
 logging.getLogger("I24ssx").parent = dodal_logger
@@ -47,6 +49,12 @@ logging_config = {
 logging.config.dictConfig(logging_config)
 
 
+def _read_visit_directory_from_file() -> Path:
+    with open(VISIT_PATH, "r") as f:
+        visit = f.readline().rstrip()
+    return Path(visit)
+
+
 def _get_logging_file_path() -> Path:
     """Get the path to write the artemis log files to.
     If on a beamline, this will be written to the according area depending on the
@@ -59,18 +67,11 @@ def _get_logging_file_path() -> Path:
     logging_path: Path
 
     if beamline:
-        logging_path = Path("/dls_sw/" + beamline + "/logs/serial/")
+        logging_path = _read_visit_directory_from_file() / "tmp/serial/logs"
     else:
         logging_path = Path("./tmp/logs/")
 
-    try:
-        Path(logging_path).mkdir(parents=True, exist_ok=True)
-    except OSError:
-        # Until https://github.com/DiamondLightSource/mx_bluesky/issues/45 is fixed
-        # Logs could also go to the current visit directory, but not always possible
-        # when testing
-        logging_path = Path("~/serial_logs/").expanduser().resolve()
-        Path(logging_path).mkdir(parents=True, exist_ok=True)
+    Path(logging_path).mkdir(parents=True, exist_ok=True)
     return logging_path
 
 

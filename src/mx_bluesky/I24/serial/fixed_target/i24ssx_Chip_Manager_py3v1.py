@@ -2,6 +2,7 @@
 Chip manager for fixed target
 This version changed to python3 March2020 by RLO
 """
+
 from __future__ import annotations
 
 import argparse
@@ -297,6 +298,7 @@ def upload_parameters(
 @log.log_on_entry
 def upload_full(fullmap_path: Path | str = FULLMAP_PATH):
     fullmap_path = _coerce_to_path(fullmap_path)
+    fullmap_path.mkdir(parents=True, exist_ok=True)
 
     with open(fullmap_path / "currentchip.full", "r") as fh:
         f = fh.readlines()
