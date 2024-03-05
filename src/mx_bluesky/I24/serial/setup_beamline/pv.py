@@ -90,59 +90,18 @@ eiger_beamy = "BL24I-EA-EIGER-01:CAM:BeamY"
 eiger_omegaincr = "BL24I-EA-EIGER-01:CAM:OmegaIncr"
 eiger_ODfilenameRBV = "BL24I-EA-EIGER-01:OD:FP:FileName_RBV"
 
-# eiger_filenumber    = 'BL24I-EA-PILAT-01:cam1:FileNumber'
-# eiger_imagemode     = 'BL24I-EA-PILAT-01:cam1:ImageMode'
-# eiger_filetemplate  = 'BL24I-EA-PILAT-01:cam1:FileTemplate'
-# eiger_delaytime     = 'BL24I-EA-PILAT-01:cam1:DelayTime'
-# eiger_filtertrasm   = 'BL24I-EA-PILAT-01:cam1:FilterTransm'
-# eiger_filetemplate  = 'BL24I-EA-PILAT-01:cam1:FileTemplate'
-# eiger_startangle    = 'BL24I-EA-PILAT-01:cam1:StartAngle'
-# eiger_angleincr     = 'BL24I-EA-PILAT-01:cam1:AngleIncr'
-
-# eiger_cbftemplate   = 'BL24I-EA-PILAT-01:cam1:CbfTemplateFile'
-
 # ZEBRA
-zebra1_and2_inp1 = "BL24I-EA-ZEBRA-01:AND2_INP1"
-zebra1_and2_inp2 = "BL24I-EA-ZEBRA-01:AND2_INP2"
 zebra1_and3_inp1 = "BL24I-EA-ZEBRA-01:AND3_INP1"
 zebra1_and3_inp2 = "BL24I-EA-ZEBRA-01:AND3_INP2"
-zebra1_and4_inp1 = "BL24I-EA-ZEBRA-01:AND4_INP1"
-zebra1_and4_inp2 = "BL24I-EA-ZEBRA-01:AND4_INP2"
-zebra1_out1_ttl = "BL24I-EA-ZEBRA-01:OUT1_TTL"
 zebra1_out2_ttl = "BL24I-EA-ZEBRA-01:OUT2_TTL"
 zebra1_out3_ttl = "BL24I-EA-ZEBRA-01:OUT3_TTL"
 zebra1_out4_ttl = "BL24I-EA-ZEBRA-01:OUT4_TTL"
-zebra1_pc_arm_out = "BL24I-EA-ZEBRA-01:PC_ARM_OUT"
-zebra1_pc_arm = "BL24I-EA-ZEBRA-01:PC_ARM"
-zebra1_pc_disarm = "BL24I-EA-ZEBRA-01:PC_DISARM"
-zebra1_pc_arm_sel = "BL24I-EA-ZEBRA-01:PC_ARM_SEL"
 zebra1_pc_gate_sel = "BL24I-EA-ZEBRA-01:PC_GATE_SEL"
 zebra1_pc_gate_inp = "BL24I-EA-ZEBRA-01:PC_GATE_INP"
-zebra1_pc_gate_start = "BL24I-EA-ZEBRA-01:PC_GATE_START"
-zebra1_pc_gate_width = "BL24I-EA-ZEBRA-01:PC_GATE_WID"
-zebra1_pc_gate_step = "BL24I-EA-ZEBRA-01:PC_GATE_STEP"
-zebra1_pc_gate_ngate = "BL24I-EA-ZEBRA-01:PC_GATE_NGATE"
 zebra1_pc_pulse_sel = "BL24I-EA-ZEBRA-01:PC_PULSE_SEL"
 zebra1_pc_pulse_inp = "BL24I-EA-ZEBRA-01:PC_PULSE_INP"
-zebra1_pc_pulse_start = "BL24I-EA-ZEBRA-01:PC_PULSE_START"
-zebra1_pc_pulse_width = "BL24I-EA-ZEBRA-01:PC_PULSE_WID"
-zebra1_pc_pulse_step = "BL24I-EA-ZEBRA-01:PC_PULSE_STEP"
-zebra1_pc_pulse_max = "BL24I-EA-ZEBRA-01:PC_PULSE_MAX"
-zebra1_soft_in_b0 = "BL24I-EA-ZEBRA-01:SOFT_IN:B0"
-zebra1_soft_in_b1 = "BL24I-EA-ZEBRA-01:SOFT_IN:B1"
 zebra1_soft_in_b2 = "BL24I-EA-ZEBRA-01:SOFT_IN:B2"
 zebra1_soft_in_b3 = "BL24I-EA-ZEBRA-01:SOFT_IN:B3"
-zebra1_pc_enc = "BL24I-EA-ZEBRA-01:PC_ENC"
-zebra1_pc_dir = "BL24I-EA-ZEBRA-01:PC_DIR"
-zebra1_reset_proc = "BL24I-EA-ZEBRA-01:SYS_RESET.PROC"
-zebra1_config_read_proc = "BL24I-EA-ZEBRA-01:CONFIG_READ.PROC"
-zebra1_or1_ena_b0 = "BL24I-EA-ZEBRA-01:OR1_ENA:B0"
-zebra1_pulse1_inp = "BL24I-EA-ZEBRA-01:PULSE1_INP"
-zebra1_pulse1_delay = "BL24I-EA-ZEBRA-01:PULSE1_DLY"
-zebra1_pulse1_width = "BL24I-EA-ZEBRA-01:PULSE1_WID"
-zebra1_pulse2_inp = "BL24I-EA-ZEBRA-01:PULSE2_INP"
-zebra1_pulse2_delay = "BL24I-EA-ZEBRA-01:PULSE2_DLY"
-zebra1_pulse2_width = "BL24I-EA-ZEBRA-01:PULSE2_WID"
 
 # BPMs
 qbpm1_inten = "BL24I-DI-QBPM-01:INTEN"

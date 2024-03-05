@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 3046
-y 314
+x 1018
+y 134
 w 700
 h 900
 font "arial-medium-r-18.0"
@@ -2204,7 +2204,7 @@ font "arial-medium-r-20.0"
 buttonLabel "Laser On"
 numCmds 1
 command {
-  0 "python SCRIPTS_LOCATION/extruder/i24ssx_Extruder_Collect_py3v2.py moveto laseron"
+  0 "python SCRIPTS_LOCATION/extruder/i24ssx_Extruder_Collect_py3v2.py laser_check laseron"
 }
 endObjectProperties
 
@@ -2226,7 +2226,7 @@ font "arial-medium-r-20.0"
 buttonLabel "Laser Off"
 numCmds 1
 command {
-  0 "python SCRIPTS_LOCATION/extruder/i24ssx_Extruder_Collect_py3v2.py moveto laseroff"
+  0 "python SCRIPTS_LOCATION/extruder/i24ssx_Extruder_Collect_py3v2.py laser_check laseroff"
 }
 endObjectProperties
 
@@ -2248,7 +2248,7 @@ font "arial-medium-r-18.0"
 buttonLabel "Enter hutch"
 numCmds 1
 command {
-  0 "python SCRIPTS_LOCATION/extruder/i24ssx_Extruder_Collect_py3v2.py moveto enterhutch"
+  0 "python SCRIPTS_LOCATION/extruder/i24ssx_Extruder_Collect_py3v2.py enterhutch"
 }
 endObjectProperties
 
