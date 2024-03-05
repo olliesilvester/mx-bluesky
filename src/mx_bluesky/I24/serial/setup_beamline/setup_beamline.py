@@ -211,25 +211,6 @@ def beamline(action, args_list=None):
             caput(pv.det_z, det_dist)
             sleep(0.2)
 
-    elif action == "zlayer":
-        det_dist = args_list[0]
-        caput(pv.det_z, det_dist)
-        caput(pv.fluo_trans, "IN")
-        caput(pv.bl_mp_select, "Out")
-        caput(pv.aptr1_mp_select, "In")
-        caput(pv.bs_mp_select, "Data Collection")
-        logger.info("Moving backlight out before rotating beamstop in")
-        sleep(3)
-        caput(pv.bs_roty, 0)
-        logger.info("Waiting on detector")
-        while str(int(caget(pv.det_z + ".RBV"))) != str(int(float(det_dist))):
-            caput(pv.det_z, det_dist)
-            sleep(0.2)
-        logger.info("Waiting for Fluorescence Detector")
-        while caget(pv.fluo_in_limit) != "OFF":
-            print(".", end=" ")
-            sleep(0.25)
-
     else:
         logger.warning("Unknown action for beamline method", action)
     sleep(0.1)
@@ -253,27 +234,8 @@ def pilatus(action, args_list=None):
     caput(pv.pilat_beamy, 1307)
     sleep(0.1)
 
-    if action == "zlayer":
-        [filepath, filename, total_numb_imgs, exptime] = args_list
-        rampath = filepath.replace("dls/i24/data", "ramdisk")
-        acqtime = exptime - 0.001
-        logger.info("Filepath was set as %s" % filepath)
-        logger.info("Rampath set as %s" % rampath)
-        logger.info("Filename set as %s" % filename)
-        logger.info("total_numb_imgs %s" % total_numb_imgs)
-        logger.info("Exposure time set as %s s" % exptime)
-        logger.info("Acquire time set as %s s" % acqtime)
-        caput(pv.pilat_filepath, rampath + filename + "/")
-        caput(pv.pilat_filename, filename)
-        caput(pv.pilat_numimages, str(total_numb_imgs))
-        caput(pv.pilat_acquiretime, str(acqtime))
-        caput(pv.pilat_acquireperiod, str(exptime))
-        caput(pv.pilat_imagemode, "Continuous")
-        caput(pv.pilat_triggermode, "Mult. Trigger")
-        caput(pv.pilat_delaytime, 0)
-
     # Fixed Target stage (very fast start and stop w/ triggering from GeoBrick
-    elif action == "fastchip":
+    if action == "fastchip":
         [filepath, filename, total_numb_imgs, exptime] = args_list
         rampath = filepath.replace("dls/i24/data", "ramdisk")
         acqtime = float(exptime) - 0.001
@@ -509,12 +471,6 @@ def xspress3(action, args_list=None):
         sleep(0.2)
         caput(pv.xsp3_erase, 0)
 
-    elif action == "zlayer":
-        [filepath, filename, total_numb_images] = args_list
-        caput(pv.xsp3_hdf5_filepath, filepath)
-        caput(pv.xsp3_hdf5_filename, filename)
-        caput(pv.xsp3_numimages, total_numb_images)
-
     elif action == "return-to-normal":
         caput(pv.xsp3_triggermode, "TTL Veto Only")
         caput(pv.xsp3_numimages, 1)
@@ -528,73 +484,4 @@ def xspress3(action, args_list=None):
 
     sleep(0.1)
     logger.debug("***** leaving xspress3")
-    return 1
-
-
-def zebra1(action, args_list=None):
-    logger.debug("***** Entering zebra1")
-    logger.info("zebra1 - %s" % action)
-    if args_list:
-        for arg in args_list:
-            logger.debug("Argument: %s" % arg)
-
-    if action == "zlayer":
-        caput(pv.zebra1_soft_in_b2, "0")
-        caput(pv.zebra1_soft_in_b3, "0")
-        caput(pv.zebra1_pc_gate_sel, "External")
-        caput(pv.zebra1_pc_gate_inp, "62")
-        caput(pv.zebra1_pc_pulse_sel, "External")
-        caput(pv.zebra1_pc_pulse_inp, "1")
-        caput(pv.zebra1_and3_inp1, "29")
-        caput(pv.zebra1_and3_inp2, "1")
-        caput(pv.zebra1_out2_ttl, "34")
-        caput(pv.zebra1_out3_ttl, "52")
-        caput(pv.zebra1_out4_ttl, "35")
-
-    else:
-        logger.error("Unknown action for zebra1 method", action)
-        sleep(0.1)
-    logger.debug("***** leaving zebra1")
-    return 1
-
-
-def geobrick(action, args_list=None):
-    logger.debug("***** Entering Geobrick 10")
-    logger.info("geobrick - %s" % action)
-    if args_list:
-        for arg in args_list:
-            logger.debug("Argument: %s" % arg)
-
-    if action == "zlayer":
-        caput(pv.step10_pmac_str, "I5450 = 1")
-        # disable motors in normal coordinate system
-        caput(pv.step10_pmac_str, "&2#1-> 0")  # PINZ
-        caput(pv.step10_pmac_str, "&2#3-> 0")  # PINX
-        caput(pv.step10_pmac_str, "&2#2-> 0")  # omega
-        # disable killing of axes
-        caput(pv.step10_pmac_str, "P701 = 0")  # PINZ
-        caput(pv.step10_pmac_str, "P703 = 0")  # PINX
-        caput(pv.step10_pmac_str, "P709 = 0")  # PINY
-        caput(pv.step10_pmac_str, "#1J/")  # PINZ
-        caput(pv.step10_pmac_str, "#3J/")  # PINX
-        caput(pv.step10_pmac_str, "#9J/")  # PINY
-        # disable kinematic calculation
-        caput(pv.step10_pmac_str, "I5450 = 0")
-
-    elif action == "return-to-normal":
-        # disable fast grid scan motors
-        caput(pv.step10_pmac_str, "&4#1-> 0")  # PINZ
-        caput(pv.step10_pmac_str, "&4#3-> 0")  # PINX
-        caput(pv.step10_pmac_str, "&4#9-> 0")  # PINY
-        # enable normal coordinate system motors
-        caput(pv.step10_pmac_str, "&2#1-> I")  # PINZ
-        caput(pv.step10_pmac_str, "&2#3-> I")  # PINX
-        caput(pv.step10_pmac_str, "&2#2-> I")  # omega
-        # re-enable killing of axes
-        caput(pv.step10_pmac_str, "P701 = 2000")  # PINZ
-        caput(pv.step10_pmac_str, "P703 = 2000")  # PINX
-        caput(pv.step10_pmac_str, "P709 = 2000")  # PINY
-        # re-enable kinematic calculation
-        caput(pv.step10_pmac_str, "I5450 = 1")
-    logger.debug("***** leaving geobrick")
     return 1
