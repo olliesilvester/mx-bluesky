@@ -22,7 +22,7 @@ def test_logging_file_path(mock_dir, mock_environ):
     assert log_path.as_posix() == "tmp/logs"
 
 
-@patch("mx_bluesky.I24.serial.log._read_visit_from_file")
+@patch("mx_bluesky.I24.serial.log._read_visit_directory_from_file")
 @patch("mx_bluesky.I24.serial.log.environ")
 @patch("mx_bluesky.I24.serial.log.Path.mkdir")
 def test_logging_file_path_on_beamline(mock_dir, mock_environ, mock_visit):

@@ -41,7 +41,7 @@ logging_config = {
 logging.config.dictConfig(logging_config)
 
 
-def _read_visit_from_file() -> Path:
+def _read_visit_directory_from_file() -> Path:
     with open(VISIT_PATH, "r") as f:
         visit = f.readline().rstrip()
     return Path(visit)
@@ -59,7 +59,7 @@ def _get_logging_file_path() -> Path:
     logging_path: Path
 
     if beamline:
-        logging_path = _read_visit_from_file() / "tmp/serial/logs"
+        logging_path = _read_visit_directory_from_file() / "tmp/serial/logs"
     else:
         logging_path = Path("./tmp/logs/")
 

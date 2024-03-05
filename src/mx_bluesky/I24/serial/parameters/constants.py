@@ -3,7 +3,7 @@ from os import environ
 from pathlib import Path
 from typing import Optional
 
-from mx_bluesky.I24.serial.log import _read_visit_from_file
+from mx_bluesky.I24.serial.log import _read_visit_directory_from_file
 
 
 class SSXType(Enum):
@@ -26,7 +26,7 @@ def _params_file_location() -> Path:
     filepath: Path
 
     if beamline:
-        filepath = _read_visit_from_file() / "tmp/serial/parameters"
+        filepath = _read_visit_directory_from_file() / "tmp/serial/parameters"
     else:
         filepath = Path(__file__).absolute().parent
 
