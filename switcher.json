@@ -20,6 +20,10 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/79_remove-zlayer-legacy/"
   },
   {
+    "version": "81_use-spare-soft-input",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/81_use-spare-soft-input/"
+  },
+  {
     "version": "check-screens-still-work",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/check-screens-still-work/"
   },
