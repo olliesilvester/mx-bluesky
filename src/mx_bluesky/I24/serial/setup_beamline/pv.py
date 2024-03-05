@@ -90,19 +90,6 @@ eiger_beamy = "BL24I-EA-EIGER-01:CAM:BeamY"
 eiger_omegaincr = "BL24I-EA-EIGER-01:CAM:OmegaIncr"
 eiger_ODfilenameRBV = "BL24I-EA-EIGER-01:OD:FP:FileName_RBV"
 
-# ZEBRA
-zebra1_and3_inp1 = "BL24I-EA-ZEBRA-01:AND3_INP1"
-zebra1_and3_inp2 = "BL24I-EA-ZEBRA-01:AND3_INP2"
-zebra1_out2_ttl = "BL24I-EA-ZEBRA-01:OUT2_TTL"
-zebra1_out3_ttl = "BL24I-EA-ZEBRA-01:OUT3_TTL"
-zebra1_out4_ttl = "BL24I-EA-ZEBRA-01:OUT4_TTL"
-zebra1_pc_gate_sel = "BL24I-EA-ZEBRA-01:PC_GATE_SEL"
-zebra1_pc_gate_inp = "BL24I-EA-ZEBRA-01:PC_GATE_INP"
-zebra1_pc_pulse_sel = "BL24I-EA-ZEBRA-01:PC_PULSE_SEL"
-zebra1_pc_pulse_inp = "BL24I-EA-ZEBRA-01:PC_PULSE_INP"
-zebra1_soft_in_b2 = "BL24I-EA-ZEBRA-01:SOFT_IN:B2"
-zebra1_soft_in_b3 = "BL24I-EA-ZEBRA-01:SOFT_IN:B3"
-
 # BPMs
 qbpm1_inten = "BL24I-DI-QBPM-01:INTEN"
 qbpm1_intenN = "BL24I-DI-QBPM-01:INTEN_N"
