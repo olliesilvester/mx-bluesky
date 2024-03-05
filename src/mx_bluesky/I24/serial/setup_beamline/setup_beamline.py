@@ -485,29 +485,3 @@ def xspress3(action, args_list=None):
     sleep(0.1)
     logger.debug("***** leaving xspress3")
     return 1
-
-
-def geobrick(action, args_list=None):
-    logger.debug("***** Entering Geobrick 10")
-    logger.info("geobrick - %s" % action)
-    if args_list:
-        for arg in args_list:
-            logger.debug("Argument: %s" % arg)
-
-    if action == "return-to-normal":
-        # disable fast grid scan motors
-        caput(pv.step10_pmac_str, "&4#1-> 0")  # PINZ
-        caput(pv.step10_pmac_str, "&4#3-> 0")  # PINX
-        caput(pv.step10_pmac_str, "&4#9-> 0")  # PINY
-        # enable normal coordinate system motors
-        caput(pv.step10_pmac_str, "&2#1-> I")  # PINZ
-        caput(pv.step10_pmac_str, "&2#3-> I")  # PINX
-        caput(pv.step10_pmac_str, "&2#2-> I")  # omega
-        # re-enable killing of axes
-        caput(pv.step10_pmac_str, "P701 = 2000")  # PINZ
-        caput(pv.step10_pmac_str, "P703 = 2000")  # PINX
-        caput(pv.step10_pmac_str, "P709 = 2000")  # PINY
-        # re-enable kinematic calculation
-        caput(pv.step10_pmac_str, "I5450 = 1")
-    logger.debug("***** leaving geobrick")
-    return 1
