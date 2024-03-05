@@ -20,7 +20,7 @@ from typing import Optional
 import bluesky.plan_stubs as bps
 from bluesky.run_engine import RunEngine
 from dodal.beamlines import i24
-from dodal.devices.zebra import DISCONNECT, SOFT_IN1, Zebra
+from dodal.devices.zebra import DISCONNECT, SOFT_IN3, Zebra
 
 from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.dcid import DCID
@@ -112,9 +112,7 @@ def laser_check(args, zebra: Optional[Zebra] = None):
 
     LASER_TTL = TTL_EIGER if isinstance(det_type, Pilatus) else TTL_PILATUS
     if mode == "laseron":
-        # FIXME: do not use SOFT_IN1.
-        # See https://github.com/DiamondLightSource/mx_bluesky/issues/81
-        yield from bps.abs_set(zebra.output.out_pvs[LASER_TTL], SOFT_IN1)
+        yield from bps.abs_set(zebra.output.out_pvs[LASER_TTL], SOFT_IN3)
         yield from set_shutter_mode(zebra, "auto")
 
     if mode == "laseroff":
