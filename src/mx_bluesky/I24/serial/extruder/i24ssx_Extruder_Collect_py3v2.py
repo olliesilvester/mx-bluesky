@@ -318,9 +318,7 @@ def run_extruderi24(args=None):
         caput(pv.pilat_acquire, "1")  # Arm pilatus
         logger.debug("Pilatus data collection DONE")
         sup.pilatus("return to normal")
-        logger.debug(
-            "Pilatus back to normal. Single image pilatus data collection DONE"
-        )
+        logger.info("Pilatus back to normal. Single image pilatus data collection DONE")
 
         caput(pv.eiger_seqID, int(caget(pv.eiger_seqID)) + 1)
         logger.debug("Eiger quickshot setup: filepath %s" % filepath)
