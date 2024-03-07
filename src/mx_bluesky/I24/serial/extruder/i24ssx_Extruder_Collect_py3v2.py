@@ -275,15 +275,15 @@ def run_extruderi24(args=None):
     if det_type == "pilatus":
         logger.info("Using pilatus mini cbf")
         caput(pv.pilat_cbftemplate, 0)
-        logger.debug("Pilatus quickshot setup: filepath %s" % filepath)
-        logger.debug("Pilatus quickshot setup: filename %s" % filename)
-        logger.debug("Pilatus quickshot setup: number of images %d" % num_imgs)
-        logger.debug("Pilatus quickshot setup: exposure time %s" % exp_time)
+        logger.info("Pilatus quickshot setup: filepath %s" % filepath)
+        logger.info("Pilatus quickshot setup: filename %s" % filename)
+        logger.info("Pilatus quickshot setup: number of images %d" % num_imgs)
+        logger.info("Pilatus quickshot setup: exposure time %s" % exp_time)
 
         if pump_status == "true":
             logger.info("Pump probe extruder data collection")
-            logger.debug("Pump exposure time %s" % pump_exp)
-            logger.debug("Pump delay time %s" % pump_delay)
+            logger.info("Pump exposure time %s" % pump_exp)
+            logger.info("Pump delay time %s" % pump_delay)
             sup.pilatus("fastchip", [filepath, filename, num_imgs, exp_time])
             yield from setup_zebra_for_extruder_with_pump_probe_plan(
                 zebra,
@@ -321,10 +321,10 @@ def run_extruderi24(args=None):
         logger.info("Pilatus back to normal. Single image pilatus data collection DONE")
 
         caput(pv.eiger_seqID, int(caget(pv.eiger_seqID)) + 1)
-        logger.debug("Eiger quickshot setup: filepath %s" % filepath)
-        logger.debug("Eiger quickshot setup: filepath %s" % filename)
-        logger.debug("Eiger quickshot setup: number of images %s" % num_imgs)
-        logger.debug("Eiger quickshot setup: exposure time %s" % exp_time)
+        logger.info("Eiger quickshot setup: filepath %s" % filepath)
+        logger.info("Eiger quickshot setup: filepath %s" % filename)
+        logger.info("Eiger quickshot setup: number of images %s" % num_imgs)
+        logger.info("Eiger quickshot setup: exposure time %s" % exp_time)
 
         if pump_status == "true":
             logger.info("Pump probe extruder data collection")
