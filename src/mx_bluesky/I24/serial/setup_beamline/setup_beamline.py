@@ -188,7 +188,7 @@ def modechange(action):
 
 def beamline(action, args_list=None):
     logger.debug("***** Entering Beamline")
-    logger.info("beamline - %s" % action)
+    logger.info("Setup beamline - %s" % action)
     if args_list:
         for arg in args_list:
             logger.debug("Argument: %s" % arg)
@@ -220,7 +220,7 @@ def beamline(action, args_list=None):
 
 def pilatus(action, args_list=None):
     logger.debug("***** Entering Pilatus")
-    logger.info("pilatus - %s" % action)
+    logger.info("Setup pilatus - %s" % action)
     if args_list:
         for arg in args_list:
             logger.debug("Argument: %s" % arg)
@@ -320,7 +320,7 @@ def pilatus(action, args_list=None):
 
 def eiger(action, args_list=None):
     logger.debug("***** Entering Eiger")
-    logger.info("eiger - %s" % action)
+    logger.info("Setup eiger - %s" % action)
     if args_list:
         for arg in args_list:
             logger.debug("Argument: %s" % arg)
