@@ -20,8 +20,6 @@ VISIT_PATH = Path("/dls_sw/i24/etc/ssx_current_visit.txt")
 logger = logging.getLogger("I24ssx")
 logger.addHandler(logging.NullHandler())
 logger.parent = dodal_logger
-# logging.getLogger("I24ssx").addHandler(logging.NullHandler())
-# logging.getLogger("I24ssx").parent = dodal_logger
 
 logging_config = {
     "version": 1,
