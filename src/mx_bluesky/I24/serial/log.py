@@ -17,8 +17,11 @@ from dodal.log import LOGGER as dodal_logger
 VISIT_PATH = Path("/dls_sw/i24/etc/ssx_current_visit.txt")
 
 # Logging set up
-logging.getLogger("I24ssx").addHandler(logging.NullHandler())
-logging.getLogger("I24ssx").parent = dodal_logger
+logger = logging.getLogger("I24ssx")
+logger.addHandler(logging.NullHandler())
+logger.parent = dodal_logger
+# logging.getLogger("I24ssx").addHandler(logging.NullHandler())
+# logging.getLogger("I24ssx").parent = dodal_logger
 
 logging_config = {
     "version": 1,
@@ -75,6 +78,26 @@ def _get_logging_file_path() -> Path:
     return logging_path
 
 
+def default_logging_setup(dev_mode: bool = False):
+    """ Default log setup for i24 serial.
+
+    - Set up handlers for parent logger (from dodal)
+    - integrate bluesky and ophyd loggers
+    - Remove dodal stream handler to avoid double messages (for now, use only the \
+        i24ssx default stream to keep the output expected by the scientists.)
+    """
+    handlers = set_up_all_logging_handlers(
+        dodal_logger,
+        _get_logging_file_path(),
+        "dodal.log",
+        dev_mode,
+        ERROR_LOG_BUFFER_LINES,
+    )
+    integrate_bluesky_and_ophyd_logging(dodal_logger, handlers)
+    # Remove dodal StreamHandler to avoid duplication of messages above debug
+    dodal_logger.removeHandler(dodal_logger.handlers[0])
+
+
 def config(
     logfile: str | None = None,
     write_mode: str = "a",
@@ -92,15 +115,7 @@ def config(
         dev_mode (bool, optional): If true, will log to graylog on localhost instead \
             of production. Defaults to False.
     """
-    logger = logging.getLogger("I24ssx")
-    handlers = set_up_all_logging_handlers(
-        dodal_logger,
-        _get_logging_file_path(),
-        "dodal.log",
-        dev_mode,
-        ERROR_LOG_BUFFER_LINES,
-    )
-    integrate_bluesky_and_ophyd_logging(dodal_logger, handlers)
+    default_logging_setup(dev_mode=dev_mode)
 
     if logfile:
         logs = _get_logging_file_path() / logfile
@@ -115,8 +130,6 @@ def config(
 
 
 def log_on_entry(func):
-    logger = logging.getLogger("I24ssx")
-
     @functools.wraps(func)
     def decorator(*args, **kwargs):
         name = func.__name__
