@@ -21,7 +21,7 @@ dependencies = [
     "matplotlib",
     "requests",
     "opencv-python",
-    "dls-dodal==1.20.0",
+    "dls-dodal @ git+https://github.com/DiamondLightSource/dodal.git@1.20.0",
 ]
 dynamic = ["version"]
 license.file = "LICENSE"
