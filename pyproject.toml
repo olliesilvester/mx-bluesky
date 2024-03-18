@@ -15,13 +15,14 @@ description = "Bluesky tools for MX Beamlines"
 dependencies = [
     "bluesky",
     "ophyd",
+    "ophyd-async",
     "pyepics",
     "caproto",
     "jupyterlab",
     "matplotlib",
     "requests",
     "opencv-python",
-    "dls-dodal @ git+https://github.com/DiamondLightSource/dodal.git@91d0abf3dc8b0d8d77d3ae6be4c7b296df797d11",
+    "dls-dodal @ git+https://github.com/DiamondLightSource/dodal.git@114614b0120a8332cc8fa7c4bc300b8536c29a3b",
 ]
 dynamic = ["version"]
 license.file = "LICENSE"
