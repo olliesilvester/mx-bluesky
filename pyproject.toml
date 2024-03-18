@@ -15,7 +15,6 @@ description = "Bluesky tools for MX Beamlines"
 dependencies = [
     "bluesky",
     "ophyd",
-    "ophyd-async",
     "pyepics",
     "caproto",
     "jupyterlab",
