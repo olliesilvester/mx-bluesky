@@ -29,9 +29,9 @@ from dodal.devices.zebra import (
     SOFT_IN3,
     ArmDemand,
     ArmSource,
-    FastShutterAction,
     I24Axes,
     RotationDirection,
+    SoftInState,
     TrigSource,
     Zebra,
 )
@@ -79,12 +79,12 @@ def disarm_zebra(zebra: Zebra):
 
 
 def open_fast_shutter(zebra: Zebra):
-    yield from bps.abs_set(zebra.inputs.soft_in_2, FastShutterAction.OPEN, wait=True)
+    yield from bps.abs_set(zebra.inputs.soft_in_2, SoftInState.YES, wait=True)
     logger.info("Fast shutter open.")
 
 
 def close_fast_shutter(zebra: Zebra):
-    yield from bps.abs_set(zebra.inputs.soft_in_2, FastShutterAction.CLOSE, wait=True)
+    yield from bps.abs_set(zebra.inputs.soft_in_2, SoftInState.NO, wait=True)
     logger.info("Fast shutter closed.")
 
 
