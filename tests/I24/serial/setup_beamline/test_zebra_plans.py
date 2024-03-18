@@ -4,10 +4,8 @@ from dodal.devices.zebra import (
     DISCONNECT,
     OR1,
     PC_GATE,
-    PC_GATE_SOURCE_POSITION,
-    PC_GATE_SOURCE_TIME,
-    PC_PULSE_SOURCE_POSITION,
     SOFT_IN2,
+    TrigSource,
     Zebra,
 )
 
@@ -27,26 +25,26 @@ from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
 )
 
 
-def test_arm_and_disarm_zebra(zebra: Zebra, RE):
+async def test_arm_and_disarm_zebra(zebra: Zebra, RE):
     zebra.pc.arm.TIMEOUT = 0.5
 
     RE(arm_zebra(zebra))
-    assert zebra.pc.is_armed()
+    assert await zebra.pc.is_armed()
 
     RE(disarm_zebra(zebra))
-    assert not zebra.pc.is_armed()
+    assert await (not zebra.pc.is_armed())
 
 
-def test_set_shutter_mode(zebra: Zebra, RE):
+async def test_set_shutter_mode(zebra: Zebra, RE):
     RE(set_shutter_mode(zebra, "manual"))
-    assert zebra.inputs.soft_in_1.get() == DISCONNECT
+    assert zebra.inputs.soft_in_1.get_value() == DISCONNECT
 
 
-def test_setup_pc_sources(zebra: Zebra, RE):
-    RE(setup_pc_sources(zebra, PC_GATE_SOURCE_TIME, PC_PULSE_SOURCE_POSITION))
+async def test_setup_pc_sources(zebra: Zebra, RE):
+    RE(setup_pc_sources(zebra, TrigSource.TIME, TrigSource.POSITION))
 
-    assert zebra.pc.gate_source.get() == PC_GATE_SOURCE_TIME
-    assert zebra.pc.pulse_source.get() == PC_PULSE_SOURCE_POSITION
+    assert await zebra.pc.gate_source.get_value() == "Time"
+    assert await zebra.pc.pulse_source.get_value() == "Position"
 
 
 def test_get_zebra_settings_for_extruder_pumpprobe():
@@ -70,11 +68,11 @@ def test_setup_zebra_for_extruder_pp_eiger_collection(zebra: Zebra, RE):
             zebra, "eiger", *inputs_list, wait=True
         )
     )
-    assert zebra.output.out_1.get() == AND4
-    assert zebra.output.out_2.get() == AND3
+    assert zebra.output.out_pvs[1].get() == AND4
+    assert zebra.output.out_pvs[2].get() == AND3
 
     assert zebra.inputs.soft_in_1.get() == DISCONNECT
-    assert zebra.logic_gates.and_gate_3.source_1.get() == SOFT_IN2
+    assert zebra.logic_gates.and_gates[3].sources[1].get() == SOFT_IN2
     assert zebra.pc.num_gates.get() == 10
 
 
@@ -87,11 +85,11 @@ def test_setup_zebra_for_extruder_pp_pilatus_collection(zebra: Zebra, RE):
         )
     )
     # Check that SOFT_IN:B0 gets disabled
-    assert zebra.output.out_1.get() == AND3
+    assert zebra.output.out_pvs[1].get() == AND3
 
     assert zebra.pc.gate_start.get() == 1.0
-    assert zebra.output.pulse_1.delay.get() == 0.0
-    assert zebra.output.pulse_2.delay.get() == 0.001
+    assert zebra.output.pulse1.delay.get() == 0.0
+    assert zebra.output.pulse2.delay.get() == 0.001
 
 
 def test_setup_zebra_for_fastchip(zebra: Zebra, RE):
@@ -105,10 +103,10 @@ def test_setup_zebra_for_fastchip(zebra: Zebra, RE):
         )
     )
     # Check that SOFT_IN:B0 gets disabled
-    assert zebra.output.out_1.get() == AND3
+    assert zebra.output.out_pvs[1].get() == AND3
 
     # Check ttl out1 is set to AND3
-    assert zebra.output.out_1.get() == AND3
+    assert zebra.output.out_pvs[1].get() == AND3
     assert zebra.pc.num_gates.get() == num_gates
     assert zebra.pc.pulse_max.get() == num_exposures
     assert zebra.pc.pulse_width.get() == exposure_time - 0.0001
@@ -120,7 +118,7 @@ def test_setup_zebra_for_fastchip(zebra: Zebra, RE):
         )
     )
     # Check ttl out2 is set to AND3
-    assert zebra.output.out_2.get() == AND3
+    assert zebra.output.out_pvs[2].get() == AND3
     assert zebra.pc.pulse_width.get() == exposure_time / 2
 
     assert zebra.pc.pulse_step.get() == exposure_time + 0.0001
@@ -137,10 +135,10 @@ def test_reset_pc_gate_and_pulse(zebra: Zebra, RE):
 def test_reset_output_panel(zebra: Zebra, RE):
     RE(reset_output_panel(zebra))
 
-    assert zebra.output.out_2.get() == PC_GATE
-    assert zebra.output.out_4.get() == OR1
-    assert zebra.output.pulse_1.input.get() == DISCONNECT
-    assert zebra.output.pulse_2.input.get() == DISCONNECT
+    assert zebra.output.out_pvs[2].get() == PC_GATE
+    assert zebra.output.out_pvs[4].get() == OR1
+    assert zebra.output.pulse1.input.get() == DISCONNECT
+    assert zebra.output.pulse2.input.get() == DISCONNECT
 
 
 def test_zebra_return_to_normal(zebra: Zebra, RE):
@@ -148,14 +146,14 @@ def test_zebra_return_to_normal(zebra: Zebra, RE):
 
     assert zebra.pc.reset.get() == 1
     assert (
-        zebra.pc.gate_source.get() == PC_GATE_SOURCE_POSITION
-        and zebra.pc.pulse_source.get() == PC_PULSE_SOURCE_POSITION
+        zebra.pc.gate_source.get() == "Position"
+        and zebra.pc.pulse_source.get() == "Position"
     )
     assert zebra.pc.gate_trigger.get() == "Enc2"
     assert zebra.pc.gate_start.get() == 0
 
-    assert zebra.output.out_3.get() == DISCONNECT
-    assert zebra.output.pulse_1.input.get() == DISCONNECT
+    assert zebra.output.out_pvs[3].get() == DISCONNECT
+    assert zebra.output.pulse1.input.get() == DISCONNECT
 
 
 def test_reset_zebra_plan(zebra: Zebra, RE):

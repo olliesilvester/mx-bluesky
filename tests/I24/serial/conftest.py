@@ -9,6 +9,7 @@ from ophyd.status import Status
 
 @pytest.fixture
 def zebra() -> Zebra:
+    RunEngine()
     zebra = i24.zebra(fake_with_ophyd_sim=True)
     mock_arm_disarm = MagicMock(
         side_effect=zebra.pc.arm.armed.set,
