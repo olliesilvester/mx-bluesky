@@ -90,8 +90,8 @@ async def test_setup_zebra_for_extruder_pp_pilatus_collection(zebra: Zebra, RE):
     assert await zebra.output.out_pvs[1].get_value() == AND3
 
     assert await zebra.pc.gate_start.get_value() == 1.0
-    assert await zebra.output.pulse1.delay.get_value() == 0.0
-    assert await zebra.output.pulse2.delay.get_value() == 0.001
+    assert await zebra.output.pulse_1.delay.get_value() == 0.0
+    assert await zebra.output.pulse_2.delay.get_value() == 0.001
 
 
 async def test_setup_zebra_for_fastchip(zebra: Zebra, RE):
@@ -139,8 +139,8 @@ async def test_reset_output_panel(zebra: Zebra, RE):
 
     assert await zebra.output.out_pvs[2].get_value() == PC_GATE
     assert await zebra.output.out_pvs[4].get_value() == OR1
-    assert await zebra.output.pulse1.input.get_value() == DISCONNECT
-    assert await zebra.output.pulse2.input.get_value() == DISCONNECT
+    assert await zebra.output.pulse_1.input.get_value() == DISCONNECT
+    assert await zebra.output.pulse_2.input.get_value() == DISCONNECT
 
 
 async def test_zebra_return_to_normal(zebra: Zebra, RE):
@@ -153,7 +153,7 @@ async def test_zebra_return_to_normal(zebra: Zebra, RE):
     assert await zebra.pc.gate_start.get_value() == 0
 
     assert await zebra.output.out_pvs[3].get_value() == DISCONNECT
-    assert await zebra.output.pulse1.input.get_value() == DISCONNECT
+    assert await zebra.output.pulse_1.input.get_value() == DISCONNECT
 
 
 async def test_reset_zebra_plan(zebra: Zebra, RE):
