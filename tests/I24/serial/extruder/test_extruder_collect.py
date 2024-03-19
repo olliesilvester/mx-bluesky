@@ -2,7 +2,7 @@ import argparse
 from unittest.mock import ANY, call, mock_open, patch
 
 import pytest
-from dodal.devices.zebra import DISCONNECT, IN1_TTL, SOFT_IN3
+from dodal.devices.zebra import DISCONNECT, SOFT_IN3
 
 from mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2 import (
     TTL_EIGER,
@@ -85,10 +85,10 @@ def test_enterhutch(fake_caput, RE):
 @pytest.mark.parametrize(
     "laser_mode, det_type, expected_in1, expected_out",
     [
-        ("laseron", Eiger(), IN1_TTL, SOFT_IN3),
-        ("laseroff", Eiger(), DISCONNECT, DISCONNECT),
-        ("laseron", Pilatus(), IN1_TTL, SOFT_IN3),
-        ("laseroff", Pilatus(), DISCONNECT, DISCONNECT),
+        ("laseron", Eiger(), "Yes", SOFT_IN3),
+        ("laseroff", Eiger(), "No", DISCONNECT),
+        ("laseron", Pilatus(), "Yes", SOFT_IN3),
+        ("laseroff", Pilatus(), "No", DISCONNECT),
     ],
 )
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.get_detector_type")

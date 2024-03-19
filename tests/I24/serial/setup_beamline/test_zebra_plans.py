@@ -29,6 +29,8 @@ async def test_arm_and_disarm_zebra(zebra: Zebra, RE):
     zebra.pc.arm.TIMEOUT = 0.5
 
     RE(arm_zebra(zebra))
+    print(zebra.pc.is_armed())
+    assert await zebra.pc.arm.arm_set.get_value() == 1
     assert await zebra.pc.is_armed()
 
     RE(disarm_zebra(zebra))
@@ -37,7 +39,7 @@ async def test_arm_and_disarm_zebra(zebra: Zebra, RE):
 
 async def test_set_shutter_mode(zebra: Zebra, RE):
     RE(set_shutter_mode(zebra, "manual"))
-    assert await zebra.inputs.soft_in_1.get_value() == DISCONNECT
+    assert await zebra.inputs.soft_in_1.get_value() == "No"
 
 
 async def test_setup_pc_sources(zebra: Zebra, RE):
@@ -71,7 +73,7 @@ async def test_setup_zebra_for_extruder_pp_eiger_collection(zebra: Zebra, RE):
     assert await zebra.output.out_pvs[1].get_value() == AND4
     assert await zebra.output.out_pvs[2].get_value() == AND3
 
-    assert await zebra.inputs.soft_in_1.get_value() == DISCONNECT
+    assert await zebra.inputs.soft_in_1.get_value() == "No"
     assert await zebra.logic_gates.and_gates[3].sources[1].get_value() == SOFT_IN2
     assert await zebra.pc.num_gates.get_value() == 10
 
@@ -157,5 +159,5 @@ async def test_zebra_return_to_normal(zebra: Zebra, RE):
 async def test_reset_zebra_plan(zebra: Zebra, RE):
     RE(reset_zebra_when_collection_done_plan(zebra))
 
-    assert await zebra.inputs.soft_in_2.get_value() == DISCONNECT
+    assert await zebra.inputs.soft_in_2.get_value() == "No"
     assert await zebra.pc.is_armed() is False

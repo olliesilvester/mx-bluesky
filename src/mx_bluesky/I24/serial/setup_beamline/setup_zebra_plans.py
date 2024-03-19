@@ -41,8 +41,8 @@ TTL_EIGER = 1
 TTL_PILATUS = 2
 
 SHUTTER_MODE = {
-    "manual": DISCONNECT,
-    "auto": IN1_TTL,
+    "manual": SoftInState.NO,
+    "auto": SoftInState.YES,
 }
 
 GATE_START = 1.0

@@ -1,5 +1,3 @@
-from unittest.mock import MagicMock
-
 import pytest
 from bluesky.run_engine import RunEngine
 from dodal.beamlines import i24
@@ -8,14 +6,16 @@ from ophyd.status import Status
 
 
 @pytest.fixture
+def done_status():
+    status = Status()
+    status.set_finished()
+    return status
+
+
+@pytest.fixture
 def zebra() -> Zebra:
     RunEngine()
     zebra = i24.zebra(fake_with_ophyd_sim=True)
-    mock_arm_disarm = MagicMock(
-        side_effect=zebra.pc.arm.armed.set,
-        return_value=Status(done=True, success=True),
-    )
-    zebra.pc.arm.set = mock_arm_disarm
     return zebra
 
 
