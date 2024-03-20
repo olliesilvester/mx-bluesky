@@ -2,14 +2,6 @@ import pytest
 from bluesky.run_engine import RunEngine
 from dodal.beamlines import i24
 from dodal.devices.zebra import Zebra
-from ophyd.status import Status
-
-
-@pytest.fixture
-def done_status():
-    status = Status()
-    status.set_finished()
-    return status
 
 
 @pytest.fixture
