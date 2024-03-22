@@ -14,6 +14,8 @@ from mx_bluesky.I24.serial.fixed_target.ft_utils import (
 
 
 class SerialExperiment(BaseModel):
+    """Generic parameters common to all serial experiments."""
+
     visit: str
     directory: str
     filename: str
@@ -23,12 +25,16 @@ class SerialExperiment(BaseModel):
 
 
 class LaserExperiment(BaseModel):
+    """Laser settings for pump probe serial collections."""
+
     laser_dwell_s: Optional[float] = None  # pump exposure time
     laser_delay_s: Optional[float] = None  # pump delay
     pre_pump_exposure_s: Optional[float] = None  # Pre illumination, just for chip
 
 
 class ExtruderParameters(SerialExperiment, LaserExperiment):
+    """Extruder parameter model."""
+
     num_images: int
     pump_status: bool
 
@@ -40,7 +46,10 @@ class ExtruderParameters(SerialExperiment, LaserExperiment):
 
 
 class FixedTargetParameters(SerialExperiment, LaserExperiment):
+    """Fixed target parameter model."""
+
     model_config = ConfigDict(use_enum_values=True)
+
     num_exposures: int
     chip_type: ChipType
     map_type: MappingType
