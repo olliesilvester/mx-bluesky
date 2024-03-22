@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, validator
@@ -28,6 +32,12 @@ class ExtruderParameters(SerialExperiment, LaserExperiment):
     num_images: int
     pump_status: bool
 
+    @classmethod
+    def from_file(cls, filename: str | Path):
+        with open(filename, "r") as fh:
+            raw_params = json.load(fh)
+        return cls(**raw_params)
+
 
 class FixedTargetParameters(SerialExperiment, LaserExperiment):
     model_config = ConfigDict(use_enum_values=True)
@@ -50,6 +60,12 @@ class FixedTargetParameters(SerialExperiment, LaserExperiment):
             return MappingType[map_type]
         else:
             return MappingType(map_type)
+
+    @classmethod
+    def from_file(cls, filename: str | Path):
+        with open(filename, "r") as fh:
+            raw_params = json.load(fh)
+        return cls(**raw_params)
 
     def get_approx_chip_size(self) -> float:
         """Returns an approximation of the chip size for the move during alignment \
