@@ -41,8 +41,7 @@ from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
     reset_zebra_when_collection_done_plan,
     setup_zebra_for_fastchip_plan,
 )
-
-# from mx_bluesky.I24.serial.write_nexus import call_nexgen
+from mx_bluesky.I24.serial.write_nexus import call_nexgen
 
 logger = logging.getLogger("I24ssx.fixed_target")
 
@@ -602,19 +601,17 @@ def main():
     logger.debug("Notify DCID of the start of the collection.")
     dcid.notify_start()
 
-    # TODO FIXME Put nexgen back in once done with params
-    # param_file_tuple = scrape_parameter_file()
     tot_num_imgs = datasetsizei24(
         parameters.num_exposures, parameters.chip_type, parameters.map_type
     )
-    # if det_type == "eiger":
-    #     logger.debug("Start nexus writing service.")
-    #     call_nexgen(
-    #         chip_prog_dict,
-    #         start_time,
-    #         param_file_tuple,
-    #         total_numb_imgs=tot_num_imgs,
-    #     )
+    if parameters.detector_name == "eiger":
+        logger.debug("Start nexus writing service.")
+        call_nexgen(
+            chip_prog_dict,
+            start_time,
+            parameters,
+            total_numb_imgs=tot_num_imgs,
+        )
 
     logger.info("Data Collection running")
 

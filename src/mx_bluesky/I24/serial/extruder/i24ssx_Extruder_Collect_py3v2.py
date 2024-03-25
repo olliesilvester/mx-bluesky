@@ -42,8 +42,7 @@ from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
     setup_zebra_for_extruder_with_pump_probe_plan,
     setup_zebra_for_quickshot_plan,
 )
-
-# from mx_bluesky.I24.serial.write_nexus import call_nexgen
+from mx_bluesky.I24.serial.write_nexus import call_nexgen
 
 usage = "%(prog)s command [options]"
 logger = logging.getLogger("I24ssx.extruder")
@@ -348,11 +347,9 @@ def run_extruderi24(args=None):
 
     dcid.notify_start()
 
-    # param_file_tuple = scrape_parameter_file()
-    # TODO FIXME with parameters instead of tuple!!!
-    # if parameters.detector_name == "eiger":
-    #    logger.info("Call nexgen server for nexus writing.")
-    #    call_nexgen(None, start_time, param_file_tuple, "extruder")
+    if parameters.detector_name == "eiger":
+        logger.info("Call nexgen server for nexus writing.")
+        call_nexgen(None, start_time, parameters, "extruder")
 
     aborted = False
     timeout_time = time.time() + parameters.num_images * parameters.exposure_time_s + 10
