@@ -24,7 +24,7 @@ def call_nexgen(
     det_type = parameters.detector_name
     print(f"det_type: {det_type}")
 
-    if expt_type == "fixed-target":
+    if expt_type == "fixed-target" and isinstance(parameters, FixedTargetParameters):
         if (
             parameters.map_type == MappingType.NoMap
             or parameters.chip_type == ChipType.Custom
@@ -35,7 +35,7 @@ def call_nexgen(
         else:
             currentchipmap = "/dls_sw/i24/scripts/fastchips/litemaps/currentchip.map"
         pump_status = bool(parameters.pump_repeat)
-    elif expt_type == "extruder":
+    elif expt_type == "extruder" and isinstance(parameters, ExtruderParameters):
         # chip_prog_dict should be None for extruder (passed as input for now)
         total_numb_imgs = parameters.num_images
         currentchipmap = None
