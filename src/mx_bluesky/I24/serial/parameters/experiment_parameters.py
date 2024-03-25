@@ -75,12 +75,3 @@ class FixedTargetParameters(SerialExperiment, LaserExperiment):
         with open(filename, "r") as fh:
             raw_params = json.load(fh)
         return cls(**raw_params)
-
-    def get_approx_chip_size(self) -> float:
-        """Returns an approximation of the chip size for the move during alignment \
-            of the fiducials
-        """
-        if str(self.chip_type) == "OxfordInner":
-            return 24.60
-        else:
-            return 25.40

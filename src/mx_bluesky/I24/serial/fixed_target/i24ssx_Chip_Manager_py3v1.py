@@ -584,7 +584,7 @@ def moveto(place: str = "origin", pmac: PMAC = None):
         return
 
     chip_type = int(caget(pv.me14e_gp1))
-    logger.info(f"Chip type is {chip_type}")
+    logger.info(f"Chip type is {ChipType(chip_type)}")
     if chip_type not in list(ChipType):
         logger.warning("Unknown chip_type move")
         return
