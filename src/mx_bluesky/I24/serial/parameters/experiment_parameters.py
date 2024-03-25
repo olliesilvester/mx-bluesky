@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, validator
 
@@ -21,7 +21,7 @@ class SerialExperiment(BaseModel):
     filename: str
     exposure_time_s: float
     detector_distance_mm: float
-    detector_name: str
+    detector_name: Literal["eiger", "pilatus"]
 
 
 class LaserExperiment(BaseModel):
