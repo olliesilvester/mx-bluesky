@@ -37,7 +37,9 @@ def call_nexgen(
             det_type,
         ) = param_file_tuple
         if map_type == MappingType.NoMap or chip_type == ChipType.Custom:
-            currentchipmap = "fullchip"
+            # NOTE Nexgen server is still on nexgen v0.7.2 (fully working for ssx)
+            # Will need to be updated, for correctness sake map needs to be None.
+            currentchipmap = None
         else:
             currentchipmap = "/dls_sw/i24/scripts/fastchips/litemaps/currentchip.map"
     elif expt_type == "extruder":
