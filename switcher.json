@@ -4,18 +4,6 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/main/"
   },
   {
-    "version": "v0.1.0",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.1.0/"
-  },
-  {
-    "version": "v0.0.2",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.2/"
-  },
-  {
-    "version": "v0.0.1",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.1/"
-  },
-  {
     "version": "11_I24-exercise-motors",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/11_I24-exercise-motors/"
   },
@@ -26,10 +14,6 @@
   {
     "version": "check-screens-still-work",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/check-screens-still-work/"
-  },
-  {
-    "version": "dodal_356-zebra-to-ophyd-async",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/dodal_356-zebra-to-ophyd-async/"
   },
   {
     "version": "i24-parameters",
@@ -50,6 +34,18 @@
   {
     "version": "use-dodal-logger",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/use-dodal-logger/"
+  },
+  {
+    "version": "v0.0.1",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.1/"
+  },
+  {
+    "version": "v0.0.2",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.2/"
+  },
+  {
+    "version": "v0.1.0",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.1.0/"
   },
   {
     "version": "wto16239_draft1",
