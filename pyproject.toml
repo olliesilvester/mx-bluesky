@@ -3,15 +3,6 @@ requires = ["setuptools>=64", "setuptools_scm[toml]==7.1.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mx_bluesky"
-classifiers = [
-    "Development Status :: 3 - Alpha",
-    "License :: OSI Approved :: Apache Software License",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-]
-description = "Bluesky tools for MX Beamlines"
 dependencies = [
     "bluesky",
     "ophyd",
@@ -21,9 +12,19 @@ dependencies = [
     "matplotlib",
     "requests",
     "opencv-python",
+
     "pydantic",
-    "dls-dodal @ git+https://github.com/DiamondLightSource/dodal.git@328330036a23cae8748e84a26eb9b77ad113f8a5",
+    "dls-dodal @ git+https://github.com/DiamondLightSource/dodal.git@main",
 ]
+name = "mx_bluesky"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+description = "Bluesky tools for MX Beamlines"
 dynamic = ["version"]
 license.file = "LICENSE"
 readme = "README.rst"
@@ -38,6 +39,7 @@ dev = [
     "pre-commit",
     "pydata-sphinx-theme>=0.12",
     "pytest-cov",
+    "pytest-asyncio",
     "ruff",
     "sphinx-autobuild",
     "sphinx-copybutton",
@@ -85,6 +87,7 @@ lint.select = [
 
 [tool.pytest.ini_options]
 # Run pytest with all our checkers, and don't spam us with massive tracebacks on error
+asyncio_mode = "auto"
 addopts = """
     --tb=native -vv --doctest-modules --doctest-glob="*.rst"
     --cov=mx_bluesky --cov-report term --cov-report xml:cov.xml
