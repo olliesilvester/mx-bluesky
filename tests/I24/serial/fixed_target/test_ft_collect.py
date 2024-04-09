@@ -99,7 +99,13 @@ def test_load_motion_program_data(
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.caget")
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.sup")
 @patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.sleep")
+@patch("mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.arm_zebra")
+@patch(
+    "mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_Collect_py3v1.reset_zebra_when_collection_done_plan"
+)
 def test_start_i24_with_eiger(
+    fake_reset,
+    fake_arm,
     fake_sleep,
     fake_sup,
     fake_caget,
