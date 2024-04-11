@@ -68,6 +68,10 @@ class FixedTargetParameters(SerialExperiment, LaserExperiment):
         else:
             return MappingType(map_type)
 
+    @validator("pump_repeat", pre=True)
+    def _parse_pump(cls, pump_repeat: int):
+        return PumpProbeSetting(pump_repeat)
+
     @classmethod
     def from_file(cls, filename: str | Path):
         with open(filename, "r") as fh:
