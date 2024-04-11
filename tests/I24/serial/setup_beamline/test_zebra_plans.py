@@ -29,6 +29,8 @@ async def test_arm_and_disarm_zebra(zebra: Zebra, RE):
     zebra.pc.arm.TIMEOUT = 0.5
 
     RE(arm_zebra(zebra))
+    print(zebra.pc.is_armed())
+    assert await zebra.pc.arm.arm_set.get_value() == 1
     assert await zebra.pc.is_armed()
 
     RE(disarm_zebra(zebra))
