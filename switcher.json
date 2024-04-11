@@ -44,10 +44,6 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/pre_v0.1.0/"
   },
   {
-    "version": "remove-py39-support",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/remove-py39-support/"
-  },
-  {
     "version": "wto16239_draft1",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/wto16239_draft1/"
   }
