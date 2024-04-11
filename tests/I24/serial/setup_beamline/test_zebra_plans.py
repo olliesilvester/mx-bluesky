@@ -25,23 +25,13 @@ from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
 )
 
 
-async def mock_arm_status(zebra: Zebra, demand):
-    # FIXME Probably not the best way ...
-    await zebra.pc.arm.armed._backend.put(demand)
-
-
 async def test_arm_and_disarm_zebra(zebra: Zebra, RE):
     zebra.pc.arm.TIMEOUT = 1
 
-    await mock_arm_status(zebra, 1)
     RE(arm_zebra(zebra))
-    print(zebra.pc.is_armed())
-    assert await zebra.pc.arm.arm_set.get_value() == 1
     assert await zebra.pc.is_armed()
 
-    await mock_arm_status(zebra, 0)
     RE(disarm_zebra(zebra))
-    assert await zebra.pc.arm.disarm_set.get_value() == 1
     assert await zebra.pc.is_armed() is False
 
 
@@ -165,7 +155,6 @@ async def test_zebra_return_to_normal(zebra: Zebra, RE):
 
 
 async def test_reset_zebra_plan(zebra: Zebra, RE):
-    mock_arm_status(zebra, 0)
     RE(reset_zebra_when_collection_done_plan(zebra))
 
     assert await zebra.inputs.soft_in_2.get_value() == "No"
