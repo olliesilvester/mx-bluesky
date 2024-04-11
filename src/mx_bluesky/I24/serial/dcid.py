@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import datetime
 import json
 import logging
@@ -276,7 +274,7 @@ class DCID:
             # end_time might be a string from time.ctime
             if isinstance(end_time, str):
                 end_time = datetime.datetime.strptime(end_time, "%a %b %d %H:%M:%S %Y")
-                logger.info("Parsed end time: %s", end_time)
+                logger.debug("Parsed end time: %s", end_time)
 
             if not end_time:
                 end_time = datetime.datetime.now().astimezone()

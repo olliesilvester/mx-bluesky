@@ -1,9 +1,6 @@
 """
 Fixed target data collection
 """
-
-from __future__ import annotations
-
 import logging
 import os
 import shutil
@@ -484,13 +481,13 @@ def finish_i24(
     wavelength = float(caget(pv.dcm_lambda))
 
     if parameters.detector_name == "pilatus":
-        logger.info("Finish I24 Pilatus")
+        logger.debug("Finish I24 Pilatus")
         filename = filename + "_" + caget(pv.pilat_filenum)
         yield from reset_zebra_when_collection_done_plan(zebra)
         sup.pilatus("return-to-normal")
         sleep(0.2)
     elif parameters.detector_name == "eiger":
-        logger.info("Finish I24 Eiger")
+        logger.debug("Finish I24 Eiger")
         yield from reset_zebra_when_collection_done_plan(zebra)
         sup.eiger("return-to-normal")
         filename = cagetstring(pv.eiger_ODfilenameRBV)
@@ -498,11 +495,11 @@ def finish_i24(
     # Detector independent moves
     logger.info("Move chip back to home position by setting PMAC_STRING pv.")
     caput(pv.me14e_pmac_str, "!x0y0z0")
-    logger.debug("Closing shutter")
+    logger.info("Closing shutter")
     caput("BL24I-PS-SHTR-01:CON", "Close")
 
     end_time = time.ctime()
-    logger.info("Collection end time %s" % end_time)
+    logger.debug("Collection end time %s" % end_time)
 
     # Copy parameter file and eventual chip map to collection directory
     copy_files_to_data_location(Path(filepath), map_type=parameters.map_type)
@@ -545,18 +542,23 @@ def main():
     logger.info("Getting parameters from file.")
     parameters = FixedTargetParameters.from_file(PARAM_FILE_PATH_FT / "parameters.json")
 
-    logger.info(f"Chip name is {parameters.filename}")
-    logger.info(f"visit = {parameters.visit}")
-    logger.info(f"sub_dir = {parameters.directory}")
-    logger.info(f"n_exposures = {parameters.num_exposures}")
-    logger.info(f"chip_type = {str(parameters.chip_type)}")
-    logger.info(f"map_type = {str(parameters.map_type)}")
-    logger.info(f"dcdetdist = {parameters.detector_distance_mm}")
-    logger.info(f"exptime = {parameters.exposure_time_s}")
-    logger.info(f"pump_repeat = {str(parameters.pump_repeat)}")
-    logger.info(f"pumpexptime = {parameters.laser_dwell_s}")
-    logger.info(f"pumpdelay = {parameters.laser_delay_s}")
-    logger.info(f"prepumpexptime = {parameters.pre_pump_exposure_s}")
+    log_msg = f"""
+            Parameters for I24 serial collection: \n
+                Chip name is {parameters.filename}
+                visit = {parameters.visit}
+                sub_dir = {parameters.directory}
+                n_exposures = {parameters.num_exposures}
+                chip_type = {str(parameters.chip_type)}
+                map_type = {str(parameters.map_type)}
+                dcdetdist = {parameters.detector_distance_mm}
+                exptime = {parameters.exposure_time_s}
+                det_type = {parameters.detector_name}
+                pump_repeat = {str(parameters.pump_repeat)}
+                pumpexptime = {parameters.laser_dwell_s}
+                pumpdelay = {parameters.laser_delay_s}
+                prepumpexptime = {parameters.pre_pump_exposure_s}
+        """
+    logger.info(log_msg)
     logger.info("Getting Program Dictionary")
 
     # If alignment type is Oxford inner it is still an Oxford type chip
@@ -589,11 +591,11 @@ def main():
     )
 
     # Now ready for data collection. Open fast shutter (zebra gate)
-    logger.debug("Opening fast shutter.")
+    logger.info("Opening fast shutter.")
     yield from open_fast_shutter(zebra)
 
     logger.info(f"Run PMAC with program number {prog_num}")
-    logger.info(f"pmac str = &2b{prog_num}r")
+    logger.debug(f"pmac str = &2b{prog_num}r")
     caput(pv.me14e_pmac_str, f"&2b{prog_num}r")
     sleep(1.0)
 
@@ -654,9 +656,9 @@ def main():
                 break
     else:
         aborted = True
-        logger.info("Data Collection ended due to GP 9 not equalling 0")
+        logger.warning("Data Collection ended due to GP 9 not equalling 0")
 
-    logger.debug("Closing fast shutter")
+    logger.info("Closing fast shutter")
     yield from close_fast_shutter(zebra)
     sleep(2.0)
 
@@ -675,10 +677,10 @@ def main():
     logger.debug("Notify DCID of end of collection.")
     dcid.notify_end()
 
-    logger.info("Quick summary of settings")
-    logger.info(f"Chip name = {parameters.filename} sub_dir = {parameters.directory}")
-    logger.info(f"Start Time = {start_time}")
-    logger.info(f"End Time = {end_time}")
+    logger.debug("Quick summary of settings")
+    logger.debug(f"Chip name = {parameters.filename} sub_dir = {parameters.directory}")
+    logger.debug(f"Start Time = {start_time}")
+    logger.debug(f"End Time = {end_time}")
 
 
 if __name__ == "__main__":

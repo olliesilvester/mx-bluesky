@@ -1,11 +1,6 @@
 """
 Startup utilities for chip
-
-This version changed to python3 March2020 by RLO
 """
-
-from __future__ import annotations
-
 import logging
 import os
 import string

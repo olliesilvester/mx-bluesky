@@ -3,9 +3,6 @@ Extruder data collection
 This version in python3 new Feb2021 by RLO
     - March 21 added logging and Eiger functionality
 """
-
-from __future__ import annotations
-
 import argparse
 import json
 import logging
@@ -108,7 +105,7 @@ def laser_check(args, zebra: Optional[Zebra] = None):
     if not zebra:
         zebra = i24.zebra()
     mode = args.place
-    logger.info(f"Laser check: {mode}")
+    logger.debug(f"Laser check: {mode}")
 
     det_type = get_detector_type()
 
@@ -126,6 +123,7 @@ def laser_check(args, zebra: Optional[Zebra] = None):
 def enter_hutch(args=None):
     """Move the detector stage before entering hutch."""
     caput(pv.det_z, SAFE_DET_Z)
+    logger.debug("Detector moved.")
     yield from bps.null()
 
 
@@ -135,7 +133,7 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH):
     param_path = _coerce_to_path(param_path)
     param_fid = "parameters.json"
 
-    logger.info("Writing Parameter File to: %s \n" % (param_path / param_fid))
+    logger.debug("Writing Parameter File to: %s \n" % (param_path / param_fid))
 
     det_type = get_detector_type()
     filename = caget(pv.ioc12_gp3)
@@ -200,14 +198,14 @@ def run_extruderi24(args=None):
 
     # For pixel detector
     filepath = parameters.visit + parameters.directory
-    logger.info(f"Filepath {filepath}")
-    logger.info(f"Filename {parameters.filename}")
+    logger.debug(f"Filepath {filepath}")
+    logger.debug(f"Filename {parameters.filename}")
 
     if parameters.detector_name == "pilatus":
-        logger.debug("Using pilatus mini cbf")
+        logger.info("Using pilatus mini cbf")
         caput(pv.pilat_cbftemplate, 0)
         logger.info(f"Pilatus quickshot setup: filepath {filepath}")
-        logger.info(f"Pilatus quickshot setup: filepath { parameters.filename}")
+        logger.info(f"Pilatus quickshot setup: filepath {parameters.filename}")
         logger.info(
             f"Pilatus quickshot setup: number of images {parameters.num_images}"
         )
@@ -284,8 +282,8 @@ def run_extruderi24(args=None):
 
         if parameters.pump_status:
             logger.info("Pump probe extruder data collection")
-            logger.info(f"Pump exposure time {parameters.laser_dwell_s}")
-            logger.info(f"Pump delay time {parameters.laser_delay_s}")
+            logger.debug(f"Pump exposure time {parameters.laser_dwell_s}")
+            logger.debug(f"Pump delay time {parameters.laser_delay_s}")
             sup.eiger(
                 "triggered",
                 [
@@ -348,7 +346,7 @@ def run_extruderi24(args=None):
     dcid.notify_start()
 
     if parameters.detector_name == "eiger":
-        logger.info("Call nexgen server for nexus writing.")
+        logger.debug("Call nexgen server for nexus writing.")
         call_nexgen(None, start_time, parameters, "extruder")
 
     aborted = False
@@ -376,7 +374,7 @@ def run_extruderi24(args=None):
             elif not zebra.pc.is_armed():
                 # As soon as zebra is disarmed, exit.
                 # Epics updates this PV once the collection is done.
-                logger.info("----> Zebra disarmed  <----")
+                logger.info("Zebra disarmed - Collection done.")
                 break
             elif time.time() >= timeout_time:
                 logger.warning(
@@ -415,7 +413,7 @@ def run_extruderi24(args=None):
     elif parameters.detector_name == "eiger":
         sup.eiger("return-to-normal")
         logger.debug(parameters.filename + "_" + caget(pv.eiger_seqID))
-    logger.info("End of Run")
+    logger.debug("End of Run")
     logger.info("Close hutch shutter")
     caput("BL24I-PS-SHTR-01:CON", "Close")
 
