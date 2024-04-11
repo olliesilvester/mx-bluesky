@@ -48,10 +48,6 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/remove-py39-support/"
   },
   {
-    "version": "use-dodal-logger",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/use-dodal-logger/"
-  },
-  {
     "version": "wto16239_draft1",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/wto16239_draft1/"
   }
