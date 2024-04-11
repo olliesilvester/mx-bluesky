@@ -4,6 +4,18 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/main/"
   },
   {
+    "version": "v0.1.0",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.1.0/"
+  },
+  {
+    "version": "v0.0.2",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.2/"
+  },
+  {
+    "version": "v0.0.1",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.1/"
+  },
+  {
     "version": "11_I24-exercise-motors",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/11_I24-exercise-motors/"
   },
@@ -36,16 +48,8 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/remove-py39-support/"
   },
   {
-    "version": "v0.0.1",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.1/"
-  },
-  {
-    "version": "v0.0.2",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.2/"
-  },
-  {
-    "version": "v0.1.0",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.1.0/"
+    "version": "use-dodal-logger",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/use-dodal-logger/"
   },
   {
     "version": "wto16239_draft1",
