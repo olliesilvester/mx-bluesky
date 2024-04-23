@@ -1,6 +1,7 @@
 """
 Fixed target data collection
 """
+
 import logging
 import os
 import shutil
@@ -28,7 +29,11 @@ from mx_bluesky.I24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1 import (
     get_format,
 )
 from mx_bluesky.I24.serial.parameters import FixedTargetParameters, SSXType
-from mx_bluesky.I24.serial.parameters.constants import LITEMAP_PATH, PARAM_FILE_PATH_FT
+from mx_bluesky.I24.serial.parameters.constants import (
+    LITEMAP_PATH,
+    PARAM_FILE_NAME,
+    PARAM_FILE_PATH_FT,
+)
 from mx_bluesky.I24.serial.setup_beamline import caget, cagetstring, caput, pv
 from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
 from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
@@ -540,7 +545,7 @@ def main():
     caput(pv.me14e_gp9, 0)
 
     logger.info("Getting parameters from file.")
-    parameters = FixedTargetParameters.from_file(PARAM_FILE_PATH_FT / "parameters.json")
+    parameters = FixedTargetParameters.from_file(PARAM_FILE_PATH_FT / PARAM_FILE_NAME)
 
     log_msg = f"""
             Parameters for I24 serial collection: \n

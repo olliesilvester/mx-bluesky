@@ -3,6 +3,7 @@ Extruder data collection
 This version in python3 new Feb2021 by RLO
     - March 21 added logging and Eiger functionality
 """
+
 import argparse
 import json
 import logging
@@ -24,7 +25,7 @@ from dodal.devices.zebra import DISCONNECT, SOFT_IN3, Zebra
 from mx_bluesky.I24.serial import log
 from mx_bluesky.I24.serial.dcid import DCID
 from mx_bluesky.I24.serial.parameters import ExtruderParameters, SSXType
-from mx_bluesky.I24.serial.parameters.constants import PARAM_FILE_PATH
+from mx_bluesky.I24.serial.parameters.constants import PARAM_FILE_NAME, PARAM_FILE_PATH
 from mx_bluesky.I24.serial.setup_beamline import Pilatus, caget, caput, pv
 from mx_bluesky.I24.serial.setup_beamline import setup_beamline as sup
 from mx_bluesky.I24.serial.setup_beamline.setup_detector import get_detector_type
@@ -131,9 +132,8 @@ def enter_hutch(args=None):
 def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH):
     """Writes a json parameter file that can later be parsed by the model."""
     param_path = _coerce_to_path(param_path)
-    param_fid = "parameters.json"
 
-    logger.debug("Writing Parameter File to: %s \n" % (param_path / param_fid))
+    logger.debug("Writing Parameter File to: %s \n" % (param_path / PARAM_FILE_NAME))
 
     det_type = get_detector_type()
     filename = caget(pv.ioc12_gp3)
@@ -165,7 +165,7 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH):
         "laser_dwell_s": pump_exp,
         "laser_delay_s": pump_delay,
     }
-    with open(param_path / param_fid, "w") as f:
+    with open(param_path / PARAM_FILE_NAME, "w") as f:
         json.dump(params_dict, f, indent=4)
 
     logger.info("Parameters \n")
@@ -180,7 +180,7 @@ def run_extruderi24(args=None):
     logger.info("Collection start time: %s" % start_time.ctime())
 
     write_parameter_file()
-    parameters = ExtruderParameters.from_file(PARAM_FILE_PATH / "parameters.json")
+    parameters = ExtruderParameters.from_file(PARAM_FILE_PATH / PARAM_FILE_NAME)
 
     # Setting up the beamline
     caput("BL24I-PS-SHTR-01:CON", "Reset")
@@ -422,9 +422,7 @@ def run_extruderi24(args=None):
     logger.info("End Time = %s" % end_time.ctime())
 
     # Copy parameter file
-    shutil.copy2(
-        PARAM_FILE_PATH / "parameters.json", Path(filepath) / "parameters.json"
-    )
+    shutil.copy2(PARAM_FILE_PATH / PARAM_FILE_NAME, Path(filepath) / PARAM_FILE_NAME)
     return 1
 
 

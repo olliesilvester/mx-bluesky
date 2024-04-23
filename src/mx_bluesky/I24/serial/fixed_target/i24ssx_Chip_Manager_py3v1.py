@@ -2,6 +2,7 @@
 Chip manager for fixed target
 This version changed to python3 March2020 by RLO
 """
+
 import argparse
 import json
 import logging
@@ -25,6 +26,7 @@ from mx_bluesky.I24.serial.parameters.constants import (
     CS_FILES_PATH,
     FULLMAP_PATH,
     LITEMAP_PATH,
+    PARAM_FILE_NAME,
     PARAM_FILE_PATH_FT,
     PVAR_FILE_PATH,
 )
@@ -110,8 +112,9 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
     param_path = _coerce_to_path(param_path)
     param_path.mkdir(parents=True, exist_ok=True)
 
-    param_fid = "parameters.json"
-    logger.info("Writing Parameter File: %s" % (param_path / param_fid).as_posix())
+    logger.info(
+        "Writing Parameter File: %s" % (param_path / PARAM_FILE_NAME).as_posix()
+    )
 
     filename = caget(pv.me14e_chip_name)
     det_type = get_detector_type()
@@ -147,7 +150,7 @@ def write_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
         "pre_pump_exposure_s": caget(pv.me14e_gp109),
     }
 
-    with open(param_path / param_fid, "w") as f:
+    with open(param_path / PARAM_FILE_NAME, "w") as f:
         json.dump(params_dict, f, indent=4)
 
     logger.info("Information written to file \n")

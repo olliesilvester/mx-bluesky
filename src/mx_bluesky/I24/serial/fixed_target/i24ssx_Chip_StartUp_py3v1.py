@@ -1,6 +1,7 @@
 """
 Startup utilities for chip
 """
+
 import logging
 import os
 import string
@@ -15,6 +16,7 @@ from mx_bluesky.I24.serial.fixed_target.ft_utils import ChipType
 from mx_bluesky.I24.serial.parameters import FixedTargetParameters
 from mx_bluesky.I24.serial.parameters.constants import (
     HEADER_FILES_PATH,
+    PARAM_FILE_NAME,
     PARAM_FILE_PATH_FT,
 )
 
@@ -30,7 +32,7 @@ def setup_logging():
 def read_parameter_file(param_path: Path | str = PARAM_FILE_PATH_FT):
     if not isinstance(param_path, Path):
         param_path = Path(param_path)
-    params_file = param_path / "parameters.json"
+    params_file = param_path / PARAM_FILE_NAME
     params = FixedTargetParameters.from_file(params_file)
     return params
 
