@@ -121,6 +121,7 @@ def get_chip_prog_values(
         PumpProbeSetting.NoPP,
         PumpProbeSetting.Short1,
         PumpProbeSetting.Short2,
+        PumpProbeSetting.Medium1,
     ]:
         pump_repeat_pvar = 0
     elif pump_repeat == PumpProbeSetting.Repeat1:
@@ -200,6 +201,11 @@ def load_motion_program_data(
         if bool(caget(pv.me14e_gp111)) is True:
             logger.info("Checker pattern setting enabled.")
             pmac.pmac_string.set("P1439=1").wait()
+        if pump_repeat == PumpProbeSetting.Medium1:
+            # Medium1 has time delays (Fast shutter opening time in ms)
+            pmac.pmac_string.set("P1441=50").wait()
+        else:
+            pmac.pmac_string.set("P1441=0").wait()
     else:
         logger.warning(f"Unknown Pump repeat, pump_repeat = {pump_repeat}")
         return
