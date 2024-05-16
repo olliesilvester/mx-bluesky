@@ -1,9 +1,11 @@
+import pytest
 from dodal.devices.zebra import (
     AND3,
     AND4,
     DISCONNECT,
     OR1,
     PC_GATE,
+    PULSE2,
     SOFT_IN2,
     TrigSource,
     Zebra,
@@ -20,6 +22,7 @@ from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
     setup_pc_sources,
     setup_zebra_for_extruder_with_pump_probe_plan,
     setup_zebra_for_fastchip_plan,
+    setup_zebra_for_fastchip_pump_probe_with_long_delays_plan,
     setup_zebra_for_quickshot_plan,
     zebra_return_to_normal_plan,
 )
@@ -122,6 +125,33 @@ async def test_setup_zebra_for_fastchip(zebra: Zebra, RE):
     assert await zebra.pc.pulse_width.get_value() == exposure_time / 2
 
     assert await zebra.pc.pulse_step.get_value() == exposure_time + 0.0001
+
+
+async def test_setup_zebra_for_fastchip_pp_with_long_delays(zebra: Zebra, RE):
+    num_gates = 400
+    num_exposures = 2
+    exposure_time = 0.001
+
+    RE(
+        setup_zebra_for_fastchip_pump_probe_with_long_delays_plan(
+            zebra, "eiger", num_gates, num_exposures, exposure_time
+        )
+    )
+
+    # Check output Pulse2 is set
+    assert await zebra.output.pulse_2.input.get_value() == PC_GATE
+    assert await zebra.output.pulse_2.delay.get_value() == 0.0
+    # num_exp * exposure_time + 0.05 (SHUTTER_OPEN_TIME)
+    assert await zebra.output.pulse_2.width.get_value() == pytest.approx(
+        0.052, abs=1e-3
+    )
+
+    assert await zebra.output.out_pvs[4].get_value() == PULSE2
+
+    # Check position compare num_gates, pulse_start and pulse max set correctly
+    assert await zebra.pc.pulse_start.get_value() == 0.05  # SHUTTER_OPEN_TIME
+    assert await zebra.pc.num_gates.get_value() == num_gates
+    assert await zebra.pc.pulse_max.get_value() == num_exposures
 
 
 async def test_reset_pc_gate_and_pulse(zebra: Zebra, RE):

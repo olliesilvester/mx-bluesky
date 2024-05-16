@@ -46,6 +46,7 @@ SHUTTER_MODE = {
 }
 
 GATE_START = 1.0
+SHUTTER_OPEN_TIME = 0.05  # For pp with long delays
 
 logger = logging.getLogger("I24ssx.setup_zebra")
 
@@ -329,6 +330,66 @@ def setup_zebra_for_fastchip_plan(
     yield from bps.abs_set(zebra.pc.pulse_start, 0, group=group)
     yield from bps.abs_set(zebra.pc.pulse_step, exptime_buffer, group=group)
     yield from bps.abs_set(zebra.pc.pulse_width, pulse_width, group=group)
+    yield from bps.abs_set(zebra.pc.pulse_max, num_exposures, group=group)
+
+    if wait:
+        yield from bps.wait(group)
+    logger.info("Finished setting up zebra.")
+
+
+def setup_zebra_for_fastchip_pump_probe_with_long_delays_plan(
+    zebra: Zebra,
+    det_type: str,
+    num_gates: int,
+    num_exposures: int,
+    exposure_time: float,
+    group: str = "setup_zebra_for_fastchip_pp_delay",
+    wait: bool = True,
+):
+    logger.info(
+        "Setup ZEBRA for a pump probe fixed target collection with long delays."
+    )
+
+    yield from set_shutter_mode(zebra, "manual")
+
+    yield from setup_pc_sources(zebra, TrigSource.EXTERNAL, TrigSource.TIME)
+
+    yield from bps.abs_set(zebra.pc.gate_input, IN3_TTL, group=group)
+
+    # Output panel pulse_2 settings
+    yield from bps.abs_set(zebra.output.pulse_2.input, PC_GATE, group=group)
+    yield from bps.abs_set(zebra.output.pulse_2.delay, 0.0, group=group)
+    pulse2_width = num_exposures * exposure_time + SHUTTER_OPEN_TIME
+    yield from bps.abs_set(zebra.output.pulse_2.width, pulse2_width, group=group)
+
+    yield from bps.abs_set(zebra.output.out_pvs[4], PULSE2, group=group)
+
+    # Logic Gates
+    yield from bps.abs_set(
+        zebra.logic_gates.and_gates[3].sources[1], SOFT_IN2, group=group
+    )
+    yield from bps.abs_set(
+        zebra.logic_gates.and_gates[3].sources[2], PC_PULSE, group=group
+    )
+
+    # Set TTL out depending on detector type
+    if det_type == "eiger":
+        yield from bps.abs_set(zebra.output.out_pvs[TTL_EIGER], AND3, group=group)
+    if det_type == "pilatus":
+        yield from bps.abs_set(zebra.output.out_pvs[TTL_PILATUS], AND3, group=group)
+
+    # Position compare
+    yield from bps.abs_set(zebra.pc.num_gates, num_gates, group=group)
+    yield from bps.abs_set(zebra.pc.pulse_start, SHUTTER_OPEN_TIME, group=group)
+
+    # 100us buffer needed to avoid missing some of the triggers
+    exptime_buffer = exposure_time + 0.0001
+    yield from bps.abs_set(zebra.pc.pulse_step, exptime_buffer, group=group)
+
+    # Square wave - needs a small drop to make it work for eiger
+    pulse_width = exposure_time - 0.0001 if det_type == "eiger" else exposure_time / 2
+    yield from bps.abs_set(zebra.pc.pulse_width, pulse_width, group=group)
+
     yield from bps.abs_set(zebra.pc.pulse_max, num_exposures, group=group)
 
     if wait:
