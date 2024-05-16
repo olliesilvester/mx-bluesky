@@ -42,6 +42,7 @@ from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
     open_fast_shutter,
     reset_zebra_when_collection_done_plan,
     setup_zebra_for_fastchip_plan,
+    setup_zebra_for_fastchip_pump_probe_with_long_delays_plan,
 )
 from mx_bluesky.I24.serial.write_nexus import call_nexgen
 
@@ -386,14 +387,24 @@ def start_i24(zebra: Zebra, parameters: FixedTargetParameters):
         )
 
         logger.debug("Arm Pilatus. Arm Zebra.")
-        yield from setup_zebra_for_fastchip_plan(
-            zebra,
-            parameters.detector_name,
-            num_gates,
-            parameters.num_exposures,
-            parameters.exposure_time_s,
-            wait=True,
-        )
+        if parameters.pump_repeat == PumpProbeSetting.Medium1:
+            yield from setup_zebra_for_fastchip_pump_probe_with_long_delays_plan(
+                zebra,
+                parameters.detector_name,
+                num_gates,
+                parameters.num_exposures,
+                parameters.exposure_time_s,
+                wait=True,
+            )
+        else:
+            yield from setup_zebra_for_fastchip_plan(
+                zebra,
+                parameters.detector_name,
+                num_gates,
+                parameters.num_exposures,
+                parameters.exposure_time_s,
+                wait=True,
+            )
         caput(pv.pilat_acquire, "1")  # Arm pilatus
         yield from arm_zebra(zebra)
         caput(pv.pilat_filename, filename)
@@ -447,14 +458,24 @@ def start_i24(zebra: Zebra, parameters: FixedTargetParameters):
         )
 
         logger.debug("Arm Zebra.")
-        yield from setup_zebra_for_fastchip_plan(
-            zebra,
-            parameters.detector_name,
-            num_gates,
-            parameters.num_exposures,
-            parameters.exposure_time_s,
-            wait=True,
-        )
+        if parameters.pump_repeat == PumpProbeSetting.Medium1:
+            yield from setup_zebra_for_fastchip_pump_probe_with_long_delays_plan(
+                zebra,
+                parameters.detector_name,
+                num_gates,
+                parameters.num_exposures,
+                parameters.exposure_time_s,
+                wait=True,
+            )
+        else:
+            yield from setup_zebra_for_fastchip_plan(
+                zebra,
+                parameters.detector_name,
+                num_gates,
+                parameters.num_exposures,
+                parameters.exposure_time_s,
+                wait=True,
+            )
         yield from arm_zebra(zebra)
 
         time.sleep(1.5)
