@@ -346,6 +346,45 @@ def setup_zebra_for_fastchip_pump_probe_with_long_delays_plan(
     group: str = "setup_zebra_for_fastchip_pp_delay",
     wait: bool = True,
 ):
+    """Zebra setup for pump probe fixed target triggering with long delays between \
+        exposures.
+
+    For this use case, the fast shutter opens and closes at every position to avoid \
+    destroying the crystals by exposing them to the beam for a long time in between \
+    collections.
+
+    The data collection output is OUT1_TTL for Eiger and OUT2_TTL for Pilatus and \
+    should be set to AND3.
+
+    The shutter opening time, hardcoded to 0.05, has been empirically determined.
+
+    Fast shutter (Pulse2) output settings:
+        - Output is OUT4_TTL set to PULSE2.
+        - Pulse2 is set with a delay equal to 0 and a width equal to the exposure time \
+            multiplied by the number of exposures, plus the shutter opening time.
+
+    Position compare settings:
+        - The gate input is on IN3_TTL.
+        - The number of gates should be equal to the number of apertures to collect.
+        - Gate source set to 'External' and Pulse source set to 'Time'
+        - The trigger start set to the shutter opening time.
+        - Trigger source set to the exposure time with a 100us buffer in order to \
+            avoid missing any triggers.
+        - The trigger width is calculated depending on which detector is in use: the \
+            Pilatus only needs the trigger rising edge to collect for a set time, while \
+            the Eiger (used here in Externally Interrupter Exposure Series mode) \
+            will only collect while the signal is high and will stop once a falling \
+            edge is detected. For this reason a square wave pulse width will be set to \
+            half the exposure time in the Pilatus case, and to the exposure time minus \
+            a small drop (~100um) for the Eiger.
+
+    Args:
+        zebra (Zebra): The zebra ophyd device.
+        det_type (str): Detector in use, current choices are Eiger or Pilatus.
+        num_gates (int): Number of apertures to visit in a chip.
+        num_exposures (int): Number of times data is collected in each aperture.
+        exposure_time (float): Exposure time for each shot.
+    """
     logger.info(
         "Setup ZEBRA for a pump probe fixed target collection with long delays."
     )
@@ -362,6 +401,7 @@ def setup_zebra_for_fastchip_pump_probe_with_long_delays_plan(
     pulse2_width = num_exposures * exposure_time + SHUTTER_OPEN_TIME
     yield from bps.abs_set(zebra.output.pulse_2.width, pulse2_width, group=group)
 
+    # Fast shutter
     yield from bps.abs_set(zebra.output.out_pvs[4], PULSE2, group=group)
 
     # Logic Gates
