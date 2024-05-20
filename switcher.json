@@ -32,6 +32,10 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/97_beamline-setup/"
   },
   {
+    "version": "98_use-new-PMAC",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/98_use-new-PMAC/"
+  },
+  {
     "version": "check-screens-still-work",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/check-screens-still-work/"
   },
