@@ -56,6 +56,10 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/pre_v0.1.0/"
   },
   {
+    "version": "update_install_script",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/update_install_script/"
+  },
+  {
     "version": "wto16239_draft1",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/wto16239_draft1/"
   }
