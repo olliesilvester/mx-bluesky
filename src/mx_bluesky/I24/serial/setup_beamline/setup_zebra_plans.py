@@ -39,6 +39,7 @@ from dodal.devices.zebra import (
 # Detector specific outs
 TTL_EIGER = 1
 TTL_PILATUS = 2
+TTL_FAST_SHUTTER = 4
 
 SHUTTER_MODE = {
     "manual": SoftInState.NO,
@@ -402,7 +403,7 @@ def setup_zebra_for_fastchip_pump_probe_with_long_delays_plan(
     yield from bps.abs_set(zebra.output.pulse_2.width, pulse2_width, group=group)
 
     # Fast shutter
-    yield from bps.abs_set(zebra.output.out_pvs[4], PULSE2, group=group)
+    yield from bps.abs_set(zebra.output.out_pvs[TTL_FAST_SHUTTER], PULSE2, group=group)
 
     # Logic Gates
     yield from bps.abs_set(
