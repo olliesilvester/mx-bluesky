@@ -265,6 +265,7 @@ def setup_zebra_for_fastchip_plan(
     num_gates: int,
     num_exposures: int,
     exposure_time: float,
+    start_time_offset: float = 0.0,
     group: str = "setup_zebra_for_fastchip",
     wait: bool = True,
 ):
@@ -295,6 +296,8 @@ def setup_zebra_for_fastchip_plan(
         num_gates (int): Number of apertures to visit in a chip.
         num_exposures (int): Number of times data is collected in each aperture.
         exposure_time (float): Exposure time for each shot.
+        start_time_offset (float): Delay on the start of the position compare. \
+            Defaults to 0.0 (standard chip collection).
     """
     logger.info("Setup ZEBRA for a fixed target collection.")
 
@@ -436,6 +439,46 @@ def setup_zebra_for_fastchip_pump_probe_with_long_delays_plan(
     if wait:
         yield from bps.wait(group)
     logger.info("Finished setting up zebra.")
+
+
+def open_shutter_at_each_position_plan(
+    zebra: Zebra,
+    num_exposures: int,
+    exposure_time: float,
+    group: str = "fast_shutter_control",
+    wait: bool = True,
+):
+    """A plan to control the fast shutter so that it will open at each position.
+    This plan is a specific setup for pump probe fixed target triggering with long \
+    delays between exposures.
+
+    For this use case, the fast shutter opens and closes at every position to avoid \
+    destroying the crystals by exposing them to the beam for a long time in between \
+    collections.
+
+    The shutter opening time, hardcoded to 0.05, has been empirically determined.
+
+    Fast shutter (Pulse2) output settings:
+        - Output is OUT4_TTL set to PULSE2.
+        - Pulse2 is set with a delay equal to 0 and a width equal to the exposure time \
+            multiplied by the number of exposures, plus the shutter opening time.
+
+    Args:
+        zebra (Zebra): The zebra ophyd device.
+        num_exposures (int): Number of times data is collected in each aperture.
+        exposure_time (float): Exposure time for each shot.
+    """
+    # Output panel pulse_2 settings
+    yield from bps.abs_set(zebra.output.pulse_2.input, PC_GATE, group=group)
+    yield from bps.abs_set(zebra.output.pulse_2.delay, 0.0, group=group)
+    pulse2_width = num_exposures * exposure_time + SHUTTER_OPEN_TIME
+    yield from bps.abs_set(zebra.output.pulse_2.width, pulse2_width, group=group)
+
+    # Fast shutter
+    yield from bps.abs_set(zebra.output.out_pvs[TTL_FAST_SHUTTER], PULSE2, group=group)
+
+    if wait:
+        yield from bps.wait(group=group)
 
 
 def reset_pc_gate_and_pulse(zebra: Zebra, group: str = "reset_pc"):
