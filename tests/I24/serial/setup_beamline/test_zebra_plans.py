@@ -137,9 +137,9 @@ async def test_open_fast_shutter_at_each_position_plan(zebra: Zebra, RE):
     # Check output Pulse2 is set
     assert await zebra.output.pulse_2.input.get_value() == PC_GATE
     assert await zebra.output.pulse_2.delay.get_value() == 0.0
-    # num_exp * exposure_time + 0.05 (SHUTTER_OPEN_TIME)
+    expected_pulse_width = num_exp * exposure_time + 0.05 
     assert await zebra.output.pulse_2.width.get_value() == pytest.approx(
-        0.052, abs=1e-3
+        expected_pulse_width, abs=1e-3
     )
 
     assert await zebra.output.out_pvs[4].get_value() == PULSE2
