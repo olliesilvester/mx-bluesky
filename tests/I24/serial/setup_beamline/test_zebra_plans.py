@@ -15,6 +15,7 @@ from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
     arm_zebra,
     disarm_zebra,
     get_zebra_settings_for_extruder,
+    open_fast_shutter_at_each_position_plan,
     reset_output_panel,
     reset_pc_gate_and_pulse,
     reset_zebra_when_collection_done_plan,
@@ -22,7 +23,6 @@ from mx_bluesky.I24.serial.setup_beamline.setup_zebra_plans import (
     setup_pc_sources,
     setup_zebra_for_extruder_with_pump_probe_plan,
     setup_zebra_for_fastchip_plan,
-    setup_zebra_for_fastchip_pump_probe_with_long_delays_plan,
     setup_zebra_for_quickshot_plan,
     zebra_return_to_normal_plan,
 )
@@ -122,21 +122,17 @@ async def test_setup_zebra_for_fastchip(zebra: Zebra, RE):
     )
     # Check ttl out2 is set to AND3
     assert await zebra.output.out_pvs[2].get_value() == AND3
-    assert await zebra.pc.pulse_width.get_value() == exposure_time / 2
 
+    assert await zebra.pc.pulse_start.get_value() == 0.0
+    assert await zebra.pc.pulse_width.get_value() == exposure_time / 2
     assert await zebra.pc.pulse_step.get_value() == exposure_time + 0.0001
 
 
-async def test_setup_zebra_for_fastchip_pp_with_long_delays(zebra: Zebra, RE):
-    num_gates = 400
+async def test_open_fast_shutter_at_each_position_plan(zebra: Zebra, RE):
     num_exposures = 2
     exposure_time = 0.001
 
-    RE(
-        setup_zebra_for_fastchip_pump_probe_with_long_delays_plan(
-            zebra, "eiger", num_gates, num_exposures, exposure_time
-        )
-    )
+    RE(open_fast_shutter_at_each_position_plan(zebra, num_exposures, exposure_time))
 
     # Check output Pulse2 is set
     assert await zebra.output.pulse_2.input.get_value() == PC_GATE
@@ -147,11 +143,6 @@ async def test_setup_zebra_for_fastchip_pp_with_long_delays(zebra: Zebra, RE):
     )
 
     assert await zebra.output.out_pvs[4].get_value() == PULSE2
-
-    # Check position compare num_gates, pulse_start and pulse max set correctly
-    assert await zebra.pc.pulse_start.get_value() == 0.05  # SHUTTER_OPEN_TIME
-    assert await zebra.pc.num_gates.get_value() == num_gates
-    assert await zebra.pc.pulse_max.get_value() == num_exposures
 
 
 async def test_reset_pc_gate_and_pulse(zebra: Zebra, RE):
