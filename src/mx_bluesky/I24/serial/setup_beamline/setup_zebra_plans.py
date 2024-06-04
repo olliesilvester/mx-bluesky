@@ -368,6 +368,10 @@ def open_fast_shutter_at_each_position_plan(
         num_exposures (int): Number of times data is collected in each aperture.
         exposure_time (float): Exposure time for each shot.
     """
+    logger.info(
+        "ZEBRA setup for fastchip collection with long delays between exposures."
+    )
+    logger.debug("Controlling the fast shutter on PULSE2.")
     # Output panel pulse_2 settings
     yield from bps.abs_set(zebra.output.pulse_2.input, PC_GATE, group=group)
     yield from bps.abs_set(zebra.output.pulse_2.delay, 0.0, group=group)
@@ -379,6 +383,7 @@ def open_fast_shutter_at_each_position_plan(
 
     if wait:
         yield from bps.wait(group=group)
+    logger.debug("Finished setting up for long delays.")
 
 
 def reset_pc_gate_and_pulse(zebra: Zebra, group: str = "reset_pc"):
