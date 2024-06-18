@@ -4,6 +4,18 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/main/"
   },
   {
+    "version": "v0.1.0",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.1.0/"
+  },
+  {
+    "version": "v0.0.2",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.2/"
+  },
+  {
+    "version": "v0.0.1",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.1/"
+  },
+  {
     "version": "107_tidy-up-paths",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/107_tidy-up-paths/"
   },
@@ -18,6 +30,10 @@
   {
     "version": "97_beamline-setup",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/97_beamline-setup/"
+  },
+  {
+    "version": "98_use-new-PMAC",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/98_use-new-PMAC/"
   },
   {
     "version": "check-screens-still-work",
@@ -38,18 +54,6 @@
   {
     "version": "pre_v0.1.0",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/pre_v0.1.0/"
-  },
-  {
-    "version": "v0.0.1",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.1/"
-  },
-  {
-    "version": "v0.0.2",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.2/"
-  },
-  {
-    "version": "v0.1.0",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.1.0/"
   },
   {
     "version": "wto16239_draft1",
