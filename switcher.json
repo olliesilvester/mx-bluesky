@@ -16,6 +16,10 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.1/"
   },
   {
+    "version": "105-add-catalog-infoyaml",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/105-add-catalog-infoyaml/"
+  },
+  {
     "version": "107_tidy-up-paths",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/107_tidy-up-paths/"
   },
