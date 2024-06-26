@@ -16,6 +16,10 @@ import bluesky.plan_stubs as bps
 import numpy as np
 from blueapi.core import MsgGenerator
 from dodal.common import inject
+from dodal.devices.i24.aperture import Aperture
+from dodal.devices.i24.beamstop import Beamstop
+from dodal.devices.i24.dual_backlight import DualBacklight
+from dodal.devices.i24.I24_detector_motion import DetectorMotion
 from dodal.devices.i24.pmac import PMAC
 from dodal.devices.zebra import Zebra
 
@@ -331,15 +335,29 @@ def datasetsizei24(n_exposures: int, chip_type: ChipType, map_type: MappingType)
 
 
 @log.log_on_entry
-def start_i24(zebra: Zebra, parameters: FixedTargetParameters):
+def start_i24(
+    zebra: Zebra,
+    aperture: Aperture,
+    backlight: DualBacklight,
+    beamstop: Beamstop,
+    detector_stage: DetectorMotion,
+    parameters: FixedTargetParameters,
+):
     """Returns a tuple of (start_time, dcid)"""
+
     logger.info("Start I24 data collection.")
     start_time = datetime.now()
     logger.info("Collection start time %s" % start_time.ctime())
 
     logger.debug("Set up beamline")
-    sup.beamline("collect")
-    sup.beamline("quickshot", [parameters.detector_distance_mm])
+    yield from sup.setup_beamline_for_collection_plan(
+        aperture, backlight, beamstop, wait=True
+    )
+
+    yield from sup.move_detector_stage_to_position_plan(
+        detector_stage, parameters.detector_distance_mm
+    )
+
     logger.debug("Set up beamline DONE")
 
     total_numb_imgs = datasetsizei24(
@@ -569,7 +587,12 @@ def run_aborted_plan(pmac: PMAC):
 
 
 def run_fixed_target_plan(
-    zebra: Zebra = inject("zebra"), pmac: PMAC = inject("pmac")
+    zebra: Zebra = inject("zebra"),
+    pmac: PMAC = inject("pmac"),
+    aperture: Aperture = inject("aperture"),
+    backlight: DualBacklight = inject("backlight"),
+    beamstop: Beamstop = inject("beamstop"),
+    detector_stage: DetectorMotion = inject("detector_motion"),
 ) -> MsgGenerator:
     setup_logging()
     # ABORT BUTTON
@@ -617,7 +640,9 @@ def run_fixed_target_plan(
         pmac, chip_prog_dict, parameters.map_type, parameters.pump_repeat
     )
 
-    start_time, dcid = yield from start_i24(zebra, parameters)
+    start_time, dcid = yield from start_i24(
+        zebra, aperture, backlight, beamstop, detector_stage, parameters
+    )
 
     logger.info("Moving to Start")
     yield from bps.trigger(pmac.to_xyz_zero)
