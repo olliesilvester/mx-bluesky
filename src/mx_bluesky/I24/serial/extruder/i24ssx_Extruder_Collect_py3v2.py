@@ -18,6 +18,7 @@ from time import sleep
 import bluesky.plan_stubs as bps
 from blueapi.core import MsgGenerator
 from dodal.common import inject
+from dodal.devices.hutch_shutter import HutchShutter, ShutterDemand
 from dodal.devices.i24.aperture import Aperture
 from dodal.devices.i24.beamstop import Beamstop
 from dodal.devices.i24.dual_backlight import DualBacklight
@@ -183,6 +184,7 @@ def run_extruder_plan(
     backlight: DualBacklight = inject("backlight"),
     beamstop: Beamstop = inject("beamstop"),
     detector_stage: DetectorMotion = inject("detector_motion"),
+    shutter: HutchShutter = inject("shutter"),
 ) -> MsgGenerator:
     setup_logging()
     start_time = datetime.now()
@@ -192,12 +194,8 @@ def run_extruder_plan(
     parameters = ExtruderParameters.from_file(PARAM_FILE_PATH / PARAM_FILE_NAME)
 
     # Setting up the beamline
-    caput("BL24I-PS-SHTR-01:CON", "Reset")
-    logger.debug("Reset hutch shutter sleep for 1sec")
-    sleep(1.0)
-    caput("BL24I-PS-SHTR-01:CON", "Open")
-    logger.debug("Open hutch shutter sleep for 2sec")
-    sleep(2.0)
+    logger.debug("Open hutch shutter")
+    yield from bps.abs_set(shutter, ShutterDemand.OPEN, wait=True)
 
     yield from sup.setup_beamline_for_collection_plan(
         aperture, backlight, beamstop, wait=True
@@ -428,8 +426,8 @@ def run_extruder_plan(
         sup.eiger("return-to-normal")
         logger.debug(parameters.filename + "_" + caget(pv.eiger_seqID))
     logger.debug("End of Run")
-    logger.info("Close hutch shutter")
-    caput("BL24I-PS-SHTR-01:CON", "Close")
+    logger.debug("Close hutch shutter")
+    yield from bps.abs_set(shutter, ShutterDemand.CLOSE, wait=True)
 
     dcid.collection_complete(end_time, aborted=aborted)
     dcid.notify_end()

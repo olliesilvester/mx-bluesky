@@ -1,8 +1,9 @@
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 import bluesky.plan_stubs as bps
 import pytest
 from dodal.devices.zebra import DISCONNECT, SOFT_IN3
+from ophyd_async.core import get_mock_put
 
 from mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2 import (
     TTL_EIGER,
@@ -143,6 +144,7 @@ def test_run_extruder_quickshot_with_eiger(
     fake_write_params,
     RE,
     zebra,
+    shutter,
     aperture,
     backlight,
     beamstop,
@@ -151,7 +153,7 @@ def test_run_extruder_quickshot_with_eiger(
 ):
     mock_params.from_file.return_value = dummy_params
     fake_det.return_value = Eiger()
-    RE(run_extruder_plan(zebra, aperture, backlight, beamstop, detector_stage))
+    RE(run_extruder_plan(zebra, aperture, backlight, beamstop, detector_stage, shutter))
     assert fake_nexgen.call_count == 1
     assert fake_dcid.call_count == 1
     assert fake_sup.setup_beamline_for_collection_plan.call_count == 1
@@ -195,6 +197,7 @@ def test_run_extruder_pump_probe_with_pilatus(
     fake_write_params,
     RE,
     zebra,
+    shutter,
     aperture,
     backlight,
     beamstop,
@@ -203,8 +206,16 @@ def test_run_extruder_pump_probe_with_pilatus(
 ):
     mock_params.from_file.return_value = dummy_params_pp
     fake_det.return_value = Pilatus()
-    RE(run_extruder_plan(zebra, aperture, backlight, beamstop, detector_stage))
+    RE(run_extruder_plan(zebra, aperture, backlight, beamstop, detector_stage, shutter))
     assert fake_dcid.call_count == 1
     assert fake_sup.move_detector_stage_to_position_plan.call_count == 1
     mock_pp_plan.assert_called_once()
     mock_reset_zebra_plan.assert_called_once()
+
+    shutter_call_list = [
+        call("Reset", wait=True, timeout=10.0),
+        call("Open", wait=True, timeout=10.0),
+        call("Close", wait=True, timeout=10.0),
+    ]
+    mock_shutter = get_mock_put(shutter.control)
+    mock_shutter.assert_has_calls(shutter_call_list)
