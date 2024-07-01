@@ -4,6 +4,18 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/main/"
   },
   {
+    "version": "v0.1.0",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.1.0/"
+  },
+  {
+    "version": "v0.0.2",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.2/"
+  },
+  {
+    "version": "v0.0.1",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.1/"
+  },
+  {
     "version": "109-51_initialise-stages-change",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/109-51_initialise-stages-change/"
   },
@@ -20,6 +32,10 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/check-screens-still-work/"
   },
   {
+    "version": "fix-linting-in-CI",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/fix-linting-in-CI/"
+  },
+  {
     "version": "i24-parameters",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/i24-parameters/"
   },
@@ -34,18 +50,6 @@
   {
     "version": "pre_v0.1.0",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/pre_v0.1.0/"
-  },
-  {
-    "version": "v0.0.1",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.1/"
-  },
-  {
-    "version": "v0.0.2",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.2/"
-  },
-  {
-    "version": "v0.1.0",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.1.0/"
   },
   {
     "version": "wto16239_draft1",
