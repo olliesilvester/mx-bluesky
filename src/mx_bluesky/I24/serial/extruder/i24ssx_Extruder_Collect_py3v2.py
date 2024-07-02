@@ -133,14 +133,13 @@ def enter_hutch(
 
 
 @log.log_on_entry
-def write_parameter_file(
-    detector_stage: DetectorMotion = inject("detector_motion"),
-):
+def write_parameter_file(detector_stage: DetectorMotion):
     """Writes a json parameter file that can later be parsed by the model."""
     param_file: Path = PARAM_FILE_PATH / PARAM_FILE_NAME
     logger.debug(f"Writing Parameter File to: {param_file}\n")
 
     det_type = yield from get_detector_type(detector_stage)
+    logger.warning(f"DETECTOR TYPE: {det_type}")
     filename = caget(pv.ioc12_gp3)
     # If file name ends in a digit this causes processing/pilatus pain.
     # Append an underscore
@@ -158,8 +157,12 @@ def write_parameter_file(
     pump_exp = float(caget(pv.ioc12_gp9)) if pump_status else None
     pump_delay = float(caget(pv.ioc12_gp10)) if pump_status else None
 
+    visit_str = caget(pv.ioc12_gp1)
+    if not visit_str.endswith("/"):
+        visit_str = visit_str + "/"
+
     params_dict = {
-        "visit": caget(pv.ioc12_gp1),
+        "visit": visit_str,
         "directory": caget(pv.ioc12_gp2),
         "filename": filename,
         "exposure_time_s": float(caget(pv.ioc12_gp5)),
@@ -175,6 +178,7 @@ def write_parameter_file(
 
     logger.info("Parameters \n")
     logger.info(pformat(params_dict))
+    yield from bps.null()
 
 
 @log.log_on_entry
@@ -190,7 +194,7 @@ def run_extruder_plan(
     start_time = datetime.now()
     logger.info("Collection start time: %s" % start_time.ctime())
 
-    write_parameter_file()
+    yield from write_parameter_file(detector_stage)
     parameters = ExtruderParameters.from_file(PARAM_FILE_PATH / PARAM_FILE_NAME)
 
     # Setting up the beamline
@@ -374,6 +378,7 @@ def run_extruder_plan(
             flush_print(line_of_text)
             sleep(0.5)
             i += 1
+            zebra_arm_status = yield from bps.rd(zebra.pc.arm.armed)
             if int(caget(pv.ioc12_gp8)) != 0:
                 aborted = True
                 logger.warning("Data Collection Aborted")
@@ -383,7 +388,7 @@ def run_extruder_plan(
                     caput(pv.eiger_acquire, 0)
                 sleep(1.0)
                 break
-            elif not zebra.pc.is_armed():
+            elif zebra_arm_status == 0:  # not zebra.pc.is_armed():
                 # As soon as zebra is disarmed, exit.
                 # Epics updates this PV once the collection is done.
                 logger.info("Zebra disarmed - Collection done.")
