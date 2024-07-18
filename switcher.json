@@ -4,18 +4,6 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/main/"
   },
   {
-    "version": "v0.1.0",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.1.0/"
-  },
-  {
-    "version": "v0.0.2",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.2/"
-  },
-  {
-    "version": "v0.0.1",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.1/"
-  },
-  {
     "version": "115_use-more-dodal-devices",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/115_use-more-dodal-devices/"
   },
@@ -30,10 +18,6 @@
   {
     "version": "125_fix-thawer-tests",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/125_fix-thawer-tests/"
-  },
-  {
-    "version": "170724_hotfixes",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/170724_hotfixes/"
   },
   {
     "version": "check-screens-still-work",
@@ -54,6 +38,18 @@
   {
     "version": "pre_v0.1.0",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/pre_v0.1.0/"
+  },
+  {
+    "version": "v0.0.1",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.1/"
+  },
+  {
+    "version": "v0.0.2",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.2/"
+  },
+  {
+    "version": "v0.1.0",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.1.0/"
   },
   {
     "version": "wto16239_draft1",
