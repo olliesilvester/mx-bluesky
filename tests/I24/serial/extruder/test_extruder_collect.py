@@ -1,4 +1,4 @@
-from unittest.mock import call, patch
+from unittest.mock import ANY, call, patch
 
 import bluesky.plan_stubs as bps
 import pytest
@@ -129,7 +129,9 @@ async def test_laser_check(
     "mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.ExtruderParameters"
 )
 @patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.setup_logging")
+@patch("mx_bluesky.I24.serial.extruder.i24ssx_Extruder_Collect_py3v2.bps.rd")
 def test_run_extruder_quickshot_with_eiger(
+    fake_read,
     fake_log_setup,
     mock_params,
     mock_quickshot_plan,
@@ -149,12 +151,19 @@ def test_run_extruder_quickshot_with_eiger(
     backlight,
     beamstop,
     detector_stage,
+    dcm,
     dummy_params,
 ):
     mock_params.from_file.return_value = dummy_params
     fake_det.return_value = Eiger()
-    RE(run_extruder_plan(zebra, aperture, backlight, beamstop, detector_stage, shutter))
-    assert fake_nexgen.call_count == 1
+    fake_read.side_effect = [fake_generator(0.6)]  # Wavelength read from dcm
+    RE(
+        run_extruder_plan(
+            zebra, aperture, backlight, beamstop, detector_stage, shutter, dcm
+        )
+    )
+    fake_nexgen.assert_called_once_with(None, ANY, dummy_params, 0.6, "extruder")
+    # assert fake_nexgen.call_count == 1
     assert fake_dcid.call_count == 1
     assert fake_sup.setup_beamline_for_collection_plan.call_count == 1
     # Check temporary piilatus hack is in there
@@ -202,11 +211,16 @@ def test_run_extruder_pump_probe_with_pilatus(
     backlight,
     beamstop,
     detector_stage,
+    dcm,
     dummy_params_pp,
 ):
     mock_params.from_file.return_value = dummy_params_pp
     fake_det.return_value = Pilatus()
-    RE(run_extruder_plan(zebra, aperture, backlight, beamstop, detector_stage, shutter))
+    RE(
+        run_extruder_plan(
+            zebra, aperture, backlight, beamstop, detector_stage, shutter, dcm
+        )
+    )
     assert fake_dcid.call_count == 1
     assert fake_sup.move_detector_stage_to_position_plan.call_count == 1
     mock_pp_plan.assert_called_once()
