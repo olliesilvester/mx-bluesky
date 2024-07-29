@@ -4,32 +4,12 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/main/"
   },
   {
-    "version": "v0.2.0",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.2.0/"
-  },
-  {
-    "version": "v0.1.0",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.1.0/"
-  },
-  {
-    "version": "v0.0.2",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.2/"
-  },
-  {
-    "version": "v0.0.1",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.1/"
-  },
-  {
     "version": "11_I24-exercise-motors",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/11_I24-exercise-motors/"
   },
   {
     "version": "123_add-new-psi-chip",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/123_add-new-psi-chip/"
-  },
-  {
-    "version": "133_timeouts",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/133_timeouts/"
   },
   {
     "version": "check-screens-still-work",
@@ -54,6 +34,22 @@
   {
     "version": "pre_v0.2.0",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/pre_v0.2.0/"
+  },
+  {
+    "version": "v0.0.1",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.1/"
+  },
+  {
+    "version": "v0.0.2",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.0.2/"
+  },
+  {
+    "version": "v0.1.0",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.1.0/"
+  },
+  {
+    "version": "v0.2.0",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/v0.2.0/"
   },
   {
     "version": "wto16239_draft1",
