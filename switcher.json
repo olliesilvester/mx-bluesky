@@ -32,6 +32,10 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/123_add-new-psi-chip/"
   },
   {
+    "version": "133_timeouts",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/133_timeouts/"
+  },
+  {
     "version": "check-screens-still-work",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/check-screens-still-work/"
   },
