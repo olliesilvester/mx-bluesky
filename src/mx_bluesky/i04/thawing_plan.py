@@ -1,9 +1,40 @@
 import bluesky.plan_stubs as bps
 import bluesky.preprocessors as bpp
+from bluesky.preprocessors import monitor_during_wrapper, subs_decorator
 from dls_bluesky_core.core import MsgGenerator
 from dodal.common import inject
+from dodal.devices.oav.ophyd_async_oav import OAV
 from dodal.devices.smargon import Smargon
 from dodal.devices.thawer import Thawer, ThawerStates
+
+from mx_bluesky.i04.callbacks.murko_callback import MurkoCallback
+
+
+@subs_decorator(MurkoCallback())
+def thaw_and_center(
+    time_to_thaw: float,
+    rotation: float = 360,
+    thawer: Thawer = inject("thawer"),  # type: ignore
+    smargon: Smargon = inject("smargon"),  # type: ignore
+    oav: OAV = inject("ophyd_async_oav"),
+) -> MsgGenerator:
+    zoom_level = yield from bps.rd(oav.zoom_controller.level)
+    x_size = yield from bps.rd(oav.x_size)
+    y_size = yield from bps.rd(oav.y_size)
+
+    oav.parameters.update_on_zoom(zoom_level.value, x_size, y_size)
+    yield from bps.open_run(
+        {
+            "microns_per_x_pixel": oav.parameters.micronsPerXPixel,
+            "microns_per_y_pixel": oav.parameters.micronsPerYPixel,
+            "beam_centre_i": oav.parameters.beam_centre_i,
+            "beam_centre_j": oav.parameters.beam_centre_j,
+        }
+    )
+    yield from monitor_during_wrapper(
+        thaw(time_to_thaw, rotation), [smargon.omega, oav.array_data]
+    )
+    yield from bps.close_run()
 
 
 def thaw(

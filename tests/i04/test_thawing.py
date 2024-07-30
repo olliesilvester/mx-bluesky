@@ -4,13 +4,23 @@ from unittest.mock import ANY, MagicMock, call
 import pytest
 from bluesky.run_engine import RunEngine
 from dodal.beamlines import i04
+from dodal.devices.oav.oav_parameters import OAVConfigParams
+from dodal.devices.oav.ophyd_async_oav import OAV, ZoomLevel
 from dodal.devices.smargon import Smargon
 from dodal.devices.thawer import Thawer, ThawerStates
 from ophyd.sim import NullStatus
-from ophyd_async.core import callback_on_mock_put, get_mock_put, set_mock_value
+from ophyd_async.core import (
+    DeviceCollector,
+    callback_on_mock_put,
+    get_mock_put,
+    set_mock_value,
+)
 from ophyd_async.epics.motion import Motor
 
-from mx_bluesky.i04.thawing_plan import thaw
+from mx_bluesky.i04.thawing_plan import thaw, thaw_and_center
+
+DISPLAY_CONFIGURATION = "tests/devices/unit_tests/test_display.configuration"
+ZOOM_LEVELS_XML = "tests/devices/unit_tests/test_jCameraManZoomLevels.xml"
 
 
 class MyException(Exception):
@@ -45,6 +55,18 @@ async def smargon() -> AsyncGenerator[Smargon, None]:
 async def thawer() -> Thawer:
     RunEngine()
     return i04.thawer(fake_with_ophyd_sim=True)
+
+
+@pytest.fixture
+async def oav() -> OAV:
+    RunEngine()
+    oav_params = OAVConfigParams(ZOOM_LEVELS_XML, DISPLAY_CONFIGURATION)
+    with DeviceCollector(mock=True):
+        oav = OAV("ophyd_async_oav", oav_params)
+    set_mock_value(oav.zoom_controller.level, ZoomLevel.ONE)
+    set_mock_value(oav.x_size, 1024)
+    set_mock_value(oav.y_size, 768)
+    return oav
 
 
 def _do_thaw_and_confirm_cleanup(
@@ -118,3 +140,8 @@ def test_given_different_rotations_then_motor_moved_relative(
         call(expected_end, wait=ANY, timeout=ANY),
         call(start_pos, wait=ANY, timeout=ANY),
     ]
+
+
+def test_murko_callback(smargon: Smargon, thawer: Thawer, oav: OAV):
+    RE = RunEngine()
+    RE(thaw_and_center(10, 360, thawer=thawer, smargon=smargon, oav=oav))
