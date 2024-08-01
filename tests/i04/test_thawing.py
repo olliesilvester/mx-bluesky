@@ -1,10 +1,10 @@
 from typing import AsyncGenerator
-from unittest.mock import ANY, MagicMock, call
+from unittest.mock import ANY, MagicMock, call, patch
 
+import numpy as np
 import pytest
 from bluesky.run_engine import RunEngine
 from dodal.beamlines import i04
-from dodal.devices.oav.oav_parameters import OAVConfigParams
 from dodal.devices.oav.ophyd_async_oav import OAV, ZoomLevel
 from dodal.devices.smargon import Smargon
 from dodal.devices.thawer import Thawer, ThawerStates
@@ -60,12 +60,12 @@ async def thawer() -> Thawer:
 @pytest.fixture
 async def oav() -> OAV:
     RunEngine()
-    oav_params = OAVConfigParams(ZOOM_LEVELS_XML, DISPLAY_CONFIGURATION)
     with DeviceCollector(mock=True):
-        oav = OAV("ophyd_async_oav", oav_params)
+        oav = OAV("ophyd_async_oav", params=MagicMock())
     set_mock_value(oav.zoom_controller.level, ZoomLevel.ONE)
     set_mock_value(oav.x_size, 1024)
     set_mock_value(oav.y_size, 768)
+    set_mock_value(oav.array_data, np.array([[1, 2], [2, 3]]))
     return oav
 
 
@@ -73,6 +73,7 @@ def _do_thaw_and_confirm_cleanup(
     move_mock: MagicMock, smargon: Smargon, thawer: Thawer, do_thaw_func
 ):
     set_mock_value(smargon.omega.velocity, initial_velocity := 10)
+    smargon.omega.set = move_mock
     do_thaw_func()
     last_thawer_call = get_mock_put(thawer.control).call_args_list[-1]
     assert last_thawer_call == call(ThawerStates.OFF, wait=ANY, timeout=ANY)
@@ -100,9 +101,9 @@ def test_given_moving_smargon_gives_error_then_velocity_restored_and_thawer_turn
         with pytest.raises(MyException):
             RE(thaw(10, thawer=thawer, smargon=smargon))
 
-            _do_thaw_and_confirm_cleanup(
-                MagicMock(side_effect=MyException()), smargon, thawer, do_thaw_func
-            )
+    _do_thaw_and_confirm_cleanup(
+        MagicMock(side_effect=MyException()), smargon, thawer, do_thaw_func
+    )
 
 
 @pytest.mark.parametrize(
@@ -142,6 +143,29 @@ def test_given_different_rotations_then_motor_moved_relative(
     ]
 
 
-def test_murko_callback(smargon: Smargon, thawer: Thawer, oav: OAV):
+@patch("mx_bluesky.i04.thawing_plan.MurkoCallback")
+def test_thaw_and_centre_adds_murko_callback_and_produces_expected_messages(
+    patch_murko_callback: MagicMock, smargon: Smargon, thawer: Thawer, oav: OAV
+):
+    patch_murko_instance = patch_murko_callback.return_value
     RE = RunEngine()
     RE(thaw_and_center(10, 360, thawer=thawer, smargon=smargon, oav=oav))
+
+    docs = patch_murko_instance.call_args_list
+    start_params = [c.args[1] for c in docs if c.args[0] == "start"]
+    event_params = [c.args[1] for c in docs if c.args[0] == "event"]
+    assert len(start_params) == 1
+    assert len(event_params) == 4
+    oav_updates = [e for e in event_params if "oav-array_data" in e["data"].keys()]
+    smargon_updates = [e for e in event_params if "smargon-omega" in e["data"].keys()]
+    assert len(oav_updates) > 0
+    assert len(smargon_updates) > 0
+
+
+@patch("mx_bluesky.i04.thawing_plan.MurkoCallback.call_murko")
+def test_thaw_and_centre_will_produce_events_that_call_murko(
+    patch_murko_call: MagicMock, smargon: Smargon, thawer: Thawer, oav: OAV
+):
+    RE = RunEngine()
+    RE(thaw_and_center(10, 360, thawer=thawer, smargon=smargon, oav=oav))
+    patch_murko_call.assert_called()
