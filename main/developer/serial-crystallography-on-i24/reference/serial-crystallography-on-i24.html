@@ -1,0 +1,926 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Serial Crystallography on I24 &#8212; mx_bluesky 0.1.dev630+ge63eb03 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../_static/documentation_options.js?v=68ca3b1e"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'developer/serial-crystallography-on-i24/reference/serial-crystallography-on-i24';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.15.4';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://DiamondLightSource.github.io/mx_bluesky/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'main';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner = false;
+        </script>
+    <link rel="icon" href="../../../_static/dls-favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="prev" title="1. Record architecture decisions" href="../explanations/decisions/0001-record-architecture-decisions.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/dls-logo.svg" class="logo__image only-light" alt=""/>
+    <script>document.write(`<img src="../../../_static/dls-logo.svg" class="logo__image only-dark" alt=""/>`);</script>
+  
+  
+    <p class="title logo__title">mx_bluesky</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Developer Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://github.com/DiamondLightSource/mx_bluesky/releases">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/DiamondLightSource/mx_bluesky" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/mx_bluesky" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-2"
+      type="button"
+      class="version-switcher__button btn btn-sm dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-2"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-2"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-2">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Developer Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://github.com/DiamondLightSource/mx_bluesky/releases">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/DiamondLightSource/mx_bluesky" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/mx_bluesky" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-3"
+      type="button"
+      class="version-switcher__button btn btn-sm dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-3"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-3"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-3">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">General</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../general/index.html">General MX-Bluesky Developer Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../general/tutorials/dev-install.html">Developer install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../general/how-to/get-started.html">Get Started with mx_bluesky</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../general/how-to/contribute.html">Contributing to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../general/how-to/build-docs.html">Build the docs using sphinx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../general/how-to/run-tests.html">Run the tests using pytest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../general/how-to/static-analysis.html">Run static analysis using mypy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../general/how-to/lint.html">Run linting using pre-commit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../general/how-to/update-tools.html">Update the tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../general/how-to/create-a-release.html">Create a New Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../general/how-to/deploy-a-release.html">Deploy a New Release</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../general/explanations/decisions.html">Architectural Decision Records</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../general/explanations/decisions/0001-record-architecture-decisions.html">1. Record architecture decisions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../general/reference/standards.html">Standards</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Serial Crystallography on I24</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">I24 Serial Crystallography</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../project-planning/roadmap.html">Roadmap</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../explanations/decisions.html">Architectural Decision Records</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../explanations/decisions/0001-record-architecture-decisions.html">1. Record architecture decisions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Serial Crystallography on I24</a></li>
+
+
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Developer Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">I24 Serial Crystallography</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Serial...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="serial-crystallography-on-i24">
+<h1>Serial Crystallography on I24<a class="headerlink" href="#serial-crystallography-on-i24" title="Link to this heading">#</a></h1>
+<p><strong>Note:</strong> this document contains a lot of things which should be split up into smaller documents in their respective categories.</p>
+<section id="setting-up-the-environment">
+<h2>Setting up the environment<a class="headerlink" href="#setting-up-the-environment" title="Link to this heading">#</a></h2>
+<p>To set up an enviroment to run the serial crystallography collection
+scripts, please follow the instructions
+<a class="reference external" href="https://github.com/DiamondLightSource/mx_bluesky/wiki/Getting-started">here</a>.
+Once this is done, the environment can be started by running:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/path/to/mx_bluesky
+<span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+</pre></div>
+</div>
+<p>On beamline I24, the package will be saved in
+<code class="docutils literal notranslate"><span class="pre">/dls_sw/i24/software/bluesky</span></code>.</p>
+</section>
+<section id="deploying-a-local-version-of-the-edm-screens">
+<h2>Deploying a local version of the EDM screens<a class="headerlink" href="#deploying-a-local-version-of-the-edm-screens" title="Link to this heading">#</a></h2>
+<p>Every time a change is made to the template EDM screens saved in the
+repo, a new set should be deployed to the beamline ot to the <code class="docutils literal notranslate"><span class="pre">dev</span></code>
+environment to get the update. The <code class="docutils literal notranslate"><span class="pre">deploy_edm_for_ssx.sh</span></code> will create
+a local copy of the all EDM screens - both for a fixed target and for a
+serial jet collection - in a <code class="docutils literal notranslate"><span class="pre">edm_serial/</span></code> directory with all the
+shell commands pointing to the correct scripts/edm locations.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./path/to/mx_bluesky/deploy/deploy_edm_for_ssx.sh
+</pre></div>
+</div>
+</section>
+<section id="setting-the-current-visit-directory">
+<h2>Setting the current visit directory<a class="headerlink" href="#setting-the-current-visit-directory" title="Link to this heading">#</a></h2>
+<p>A new visit directory might need to be set before every user or
+commissioning beamtime. This can be done by a member of the beamline
+staff by modifying the file <code class="docutils literal notranslate"><span class="pre">/dls_sw/i24/etc/ssx_current_visit.txt</span></code> to
+point to the current visit and then running the command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./path/to/mx_bluesky/src/mx_bluesky/I24/serial/set_visit_directory.sh
+</pre></div>
+</div>
+<p>Note that the default experiment type for the script setting the
+directory will be <code class="docutils literal notranslate"><span class="pre">fixed-target</span></code>. In case of an extruder collection,
+to set the correct visit PV the experiment type should be modified from
+the command line.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./path/to/mx_bluesky/src/mx_bluesky/I24/serial/set_visit_directory.sh<span class="w"> </span>extruder
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="running-a-collection">
+<h1>Running a collection<a class="headerlink" href="#running-a-collection" title="Link to this heading">#</a></h1>
+<section id="starting-the-edm-screens">
+<h2>Starting the EDM screens<a class="headerlink" href="#starting-the-edm-screens" title="Link to this heading">#</a></h2>
+<p>A couple of entry points have been set up so that:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">run_fixed_target</span></code> starts the edm screens for a fixed target
+collection</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">run_extruder</span></code> starts the edm screens for a serial jet collection</p></li>
+</ul>
+<p>Before opening the experiment specific edm, each of these entry points
+will start a <code class="docutils literal notranslate"><span class="pre">BlueAPI</span></code> server. The configuration used by <code class="docutils literal notranslate"><span class="pre">BlueAPI</span></code>
+is saved in <code class="docutils literal notranslate"><span class="pre">src/mx_bluesky/I24/serial/blueapi_config.yaml</span></code>.</p>
+</section>
+<section id="detector-choice">
+<h2>Detector choice<a class="headerlink" href="#detector-choice" title="Link to this heading">#</a></h2>
+<p>The detector currently in use is identified by reading the position of
+the detector stage in the y direction. A different detector can be chose
+by opening the <code class="docutils literal notranslate"><span class="pre">Detector</span></code> tab in the main edm screen, selecting the
+detector name from the list and clicking the <code class="docutils literal notranslate"><span class="pre">Move</span> <span class="pre">Stage</span></code> button,
+which will move the detector stage to the correct height and update the
+relative PVs.</p>
+<p>Detectors available for serial: Pilatus 6M or Eiger CdTe 9M.</p>
+</section>
+<section id="extruder-serial-jet">
+<h2>Extruder (Serial Jet)<a class="headerlink" href="#extruder-serial-jet" title="Link to this heading">#</a></h2>
+<p>On startup, once both the visit and the detector have been set up,
+<strong>always</strong> press the <code class="docutils literal notranslate"><span class="pre">initialise</span> <span class="pre">on</span> <span class="pre">start</span></code> button, which will autofill
+the general purpose PVs for an extruder collection with sensible default
+values, as well as the chosen visit directory and detector. Ensure that
+the visit shown on the edm screen is correct.</p>
+<p>I - <strong>Align Jet</strong></p>
+<p>Open the viewer and switch on the backlight to visualise the jet stream.
+You can use the positioners in the <code class="docutils literal notranslate"><span class="pre">Align</span> <span class="pre">Jet</span></code> panel on the edm screen
+to move the orizontal goniometer table and align the jet.</p>
+<p>II - <strong>Set experiment parameters</strong></p>
+<ol class="arabic simple">
+<li><p>Data collection set up</p></li>
+</ol>
+<p>In the edm screen fill the fields in <code class="docutils literal notranslate"><span class="pre">Data</span> <span class="pre">Collation</span> <span class="pre">Setup</span></code> with
+information such as sub-directory, filename, number of images, exposure
+time and detector distance. It is recommended to not collect all data
+into a single sub-directory but split into multiple smaller collections.</p>
+<ol class="arabic simple" start="2">
+<li><p>Pump Probe</p></li>
+</ol>
+<p>For a pump-probe experiment, select <code class="docutils literal notranslate"><span class="pre">True</span></code> on the dropdown menu in
+<code class="docutils literal notranslate"><span class="pre">Data</span> <span class="pre">Collection</span> <span class="pre">Setup</span></code> and then set the laser dwell and delay times
+in the <code class="docutils literal notranslate"><span class="pre">Pump</span> <span class="pre">Probe</span></code> panel. <strong>WARNING</strong> This setting requires an
+hardware change, as there are only 4 outputs on the zebra and they are
+all in use. When using the Eiger the Pilatus trigger cable should be
+used to trigger the light source. When using the pilatus the eiger
+trigger cable should be used.</p>
+<p>III - <strong>Run collection</strong></p>
+<p>Once all parameters have been set, press <code class="docutils literal notranslate"><span class="pre">Start</span></code> to run the
+collection. A stream log will show what is going on in the terminal.</p>
+</section>
+<section id="fixed-target-serial-fixed">
+<h2>Fixed-Target (Serial Fixed)<a class="headerlink" href="#fixed-target-serial-fixed" title="Link to this heading">#</a></h2>
+<p>I - <strong>Make coordinate system</strong></p>
+<p>Generally the first thing to do before running a chip collection is to
+set up the coordinate system.</p>
+<p>Before this step remember to reset the scale and skew factors as well as
+the motor directions as needed. Current values are saved in
+<code class="docutils literal notranslate"><span class="pre">src/mx_bluesky/I24/serial/parameters/fixed_target</span></code> in the
+<code class="docutils literal notranslate"><span class="pre">cs_maker.json</span></code> and <code class="docutils literal notranslate"><span class="pre">motor_direction.txt</span></code> files.</p>
+<ol class="arabic simple">
+<li><p>From the main edm screen open the <code class="docutils literal notranslate"><span class="pre">viewer</span></code> and <code class="docutils literal notranslate"><span class="pre">moveonclick</span></code>.</p></li>
+<li><p>Find the first fiducial in the top left corner, centre it and press
+<code class="docutils literal notranslate"><span class="pre">set</span> <span class="pre">fiducial</span> <span class="pre">0</span></code>.</p></li>
+<li><p>Move to Fiducial 1 and 2 and repeat the process.</p></li>
+<li><p>Once all fiducials have been set, press <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">coordianates</span> <span class="pre">system</span></code>.
+If all worked correctly it will find the first window in the first
+block.</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">block</span> <span class="pre">check</span></code> to check that all blocks are correctly aligned.
+WARNING: <code class="docutils literal notranslate"><span class="pre">block</span> <span class="pre">check</span></code> is not available for a custom chip.</p></li>
+</ol>
+<p>II - <strong>Select experiment parameters</strong></p>
+<ol class="arabic simple">
+<li><p>In the edm screen fill the fields in
+<code class="docutils literal notranslate"><span class="pre">Chip</span> <span class="pre">and</span> <span class="pre">Data</span> <span class="pre">Collation</span> <span class="pre">Setup</span></code> with information such as
+sub-directory, filename, exposure time and detector distance.</p></li>
+<li><p>Select chip and map type</p></li>
+</ol>
+<p>Select the <code class="docutils literal notranslate"><span class="pre">Chip</span> <span class="pre">Type</span></code> from the drop-down menu on the edm screen.
+Currently available chips: 0. Oxford 1. Oxford Inner 2. Custom 3.
+Minichip</p>
+<p>When using a non-custom chip <code class="docutils literal notranslate"><span class="pre">Map</span> <span class="pre">Type</span></code> should always be selected, for
+other chips it’s only necessary when wanting to collect only on selected
+blocks.</p>
+<ul class="simple">
+<li><p>For a full-chip collection on an Oxford-type chip, <code class="docutils literal notranslate"><span class="pre">Map</span> <span class="pre">Type</span></code>
+should simply be set to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p>For a Custom Chip, click on the <code class="docutils literal notranslate"><span class="pre">Custom</span> <span class="pre">Chip</span></code> button, which will
+bring up the relative edm. Here, the steps are the following:</p>
+<ol class="arabic simple">
+<li><p>Clear Coordinate System. This will reset the coordinates.</p></li>
+<li><p>Fill in the fields for number of windows and step size in x/y
+direction.</p></li>
+<li><p>Press <code class="docutils literal notranslate"><span class="pre">Set</span> <span class="pre">current</span> <span class="pre">position</span> <span class="pre">as</span> <span class="pre">start</span></code>.</p></li>
+<li><p>Once finished, close and return to main screen.</p></li>
+</ol>
+</li>
+<li><p>For collecting only on specific windows on an Oxford chip:</p>
+<ol class="arabic simple">
+<li><p>Set the <code class="docutils literal notranslate"><span class="pre">Mapping</span> <span class="pre">Type</span></code> to <code class="docutils literal notranslate"><span class="pre">Lite</span></code>. This will make the Lite
+launchers button visible.</p></li>
+<li><p>On the launcher, select the blocks to collect - either manually or
+using a preset set.</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">Save</span> <span class="pre">Screen</span> <span class="pre">Map</span></code>. This will create a <code class="docutils literal notranslate"><span class="pre">currentchip.map</span></code>
+file which will be copied to the data directory at collection
+time.</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">Upload</span> <span class="pre">Parameters</span></code>.</p></li>
+<li><p>Once finished, close and return to main screen.</p></li>
+</ol>
+</li>
+</ul>
+<ol class="arabic simple" start="3">
+<li><p>Select pump probe</p></li>
+</ol>
+<p>After setting the exposure time, open <code class="docutils literal notranslate"><span class="pre">Pump</span> <span class="pre">Probe</span></code> screen from main
+edm. The box will appear by selecting one of the settings from the drop
+down menu.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Short1</span></code> and <code class="docutils literal notranslate"><span class="pre">Short2</span></code>: once opened set the laser dwell and delay
+times.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Repeat#</span></code>: Set laser dwell and press calculate to get the delay
+times for each repeat mode.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Medium1</span></code>: open and close fast shutter between exposures, long
+delays between each one.</p></li>
+</ul>
+<p>Select the most appropriate pump probe setting for your collection and
+set the laser dwell and delay times accordingly.</p>
+<p>For more details on the pump probe settings see <a class="reference external" href="https://confluence.diamond.ac.uk/display/MXTech/Dynamics+and+fixed+targets">Dynamics and fixed
+targets</a></p>
+<p>III - <strong>Save the parameters</strong></p>
+<p><strong>This step cannot be skipped!</strong></p>
+<p>Once all of the previous steps have been completed - and before running
+a collection - all parameters have to be saved using the
+<code class="docutils literal notranslate"><span class="pre">Set</span> <span class="pre">parameters</span></code> button so that they can be applied to the collection.
+A copy parameter file will be saved along with the chip map (if
+applicable) in the data directory at collection time.</p>
+<p>IV - <strong>Run a collection</strong></p>
+<p>Once all parameters have been set, press <code class="docutils literal notranslate"><span class="pre">Start</span></code> to run the
+collection. A stream log will show what is going on in the terminal.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="stage-motor-moves-using-the-pmac-device">
+<h1>Stage motor moves using the PMAC device<a class="headerlink" href="#stage-motor-moves-using-the-pmac-device" title="Link to this heading">#</a></h1>
+<section id="notes-on-pmac-coordinate-system-and-motors">
+<h2>Notes on PMAC coordinate system and motors<a class="headerlink" href="#notes-on-pmac-coordinate-system-and-motors" title="Link to this heading">#</a></h2>
+<p>In a PMAC, motors that should move in a coordinated fashion ware put
+into the same coordinate system that can run a motion program. Motors
+that should move independently of each other should go into a separate
+coordinate system. A coordinate system is established by assigning axes
+to motors. The axes allocations defined for the chip stages set up are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#1-&gt;X</span>
+<span class="c1">#2-&gt;Y</span>
+<span class="c1">#3-&gt;Z</span>
+</pre></div>
+</div>
+<p>When an X-axis move is executed, the #1 motor will make the move.
+<a class="github reference external" href="https://github.com/DiamondLightSource/mx_bluesky/wiki/Serial-Crystallography-on-I24#cs_reset-custom-chips">DiamondLightSource/mx_bluesky</a>
+### Use in code</p>
+<p>When running chip collections, the stage motors are moved via the <a class="reference external" href="https://github.com/DiamondLightSource/dodal/blob/main/src/dodal/devices/i24/pmac.py">PMAC
+device</a>
+in a couple of different ways.</p>
+<ol class="arabic">
+<li><p>In most cases, the {x,y,z} motors are moved by sending a command to
+the PMAC as a <code class="docutils literal notranslate"><span class="pre">PMAC_STRING</span></code>.</p>
+<ul class="simple">
+<li><p>Using a JOG command <code class="docutils literal notranslate"><span class="pre">J:{const}</span></code>, to jog the motor a specified
+distance from the current position. For example, this will move
+motor Y by 10 motor steps:
+<code class="docutils literal notranslate"><span class="pre">python</span>&#160;&#160;&#160;&#160;&#160; <span class="pre">yield</span> <span class="pre">from</span> <span class="pre">bps.abs_set(pmac.pmac_string,</span> <span class="pre">&quot;#2J:10&quot;)</span></code></p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">hmz</span></code> strings are homing commands which will reset the
+encoders counts to 0 for the axis. All three motors are homed by
+sending the string: <code class="docutils literal notranslate"><span class="pre">#1hmz#2hmz#3hmz</span></code>. In the plans this is done
+by triggering the home move:
+<code class="docutils literal notranslate"><span class="pre">python</span>&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">yield</span> <span class="pre">from</span> <span class="pre">bps.trigger(pmac.home)</span></code></p></li>
+<li><p>Another pmac_string that can start a move has the format
+<code class="docutils literal notranslate"><span class="pre">!x..y..</span></code>. This is a command designed to blend any ongoing move
+into a new position. A common one through the serial collection
+code is <code class="docutils literal notranslate"><span class="pre">!x0y0z0</span></code>, which will start a move to 0 for all motors.
+<code class="docutils literal notranslate"><span class="pre">python</span>&#160;&#160;&#160;&#160;&#160; <span class="pre">yield</span> <span class="pre">from</span> <span class="pre">bps.trigger(pmac.to_xyz_zero)</span></code></p></li>
+</ul>
+</li>
+<li><p>The stage motors can also be moved directly through the existing PVs
+<code class="docutils literal notranslate"><span class="pre">ME14E-MO-CHIP-01:{X,Y,Z}</span></code>, for example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">yield from</span> <span class="n">bps</span><span class="o">.</span><span class="n">mv</span><span class="p">(</span><span class="n">pmac</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">pmac</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">DiamondLightSource</span><span class="o">/</span><span class="n">mx_bluesky</span><span class="o">/</span><span class="n">wiki</span><span class="o">/</span><span class="n">Serial</span><span class="o">-</span><span class="n">Crystallography</span><span class="o">-</span><span class="n">on</span><span class="o">-</span><span class="n">I24</span><span class="c1">#cs_reset-custom-chips</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="notes-on-the-coordinate-system-for-a-fixed-target-collection">
+<h2>Notes on the coordinate system for a fixed-target collection<a class="headerlink" href="#notes-on-the-coordinate-system-for-a-fixed-target-collection" title="Link to this heading">#</a></h2>
+<section id="cs-maker-oxford-type-chips-oxford-oxford-inner-minichip">
+<h3>CS_MAKER: Oxford-type chips (Oxford, Oxford-Inner, Minichip)<a class="headerlink" href="#cs-maker-oxford-type-chips-oxford-oxford-inner-minichip" title="Link to this heading">#</a></h3>
+<p>Generally, the first step before a chip collection is to create the
+coordinate system. This is done by first selecting the 3 fiducials on
+the and then clicking the <code class="docutils literal notranslate"><span class="pre">Make</span> <span class="pre">co-ordinate</span> <span class="pre">system</span></code> button. This
+button runs the <code class="docutils literal notranslate"><span class="pre">cs_maker</span></code> plan, which computes the correct
+pmac_strings to assign axes values to each motors.</p>
+<p>Theory for this computation</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Rx</span><span class="p">:</span> <span class="n">rotation</span> <span class="n">about</span> <span class="n">X</span><span class="o">-</span><span class="n">axis</span><span class="p">,</span> <span class="n">pitch</span>
+<span class="n">Ry</span><span class="p">:</span> <span class="n">rotation</span> <span class="n">about</span> <span class="n">Y</span><span class="o">-</span><span class="n">axis</span><span class="p">,</span> <span class="n">yaw</span>
+<span class="n">Rz</span><span class="p">:</span> <span class="n">rotation</span> <span class="n">about</span> <span class="n">Z</span><span class="o">-</span><span class="n">axis</span><span class="p">,</span> <span class="n">roll</span>
+<span class="n">The</span> <span class="n">order</span> <span class="n">of</span> <span class="n">rotation</span> <span class="ow">is</span> <span class="n">Roll</span><span class="o">-&gt;</span><span class="n">Yaw</span><span class="o">-&gt;</span><span class="n">Pitch</span> <span class="p">(</span><span class="n">Rx</span><span class="o">*</span><span class="n">Ry</span><span class="o">*</span><span class="n">Rz</span><span class="p">)</span>
+<span class="n">Rx</span>           <span class="n">Ry</span>          <span class="n">Rz</span>
+<span class="o">|</span><span class="mi">1</span>  <span class="mi">0</span>   <span class="mi">0</span><span class="o">|</span> <span class="o">|</span> <span class="n">Cy</span>  <span class="mi">0</span> <span class="n">Sy</span><span class="o">|</span> <span class="o">|</span><span class="n">Cz</span> <span class="o">-</span><span class="n">Sz</span> <span class="mi">0</span><span class="o">|</span>   <span class="o">|</span> <span class="n">CyCz</span>        <span class="o">-</span><span class="n">CxSz</span>         <span class="n">Sy</span>  <span class="o">|</span>
+<span class="o">|</span><span class="mi">0</span> <span class="n">Cx</span> <span class="o">-</span><span class="n">Sx</span><span class="o">|*|</span>  <span class="mi">0</span>  <span class="mi">1</span>  <span class="mi">0</span><span class="o">|*|</span><span class="n">Sz</span>  <span class="n">Cz</span> <span class="mi">0</span><span class="o">|</span> <span class="o">=</span> <span class="o">|</span> <span class="n">SxSyCz</span><span class="o">+</span><span class="n">CxSz</span> <span class="o">-</span><span class="n">SxSySz</span><span class="o">+</span><span class="n">CxCz</span> <span class="o">-</span><span class="n">SxCy</span><span class="o">|</span>
+<span class="o">|</span><span class="mi">0</span> <span class="n">Sx</span>  <span class="n">Cx</span><span class="o">|</span> <span class="o">|-</span><span class="n">Sy</span>  <span class="mi">0</span> <span class="n">Cy</span><span class="o">|</span> <span class="o">|</span> <span class="mi">0</span>   <span class="mi">0</span> <span class="mi">1</span><span class="o">|</span>   <span class="o">|-</span><span class="n">CxSyCz</span><span class="o">+</span><span class="n">SxSz</span>  <span class="n">CxSySz</span><span class="o">+</span><span class="n">SxCz</span>  <span class="n">CxCy</span><span class="o">|</span>
+
+<span class="n">Skew</span><span class="p">:</span>
+<span class="n">Skew</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">difference</span> <span class="n">between</span> <span class="n">the</span> <span class="n">Sz1</span> <span class="ow">and</span> <span class="n">Sz2</span> <span class="n">after</span> <span class="n">rotation</span> <span class="ow">is</span> <span class="n">taken</span> <span class="n">out</span><span class="o">.</span>
+<span class="n">This</span> <span class="n">should</span> <span class="n">be</span> <span class="n">measured</span> <span class="ow">in</span> <span class="n">situ</span> <span class="n">prior</span> <span class="n">to</span> <span class="n">expriment</span><span class="p">,</span> <span class="n">ie</span><span class="o">.</span> <span class="n">measure</span> <span class="n">by</span> <span class="n">hand</span> <span class="n">using</span>
+<span class="n">opposite</span> <span class="ow">and</span> <span class="n">adjacent</span> <span class="n">RBV</span> <span class="n">after</span> <span class="n">calibration</span> <span class="n">of</span> <span class="n">scale</span> <span class="n">factors</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>The plan needs information stored in a few files: * The motor
+directions are stored in
+<code class="docutils literal notranslate"><span class="pre">src/mx_bluesky/I24/serial/parameters/fixed_target/cs/motor_directions.txt.</span> <span class="pre">The</span> <span class="pre">motor</span> <span class="pre">number</span> <span class="pre">multiplied</span> <span class="pre">by</span> <span class="pre">the</span> <span class="pre">motor</span> <span class="pre">direction</span> <span class="pre">should</span> <span class="pre">give</span> <span class="pre">the</span> <span class="pre">positive</span> <span class="pre">chip</span> <span class="pre">direction.</span> <span class="pre">*</span> <span class="pre">The</span> <span class="pre">scale</span> <span class="pre">values</span> <span class="pre">for</span> <span class="pre">x,y,z,</span> <span class="pre">the</span> <span class="pre">skew</span> <span class="pre">value</span> <span class="pre">and</span> <span class="pre">the</span> <span class="pre">sign</span> <span class="pre">of</span></code>Sx,
+Sy,
+Sz<code class="docutils literal notranslate"><span class="pre">are</span> <span class="pre">all</span> <span class="pre">stored</span> <span class="pre">in</span></code>src/mx_bluesky/I24/serial/parameters/fixed_target/cs/cs_maker.json<code class="docutils literal notranslate"><span class="pre">*</span> <span class="pre">The</span> <span class="pre">fiducials</span> <span class="pre">1</span> <span class="pre">and</span> <span class="pre">2</span> <span class="pre">positions</span> <span class="pre">are</span> <span class="pre">written</span> <span class="pre">to</span> <span class="pre">file</span> <span class="pre">when</span> <span class="pre">selecting</span> <span class="pre">the</span> <span class="pre">fiducials</span> <span class="pre">(Setting</span> <span class="pre">fiducial</span> <span class="pre">0</span> <span class="pre">instead</span> <span class="pre">sends</span> <span class="pre">a</span> <span class="pre">homing</span> <span class="pre">command</span> <span class="pre">directly</span> <span class="pre">to</span> <span class="pre">the</span></code>pmac_string`
+PV)</p>
+<p>NOTE. The <code class="docutils literal notranslate"><span class="pre">motor_direction.txt</span></code> and <code class="docutils literal notranslate"><span class="pre">cs_maker.json</span></code> files should
+only be modified by staff when needed (usually when the stages have been
+off for awhile).</p>
+</section>
+<section id="cs-reset-custom-chips">
+<h3>CS_RESET: Custom chips<a class="headerlink" href="#cs-reset-custom-chips" title="Link to this heading">#</a></h3>
+<p>When using a Custom chip, open the <code class="docutils literal notranslate"><span class="pre">Custom</span> <span class="pre">chip</span></code> edm and before doing
+anything else click the <code class="docutils literal notranslate"><span class="pre">Clear</span> <span class="pre">coordinate</span> <span class="pre">system</span></code> button. This will
+ensure that any pre-existing coordinate system from pre-vious chip
+experiments is wiped and reset.</p>
+<p>This operation is done by the <code class="docutils literal notranslate"><span class="pre">cs_reset</span></code> plan, which sends
+instructions to the PMAC device to assign coordinates to each motor via
+the following pmac_strings:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;#1-&gt;10000X+0Y+0Z&quot;</span>
+<span class="s2">&quot;#2-&gt;+0X-10000Y+0Z&quot;</span>
+<span class="s2">&quot;#3-&gt;0X+0Y-10000Z&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../explanations/decisions/0001-record-architecture-decisions.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">1. Record architecture decisions</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Serial Crystallography on I24</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up-the-environment">Setting up the environment</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deploying-a-local-version-of-the-edm-screens">Deploying a local version of the EDM screens</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-the-current-visit-directory">Setting the current visit directory</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#running-a-collection">Running a collection</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#starting-the-edm-screens">Starting the EDM screens</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#detector-choice">Detector choice</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#extruder-serial-jet">Extruder (Serial Jet)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed-target-serial-fixed">Fixed-Target (Serial Fixed)</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-motor-moves-using-the-pmac-device">Stage motor moves using the PMAC device</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#notes-on-pmac-coordinate-system-and-motors">Notes on PMAC coordinate system and motors</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#notes-on-the-coordinate-system-for-a-fixed-target-collection">Notes on the coordinate system for a fixed-target collection</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cs-maker-oxford-type-chips-oxford-oxford-inner-minichip">CS_MAKER: Oxford-type chips (Oxford, Oxford-Inner, Minichip)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cs-reset-custom-chips">CS_RESET: Custom chips</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/DiamondLightSource/mx_bluesky/edit/main/docs/developer/serial-crystallography-on-i24/reference/serial-crystallography-on-i24.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../../_sources/developer/serial-crystallography-on-i24/reference/serial-crystallography-on-i24.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
