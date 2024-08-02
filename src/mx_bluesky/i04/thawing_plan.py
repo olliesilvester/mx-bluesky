@@ -3,12 +3,53 @@ import bluesky.preprocessors as bpp
 from bluesky.preprocessors import subs_decorator
 from dls_bluesky_core.core import MsgGenerator
 from dodal.common import inject
+from dodal.devices.i04.murko_results import MurkoResult, MurkoResults
 from dodal.devices.oav.ophyd_async_oav import OAV
 from dodal.devices.robot import BartRobot
 from dodal.devices.smargon import Smargon
 from dodal.devices.thawer import Thawer, ThawerStates
 
 from mx_bluesky.i04.callbacks.murko_callback import MurkoCallback
+
+
+def normalize_angle(angle):
+    # Normalize angle to [0, 360]
+    angle %= 360
+    # Force it to be the positive remainder
+    angle = (angle + 360) % 360
+    # Force into the minimum absolute value residue class
+    if angle > 180:
+        angle -= 360
+    return angle
+
+
+def find_nearest(result_1, result_2, omega):
+    # Normalize both angles
+    angle1 = normalize_angle(result_1.omega)
+    angle2 = normalize_angle(result_2.omega)
+    # Calculate absolute difference
+    diff = abs(angle1 - angle2)
+    # Allow crossing over 0
+    nearest = min(diff, 360 - diff)
+    return nearest
+
+
+# def find_nearest(result_1, result_2, omega):
+#     if abs(result_1.omega +90) % 180 < abs(result_2.omega - omega) % 180:
+#         return result_1
+#     else:
+#         return result_2
+
+
+def find_center(current_x_y_z: tuple[float, float, float], results: list[MurkoResult]):
+    result_nearest_0 = result_nearest_90 = results[0]
+
+    for result in results:
+        if abs(result.omega - 0) < abs(result_nearest_0.omega - 0):
+            result_nearest_0 = result
+        if abs(result.omega - 90) < abs(result_nearest_90.omega - 90):
+            result_nearest_90 = result
+        result_nearest_0 = result
 
 
 def thaw_and_center(
@@ -18,6 +59,7 @@ def thaw_and_center(
     thawer: Thawer = inject("thawer"),  # type: ignore
     smargon: Smargon = inject("smargon"),  # type: ignore
     oav: OAV = inject("ophyd_async_oav"),
+    murko_results: MurkoResults = inject("murko_results"),
 ) -> MsgGenerator:
     zoom_level = yield from bps.rd(oav.zoom_controller.level)
     zoom_percentage = yield from bps.rd(oav.zoom_controller.percentage)
@@ -40,9 +82,13 @@ def thaw_and_center(
                 "sample_id": sample_id,
             }
         )
+        yield from bps.kickoff(murko_results, wait=True)
         yield from bps.monitor(oav.array_data, name="oav")
         yield from bps.monitor(smargon.omega.user_readback, name="smargon")
         yield from thaw(time_to_thaw, rotation, thawer, smargon)
+
+        yield from bps.complete(murko_results)
+
         yield from bps.close_run()
 
     yield from _thaw_and_center()

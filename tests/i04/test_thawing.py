@@ -17,7 +17,7 @@ from ophyd_async.core import (
 )
 from ophyd_async.epics.motion import Motor
 
-from mx_bluesky.i04.thawing_plan import thaw, thaw_and_center
+from mx_bluesky.i04.thawing_plan import find_nearest, thaw, thaw_and_center
 
 DISPLAY_CONFIGURATION = "tests/devices/unit_tests/test_display.configuration"
 ZOOM_LEVELS_XML = "tests/devices/unit_tests/test_jCameraManZoomLevels.xml"
@@ -169,3 +169,27 @@ def test_thaw_and_centre_will_produce_events_that_call_murko(
     RE = RunEngine()
     RE(thaw_and_center(10, 360, thawer=thawer, smargon=smargon, oav=oav))
     patch_murko_call.assert_called()
+
+
+@pytest.mark.parametrize(
+    "first_omega, second_omega, first_nearest",
+    [
+        (10, 20, True),
+        (5, 2, False),
+        (-5, 2, False),
+        (181, 175, True),
+        (185, -2, False),
+        (361, -2, True),
+        (10, 179, False),
+    ],
+)
+def test_find_result_nearest(first_omega, second_omega, first_nearest):
+    first = MagicMock()
+    second = MagicMock()
+    first.omega = first_omega
+    second.omega = second_omega
+    result = find_nearest(first, second, 0)
+    if first_nearest:
+        assert result == first
+    else:
+        assert result == second
