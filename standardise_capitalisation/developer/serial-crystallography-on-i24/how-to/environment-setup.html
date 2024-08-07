@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Set up for serial experiments on I24 &#8212; mx_bluesky 0.1.dev637+g94017f3 documentation</title>
+    <title>Set up for serial experiments on I24 &#8212; mx_bluesky 0.1.dev639+g5d66fb1 documentation</title>
   
   
   
@@ -38,7 +38,7 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../../../_static/documentation_options.js?v=71ab5e8b"></script>
+    <script src="../../../_static/documentation_options.js?v=fe1cc001"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -535,14 +535,14 @@ shell commands pointing to the correct scripts/edm locations.</p>
 commissioning beamtime. This can be done by a member of the beamline
 staff by modifying the file <code class="docutils literal notranslate"><span class="pre">/dls_sw/i24/etc/ssx_current_visit.txt</span></code> to
 point to the current visit and then running the command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./path/to/mx_bluesky/src/mx_bluesky/I24/serial/set_visit_directory.sh
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./path/to/mx_bluesky/src/mx_bluesky/i24/serial/set_visit_directory.sh
 </pre></div>
 </div>
 <p>Note that the default experiment type for the script setting the
 directory will be <code class="docutils literal notranslate"><span class="pre">fixed-target</span></code>. In case of an extruder collection,
 to set the correct visit PV the experiment type should be modified from
 the command line.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./path/to/mx_bluesky/src/mx_bluesky/I24/serial/set_visit_directory.sh<span class="w"> </span>extruder
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./path/to/mx_bluesky/src/mx_bluesky/i24/serial/set_visit_directory.sh<span class="w"> </span>extruder
 </pre></div>
 </div>
 </section>
