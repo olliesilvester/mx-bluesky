@@ -32,6 +32,10 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/136_get_centre_from_murko/"
   },
   {
+    "version": "28_fix_docker_build",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/28_fix_docker_build/"
+  },
+  {
     "version": "80_add_do_fgs_plan",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/80_add_do_fgs_plan/"
   },
@@ -58,10 +62,6 @@
   {
     "version": "pre_v0.2.0",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/pre_v0.2.0/"
-  },
-  {
-    "version": "tidy_docs",
-    "url": "https://DiamondLightSource.github.io/mx_bluesky/tidy_docs/"
   },
   {
     "version": "wto16239_draft1",
