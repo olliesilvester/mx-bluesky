@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Contributing to the project &#8212; mx_bluesky 0.1.dev636+g94c9d9e documentation</title>
+    <title>Run a collection &#8212; mx_bluesky 0.1.dev636+g94c9d9e documentation</title>
   
   
   
@@ -44,7 +44,7 @@
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=30646c52"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'developer/general/how-to/contribute';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'developer/serial-crystallography-on-i24/how-to/run-a-collection';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.15.4';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://DiamondLightSource.github.io/mx_bluesky/switcher.json';
@@ -54,8 +54,8 @@
     <link rel="icon" href="../../../_static/dls-favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Build the docs using sphinx" href="build-docs.html" />
-    <link rel="prev" title="Get Started with mx_bluesky" href="get-started.html" />
+    <link rel="next" title="Stage motor moves using the PMAC device" href="stage-pmac-moves.html" />
+    <link rel="prev" title="Set up for serial experiments on I24" href="environment-setup.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -413,35 +413,35 @@ document.write(`
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">General</span></p>
-<ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">General MX-Bluesky Developer Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/dev-install.html">Developer install</a></li>
-<li class="toctree-l2"><a class="reference internal" href="get-started.html">Get Started with mx_bluesky</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Contributing to the project</a></li>
-<li class="toctree-l2"><a class="reference internal" href="build-docs.html">Build the docs using sphinx</a></li>
-<li class="toctree-l2"><a class="reference internal" href="run-tests.html">Run the tests using pytest</a></li>
-<li class="toctree-l2"><a class="reference internal" href="static-analysis.html">Run static analysis using mypy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lint.html">Run linting using pre-commit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="update-tools.html">Update the tools</a></li>
-<li class="toctree-l2"><a class="reference internal" href="create-a-release.html">Create a New Release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="deploy-a-release.html">Deploy a New Release</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../explanations/decisions.html">Architectural Decision Records</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../explanations/decisions/0001-record-architecture-decisions.html">1. Record architecture decisions</a></li>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../general/index.html">General MX-Bluesky Developer Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../general/tutorials/dev-install.html">Developer install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../general/how-to/get-started.html">Get Started with mx_bluesky</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../general/how-to/contribute.html">Contributing to the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../general/how-to/build-docs.html">Build the docs using sphinx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../general/how-to/run-tests.html">Run the tests using pytest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../general/how-to/static-analysis.html">Run static analysis using mypy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../general/how-to/lint.html">Run linting using pre-commit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../general/how-to/update-tools.html">Update the tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../general/how-to/create-a-release.html">Create a New Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../general/how-to/deploy-a-release.html">Deploy a New Release</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../general/explanations/decisions.html">Architectural Decision Records</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../general/explanations/decisions/0001-record-architecture-decisions.html">1. Record architecture decisions</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/standards.html">Standards</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../general/reference/standards.html">Standards</a></li>
 </ul>
 </details></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Serial Crystallography on I24</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../serial-crystallography-on-i24/index.html">I24 Serial Crystallography</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../serial-crystallography-on-i24/project-planning/roadmap.html">Roadmap</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../serial-crystallography-on-i24/how-to/environment-setup.html">Set up for serial experiments on I24</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../serial-crystallography-on-i24/how-to/run-a-collection.html">Run a collection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../serial-crystallography-on-i24/how-to/stage-pmac-moves.html">Stage motor moves using the PMAC device</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../serial-crystallography-on-i24/explanations/decisions.html">Architectural Decision Records</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../serial-crystallography-on-i24/explanations/decisions/0001-record-architecture-decisions.html">1. Record architecture decisions</a></li>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">I24 Serial Crystallography</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../project-planning/roadmap.html">Roadmap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="environment-setup.html">Set up for serial experiments on I24</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Run a collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stage-pmac-moves.html">Stage motor moves using the PMAC device</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../explanations/decisions.html">Architectural Decision Records</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../explanations/decisions/0001-record-architecture-decisions.html">1. Record architecture decisions</a></li>
 </ul>
 </details></li>
 </ul>
@@ -487,9 +487,9 @@ document.write(`
     <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Developer Guide</a></li>
     
     
-    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">General MX-Bluesky Developer Guide</a></li>
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">I24 Serial Crystallography</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">Contributing...</li>
+    <li class="breadcrumb-item active" aria-current="page">Run a collection</li>
   </ul>
 </nav>
 </div>
@@ -506,30 +506,151 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="contributing-to-the-project">
-<h1>Contributing to the project<a class="headerlink" href="#contributing-to-the-project" title="Link to this heading">#</a></h1>
-<p>Contributions and issues are most welcome! All issues and pull requests are
-handled through <a class="reference external" href="https://github.com/DiamondLightSource/mx_bluesky/issues">GitHub</a>. Also, please check for any existing issues before
-filing a new one. If you have a great idea but it involves big changes, please
-file a ticket before making a pull request! We want to make sure you don’t spend
-your time coding something that might not fit the scope of the project.</p>
-<section id="issue-or-discussion">
-<h2>Issue or Discussion?<a class="headerlink" href="#issue-or-discussion" title="Link to this heading">#</a></h2>
-<p>Github also offers <a class="reference external" href="https://github.com/DiamondLightSource/mx_bluesky/discussions">discussions</a> as a place to ask questions and share ideas. If
-your issue is open ended and it is not obvious when it can be “closed”, please
-raise it as a discussion instead.</p>
+  <section id="run-a-collection">
+<h1>Run a collection<a class="headerlink" href="#run-a-collection" title="Link to this heading">#</a></h1>
+<section id="starting-the-edm-screens">
+<h2>Starting the EDM screens<a class="headerlink" href="#starting-the-edm-screens" title="Link to this heading">#</a></h2>
+<p>A couple of entry points have been set up so that:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">run_fixed_target</span></code> starts the edm screens for a fixed target
+collection</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">run_extruder</span></code> starts the edm screens for a serial jet collection</p></li>
+</ul>
+<p>Before opening the experiment specific edm, each of these entry points
+will start a <code class="docutils literal notranslate"><span class="pre">BlueAPI</span></code> server. The configuration used by <code class="docutils literal notranslate"><span class="pre">BlueAPI</span></code>
+is saved in <code class="docutils literal notranslate"><span class="pre">src/mx_bluesky/I24/serial/blueapi_config.yaml</span></code>.</p>
 </section>
-<section id="code-coverage">
-<h2>Code coverage<a class="headerlink" href="#code-coverage" title="Link to this heading">#</a></h2>
-<p>While 100% code coverage does not make a library bug-free, it significantly
-reduces the number of easily caught bugs! Please make sure coverage remains the
-same or is improved by a pull request!</p>
+<section id="detector-choice">
+<h2>Detector choice<a class="headerlink" href="#detector-choice" title="Link to this heading">#</a></h2>
+<p>The detector currently in use is identified by reading the position of
+the detector stage in the y direction. A different detector can be chose
+by opening the <code class="docutils literal notranslate"><span class="pre">Detector</span></code> tab in the main edm screen, selecting the
+detector name from the list and clicking the <code class="docutils literal notranslate"><span class="pre">Move</span> <span class="pre">Stage</span></code> button,
+which will move the detector stage to the correct height and update the
+relative PVs.</p>
+<p>Detectors available for serial: Pilatus 6M or Eiger CdTe 9M.</p>
 </section>
-<section id="developer-guide">
-<h2>Developer guide<a class="headerlink" href="#developer-guide" title="Link to this heading">#</a></h2>
-<p>The <a class="reference external" href="https://diamondlightsource.github.io/mx_bluesky/main/developer/how-to/contribute.html">Developer Guide</a> contains information on setting up a development
-environment, running the tests and what standards the code and documentation
-should follow.</p>
+<section id="extruder-serial-jet">
+<h2>Extruder (Serial Jet)<a class="headerlink" href="#extruder-serial-jet" title="Link to this heading">#</a></h2>
+<p>On startup, once both the visit and the detector have been set up,
+<strong>always</strong> press the <code class="docutils literal notranslate"><span class="pre">initialise</span> <span class="pre">on</span> <span class="pre">start</span></code> button, which will autofill
+the general purpose PVs for an extruder collection with sensible default
+values, as well as the chosen visit directory and detector. Ensure that
+the visit shown on the edm screen is correct.</p>
+<p>I - <strong>Align Jet</strong></p>
+<p>Open the viewer and switch on the backlight to visualise the jet stream.
+You can use the positioners in the <code class="docutils literal notranslate"><span class="pre">Align</span> <span class="pre">Jet</span></code> panel on the edm screen
+to move the orizontal goniometer table and align the jet.</p>
+<p>II - <strong>Set experiment parameters</strong></p>
+<ol class="arabic simple">
+<li><p>Data collection set up</p></li>
+</ol>
+<p>In the edm screen fill the fields in <code class="docutils literal notranslate"><span class="pre">Data</span> <span class="pre">Collation</span> <span class="pre">Setup</span></code> with
+information such as sub-directory, filename, number of images, exposure
+time and detector distance. It is recommended to not collect all data
+into a single sub-directory but split into multiple smaller collections.</p>
+<ol class="arabic simple" start="2">
+<li><p>Pump Probe</p></li>
+</ol>
+<p>For a pump-probe experiment, select <code class="docutils literal notranslate"><span class="pre">True</span></code> on the dropdown menu in
+<code class="docutils literal notranslate"><span class="pre">Data</span> <span class="pre">Collection</span> <span class="pre">Setup</span></code> and then set the laser dwell and delay times
+in the <code class="docutils literal notranslate"><span class="pre">Pump</span> <span class="pre">Probe</span></code> panel. <strong>WARNING</strong> This setting requires an
+hardware change, as there are only 4 outputs on the zebra and they are
+all in use. When using the Eiger the Pilatus trigger cable should be
+used to trigger the light source. When using the pilatus the eiger
+trigger cable should be used.</p>
+<p>III - <strong>Run collection</strong></p>
+<p>Once all parameters have been set, press <code class="docutils literal notranslate"><span class="pre">Start</span></code> to run the
+collection. A stream log will show what is going on in the terminal.</p>
+</section>
+<section id="fixed-target-serial-fixed">
+<h2>Fixed-Target (Serial Fixed)<a class="headerlink" href="#fixed-target-serial-fixed" title="Link to this heading">#</a></h2>
+<p>I - <strong>Make coordinate system</strong></p>
+<p>Generally the first thing to do before running a chip collection is to
+set up the coordinate system.</p>
+<p>Before this step remember to reset the scale and skew factors as well as
+the motor directions as needed. Current values are saved in
+<code class="docutils literal notranslate"><span class="pre">src/mx_bluesky/I24/serial/parameters/fixed_target</span></code> in the
+<code class="docutils literal notranslate"><span class="pre">cs_maker.json</span></code> and <code class="docutils literal notranslate"><span class="pre">motor_direction.txt</span></code> files.</p>
+<ol class="arabic simple">
+<li><p>From the main edm screen open the <code class="docutils literal notranslate"><span class="pre">viewer</span></code> and <code class="docutils literal notranslate"><span class="pre">moveonclick</span></code>.</p></li>
+<li><p>Find the first fiducial in the top left corner, centre it and press
+<code class="docutils literal notranslate"><span class="pre">set</span> <span class="pre">fiducial</span> <span class="pre">0</span></code>.</p></li>
+<li><p>Move to Fiducial 1 and 2 and repeat the process.</p></li>
+<li><p>Once all fiducials have been set, press <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">coordianates</span> <span class="pre">system</span></code>.
+If all worked correctly it will find the first window in the first
+block.</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">block</span> <span class="pre">check</span></code> to check that all blocks are correctly aligned.
+WARNING: <code class="docutils literal notranslate"><span class="pre">block</span> <span class="pre">check</span></code> is not available for a custom chip.</p></li>
+</ol>
+<p>II - <strong>Select experiment parameters</strong></p>
+<ol class="arabic simple">
+<li><p>In the edm screen fill the fields in
+<code class="docutils literal notranslate"><span class="pre">Chip</span> <span class="pre">and</span> <span class="pre">Data</span> <span class="pre">Collation</span> <span class="pre">Setup</span></code> with information such as
+sub-directory, filename, exposure time and detector distance.</p></li>
+<li><p>Select chip and map type</p></li>
+</ol>
+<p>Select the <code class="docutils literal notranslate"><span class="pre">Chip</span> <span class="pre">Type</span></code> from the drop-down menu on the edm screen.
+Currently available chips: 0. Oxford 1. Oxford Inner 2. Custom 3.
+Minichip</p>
+<p>When using a non-custom chip <code class="docutils literal notranslate"><span class="pre">Map</span> <span class="pre">Type</span></code> should always be selected, for
+other chips it’s only necessary when wanting to collect only on selected
+blocks.</p>
+<ul class="simple">
+<li><p>For a full-chip collection on an Oxford-type chip, <code class="docutils literal notranslate"><span class="pre">Map</span> <span class="pre">Type</span></code>
+should simply be set to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p>For a Custom Chip, click on the <code class="docutils literal notranslate"><span class="pre">Custom</span> <span class="pre">Chip</span></code> button, which will
+bring up the relative edm. Here, the steps are the following:</p>
+<ol class="arabic simple">
+<li><p>Clear Coordinate System. This will reset the coordinates.</p></li>
+<li><p>Fill in the fields for number of windows and step size in x/y
+direction.</p></li>
+<li><p>Press <code class="docutils literal notranslate"><span class="pre">Set</span> <span class="pre">current</span> <span class="pre">position</span> <span class="pre">as</span> <span class="pre">start</span></code>.</p></li>
+<li><p>Once finished, close and return to main screen.</p></li>
+</ol>
+</li>
+<li><p>For collecting only on specific windows on an Oxford chip:</p>
+<ol class="arabic simple">
+<li><p>Set the <code class="docutils literal notranslate"><span class="pre">Mapping</span> <span class="pre">Type</span></code> to <code class="docutils literal notranslate"><span class="pre">Lite</span></code>. This will make the Lite
+launchers button visible.</p></li>
+<li><p>On the launcher, select the blocks to collect - either manually or
+using a preset set.</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">Save</span> <span class="pre">Screen</span> <span class="pre">Map</span></code>. This will create a <code class="docutils literal notranslate"><span class="pre">currentchip.map</span></code>
+file which will be copied to the data directory at collection
+time.</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">Upload</span> <span class="pre">Parameters</span></code>.</p></li>
+<li><p>Once finished, close and return to main screen.</p></li>
+</ol>
+</li>
+</ul>
+<ol class="arabic simple" start="3">
+<li><p>Select pump probe</p></li>
+</ol>
+<p>After setting the exposure time, open <code class="docutils literal notranslate"><span class="pre">Pump</span> <span class="pre">Probe</span></code> screen from main
+edm. The box will appear by selecting one of the settings from the drop
+down menu.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Short1</span></code> and <code class="docutils literal notranslate"><span class="pre">Short2</span></code>: once opened set the laser dwell and delay
+times.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Repeat#</span></code>: Set laser dwell and press calculate to get the delay
+times for each repeat mode.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Medium1</span></code>: open and close fast shutter between exposures, long
+delays between each one.</p></li>
+</ul>
+<p>Select the most appropriate pump probe setting for your collection and
+set the laser dwell and delay times accordingly.</p>
+<p>For more details on the pump probe settings see <a class="reference external" href="https://confluence.diamond.ac.uk/display/MXTech/Dynamics+and+fixed+targets">Dynamics and fixed
+targets</a></p>
+<p>III - <strong>Save the parameters</strong></p>
+<p><strong>This step cannot be skipped!</strong></p>
+<p>Once all of the previous steps have been completed - and before running
+a collection - all parameters have to be saved using the
+<code class="docutils literal notranslate"><span class="pre">Set</span> <span class="pre">parameters</span></code> button so that they can be applied to the collection.
+A copy parameter file will be saved along with the chip map (if
+applicable) in the data directory at collection time.</p>
+<p>IV - <strong>Run a collection</strong></p>
+<p>Once all parameters have been set, press <code class="docutils literal notranslate"><span class="pre">Start</span></code> to run the
+collection. A stream log will show what is going on in the terminal.</p>
 </section>
 </section>
 
@@ -544,20 +665,20 @@ should follow.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="get-started.html"
+       href="environment-setup.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Get Started with mx_bluesky</p>
+        <p class="prev-next-title">Set up for serial experiments on I24</p>
       </div>
     </a>
     <a class="right-next"
-       href="build-docs.html"
+       href="stage-pmac-moves.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Build the docs using sphinx</p>
+        <p class="prev-next-title">Stage motor moves using the PMAC device</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -579,9 +700,10 @@ should follow.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-or-discussion">Issue or Discussion?</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#code-coverage">Code coverage</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#developer-guide">Developer guide</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#starting-the-edm-screens">Starting the EDM screens</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#detector-choice">Detector choice</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#extruder-serial-jet">Extruder (Serial Jet)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed-target-serial-fixed">Fixed-Target (Serial Fixed)</a></li>
 </ul>
   </nav></div>
 
@@ -589,7 +711,7 @@ should follow.</p>
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/DiamondLightSource/mx_bluesky/edit/main/docs/developer/general/how-to/contribute.rst">
+    <a href="https://github.com/DiamondLightSource/mx_bluesky/edit/main/docs/developer/serial-crystallography-on-i24/how-to/run-a-collection.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
@@ -604,7 +726,7 @@ should follow.</p>
   <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="../../../_sources/developer/general/how-to/contribute.rst.txt">
+    <a href="../../../_sources/developer/serial-crystallography-on-i24/how-to/run-a-collection.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>
