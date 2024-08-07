@@ -68,6 +68,10 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/standardise_capitalisation/"
   },
   {
+    "version": "tidy_docs_more",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/tidy_docs_more/"
+  },
+  {
     "version": "wto16239_draft1",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/wto16239_draft1/"
   }
