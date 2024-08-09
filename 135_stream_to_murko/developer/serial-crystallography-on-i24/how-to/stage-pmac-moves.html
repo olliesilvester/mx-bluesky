@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Stage motor moves using the PMAC device &#8212; mx_bluesky 0.1.dev649+gac7798f documentation</title>
+    <title>Stage motor moves using the PMAC device &#8212; mx_bluesky 0.1.dev651+gde7d8b9 documentation</title>
   
   
   
@@ -38,7 +38,7 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../../../_static/documentation_options.js?v=821f277b"></script>
+    <script src="../../../_static/documentation_options.js?v=ceea59d0"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -586,8 +586,8 @@ pmac_strings to assign axes values to each motors.</p>
 </div>
 <p>The plan needs information stored in a few files:</p>
 <ul class="simple">
-<li><p>The motor directions are stored in <code class="docutils literal notranslate"><span class="pre">src/mx_bluesky/I24/serial/parameters/fixed_target/cs/motor_directions.txt.</span></code> The motor number multiplied by the motor direction should give the positive chip direction.</p></li>
-<li><p>The scale values for x,y,z, the skew value and the sign of Sx, Sy, Sz are all stored in <code class="docutils literal notranslate"><span class="pre">src/mx_bluesky/I24/serial/parameters/fixed_target/cs/cs_maker.json</span></code></p></li>
+<li><p>The motor directions are stored in <code class="docutils literal notranslate"><span class="pre">src/mx_bluesky/i24/serial/parameters/fixed_target/cs/motor_directions.txt.</span></code> The motor number multiplied by the motor direction should give the positive chip direction.</p></li>
+<li><p>The scale values for x,y,z, the skew value and the sign of Sx, Sy, Sz are all stored in <code class="docutils literal notranslate"><span class="pre">src/mx_bluesky/i24/serial/parameters/fixed_target/cs/cs_maker.json</span></code></p></li>
 <li><p>The fiducials 1 and 2 positions are written to file when selecting the fiducials (Setting fiducial 0 instead sends a homing command directly to the pmac_string PV)</p></li>
 </ul>
 <p>NOTE. The <code class="docutils literal notranslate"><span class="pre">motor_direction.txt</span></code> and <code class="docutils literal notranslate"><span class="pre">cs_maker.json</span></code> files should
