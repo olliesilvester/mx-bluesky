@@ -48,6 +48,10 @@
     "url": "https://DiamondLightSource.github.io/mx_bluesky/i24-parameters/"
   },
   {
+    "version": "merge-bimorph-plan",
+    "url": "https://DiamondLightSource.github.io/mx_bluesky/merge-bimorph-plan/"
+  },
+  {
     "version": "pre_v0.0.1",
     "url": "https://DiamondLightSource.github.io/mx_bluesky/pre_v0.0.1/"
   },
