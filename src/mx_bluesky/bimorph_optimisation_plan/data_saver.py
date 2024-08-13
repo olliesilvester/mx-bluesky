@@ -10,7 +10,8 @@ def generate_filename(
 
     Args:
         file_prefix (optional): Prefix for filename
-        file_timestamp_format (optional): datetime library timestamp format for filename
+        file_timestamp_format (optional): datetime library timestamp format
+            for filename
 
     Returns:
         A string fiename without full path
@@ -68,7 +69,8 @@ def make_csv(docs: list) -> str:
 
 def define_data_aggregator(filepath: str, filename: str) -> tuple[list, Callable]:
     """
-    Create a data structure and defines a function to give to Run Engine to save data
+    Create a data structure and defines a function to give to Run Engine to
+        save data
 
     Args:
         filepath: Directory to save file into
