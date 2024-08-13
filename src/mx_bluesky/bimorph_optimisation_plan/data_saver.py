@@ -43,7 +43,7 @@ def make_csv(docs: list) -> str:
 
     for doc in docs:
         if "run_start" in doc and "data_keys" in doc:
-            headers = [header for header in doc["data_keys"]]
+            headers = list(doc["data_keys"])
             headers.sort()
             for header in headers:
                 csv_dict[header] = []
