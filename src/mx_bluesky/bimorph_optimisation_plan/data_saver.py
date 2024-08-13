@@ -3,8 +3,7 @@ from typing import Callable, Dict, Tuple, Union
 
 
 def generate_filename(
-    file_prefix: Union[str, None] = None,
-    file_timestamp_format: Union[str, None] = None
+    file_prefix: Union[str, None] = None, file_timestamp_format: Union[str, None] = None
 ) -> str:
     """Generated a filename (without path) for plan output csv
 
@@ -60,17 +59,14 @@ def make_csv(docs: list) -> str:
     csv_str = ",".join(headers) + "\n"
 
     csv_str += "\n".join(
-        [",".join(row) for row in zip(
-            *[csv_dict[header] for header in headers]
-            )]
+        [",".join(row) for row in zip(*[csv_dict[header] for header in headers])]
     )
 
     # return csv_str
     return csv_str
 
 
-def define_data_aggregator(filepath: str, filename: str) -> \
-                                            Tuple[list, Callable]:
+def define_data_aggregator(filepath: str, filename: str) -> Tuple[list, Callable]:
     """
     Create a data structure and defines a function to give to Run Engine to
         save data

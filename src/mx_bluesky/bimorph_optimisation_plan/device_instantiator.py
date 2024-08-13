@@ -6,7 +6,7 @@ def get_bimorph(bimorph_type: str, bimorph_prefix: str, bimorph_name: str = "bim
         bimorph_type: Type of bimorph to instantiate
         bimorph_prefix: Prefix for bimorph ophyd object
         bimorph_name: Name for bimorph ophyd object
-    
+
     Returns:
         A bimorph ophyd object
     """
@@ -28,18 +28,18 @@ def get_bimorph(bimorph_type: str, bimorph_prefix: str, bimorph_name: str = "bim
         from dodal.devices.bimorph_mirrors.CAENels_bimorph_mirror_12_channel import (
             CAENelsBimorphMirror12Channel,
         )
-        
+
         bimorph_class = CAENelsBimorphMirror12Channel
-    
+
     elif bimorph_type == "CAENelsBimorphMirror16Channel":
         from dodal.devices.bimorph_mirrors.CAENels_bimorph_mirror_16_channel import (
             CAENelsBimorphMirror16Channel,
         )
 
         bimorph_class = CAENelsBimorphMirror16Channel
-    
+
     elif bimorph_type == "CAENelsBimorphMirror32Channel":
-        from dodal.devices.bimorph_mirrors.CAENels_bimorph_mirror_32_channel import(
+        from dodal.devices.bimorph_mirrors.CAENels_bimorph_mirror_32_channel import (
             CAENelsBimorphMirror32Channel,
         )
 
@@ -62,14 +62,12 @@ def get_slit(slit_type: str, slit_prefix: str, slit_name: str = "slit"):
         slit_type: Type of slit to instantiate
         slit_prefix: Prefix for slit ophyd object
         slit_name: Name for slit ophyd object
-    
+
     Returns:
         A slit ophyd object
-    """    
+    """
     if slit_type == "SimulatedSlit":
-        from dodal.devices.slits.simulated_slit import(
-            SimulatedSlit
-        )
+        from dodal.devices.slits.simulated_slit import SimulatedSlit
 
         slit_class = SimulatedSlit
 
@@ -111,20 +109,22 @@ def get_oav(
 
     Returns:
         An oav ophyd object
-    """  
+    """
     from dodal.devices.oav.oav_detector import OAV, OAVConfigParams
+
     oav_config_params = OAVConfigParams(
-        oav_zoom_parameters_filepath,
-        oav_display_configuration_filepath
+        oav_zoom_parameters_filepath, oav_display_configuration_filepath
     )
 
-    oav = OAV(params = oav_config_params, name=oav_name, prefix=oav_prefix)
+    oav = OAV(params=oav_config_params, name=oav_name, prefix=oav_prefix)
     oav.wait_for_connection()
 
     return oav
 
 
-def get_centroid_device(centroid_device_prefix: str, centroid_device_name: str, values_to_average: int = 1):
+def get_centroid_device(
+    centroid_device_prefix: str, centroid_device_name: str, values_to_average: int = 1
+):
     """
     Takes config data and return centroid device object
 
@@ -139,8 +139,7 @@ def get_centroid_device(centroid_device_prefix: str, centroid_device_name: str, 
     from bimorph_optimisation_plan.pencil_beam_scan_2d_slit_plan import CentroidDevice
 
     centroid_device = CentroidDevice(
-        name=centroid_device_name,
-        prefix=centroid_device_prefix
+        name=centroid_device_name, prefix=centroid_device_prefix
     )
 
     centroid_device.wait_for_connection()

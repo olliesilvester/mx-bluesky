@@ -16,7 +16,9 @@ __all__ = ["main"]
 
 def main(args=None):
     parser = ArgumentParser()
-    parser.add_argument("config_filepath", type=str, nargs=1, help="Filepath to configuration json")
+    parser.add_argument(
+        "config_filepath", type=str, nargs=1, help="Filepath to configuration json"
+    )
     parser.add_argument("-v", "--version", action="version", version=__version__)
     args = parser.parse_args(args)
 
@@ -32,22 +34,23 @@ def run_plan(config_dict):
     bimorph = device_instantiator.get_bimorph(
         config_dict.get("bimorph_type"),
         config_dict.get("bimorph_prefix"),
-        config_dict.get("bimorph_name")
+        config_dict.get("bimorph_name"),
     )
 
     slit = device_instantiator.get_slit(
         config_dict.get("slit_type"),
         config_dict.get("slit_prefix"),
-        config_dict.get("slit_name")
+        config_dict.get("slit_name"),
     )
 
     centroid_device = device_instantiator.get_centroid_device(
-        config_dict.get("centroid_device_prefix"), config_dict.get("centroid_device_name"), config_dict.get("values_to_average")
+        config_dict.get("centroid_device_prefix"),
+        config_dict.get("centroid_device_name"),
+        config_dict.get("values_to_average"),
     )
 
     filename = data_saver.generate_filename(
-        config_dict.get("file_prefix"),
-        config_dict.get("file_timestamp_format")
+        config_dict.get("file_prefix"), config_dict.get("file_timestamp_format")
     )
 
     data_list, aggregate_docs = data_saver.define_data_aggregator(

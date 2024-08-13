@@ -198,7 +198,7 @@ def pencil_beam_scan_2d_slit(
         slit_read[2]["slit_y_center_readback_value"]["value"],
         slit_read[3]["slit_y_size_readback_value"]["value"],
     ]
-    print(f"start_slit_positions: {start_slit_positions}")
+    print(f"start_slit_positions: { start_slit_positions}")
 
     bimorph_move_count = 1
     for voltage_list in voltage_list_generator(initial_voltage_list, voltage_increment):
