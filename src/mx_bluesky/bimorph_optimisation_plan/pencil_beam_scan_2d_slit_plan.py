@@ -35,8 +35,8 @@ class CentroidDevice(Device):
         valutes_to_average: Number of reads centroid will do, then take mean
     """
 
-    centroid_x_rbv: EpicsSignalRO = Component(EpicsSignalRO, "CentroidX_RBV")
-    centroid_y_rbv: EpicsSignalRO = Component(EpicsSignalRO, "CentroidY_RBV")
+    centroid_x_rbv: Component = Component(EpicsSignalRO, "CentroidX_RBV")
+    centroid_y_rbv: Component = Component(EpicsSignalRO, "CentroidY_RBV")
 
     values_to_average = 1
 
