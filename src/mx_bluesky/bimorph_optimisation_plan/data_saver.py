@@ -1,9 +1,10 @@
 from datetime import datetime
-from typing import Callable, Dict
+from typing import Callable, Dict, Union
 
 
 def generate_filename(
-    file_prefix: str = None, file_timestamp_format: str = None
+    file_prefix: Union[str, None] = None,
+    file_timestamp_format: Union[str, None] = None
 ) -> str:
     """Generated a filename (without path) for plan output csv
 
