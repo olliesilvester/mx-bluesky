@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Callable
+from typing import Callable, Dict
 
 
 def generate_filename(
@@ -41,7 +41,7 @@ def make_csv(docs: list) -> str:
     Returms:
         A string of given list's csv equivalent
     """
-    csv_dict = {}
+    csv_dict: Dict[str, list] = {}
     headers = []
 
     for doc in docs:
