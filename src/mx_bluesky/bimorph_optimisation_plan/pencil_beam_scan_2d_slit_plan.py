@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from enum import Enum
+from typing import Union
 
 import bluesky.plan_stubs as bps
 from dodal.devices.bimorph_mirrors.CAENels_bimorph_mirror_interface import (
@@ -152,7 +153,7 @@ def pencil_beam_scan_2d_slit(
     inactive_slit_size: float,
     number_of_slit_positions: int,
     bimorph_settle_time: float,
-    initial_voltage_list: list = None,
+    initial_voltage_list: Union[list, None] = None,
 ):
     """Bluesky plan that performs a pencil beam scan across one axis using a 2-dimensional slit.
 
@@ -182,7 +183,7 @@ def pencil_beam_scan_2d_slit(
         print("Turning bimorph on...")
         bimorph.protected_set(bimorph.on_off, 1)
 
-    start_voltages = bimorph.read_from_all_channels_by_attribute(
+    start_voltages: list = bimorph.read_from_all_channels_by_attribute(
         ChannelAttribute.VOUT_RBV
     )
 
