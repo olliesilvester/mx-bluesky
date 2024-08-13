@@ -60,7 +60,9 @@ def make_csv(docs: list) -> str:
     csv_str = ",".join(headers) + "\n"
 
     csv_str += "\n".join(
-        [",".join(row) for row in zip(*[csv_dict[header] for header in headers])]
+        [",".join(row) for row in zip(
+            *[csv_dict[header] for header in headers]
+            )]
     )
 
     # return csv_str
