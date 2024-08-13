@@ -20,7 +20,8 @@ class SlitDimension(Enum):
         X: Represents X dimension
         Y: Represents Y dimension
     """
-    X = "X",
+
+    X = ("X",)
     Y = "Y"
 
 
@@ -32,12 +33,9 @@ class CentroidDevice(Device):
         centroid_y_rbv: An EpicsSignalRO for the centroid Y readback value
         valutes_to_average: Number of reads centroid will do, then take mean
     """
-    centroid_x_rbv: EpicsSignalRO = Component(
-        EpicsSignalRO, "CentroidX_RBV"
-    )
-    centroid_y_rbv: EpicsSignalRO = Component(
-        EpicsSignalRO, "CentroidY_RBV"
-    )
+
+    centroid_x_rbv: EpicsSignalRO = Component(EpicsSignalRO, "CentroidX_RBV")
+    centroid_y_rbv: EpicsSignalRO = Component(EpicsSignalRO, "CentroidY_RBV")
 
     values_to_average = 1
 
@@ -47,23 +45,29 @@ class CentroidDevice(Device):
         for _ in range(self.values_to_average):
             centroid_x_read = self.centroid_x_rbv.read()
             centroid_y_read = self.centroid_y_rbv.read()
-            centroid_x_summation += centroid_x_read[self.name+"_centroid_x_rbv"]["value"]
-            centroid_y_summation += centroid_y_read[self.name+"_centroid_y_rbv"]["value"]
+            centroid_x_summation += centroid_x_read[self.name + "_centroid_x_rbv"][
+                "value"
+            ]
+            centroid_y_summation += centroid_y_read[self.name + "_centroid_y_rbv"][
+                "value"
+            ]
 
-        centroid_x_mean = centroid_x_summation / self.values_to_average        
+        centroid_x_mean = centroid_x_summation / self.values_to_average
         centroid_y_mean = centroid_y_summation / self.values_to_average
 
-        centroid_x_read[self.name+"_centroid_x_rbv"]["value"] = centroid_x_mean
-        centroid_y_read[self.name+"_centroid_y_rbv"]["value"] = centroid_y_mean
+        centroid_x_read[self.name + "_centroid_x_rbv"]["value"] = centroid_x_mean
+        centroid_y_read[self.name + "_centroid_y_rbv"]["value"] = centroid_y_mean
 
         od = OrderedDict()
-        
-        od[self.name+"_centroid_x_rbv"] = centroid_x_read[self.name+"_centroid_x_rbv"]
-        od[self.name+"_centroid_y_rbv"] = centroid_y_read[self.name+"_centroid_y_rbv"]
+
+        od[self.name + "_centroid_x_rbv"] = centroid_x_read[
+            self.name + "_centroid_x_rbv"
+        ]
+        od[self.name + "_centroid_y_rbv"] = centroid_y_read[
+            self.name + "_centroid_y_rbv"
+        ]
 
         return od
-
-
 
 
 def voltage_list_generator(initial_list, increment):
@@ -72,11 +76,11 @@ def voltage_list_generator(initial_list, increment):
     The generator takes an initial list of voltages and an increment.
     It will apply this increment once to each element fron 0..n in turn.
     This is how a pencil scan applies voltages.
-    
+
     Args:
         initial_list: the pre-increment list of voltages
         increment: float to increment each element by in turn
-    
+
     Yields:
         A list of floats to apply to bimorph mirror
     """
@@ -97,7 +101,6 @@ def slit_position_generator_2d(
     number_of_slit_positions: int,
     slit_dimension: SlitDimension,
 ):
-
     """Generator that yields positions to write to a 2d slit for a pencil beam scan.
 
     Yields positions that vary across one dimension, while keeping the other constant.
@@ -179,7 +182,9 @@ def pencil_beam_scan_2d_slit(
         print("Turning bimorph on...")
         bimorph.protected_set(bimorph.on_off, 1)
 
-    start_voltages = bimorph.read_from_all_channels_by_attribute(ChannelAttribute.VOUT_RBV)
+    start_voltages = bimorph.read_from_all_channels_by_attribute(
+        ChannelAttribute.VOUT_RBV
+    )
 
     # By default, if no initial voltages supplied, use current voltages as start:
     if initial_voltage_list is None:
@@ -209,9 +214,8 @@ def pencil_beam_scan_2d_slit(
             inactive_slit_center,
             inactive_slit_size,
             number_of_slit_positions,
-            active_dimension
+            active_dimension,
         ):
-
             yield from bps.mv(slit, slit_position)
 
             yield from bps.create()
