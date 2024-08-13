@@ -1,6 +1,5 @@
 import json
 
-import pytest
 from bimorph_optimisation_plan.__main__ import run_plan
 
 
