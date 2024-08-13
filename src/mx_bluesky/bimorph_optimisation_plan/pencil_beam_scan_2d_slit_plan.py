@@ -2,7 +2,6 @@ from collections import OrderedDict
 from enum import Enum
 
 import bluesky.plan_stubs as bps
-import bluesky.preprocessors as bpp
 from dodal.devices.bimorph_mirrors.CAENels_bimorph_mirror_interface import (
     CAENelsBimorphMirrorInterface,
     ChannelAttribute,
