@@ -13,6 +13,7 @@ classifiers = [
 ]
 description = "Bluesky tools for MX Beamlines at DLS"
 dependencies = [
+    "ipython",
     "bluesky",
     "ophyd",
     "pyepics",
@@ -57,6 +58,7 @@ dev = [
 
 [project.scripts]
 mx-bluesky = "mx_bluesky.__main__:main"
+jungfrau-comissioning = "mx_bluesky.i24.jungfrau_commissioning.__main__:main"
 run_extruder = "mx_bluesky.i24.serial.run_serial:run_extruder"
 run_fixed_target = "mx_bluesky.i24.serial.run_serial:run_fixed_target"
 
