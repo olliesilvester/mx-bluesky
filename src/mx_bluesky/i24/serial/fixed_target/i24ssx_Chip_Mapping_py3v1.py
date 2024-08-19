@@ -35,7 +35,7 @@ def setup_logging():
 def read_file_make_dict(fid, chip_type, switch=False):
     a_dict = {}
     b_dict = {}
-    with open(fid, "r") as f:
+    with open(fid) as f:
         for line in f.readlines():
             if line.startswith("#"):
                 continue
@@ -79,8 +79,8 @@ def plot_file(fid, chip_type):
     ax1.set_xlim(-1, 26)
     ax1.set_ylim(-1, 26)
     ax1.invert_yaxis()
-    check_files(["%s.png" % chip_type])
-    plt.savefig("%s.png" % fid[:-5], dpi=200, bbox_inches="tight", pad_inches=0.05)
+    check_files("i24", [f"{chip_type}.png"])
+    plt.savefig(f"{fid[:-5]}.png", dpi=200, bbox_inches="tight", pad_inches=0.05)
     return 1
 
 
@@ -88,27 +88,27 @@ def plot_file(fid, chip_type):
 def convert_chip_to_hex(fid, chip_type):
     chip_dict = read_file_make_dict(fid, chip_type, True)
     chip_format = get_chip_format(ChipType(chip_type))
-    check_files(["%s.full" % chip_type])
-    with open("%s.full" % fid[:-5], "w") as g:
+    check_files("i24", [f"{chip_type}.full"])
+    with open(f"{fid[:-5]}.full", "w") as g:
         # Normal
         if chip_type in [ChipType.Oxford, ChipType.OxfordInner]:
             shot_order_list = get_shot_order(chip_type)
             logger.info("Shot Order List: \n")
-            logger.info("%s" % shot_order_list[:14])
-            logger.info("%s" % shot_order_list[-14:])
+            logger.info(f"{shot_order_list[:14]}")
+            logger.info(f"{shot_order_list[-14:]}")
             for i, k in enumerate(shot_order_list):
                 if i % 20 == 0:
                     logger.info("\n")
                 else:
-                    logger.info("%s" % k)
+                    logger.info(f"{k}")
             sorted_pres_list = []
             for addr in shot_order_list:
                 sorted_pres_list.append(chip_dict[addr])
 
             windows_per_block = chip_format.x_num_steps
-            number_of_lines = len(sorted_pres_list) / windows_per_block
+            number_of_lines = int(len(sorted_pres_list) / windows_per_block)
             hex_length = windows_per_block / 4
-            pad = 7 - hex_length
+            pad = int(7 - hex_length)
             for i in range(number_of_lines):
                 sublist = sorted_pres_list[
                     i * windows_per_block : (i * windows_per_block) + windows_per_block
@@ -117,24 +117,24 @@ def convert_chip_to_hex(fid, chip_type):
                     right_list = sublist
                 else:
                     right_list = sublist[::-1]
-                hex_string = ("{0:0>%sX}" % hex_length).format(
+                hex_string = (f"{{0:0>{hex_length}X}}").format(
                     int("".join(str(x) for x in right_list), 2)
                 )
-                hex_string = hex_string + pad * "0"
+                hex_string = hex_string + (pad * "0")
                 pvar = 5001 + i
-                line = "P%s=$%s" % (pvar, hex_string)
+                line = f"P{pvar}=${hex_string}"
                 g.write(line + "\n")
                 logger.info("hex string: %s" % (hex_string + 4 * "0"))
-                logger.info("line number= %s" % i)
+                logger.info(f"line number= {i}")
                 logger.info(
-                    "right_list: \n%s\n" % ("".join(str(x) for x in right_list))
+                    "right_list: \n{}\n".format("".join(str(x) for x in right_list))
                 )
-                logger.info("PVAR: %s" % line)
+                logger.info(f"PVAR: {line}")
                 if (i + 1) % windows_per_block == 0:
                     logger.info(
                         "\n %s" % (40 * (" %i" % ((i / windows_per_block) + 2)))
                     )
-            logger.info("hex_length: %s" % hex_length)
+            logger.info(f"hex_length: {hex_length}")
         else:
             logger.warning("Chip type unknown, no conversion done.")
     return 0
@@ -144,12 +144,12 @@ def main():
     setup_logging()
     params = read_parameter_file()
 
-    check_files([".spec"])
+    check_files("i24", [".spec"])
     write_file(suffix=".spec", order="shot")
 
-    logger.info("PARAMETER PATH = %s" % PARAM_FILE_PATH_FT)
+    logger.info(f"PARAMETER PATH = {PARAM_FILE_PATH_FT}")
     fid = PARAM_FILE_PATH_FT / f"{params.filename}.spec"
-    logger.info("FID = %s" % fid)
+    logger.info(f"FID = {fid}")
 
     plot_file(fid, params.chip.chip_type.value)
     convert_chip_to_hex(fid, params.chip.chip_type.value)

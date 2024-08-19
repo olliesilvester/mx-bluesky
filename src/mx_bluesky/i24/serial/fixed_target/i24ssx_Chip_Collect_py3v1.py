@@ -8,7 +8,6 @@ import time
 from datetime import datetime
 from pathlib import Path
 from time import sleep
-from typing import Dict, List
 
 import bluesky.plan_stubs as bps
 import bluesky.preprocessors as bpp
@@ -126,7 +125,7 @@ def write_userlog(
     # Write a record of what was collected to the processing directory
     userlog_path = Path(parameters.visit) / f"processing/{parameters.directory}"
     userlog_fid = f"{filename}_parameters.txt"
-    logger.debug("Write a user log in %s" % userlog_path)
+    logger.debug(f"Write a user log in {userlog_path}")
 
     userlog_path.mkdir(parents=True, exist_ok=True)
 
@@ -172,7 +171,7 @@ def get_chip_prog_values(
     elif parameters.pump_repeat == PumpProbeSetting.Repeat10:
         pump_repeat_pvar = 10
     else:
-        logger.warning(f"Unknown pump_repeat, pump_repeat = {parameters.pump_repeat}")
+        raise ValueError(f"Unknown pump_repeat, pump_repeat = {parameters.pump_repeat}")
 
     logger.info(
         f"Pump repeat is {str(parameters.pump_repeat)}, PVAR set to {pump_repeat_pvar}"
@@ -185,7 +184,7 @@ def get_chip_prog_values(
 
     logger.info(f"pump_in_probe set to {pump_in_probe}")
 
-    chip_dict: Dict[str, list] = {
+    chip_dict: dict[str, list] = {
         "X_NUM_STEPS": [11, parameters.chip.x_num_steps],
         "Y_NUM_STEPS": [12, parameters.chip.y_num_steps],
         "X_STEP_SIZE": [13, parameters.chip.x_step_size],
@@ -224,7 +223,7 @@ def get_chip_prog_values(
 @log.log_on_entry
 def load_motion_program_data(
     pmac: PMAC,
-    motion_program_dict: Dict[str, List],
+    motion_program_dict: dict[str, list],
     map_type: int,
     pump_repeat: int,
     checker_pattern: bool,
@@ -266,7 +265,7 @@ def load_motion_program_data(
         pvar = pvar_base + v[0]
         value = str(v[1])
         s = f"P{pvar}={value}"
-        logger.info("%s \t %s" % (key, s))
+        logger.info(f"{key} \t {s}")
         yield from bps.abs_set(pmac.pmac_string, s, wait=True)
         yield from bps.sleep(0.02)
     yield from bps.sleep(0.2)
@@ -353,7 +352,7 @@ def datasetsizei24(
         logger.info(f"Using Mapping Lite on chip type {chip_params.chip_type}")
         chip_format = chip_params.chip_format[2:4]
         block_count = 0
-        with open(LITEMAP_PATH / "currentchip.map", "r") as f:
+        with open(LITEMAP_PATH / "currentchip.map") as f:
             for line in f.readlines():
                 entry = line.split()
                 if entry[2] == "1":
@@ -399,7 +398,7 @@ def start_i24(
 
     logger.info("Start I24 data collection.")
     start_time = datetime.now()
-    logger.info("Collection start time %s" % start_time.ctime())
+    logger.info(f"Collection start time {start_time.ctime()}")
 
     logger.debug("Set up beamline")
     yield from sup.setup_beamline_for_collection_plan(
@@ -454,7 +453,7 @@ def start_i24(
             exposure_time=parameters.exposure_time_s,
             shots_per_position=parameters.num_exposures,
             pump_exposure_time=parameters.laser_dwell_s,
-            pump_delay=parameters.laser_delay_s,
+            pump_delay=parameters.laser_delay_s or 0,
             pump_status=parameters.pump_repeat.value,
         )
 
@@ -497,7 +496,7 @@ def start_i24(
         sleep(0.5)
         caput(pv.pilat_acquire, "1")  # Arm pilatus
         logger.debug("Pilatus data collection DONE")
-        sup.pilatus("return to normal")
+        sup.pilatus("return to normal", None)
         logger.info("Pilatus back to normal. Single image pilatus data collection DONE")
 
         logger.info(f"Triggered Eiger setup: filepath {filepath}")
@@ -529,7 +528,7 @@ def start_i24(
             exposure_time=parameters.exposure_time_s,
             shots_per_position=parameters.num_exposures,
             pump_exposure_time=parameters.laser_dwell_s,
-            pump_delay=parameters.laser_delay_s,
+            pump_delay=parameters.laser_delay_s or 0,
             pump_status=parameters.pump_repeat.value,
         )
 
@@ -581,13 +580,15 @@ def finish_i24(
         logger.debug("Finish I24 Pilatus")
         complete_filename = f"{parameters.filename}_{caget(pv.pilat_filenum)}"
         yield from reset_zebra_when_collection_done_plan(zebra)
-        sup.pilatus("return-to-normal")
+        sup.pilatus("return-to-normal", None)
         sleep(0.2)
     elif parameters.detector_name == "eiger":
         logger.debug("Finish I24 Eiger")
         yield from reset_zebra_when_collection_done_plan(zebra)
-        sup.eiger("return-to-normal")
+        sup.eiger("return-to-normal", None)
         complete_filename = cagetstring(pv.eiger_ODfilenameRBV)  # type: ignore
+    else:
+        raise ValueError(f"{parameters.detector_name=} unrecognised")
 
     # Detector independent moves
     logger.info("Move chip back to home position by setting PMAC_STRING pv.")
@@ -691,7 +692,7 @@ def collection_complete_plan(
     dcid: DCID, collection_directory: Path, map_type: MappingType
 ) -> MsgGenerator:
     end_time = datetime.now()
-    logger.debug("Collection end time %s" % end_time)
+    logger.debug(f"Collection end time {end_time}")
     dcid.collection_complete(end_time, aborted=False)
 
     # Copy parameter file and eventual chip map to collection directory

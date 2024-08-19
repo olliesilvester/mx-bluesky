@@ -75,7 +75,7 @@ def initialise_extruder(
     logger.info("Initialise Parameters for extruder data collection on I24.")
 
     visit = caget(pv.ioc12_gp1)
-    logger.info("Visit defined %s" % visit)
+    logger.info(f"Visit defined {visit}")
 
     # Define detector in use
     det_type = yield from get_detector_type(detector_stage)
@@ -156,7 +156,7 @@ def write_parameter_file(detector_stage: DetectorMotion):
             # high probability of users accidentally overwriting data. Use a dash
             filename = filename + "-"
             logger.info(
-                "Requested filename ends in a number. Appended dash: %s" % filename
+                f"Requested filename ends in a number. Appended dash: {filename}"
             )
 
     pump_status = bool(caget(pv.ioc12_gp6))
@@ -164,7 +164,7 @@ def write_parameter_file(detector_stage: DetectorMotion):
     pump_delay = float(caget(pv.ioc12_gp10)) if pump_status else None
 
     params_dict = {
-        "visit": log._read_visit_directory_from_file().as_posix(),
+        "visit": log._read_visit_directory_from_file().as_posix(),  # noqa
         "directory": caget(pv.ioc12_gp2),
         "filename": filename,
         "exposure_time_s": float(caget(pv.ioc12_gp5)),
@@ -281,7 +281,7 @@ def main_extruder_plan(
         sleep(0.5)
         caput(pv.pilat_acquire, "1")  # Arm pilatus
         logger.debug("Pilatus data collection DONE")
-        sup.pilatus("return to normal")
+        sup.pilatus("return to normal", None)
         logger.info("Pilatus back to normal. Single image pilatus data collection DONE")
 
         caput(pv.eiger_seqID, int(caget(pv.eiger_seqID)) + 1)
@@ -342,7 +342,7 @@ def main_extruder_plan(
         num_images=parameters.num_images,
         exposure_time=parameters.exposure_time_s,
         pump_exposure_time=parameters.laser_dwell_s,
-        pump_delay=parameters.laser_delay_s,
+        pump_delay=parameters.laser_delay_s or 0,
         pump_status=int(parameters.pump_status),
     )
 
@@ -370,7 +370,7 @@ def main_extruder_plan(
     i = 0
     text_list = ["|", "/", "-", "\\"]
     while True:
-        line_of_text = "\r\t\t\t Waiting   " + 30 * ("%s" % text_list[i % 4])
+        line_of_text = "\r\t\t\t Waiting   " + 30 * (f"{text_list[i % 4]}")
         flush_print(line_of_text)
         sleep(0.5)
         i += 1
@@ -425,9 +425,9 @@ def tidy_up_at_collection_end_plan(
 
     # Clean Up
     if parameters.detector_name == "pilatus":
-        sup.pilatus("return-to-normal")
+        sup.pilatus("return-to-normal", None)
     elif parameters.detector_name == "eiger":
-        sup.eiger("return-to-normal")
+        sup.eiger("return-to-normal", None)
         logger.debug(f"{parameters.filename}_{caget(pv.eiger_seqID)}")
     logger.debug("End of Run")
     logger.debug("Close hutch shutter")
@@ -452,7 +452,7 @@ def collection_complete_plan(
 
     end_time = datetime.now()
     dcid.collection_complete(end_time, aborted=False)
-    logger.info("End Time = %s" % end_time.ctime())
+    logger.info(f"End Time = {end_time.ctime()}")
 
     # Copy parameter file
     shutil.copy2(
@@ -473,7 +473,7 @@ def run_extruder_plan(
 ) -> MsgGenerator:
     setup_logging()
     start_time = datetime.now()
-    logger.info("Collection start time: %s" % start_time.ctime())
+    logger.info(f"Collection start time: {start_time.ctime()}")
 
     yield from write_parameter_file(detector_stage)
     parameters = ExtruderParameters.from_file(PARAM_FILE_PATH / PARAM_FILE_NAME)
@@ -487,22 +487,24 @@ def run_extruder_plan(
 
     yield from bpp.contingency_wrapper(
         main_extruder_plan(
-            zebra,
-            aperture,
-            backlight,
-            beamstop,
-            detector_stage,
-            shutter,
-            parameters,
-            dcm,
-            dcid,
-            start_time,
+            zebra=zebra,
+            aperture=aperture,
+            backlight=backlight,
+            beamstop=beamstop,
+            detector_stage=detector_stage,
+            shutter=shutter,
+            dcm=dcm,
+            parameters=parameters,
+            dcid=dcid,
+            start_time=start_time,
         ),
         except_plan=lambda e: (
             yield from collection_aborted_plan(zebra, parameters.detector_name, dcid)
         ),
         else_plan=lambda: (
-            yield from collection_complete_plan(parameters.collection_directory, dcid)
+            yield from collection_complete_plan(
+                parameters.collection_directory, parameters.detector_name, dcid
+            )
         ),
         final_plan=lambda: (
             yield from tidy_up_at_collection_end_plan(zebra, shutter, parameters, dcid)

@@ -6,7 +6,7 @@ API
     ``mx_bluesky``
     -----------------------------------
 
-This is the internal API reference for mx_bluesky
+This is the internal API reference for mx-bluesky
 
 .. data:: mx_bluesky.__version__
     :type: str

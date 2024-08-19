@@ -12,7 +12,6 @@ import time
 from pathlib import Path
 from pprint import pformat
 from time import sleep
-from typing import Tuple
 
 import bluesky.plan_stubs as bps
 import numpy as np
@@ -125,9 +124,7 @@ def write_parameter_file(
     # Create directory if it doesn't yet exist.
     param_path.mkdir(parents=True, exist_ok=True)
 
-    logger.info(
-        "Writing Parameter File: %s" % (param_path / PARAM_FILE_NAME).as_posix()
-    )
+    logger.info(f"Writing Parameter File: {(param_path / PARAM_FILE_NAME).as_posix()}")
 
     filename = caget(pv.me14e_chip_name)
     det_type = yield from get_detector_type(detector_stage)
@@ -144,11 +141,11 @@ def write_parameter_file(
             # high probability of users accidentally overwriting data. Use a dash
             filename = filename + "-"
             logger.debug(
-                "Requested filename ends in a number. Appended dash: %s" % filename
+                f"Requested filename ends in a number. Appended dash: {filename}"
             )
 
     params_dict = {
-        "visit": log._read_visit_directory_from_file().as_posix(),
+        "visit": log._read_visit_directory_from_file().as_posix(),  # noqa
         "directory": caget(pv.me14e_filepath),
         "filename": filename,
         "exposure_time_s": caget(pv.me14e_exptime),
@@ -181,7 +178,7 @@ def write_parameter_file(
 def scrape_pvar_file(fid: str, pvar_dir: Path = PVAR_FILE_PATH):
     block_start_list = []
 
-    with open(pvar_dir / fid, "r") as f:
+    with open(pvar_dir / fid) as f:
         lines = f.readlines()
     for line in lines:
         line = line.rstrip()
@@ -216,17 +213,17 @@ def define_current_chip(
     caput(pv.me14e_gp2, 1)
     """
     chip_type = int(caget(CHIPTYPE_PV))
-    logger.info("Chip type:%s Chipid:%s" % (chip_type, chipid))
+    logger.info(f"Chip type:{chip_type} Chipid:{chipid}")
     if chipid == "oxford":
         caput(CHIPTYPE_PV, 0)
 
-    with open(PVAR_FILE_PATH / f"{chipid}.pvar", "r") as f:
-        logger.info("Opening %s.pvar" % chipid)
+    with open(PVAR_FILE_PATH / f"{chipid}.pvar") as f:
+        logger.info(f"Opening {chipid}.pvar")
         for line in f.readlines():
             if line.startswith("#"):
                 continue
             line_from_file = line.rstrip("\n")
-            logger.info("%s" % line_from_file)
+            logger.info(f"{line_from_file}")
             yield from bps.abs_set(pmac.pmac_string, line_from_file)
 
 
@@ -236,7 +233,7 @@ def save_screen_map() -> MsgGenerator:
     litemap_path: Path = LITEMAP_PATH
     litemap_path.mkdir(parents=True, exist_ok=True)
 
-    logger.info("Saving %s currentchip.map" % litemap_path.as_posix())
+    logger.info(f"Saving {litemap_path.as_posix()} currentchip.map")
     with open(litemap_path / "currentchip.map", "w") as f:
         logger.debug("Printing only blocks with block_val == 1")
         for x in range(1, 82):
@@ -251,22 +248,24 @@ def save_screen_map() -> MsgGenerator:
 
 @log.log_on_entry
 def upload_parameters(
-    chipid: str = "oxford",
-    pmac: PMAC = inject("pmac"),
+    chipid: str = "oxford", pmac: PMAC = inject("pmac"), width: int | None = None
 ) -> MsgGenerator:
     setup_logging()
     logger.info("Uploading Parameters to the GeoBrick")
     if chipid == "oxford":
         caput(CHIPTYPE_PV, 0)
         width = 8
+    else:
+        if width is None:
+            raise Exception("Supply a width if chipid is not oxford")
 
     map_file: Path = LITEMAP_PATH / "currentchip.map"
     if not map_file.exists():
         raise FileNotFoundError(f"The file {map_file} has not yet been created")
 
-    with open(map_file, "r") as f:
-        logger.info("Chipid %s" % chipid)
-        logger.info("width %d" % width)
+    with open(map_file) as f:
+        logger.info(f"Chipid {chipid}")
+        logger.info(f"width {width}")
         x = 1
         for line in f.readlines()[: width**2]:
             cols = line.split()
@@ -293,7 +292,7 @@ def upload_parameters(
 
 
 @log.log_on_entry
-def upload_full(pmac: PMAC = None) -> MsgGenerator:
+def upload_full(pmac: PMAC | None = None) -> MsgGenerator:
     setup_logging()
     if not pmac:
         pmac = i24.pmac()
@@ -301,15 +300,15 @@ def upload_full(pmac: PMAC = None) -> MsgGenerator:
     map_file: Path = FULLMAP_PATH / "currentchip.full"
     if not map_file.exists():
         raise FileNotFoundError(f"The file {map_file} has not yet been created")
-    with open(map_file, "r") as fh:
+    with open(map_file) as fh:
         f = fh.readlines()
 
-    for i in range(len(f) // 2):
+    for _i in range(len(f) // 2):
         pmac_list = []
-        for j in range(2):
+        for _j in range(2):
             pmac_list.append(f.pop(0).rstrip("\n"))
         writeline = " ".join(pmac_list)
-        logger.info("%s" % writeline)
+        logger.info(f"{writeline}")
         yield from bps.abs_set(pmac.pmac_string, writeline, wait=True)
         yield from bps.sleep(0.02)
     logger.debug("Upload fullmap done")
@@ -511,7 +510,7 @@ def load_stock_map(map_choice: str = "clear") -> MsgGenerator:
         sys.stdout.write(".")
         sys.stdout.flush()
     logger.info("Map cleared")
-    logger.info("Loading Map Choice %s" % map_choice)
+    logger.info(f"Loading Map Choice {map_choice}")
     for i in map_dict[map_choice]:
         pvar = "ME14E-MO-IOC-01:GP" + str(i + 10)
         caput(pvar, 1)
@@ -565,12 +564,14 @@ def load_lite_map() -> MsgGenerator:
                 label = "%02.d" % (lab_num + 1)
                 btn_names[button_name] = label
         block_dict = btn_names
+    else:
+        raise ValueError(f"{chip_type=} unrecognised")
 
     litemap_fid = f"{caget(MAP_FILEPATH_PV)}.lite"
     logger.info("Please wait, loading LITE map")
     logger.debug("Loading Lite Map")
     logger.info("Opening %s" % (LITEMAP_PATH / litemap_fid))
-    with open(LITEMAP_PATH / litemap_fid, "r") as fh:
+    with open(LITEMAP_PATH / litemap_fid) as fh:
         f = fh.readlines()
     for line in f:
         entry = line.split()
@@ -578,7 +579,7 @@ def load_lite_map() -> MsgGenerator:
         yesno = entry[1]
         block_num = block_dict[block_name]
         pvar = "ME14E-MO-IOC-01:GP" + str(int(block_num) + 10)
-        logger.info("Block: %s \tScanned: %s \tPVAR: %s" % (block_name, yesno, pvar))
+        logger.info(f"Block: {block_name} \tScanned: {yesno} \tPVAR: {pvar}")
     logger.debug("Load lite map done")
     yield from bps.null()
 
@@ -589,13 +590,14 @@ def load_full_map() -> MsgGenerator:
     params = startup.read_parameter_file()
 
     fullmap_fid = FULLMAP_PATH / f"{caget(MAP_FILEPATH_PV)}.spec"
-    logger.info("Opening %s" % fullmap_fid)
+    logger.info(f"Opening {fullmap_fid}")
     mapping.plot_file(fullmap_fid, params.chip.chip_type.value)
     mapping.convert_chip_to_hex(fullmap_fid, params.chip.chip_type.value)
     shutil.copy2(fullmap_fid.with_suffix(".full"), FULLMAP_PATH / "currentchip.full")
     logger.info(
-        "Copying %s to %s"
-        % (fullmap_fid.with_suffix(".full"), FULLMAP_PATH / "currentchip.full")
+        "Copying {} to {}".format(
+            fullmap_fid.with_suffix(".full"), FULLMAP_PATH / "currentchip.full"
+        )
     )
     logger.debug("Load full map done")
     yield from bps.null()
@@ -639,7 +641,7 @@ def moveto_preset(
 
     # Non Chip Specific Move
     if place == "zero":
-        logger.info("Moving to %s" % place)
+        logger.info(f"Moving to {place}")
         yield from bps.trigger(pmac.to_xyz_zero)
 
     elif place == "load_position":
@@ -669,7 +671,7 @@ def moveto_preset(
 @log.log_on_entry
 def laser_control(laser_setting: str, pmac: PMAC = inject("pmac")) -> MsgGenerator:
     setup_logging()
-    logger.info("Move to: %s" % laser_setting)
+    logger.info(f"Move to: {laser_setting}")
     if laser_setting == "laser1on":  # these are in laser edm
         logger.info("Laser 1 /BNC2 shutter is open")
         # Use M712 = 0 if triggering on falling edge. M712 =1 if on rising edge
@@ -692,7 +694,7 @@ def laser_control(laser_setting: str, pmac: PMAC = inject("pmac")) -> MsgGenerat
     elif laser_setting == "laser1burn":
         led_burn_time = caget(pv.me14e_gp103)
         logger.info("Laser 1  on")
-        logger.info("Burn time is %s s" % led_burn_time)
+        logger.info(f"Burn time is {led_burn_time} s")
         yield from bps.abs_set(pmac.laser, LaserSettings.LASER_1_ON, wait=True)
         yield from bps.sleep(led_burn_time)
         logger.info("Laser 1 off")
@@ -701,7 +703,7 @@ def laser_control(laser_setting: str, pmac: PMAC = inject("pmac")) -> MsgGenerat
     elif laser_setting == "laser2burn":
         led_burn_time = caget(pv.me14e_gp109)
         logger.info("Laser 2 on")
-        logger.info("burntime %s s" % led_burn_time)
+        logger.info(f"burntime {led_burn_time} s")
         yield from bps.abs_set(pmac.laser, LaserSettings.LASER_2_ON, wait=True)
         yield from bps.sleep(led_burn_time)
         logger.info("Laser 2 off")
@@ -710,7 +712,7 @@ def laser_control(laser_setting: str, pmac: PMAC = inject("pmac")) -> MsgGenerat
 
 @log.log_on_entry
 def scrape_mtr_directions(motor_file_path: Path = CS_FILES_PATH):
-    with open(motor_file_path / "motor_direction.txt", "r") as f:
+    with open(motor_file_path / "motor_direction.txt") as f:
         lines = f.readlines()
     mtr1_dir, mtr2_dir, mtr3_dir = 1.0, 1.0, 1.0
     for line in lines:
@@ -722,7 +724,7 @@ def scrape_mtr_directions(motor_file_path: Path = CS_FILES_PATH):
             mtr3_dir = float(line.split("=")[1])
         else:
             continue
-    logger.debug("mt1_dir %s mtr2_dir %s mtr3_dir %s" % (mtr1_dir, mtr2_dir, mtr3_dir))
+    logger.debug(f"mt1_dir {mtr1_dir} mtr2_dir {mtr2_dir} mtr3_dir {mtr3_dir}")
     return mtr1_dir, mtr2_dir, mtr3_dir
 
 
@@ -739,7 +741,7 @@ def fiducial(point: int = 1, pmac: PMAC = inject("pmac")) -> MsgGenerator:
 
     output_param_path = PARAM_FILE_PATH_FT
     output_param_path.mkdir(parents=True, exist_ok=True)
-    logger.info("Writing Fiducial File %s/fiducial_%s.txt" % (output_param_path, point))
+    logger.info(f"Writing Fiducial File {output_param_path}/fiducial_{point}.txt")
     logger.info("MTR\tRBV\tRAW\tCorr\tf_value")
     logger.info("MTR1\t%1.4f\t%i" % (rbv_1, mtr1_dir))
     logger.info("MTR2\t%1.4f\t%i" % (rbv_2, mtr2_dir))
@@ -756,8 +758,8 @@ def fiducial(point: int = 1, pmac: PMAC = inject("pmac")) -> MsgGenerator:
 
 def scrape_mtr_fiducials(
     point: int, param_path: Path = PARAM_FILE_PATH_FT
-) -> Tuple[float, float, float]:
-    with open(param_path / f"fiducial_{point}.txt", "r") as f:
+) -> tuple[float, float, float]:
+    with open(param_path / f"fiducial_{point}.txt") as f:
         f_lines = f.readlines()[1:]
     f_x = float(f_lines[0].rsplit()[1])
     f_y = float(f_lines[1].rsplit()[1])
@@ -803,18 +805,18 @@ def cs_maker(pmac: PMAC = inject("pmac")) -> MsgGenerator:
     fiducial_dict[1] = [24.600, 24.600]
     fiducial_dict[2] = [25.400, 25.400]
     fiducial_dict[3] = [18.25, 18.25]
-    logger.info("Chip type is %s with size %s" % (chip_type, fiducial_dict[chip_type]))
+    logger.info(f"Chip type is {chip_type} with size {fiducial_dict[chip_type]}")
 
     mtr1_dir, mtr2_dir, mtr3_dir = scrape_mtr_directions()
     f1_x, f1_y, f1_z = scrape_mtr_fiducials(1)
     f2_x, f2_y, f2_z = scrape_mtr_fiducials(2)
-    logger.info("mtr1 direction: %s" % mtr1_dir)
-    logger.info("mtr2 direction: %s" % mtr2_dir)
-    logger.info("mtr3 direction: %s" % mtr3_dir)
+    logger.info(f"mtr1 direction: {mtr1_dir}")
+    logger.info(f"mtr2 direction: {mtr2_dir}")
+    logger.info(f"mtr3 direction: {mtr3_dir}")
 
     # Scale parameters saved in json file
     try:
-        with open(CS_FILES_PATH / "cs_maker.json", "r") as fh:
+        with open(CS_FILES_PATH / "cs_maker.json") as fh:
             cs_info = json.load(fh)
     except json.JSONDecodeError:
         logger.error("Invalid JSON file.")
@@ -849,22 +851,22 @@ def cs_maker(pmac: PMAC = inject("pmac")) -> MsgGenerator:
     Sz1 = -1 * f1_y / fiducial_dict[chip_type][0]
     Sz2 = f2_x / fiducial_dict[chip_type][1]
     Sz = Sz_dir * ((Sz1 + Sz2) / 2)
-    Cz = np.sqrt((1 - Sz**2))
-    logger.info("Sz1 , %1.4f, %1.4f" % (Sz1, np.degrees(np.arcsin(Sz1))))
-    logger.info("Sz2 , %1.4f, %1.4f" % (Sz2, np.degrees(np.arcsin(Sz2))))
-    logger.info("Sz , %1.4f, %1.4f" % (Sz, np.degrees(np.arcsin(Sz))))
-    logger.info("Cz , %1.4f, %1.4f" % (Cz, np.degrees(np.arcsin(Cz))))
+    Cz = np.sqrt(1 - Sz**2)
+    logger.info(f"Sz1 , {Sz1:1.4f}, {np.degrees(np.arcsin(Sz1)):1.4f}")
+    logger.info(f"Sz2 , {Sz2:1.4f}, {np.degrees(np.arcsin(Sz2)):1.4f}")
+    logger.info(f"Sz , {Sz:1.4f}, {np.degrees(np.arcsin(Sz)):1.4f}")
+    logger.info(f"Cz , {Cz:1.4f}, {np.degrees(np.arcsin(Cz)):1.4f}")
     # Rotation Around Y
     Sy = Sy_dir * f1_z / fiducial_dict[chip_type][0]
-    Cy = np.sqrt((1 - Sy**2))
-    logger.info("Sy , %1.4f, %1.4f" % (Sy, np.degrees(np.arcsin(Sy))))
-    logger.info("Cy , %1.4f, %1.4f" % (Cy, np.degrees(np.arcsin(Cy))))
+    Cy = np.sqrt(1 - Sy**2)
+    logger.info(f"Sy , {Sy:1.4f}, {np.degrees(np.arcsin(Sy)):1.4f}")
+    logger.info(f"Cy , {Cy:1.4f}, {np.degrees(np.arcsin(Cy)):1.4f}")
     # Rotation Around X
     # If stages upsidedown (I24) change sign of Sx
     Sx = Sx_dir * f2_z / fiducial_dict[chip_type][1]
-    Cx = np.sqrt((1 - Sx**2))
-    logger.info("Sx , %1.4f, %1.4f" % (Sx, np.degrees(np.arcsin(Sx))))
-    logger.info("Cx , %1.4f, %1.4f" % (Cx, np.degrees(np.arcsin(Cx))))
+    Cx = np.sqrt(1 - Sx**2)
+    logger.info(f"Sx , {Sx:1.4f}, {np.degrees(np.arcsin(Sx)):1.4f}")
+    logger.info(f"Cx , {Cx:1.4f}, {np.degrees(np.arcsin(Cx)):1.4f}")
 
     x1factor = mtr1_dir * scalex * (Cy * Cz)
     y1factor = mtr2_dir * scaley * (-1.0 * Cx * Sz)
@@ -878,14 +880,14 @@ def cs_maker(pmac: PMAC = inject("pmac")) -> MsgGenerator:
     y3factor = mtr2_dir * scaley * ((Cx * Sy * Sz) + (Sx * Cz))
     z3factor = mtr3_dir * scalez * (Cx * Cy)
 
-    logger.info("Skew being used is: %1.4f" % skew)
+    logger.info(f"Skew being used is: {skew:1.4f}")
     s1 = np.degrees(np.arcsin(Sz1))
     s2 = np.degrees(np.arcsin(Sz2))
     rot = np.degrees(np.arcsin((Sz1 + Sz2) / 2))
     calc_skew = (s1 - rot) - (s2 - rot)
-    logger.info("s1:%1.4f s2:%1.4f rot:%1.4f" % (s1, s2, rot))
-    logger.info("Calculated rotation from current fiducials is: %1.4f" % rot)
-    logger.info("Calculated Skew from current fiducials is: %1.4f" % calc_skew)
+    logger.info(f"s1:{s1:1.4f} s2:{s2:1.4f} rot:{rot:1.4f}")
+    logger.info(f"Calculated rotation from current fiducials is: {rot:1.4f}")
+    logger.info(f"Calculated Skew from current fiducials is: {calc_skew:1.4f}")
     logger.info("Calculated Skew has been known to have the wrong sign")
 
     sinD = np.sin((skew / 2) * (np.pi / 180))
@@ -895,10 +897,10 @@ def cs_maker(pmac: PMAC = inject("pmac")) -> MsgGenerator:
     new_x2factor = (x2factor * cosD) + (y2factor * sinD)
     new_y2factor = (x2factor * sinD) + (y2factor * cosD)
 
-    cs1 = "#1->%+1.3fX%+1.3fY%+1.3fZ" % (new_x1factor, new_y1factor, z1factor)
-    cs2 = "#2->%+1.3fX%+1.3fY%+1.3fZ" % (new_x2factor, new_y2factor, z2factor)
-    cs3 = "#3->%+1.3fX%+1.3fY%+1.3fZ" % (x3factor, y3factor, z3factor)
-    logger.info("PMAC strings. \ncs1: %s \ncs2: %scs3: %s" % (cs1, cs2, cs3))
+    cs1 = f"#1->{new_x1factor:+1.3f}X{new_y1factor:+1.3f}Y{z1factor:+1.3f}Z"
+    cs2 = f"#2->{new_x2factor:+1.3f}X{new_y2factor:+1.3f}Y{z2factor:+1.3f}Z"
+    cs3 = f"#3->{x3factor:+1.3f}X{y3factor:+1.3f}Y{z3factor:+1.3f}Z"
+    logger.info(f"PMAC strings. \ncs1: {cs1} \ncs2: {cs2}cs3: {cs3}")
     logger.info(
         """These next values should be 1.
         This is the sum of the squares of the factors divided by their scale."""
@@ -906,7 +908,7 @@ def cs_maker(pmac: PMAC = inject("pmac")) -> MsgGenerator:
     sqfact1 = np.sqrt(x1factor**2 + y1factor**2 + z1factor**2) / scalex
     sqfact2 = np.sqrt(x2factor**2 + y2factor**2 + z2factor**2) / scaley
     sqfact3 = np.sqrt(x3factor**2 + y3factor**2 + z3factor**2) / scalez
-    logger.info("%1.4f \n %1.4f \n %1.4f" % (sqfact1, sqfact2, sqfact3))
+    logger.info(f"{sqfact1:1.4f} \n {sqfact2:1.4f} \n {sqfact3:1.4f}")
     logger.debug("Long wait, please be patient")
     yield from bps.trigger(pmac.to_xyz_zero)
     sleep(2.5)
@@ -915,7 +917,7 @@ def cs_maker(pmac: PMAC = inject("pmac")) -> MsgGenerator:
     sleep(0.1)
     yield from bps.trigger(pmac.home, wait=True)
     sleep(0.1)
-    logger.debug("Chip_type is %s" % chip_type)
+    logger.debug(f"Chip_type is {chip_type}")
     if chip_type == 0:
         yield from bps.abs_set(pmac.pmac_string, "!x0.4y0.4", wait=True)
         sleep(0.1)
@@ -968,8 +970,8 @@ def pumpprobe_calc() -> MsgGenerator:
     exptime = float(caget(pv.me14e_exptime))
     pumpexptime = float(caget(pv.me14e_gp103))
     movetime = 0.008
-    logger.info("X-ray exposure time %s" % exptime)
-    logger.info("Laser dwell time %s" % pumpexptime)
+    logger.info(f"X-ray exposure time {exptime}")
+    logger.info(f"Laser dwell time {pumpexptime}")
     repeat1 = 2 * 20 * (movetime + (pumpexptime + exptime) / 2)
     repeat2 = 4 * 20 * (movetime + (pumpexptime + exptime) / 2)
     repeat3 = 6 * 20 * (movetime + (pumpexptime + exptime) / 2)
@@ -984,7 +986,7 @@ def pumpprobe_calc() -> MsgGenerator:
     ):
         rounded = round(repeat, 4)
         caput(pv_name, rounded)
-        logger.info("Repeat (%s): %s s" % (pv_name, rounded))
+        logger.info(f"Repeat ({pv_name}): {rounded} s")
     logger.debug("PP calculations done")
     yield from bps.null()
 
@@ -1015,7 +1017,7 @@ def block_check(pmac: PMAC = inject("pmac")) -> MsgGenerator:
                     sleep(1.0)
                     break
                 block, x, y = entry
-                logger.debug("Block: %s -> (x=%s y=%s)" % (block, x, y))
+                logger.debug(f"Block: {block} -> (x={x} y={y})")
                 yield from bps.abs_set(pmac.pmac_string, f"!x{x}y{y}", wait=True)
                 time.sleep(0.4)
         else:

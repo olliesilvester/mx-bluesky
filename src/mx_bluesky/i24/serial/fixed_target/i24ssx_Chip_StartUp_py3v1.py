@@ -7,7 +7,6 @@ import os
 import string
 import time
 from pathlib import Path
-from typing import List
 
 import numpy as np
 
@@ -41,10 +40,11 @@ def read_parameter_file(
 
 @log.log_on_entry
 def fiducials(chip_type: int):
+    fiducial_list: list | None = None
     if chip_type in [ChipType.Oxford, ChipType.OxfordInner, ChipType.Minichip]:
-        fiducial_list: list = []
-        # No fiducial for custom
+        fiducial_list = []
     elif chip_type == ChipType.Custom:
+        # No fiducial for custom
         logger.warning("No fiducials for custom chip")
     else:
         logger.warning(f"Unknown chip_type, {chip_type}, in fiducials")
@@ -76,7 +76,9 @@ def get_xy(addr: str, chip_type: ChipType):
     return x, y
 
 
-def pathli(l_in=[], way="typewriter", reverse=False):
+def pathli(l_in=None, way="typewriter", reverse=False):
+    if l_in is None:
+        l_in = []
     if reverse is True:
         li = list(reversed(l_in))
     else:
@@ -102,18 +104,18 @@ def pathli(l_in=[], way="typewriter", reverse=False):
                     long_list += lr
         elif way == "expand":
             for entry in li:
-                for rep in range(len(li)):
+                for _ in range(len(li)):
                     long_list.append(entry)
         elif way == "expand28":
             for entry in li:
-                for rep in range(28):
+                for _ in range(28):
                     long_list.append(entry)
         elif way == "expand25":
             for entry in li:
-                for rep in range(25):
+                for _ in range(25):
                     long_list.append(entry)
         else:
-            logger.warning("No known path, way =  %s" % way)
+            logger.warning(f"No known path, way =  {way}")
     else:
         logger.warning("No list written")
     return long_list
@@ -125,7 +127,7 @@ def zippum(list_1_args, list_2_args):
     A_path = pathli(list_1, type_1, reverse_1)
     B_path = pathli(list_2, type_2, reverse_2)
     zipped_list = []
-    for a, b in zip(A_path, B_path):
+    for a, b in zip(A_path, B_path, strict=False):
         zipped_list.append(a + b)
     return zipped_list
 
@@ -149,7 +151,7 @@ def get_alphanumeric(chip_type: ChipType):
     for block in block_list:
         for window in window_list:
             alphanumeric_list.append(block + "_" + window)
-    logger.info("Length of alphanumeric list = %s" % len(alphanumeric_list))
+    logger.info(f"Length of alphanumeric list = {len(alphanumeric_list)}")
     return alphanumeric_list
 
 
@@ -187,7 +189,7 @@ def get_shot_order(chip_type: ChipType):
                 count = 0
                 switch = 0
 
-    logger.info("Length of collect list = %s" % len(collect_list))
+    logger.info(f"Length of collect list = {len(collect_list)}")
     return collect_list
 
 
@@ -208,11 +210,13 @@ def write_file(
     chip_file_path = save_path / f"chips/{params.directory}/{params.filename}{suffix}"
 
     fiducial_list = fiducials(params.chip.chip_type.value)
+
     if order == "alphanumeric":
         addr_list = get_alphanumeric(params.chip.chip_type)
-
     elif order == "shot":
         addr_list = get_shot_order(params.chip.chip_type)
+    else:
+        raise ValueError(f"{order=} unrecognised")
 
     with open(chip_file_path, "a") as g:
         for addr in addr_list:
@@ -228,13 +232,13 @@ def write_file(
             line = "\t".join([xtal_name, str(x), str(y), "0.0", pres]) + "\n"
             g.write(line)
 
-    logger.info("Write %s completed" % chip_file_path)
+    logger.info(f"Write {chip_file_path} completed")
 
 
 @log.log_on_entry
 def check_files(
     location: str,
-    suffix_list: List[str],
+    suffix_list: list[str],
     param_file_path: Path | str = PARAM_FILE_PATH_FT,
     save_path: Path = HEADER_FILES_PATH,
 ):
@@ -266,7 +270,7 @@ def check_files(
 @log.log_on_entry
 def write_headers(
     location: str,
-    suffix_list: List[str],
+    suffix_list: list[str],
     param_file_path: Path = PARAM_FILE_PATH_FT,
     save_path: Path = HEADER_FILES_PATH,
 ):
@@ -297,7 +301,7 @@ def write_headers(
                     "#XtalAddr      XCoord  YCoord  ZCoord  Present Shot  Spare04 Spare03 Spare02 Spare01\n"
                 )
     else:
-        msg = "Unknown location, %s" % location
+        msg = f"Unknown location, {location}"
         logger.error(msg)
         raise ValueError(msg)
     logger.debug("Write headers done")
