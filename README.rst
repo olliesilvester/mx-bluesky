@@ -26,12 +26,12 @@ If you're doing more in-depth development we recommend developing with VSCode. Y
     $ module load vscode
     $ code .vscode/mx-bluesky.code-workspace
 
-.. |code_ci| image:: https://github.com/DiamondLightSource/mx-bluesky/actions/workflows/code.yml/badge.svg?branch=main
-    :target: https://github.com/DiamondLightSource/mx-bluesky/actions/workflows/code.yml
+.. |code_ci| image:: https://github.com/DiamondLightSource/mx-bluesky/actions/workflows/_test.yml/badge.svg?branch=main
+    :target: https://github.com/DiamondLightSource/mx-bluesky/actions/workflows/_test.yml
     :alt: Code CI
 
-.. |docs_ci| image:: https://github.com/DiamondLightSource/mx-bluesky/actions/workflows/docs.yml/badge.svg?branch=main
-    :target: https://github.com/DiamondLightSource/mx-bluesky/actions/workflows/docs.yml
+.. |docs_ci| image:: https://github.com/DiamondLightSource/mx-bluesky/actions/workflows/_docs.yml/badge.svg?branch=main
+    :target: https://github.com/DiamondLightSource/mx-bluesky/actions/workflows/_docs.yml
     :alt: Docs CI
 
 .. |coverage| image:: https://codecov.io/gh/DiamondLightSource/mx-bluesky/branch/main/graph/badge.svg
