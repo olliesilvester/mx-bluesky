@@ -1,7 +1,7 @@
 mx-bluesky
 ===========================
 
-|code_ci| |docs_ci| |coverage| |pypi_version| |license|
+|ci| |coverage| |pypi_version| |license|
 
 Contains code for working with Bluesky on MX beamlines at Diamond
 
@@ -26,13 +26,9 @@ If you're doing more in-depth development we recommend developing with VSCode. Y
     $ module load vscode
     $ code .vscode/mx-bluesky.code-workspace
 
-.. |code_ci| image:: https://github.com/DiamondLightSource/mx-bluesky/actions/workflows/_test.yml/badge.svg?branch=main
-    :target: https://github.com/DiamondLightSource/mx-bluesky/actions/workflows/_test.yml
+.. |ci| image:: https://github.com/DiamondLightSource/mx-bluesky/actions/workflows/ci.yml/badge.svg?branch=main
+    :target: https://github.com/DiamondLightSource/mx-bluesky/actions/workflows/ci.yml
     :alt: Code CI
-
-.. |docs_ci| image:: https://github.com/DiamondLightSource/mx-bluesky/actions/workflows/_docs.yml/badge.svg?branch=main
-    :target: https://github.com/DiamondLightSource/mx-bluesky/actions/workflows/_docs.yml
-    :alt: Docs CI
 
 .. |coverage| image:: https://codecov.io/gh/DiamondLightSource/mx-bluesky/branch/main/graph/badge.svg
     :target: https://codecov.io/gh/DiamondLightSource/mx-bluesky
