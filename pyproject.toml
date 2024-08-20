@@ -23,8 +23,8 @@ dependencies = [
     "opencv-python",
     "pydantic",
     "semver",
-    "dls-dodal",
     "fastapi[all]",
+    "dls-dodal==1.30.0",
     "blueapi==0.4.4",
 ]
 dynamic = ["version"]
