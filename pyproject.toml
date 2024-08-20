@@ -23,9 +23,9 @@ dependencies = [
     "opencv-python",
     "pydantic",
     "semver",
-    "dls-dodal @ git+https://github.com/DiamondLightSource/dodal.git",
+    "dls-dodal",
     "fastapi[all]",
-    "blueapi @ git+https://github.com/DiamondLightSource/blueapi.git@main",
+    "blueapi==0.4.4",
 ]
 dynamic = ["version"]
 license.file = "LICENSE"
