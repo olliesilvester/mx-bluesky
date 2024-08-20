@@ -5,8 +5,10 @@ from unittest.mock import MagicMock, patch
 from bluesky.run_engine import RunEngine
 from dodal.devices.zebra import RotationDirection
 
-from jungfrau_commissioning.plans.rotation_scan_plans import get_rotation_scan_plan
-from jungfrau_commissioning.utils.params import RotationScanParameters
+from mx_bluesky.i24.jungfrau_commissioning.plans.rotation_scan_plans import (
+    get_rotation_scan_plan,
+)
+from mx_bluesky.i24.jungfrau_commissioning.utils.params import RotationScanParameters
 
 
 @patch(

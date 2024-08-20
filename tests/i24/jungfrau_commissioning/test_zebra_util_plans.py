@@ -6,7 +6,7 @@ from dodal.beamlines import i03
 from dodal.devices.zebra import I24Axes, Zebra
 from ophyd.status import Status
 
-from jungfrau_commissioning.plans.zebra_plans import (
+from mx_bluesky.i24.jungfrau_commissioning.plans.zebra_plans import (
     arm_zebra,
     disarm_zebra,
     setup_zebra_for_rotation,

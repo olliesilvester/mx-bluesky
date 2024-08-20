@@ -5,9 +5,9 @@ from unittest.mock import MagicMock
 import pytest
 from bluesky.run_engine import RunEngine
 from dodal.beamlines import i24
+from dodal.devices.i24.i24_vgonio import VGonio
 from dodal.devices.i24.jungfrau import JungfrauM1
 from dodal.devices.i24.read_only_attenuator import ReadOnlyEnergyAndAttenuator
-from dodal.devices.i24.vgonio import VGonio
 from dodal.devices.zebra import Zebra
 from ophyd.device import Device
 from ophyd.status import Status

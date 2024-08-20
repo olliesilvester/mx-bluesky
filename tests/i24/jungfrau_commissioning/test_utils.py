@@ -1,6 +1,6 @@
 import pytest
 
-from jungfrau_commissioning.utils.params import RotationScanParameters
+from mx_bluesky.i24.jungfrau_commissioning.utils.params import RotationScanParameters
 
 
 def test_params_load_from_file():

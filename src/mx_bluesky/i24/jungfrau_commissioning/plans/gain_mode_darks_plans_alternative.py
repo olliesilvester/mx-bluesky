@@ -3,8 +3,8 @@ from enum import Enum
 from pathlib import Path
 
 from bluesky.plan_stubs import abs_set, rd, sleep
+from dodal.devices.i24.i24_vgonio import VGonio
 from dodal.devices.i24.jungfrau import JungfrauM1
-from dodal.devices.i24.vgonio import VGonio
 from dodal.devices.zebra import Zebra
 
 from mx_bluesky.i24.jungfrau_commissioning.plans.jungfrau_plans import setup_detector

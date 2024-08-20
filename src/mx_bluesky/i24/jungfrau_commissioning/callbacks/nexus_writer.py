@@ -3,10 +3,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from artemis.external_interaction.nexus.write_nexus import NexusWriter
 from bluesky.callbacks import CallbackBase
+from hyperion.external_interaction.nexus.write_nexus import NexusWriter
 from nexgen.nxs_utils import Attenuator, Axis, Beam, Detector, Goniometer, Source
-from nexgen.nxs_utils.Detector import JungfrauDetector
+from nexgen.nxs_utils.detector import JungfrauDetector
 from scanspec.core import Path as ScanPath
 from scanspec.specs import Line
 

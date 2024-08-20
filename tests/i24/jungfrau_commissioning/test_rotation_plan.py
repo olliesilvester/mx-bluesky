@@ -1,16 +1,16 @@
 from unittest.mock import MagicMock, patch
 
 from bluesky.run_engine import RunEngine
-from dodal.devices.i24.vgonio import VGonio
+from dodal.devices.i24.i24_vgonio import VGonio
 from dodal.devices.zebra import RotationDirection, Zebra
 
-from jungfrau_commissioning.plans.rotation_scan_plans import (
+from mx_bluesky.i24.jungfrau_commissioning.plans.rotation_scan_plans import (
     cleanup_plan,
     get_rotation_scan_plan,
     move_to_start_w_buffer,
 )
-from jungfrau_commissioning.plans.zebra_plans import arm_zebra
-from jungfrau_commissioning.utils.params import RotationScanParameters
+from mx_bluesky.i24.jungfrau_commissioning.plans.zebra_plans import arm_zebra
+from mx_bluesky.i24.jungfrau_commissioning.utils.params import RotationScanParameters
 
 
 @patch(

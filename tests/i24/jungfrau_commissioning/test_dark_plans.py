@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 from bluesky.run_engine import RunEngine
 from dodal.devices.i24.jungfrau import JungfrauM1
 
-from jungfrau_commissioning.plans.gain_mode_darks_plans import (
+from mx_bluesky.i24.jungfrau_commissioning.plans.gain_mode_darks_plans import (
     GainMode,
     do_manual_acquisition,
     set_gain_mode,
