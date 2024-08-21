@@ -12,7 +12,7 @@ Contributions and issues are most welcome! All issues and pull requests are hand
 4. The developer does the work on this branch, adding their work in small commits. Commit messages should be informative and prefixed with the issue number e.g. `(#122) Added contributing file`.
 5. The developer submits a PR for the work. In the pull request should start with `Fixes #issue_num` e.g. `Fixes #122`, this will ensure the issue is automatically closed when the PR is merged. The developer should also add some background on how the reviewer might test the change.
 6. If the developer has a particular person in mind to review the work they should assign that person to the PR as a reviewer.
-7. The reviewer and developer go back and forth on the code until the reviewer approves it. (See [Reviewing Work](#reviewing-work))
+7. The reviewer and developer go back and forth on the code until the reviewer approves it. (See "Reviewing Work" below)
 8. Once the work is approved the original developer merges it.
 
 **Work should not be done without an associated ticket describing what the work is**
