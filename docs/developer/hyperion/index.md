@@ -1,63 +1,96 @@
-General MX-Bluesky Developer Guide
-==================================
+# hyperion
 
-Documentation is split into four categories, and each is also accessible from links in the side-bar.
+![Tests](https://github.com/DiamondLightSource/hyperion/actions/workflows/code.yml/badge.svg) [![codecov](https://codecov.io/gh/DiamondLightSource/hyperion/branch/main/graph/badge.svg?token=00Ww81MHe8)](https://codecov.io/gh/DiamondLightSource/hyperion)
 
-.. grid:: 2
-    :gutter: 2
+Repository for the Hyperion project to implement Unattended Data Collections on the Diamond MX beamlines using the [BlueSky](https://nsls-ii.github.io/bluesky/) / Ophyd framework from BNL.
 
-    .. grid-item-card:: :material-regular:`directions_run;3em`
+Currently the software is able to:
 
-        .. toctree::
-            :caption: Tutorials
-            :maxdepth: 1
+- Centre a sample, first using an optical camera, then using an xray grid scan. This centring is done at two orthogonal angles so that the sample is centred in 3D.
+- Perform a rotation scan to take diffraction data of the sample
 
-            tutorials/dev-install
+Left to do is:
 
-        +++
+- Mount/unmount samples
+- Set up the beamline to be in a standard state for collection
+- Change energy of the beamline
 
-        Tutorials for getting up and running as a developer.
+# Development Installation
 
-    .. grid-item-card:: :material-regular:`task;3em`
+This project supports only the most recent Python version for which our dependencies are available - currently Python 3.11.
 
-        .. toctree::
-            :caption: How-to Guides
-            :maxdepth: 1
+Run `./utility_scripts/dls_dev_env.sh` (This assumes you're on a DLS machine. If you are not, you should be able to just run a subset of this script)
 
-            how-to/get-started
-            how-to/contribute
-            how-to/build-docs
-            how-to/run-tests
-            how-to/static-analysis
-            how-to/lint
-            how-to/update-tools
-            how-to/create-a-release
-            how-to/deploy-a-release
+Note that because Hyperion makes heavy use of [Dodal](https://github.com/DiamondLightSource/dodal) this will also pull a local editable version of dodal to the parent folder of this repo.
 
-        +++
+# Controlling the Gridscan Externally (e.g. from GDA)
 
-        Practical step-by-step guides for day-to-day dev tasks.
+## Starting the bluesky runner
 
-    .. grid-item-card:: :material-regular:`apartment;3em`
+You can start the bluesky runner by running `run_hyperion.sh`. Note that this will fail on a developer machine unless you have a simulated beamline running, instead you should do `run_hyperion.sh --dev --skip-startup-connection`, which will give you a running instance (note that without hardware trying to run a plan on this will fail). The `--dev` flag ensures that logging will not be sent to the production Graylog.
 
-        .. toctree::
-            :caption: Explanations
-            :maxdepth: 1
+This script will determine whether you are on a beamline or a production machine based on the `BEAMLINE` environment variable. If on a beamline Hyperion will run with `INFO` level logging, sending its logs to both production graylog and to the beamline/log/bluesky/hyperion.log on the shared file system.
 
-            explanations/decisions
+If in a dev environment Hyperion will log to a local graylog instance instead and into a file at `./tmp/dev/hyperion.log`. A local instance of graylog will need to be running for this to work correctly. To set this up and run up the containers on your local machine run the `setup_graylog.sh` script.
 
-        +++
+This uses the generic defaults for a local graylog instance. It can be accessed on `localhost:9000` where the username and password for the graylog portal are both admin.
 
-        Explanations of how and why the architecture is why it is.
+The hyperion python module can also be run directly without the startup script. It takes the same command line options, including:
 
-    .. grid-item-card:: :material-regular:`description;3em`
+`INFO` level logging of the Bluesky event documents can be enabled with the flag
 
-        .. toctree::
-            :caption: Reference
-            :maxdepth: 1
+```
+python -m hyperion --dev --verbose-event-logging
+```
 
-            reference/standards
+Lastly, you can choose to skip running the hardware connection scripts on startup with the flag
 
-        +++
+```
+python -m hyperion --skip-startup-connection
+```
 
-        Technical reference material on standards in use.
+## Testing
+
+Unit tests can be run with `python -m pytest -m "not s03" --random-order`. To see log output from tests you can turn on logging with the `--logging` command line option and then use the `-s` command line option to print logs into the console. So to run the unit tests such that all logs are at printed to the terminal, you can use `python -m pytest -m "not s03" --random-order --logging -s`. Note that this will likely overrun your terminal buffer, so you can narrow the selection of tests with the `-k "<test name pattern>"` option.
+
+To be able to run the system tests, or a complete fake scan, we need the simulated S03 beamline. This can be found at: https://gitlab.diamond.ac.uk/controls/python3/s03_utils
+
+To fake interaction and processing with Zocalo, you can run `fake_zocalo/dls_start_fake_zocalo.sh`, and make sure to run `module load dials/latest` before starting hyperion (in the same terminal).
+
+## Tracing
+
+Tracing information (the time taken to complete different steps of experiments) is collected by an [OpenTelemetry](https://opentelemetry.io/) tracer, and currently we export this information to a local Jaeger monitor (if available). To see the tracing output, run the [Jaeger all-in-one container](https://www.jaegertracing.io/docs/1.6/getting-started/), and go to the web interface at http://localhost:16686.
+
+## Starting a scan
+
+To start a scan you can do the following:
+
+```
+curl -X PUT http://127.0.0.1:5005/flyscan_xray_centre/start --data-binary "@tests/test_data/parameter_json_files/test_parameters.json" -H "Content-Type: application/json"
+```
+
+## Getting the Runner Status
+
+To get the status of the runner:
+
+```
+curl http://127.0.0.1:5005/status
+```
+
+## Stopping the Scan
+
+To stop a scan that is currently running:
+
+```
+curl -X PUT http://127.0.0.1:5005/stop
+
+```
+
+## Writing out `DEBUG` logs
+
+To make the app write the `DEBUG` level logs stored in the `CircularMemoryHandler`:
+
+```
+curl -X PUT http://127.0.0.1:5005/flush_debug_log
+
+```
