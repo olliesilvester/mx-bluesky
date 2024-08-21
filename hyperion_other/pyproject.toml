@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools<57", "wheel==0.33.1"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+markers = [
+    "s03: marks tests as requiring the s03 simulator running (deselect with '-m \"not s03\"')",
+    "dlstbx: marks tests as requiring dlstbx (deselect with '-m \"not dlstbx\"')",
+    "skip_log_setup: marks tests so that loggers are not setup before the test.",
+]
+addopts = "--cov=src/hyperion --cov-report term --cov-report xml:cov.xml"
+testpaths = "tests"
+
+[tool.ruff]
+src = ["src", "tests"]
+line-length = 88
+lint.extend-ignore = ["C408", "E501", "F811"]
+lint.select = [
+    "C4",   # flake8-comprehensions - https://beta.ruff.rs/docs/rules/#flake8-comprehensions-c4
+    "E",    # pycodestyle errors - https://beta.ruff.rs/docs/rules/#error-e
+    "F",    # pyflakes rules - https://beta.ruff.rs/docs/rules/#pyflakes-f
+    "W",    # pycodestyle warnings - https://beta.ruff.rs/docs/rules/#warning-w
+    "I001", # isort
+]
