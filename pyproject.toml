@@ -7,25 +7,48 @@ name = "mx-bluesky"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: Apache Software License",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
 description = "Bluesky tools for MX Beamlines at DLS"
 dependencies = [
-    "bluesky",
-    "ophyd",
-    "pyepics",
+    #
+    # If a constraint is not set here or if the dependency is pinned to a hash
+    # it will be auto-pinned to the latest release version by the pre-release workflow   
+    #
+    "annotated_types",
     "caproto",
+    "fastapi[all]",
+    "flask-restful",
+    "ispyb",
     "jupyterlab",
     "matplotlib",
-    "requests",
+    "nexgen",
+    "numpy",
     "opencv-python",
+    "opentelemetry-distro",
+    "opentelemetry-exporter-jaeger",
     "pydantic",
-    "fastapi[all]",
-    "dls-dodal @ git+https://github.com/DiamondLightSource/dodal.git",
+    "pyepics",
+    "pyzmq",
+    "requests",
+    "scanspec",
+    "scipy",
+    "semver",
+    #
+    # These dependencies may be issued as pre-release versions and should have a pin constraint
+    # as by default pip-install will not upgrade to a pre-release.
+    # 
     "blueapi==0.4.4",
+    "daq-config-server >= 0.1.1",
+    "ophyd == 1.9.0",
+    "ophyd-async >= 0.3a5",
+    "bluesky >= 1.13.0a4",
+    "blueapi >= 0.4.3-rc1",
+    "dls-dodal @ git+https://github.com/DiamondLightSource/dodal.git",
 ]
+
+
 dynamic = ["version"]
 license.file = "LICENSE"
 readme = "README.rst"
@@ -34,10 +57,18 @@ requires-python = ">=3.10"
 [project.optional-dependencies]
 dev = [
     "black",
+    "black",
+    "build",
     "copier",
+    "diff-cover",
     "GitPython",
+    "ipython",
+    "matplotlib",
+    "mockito",
+    "mypy",
     "mypy",
     "myst-parser",
+    "ophyd-async",
     "pipdeptree",
     "pre-commit",
     "pydata-sphinx-theme>=0.12",
@@ -51,6 +82,7 @@ dev = [
     "sphinx-copybutton",
     "sphinx-design",
     "tox-direct",
+    "tox",
     "types-mock",
     "types-requests",
 ]
@@ -59,6 +91,10 @@ dev = [
 mx-bluesky = "mx_bluesky.__main__:main"
 run_extruder = "mx_bluesky.beamlines.i24.serial.run_serial:run_extruder"
 run_fixed_target = "mx_bluesky.beamlines.i24.serial.run_serial:run_fixed_target"
+hyperion = "mx_bluesky.hyperion.__main__:main"
+hyperion-callbacks = "mx_bluesky.hyperion.external_interaction.callbacks.__main__:main"
+hyperion-generate-test-nexus = "mx_bluesky.hyperion.utils.validation:generate_test_nexus"
+hyperion-populate-test-and-meta-files = "mx_bluesky.hyperion.utils.validation:copy_test_meta_data_files"
 
 [project.urls]
 GitHub = "https://github.com/DiamondLightSource/mx-bluesky"
@@ -77,6 +113,11 @@ reportMissingImports = false # Ignore missing stubs in imported modules
 [tool.pytest.ini_options]
 # Run pytest with all our checkers, and don't spam us with massive tracebacks on error
 asyncio_mode = "auto"
+markers = [
+    "s03: marks tests as requiring the s03 simulator running (deselect with '-m \"not s03\"')",
+    "dlstbx: marks tests as requiring dlstbx (deselect with '-m \"not dlstbx\"')",
+    "skip_log_setup: marks tests so that loggers are not setup before the test.",
+]
 addopts = """
     --tb=native -vv --doctest-modules --doctest-glob="*.rst"
     """
