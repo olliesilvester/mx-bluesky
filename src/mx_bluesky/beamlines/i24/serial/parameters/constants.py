@@ -2,7 +2,7 @@ from enum import Enum
 from os import environ
 from pathlib import Path
 
-from mx_bluesky.i24.serial.log import _read_visit_directory_from_file
+from mx_bluesky.beamlines.i24.serial.log import _read_visit_directory_from_file
 
 
 class SSXType(Enum):

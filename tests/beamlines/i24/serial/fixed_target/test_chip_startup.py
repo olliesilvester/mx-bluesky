@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from mx_bluesky.i24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1 import (
+from mx_bluesky.beamlines.i24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1 import (
     check_files,
     fiducials,
     pathli,
@@ -15,9 +15,9 @@ def test_fiducials():
     assert fiducials(2) is None
 
 
-@patch("mx_bluesky.i24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1.os")
+@patch("mx_bluesky.beamlines.i24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1.os")
 @patch(
-    "mx_bluesky.i24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1.read_parameter_file"
+    "mx_bluesky.beamlines.i24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1.read_parameter_file"
 )
 def test_check_files(fake_read_params, mock_os, dummy_params_without_pp):
     fake_read_params.return_value = dummy_params_without_pp

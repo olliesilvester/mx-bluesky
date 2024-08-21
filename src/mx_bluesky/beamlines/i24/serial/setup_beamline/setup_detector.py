@@ -13,11 +13,11 @@ from bluesky.utils import Msg
 from dodal.common import inject
 from dodal.devices.i24.i24_detector_motion import DetectorMotion
 
-from mx_bluesky.i24.serial import log
-from mx_bluesky.i24.serial.parameters import SSXType
-from mx_bluesky.i24.serial.setup_beamline import pv
-from mx_bluesky.i24.serial.setup_beamline.ca import caget
-from mx_bluesky.i24.serial.setup_beamline.pv_abstract import (
+from mx_bluesky.beamlines.i24.serial import log
+from mx_bluesky.beamlines.i24.serial.parameters import SSXType
+from mx_bluesky.beamlines.i24.serial.setup_beamline import pv
+from mx_bluesky.beamlines.i24.serial.setup_beamline.ca import caget
+from mx_bluesky.beamlines.i24.serial.setup_beamline.pv_abstract import (
     Detector,
     Eiger,
     Pilatus,

@@ -1,8 +1,10 @@
 from typing import Any
 
-from mx_bluesky.i24.serial.fixed_target.ft_utils import ChipType
-from mx_bluesky.i24.serial.parameters.experiment_parameters import ChipDescription
-from mx_bluesky.i24.serial.setup_beamline import caget, pv
+from mx_bluesky.beamlines.i24.serial.fixed_target.ft_utils import ChipType
+from mx_bluesky.beamlines.i24.serial.parameters.experiment_parameters import (
+    ChipDescription,
+)
+from mx_bluesky.beamlines.i24.serial.setup_beamline import caget, pv
 
 
 def get_chip_format(chip_type: ChipType) -> ChipDescription:

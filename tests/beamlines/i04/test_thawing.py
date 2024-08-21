@@ -18,7 +18,7 @@ from ophyd_async.core import (
 )
 from ophyd_async.epics.motion import Motor
 
-from mx_bluesky.i04.thawing_plan import thaw, thaw_and_center
+from mx_bluesky.beamlines.i04.thawing_plan import thaw, thaw_and_center
 
 DISPLAY_CONFIGURATION = "tests/devices/unit_tests/test_display.configuration"
 ZOOM_LEVELS_XML = "tests/devices/unit_tests/test_jCameraManZoomLevels.xml"
@@ -157,7 +157,7 @@ def test_given_different_rotations_then_motor_moved_relative(
     ]
 
 
-@patch("mx_bluesky.i04.thawing_plan.MurkoCallback")
+@patch("mx_bluesky.beamlines.i04.thawing_plan.MurkoCallback")
 def test_thaw_and_centre_adds_murko_callback_and_produces_expected_messages(
     patch_murko_callback: MagicMock,
     smargon: Smargon,
@@ -192,7 +192,7 @@ def test_thaw_and_centre_adds_murko_callback_and_produces_expected_messages(
     assert len(smargon_updates) > 0
 
 
-@patch("mx_bluesky.i04.thawing_plan.MurkoCallback.call_murko")
+@patch("mx_bluesky.beamlines.i04.thawing_plan.MurkoCallback.call_murko")
 def test_thaw_and_centre_will_produce_events_that_call_murko(
     patch_murko_call: MagicMock,
     smargon: Smargon,

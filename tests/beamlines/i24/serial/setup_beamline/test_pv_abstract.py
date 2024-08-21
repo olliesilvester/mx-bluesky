@@ -1,4 +1,4 @@
-from mx_bluesky.i24.serial.setup_beamline import Eiger, Pilatus
+from mx_bluesky.beamlines.i24.serial.setup_beamline import Eiger, Pilatus
 
 
 def test_eiger():

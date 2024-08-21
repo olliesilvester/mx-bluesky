@@ -23,26 +23,26 @@ from dodal.devices.i24.i24_detector_motion import DetectorMotion
 from dodal.devices.i24.pmac import PMAC
 from dodal.devices.zebra import Zebra
 
-from mx_bluesky.i24.serial import log
-from mx_bluesky.i24.serial.dcid import DCID
-from mx_bluesky.i24.serial.fixed_target.ft_utils import (
+from mx_bluesky.beamlines.i24.serial import log
+from mx_bluesky.beamlines.i24.serial.dcid import DCID
+from mx_bluesky.beamlines.i24.serial.fixed_target.ft_utils import (
     ChipType,
     MappingType,
     PumpProbeSetting,
 )
-from mx_bluesky.i24.serial.parameters import (
+from mx_bluesky.beamlines.i24.serial.parameters import (
     ChipDescription,
     FixedTargetParameters,
     SSXType,
 )
-from mx_bluesky.i24.serial.parameters.constants import (
+from mx_bluesky.beamlines.i24.serial.parameters.constants import (
     LITEMAP_PATH,
     PARAM_FILE_NAME,
     PARAM_FILE_PATH_FT,
 )
-from mx_bluesky.i24.serial.setup_beamline import caget, cagetstring, caput, pv
-from mx_bluesky.i24.serial.setup_beamline import setup_beamline as sup
-from mx_bluesky.i24.serial.setup_beamline.setup_zebra_plans import (
+from mx_bluesky.beamlines.i24.serial.setup_beamline import caget, cagetstring, caput, pv
+from mx_bluesky.beamlines.i24.serial.setup_beamline import setup_beamline as sup
+from mx_bluesky.beamlines.i24.serial.setup_beamline.setup_zebra_plans import (
     SHUTTER_OPEN_TIME,
     arm_zebra,
     close_fast_shutter,
@@ -51,7 +51,7 @@ from mx_bluesky.i24.serial.setup_beamline.setup_zebra_plans import (
     reset_zebra_when_collection_done_plan,
     setup_zebra_for_fastchip_plan,
 )
-from mx_bluesky.i24.serial.write_nexus import call_nexgen
+from mx_bluesky.beamlines.i24.serial.write_nexus import call_nexgen
 
 ABORTED = False
 

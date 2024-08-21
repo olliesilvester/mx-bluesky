@@ -5,7 +5,7 @@ Takes the PV tables from I24's setup_beamline and wraps a slightly more
 abstract wrapper around them.
 """
 
-from mx_bluesky.i24.serial.setup_beamline import pv
+from mx_bluesky.beamlines.i24.serial.setup_beamline import pv
 
 
 class Pilatus:

@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 import pytest
 from event_model import Event
 
-from mx_bluesky.i04.callbacks.murko_callback import MurkoCallback
+from mx_bluesky.beamlines.i04.callbacks.murko_callback import MurkoCallback
 
 test_oav_uuid = "UUID"
 test_smargon_data = 90

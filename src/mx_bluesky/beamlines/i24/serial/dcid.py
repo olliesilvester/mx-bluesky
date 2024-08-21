@@ -10,8 +10,8 @@ from functools import lru_cache
 
 import requests
 
-from mx_bluesky.i24.serial.parameters import SSXType
-from mx_bluesky.i24.serial.setup_beamline import (
+from mx_bluesky.beamlines.i24.serial.parameters import SSXType
+from mx_bluesky.beamlines.i24.serial.setup_beamline import (
     Detector,
     Eiger,
     Pilatus,

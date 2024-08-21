@@ -5,7 +5,7 @@ import pytest
 from dodal.devices.zebra import DISCONNECT, SOFT_IN3
 from ophyd_async.core import get_mock_put
 
-from mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2 import (
+from mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2 import (
     TTL_EIGER,
     TTL_PILATUS,
     collection_aborted_plan,
@@ -16,8 +16,8 @@ from mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2 import (
     main_extruder_plan,
     tidy_up_at_collection_end_plan,
 )
-from mx_bluesky.i24.serial.parameters import ExtruderParameters
-from mx_bluesky.i24.serial.setup_beamline import Eiger, Pilatus
+from mx_bluesky.beamlines.i24.serial.parameters import ExtruderParameters
+from mx_bluesky.beamlines.i24.serial.setup_beamline import Eiger, Pilatus
 
 
 @pytest.fixture
@@ -57,11 +57,15 @@ def fake_generator(value):
     return value
 
 
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.get_detector_type")
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.logger")
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.setup_logging")
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
+@patch(
+    "mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.get_detector_type"
+)
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.logger")
+@patch(
+    "mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.setup_logging"
+)
 def test_initialise_extruder(
     fake_log_setup,
     fake_log,
@@ -78,7 +82,9 @@ def test_initialise_extruder(
     assert fake_caget.call_count == 1
 
 
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.setup_logging")
+@patch(
+    "mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.setup_logging"
+)
 async def test_enterhutch(fake_log_setup, detector_stage, RE):
     RE(enter_hutch(detector_stage))
     assert await detector_stage.z.user_readback.get_value() == 1480
@@ -93,8 +99,12 @@ async def test_enterhutch(fake_log_setup, detector_stage, RE):
         ("laseroff", Pilatus(), "No", DISCONNECT),
     ],
 )
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.get_detector_type")
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.setup_logging")
+@patch(
+    "mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.get_detector_type"
+)
+@patch(
+    "mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.setup_logging"
+)
 async def test_laser_check(
     fake_log_setup,
     fake_det,
@@ -114,17 +124,21 @@ async def test_laser_check(
     assert await zebra.output.out_pvs[TTL].get_value() == expected_out
 
 
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sleep")
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.DCID")
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.call_nexgen")
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sup")
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sleep")
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.DCID")
 @patch(
-    "mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.setup_zebra_for_quickshot_plan"
+    "mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.call_nexgen"
 )
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.setup_logging")
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.bps.rd")
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sup")
+@patch(
+    "mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.setup_zebra_for_quickshot_plan"
+)
+@patch(
+    "mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.setup_logging"
+)
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.bps.rd")
 def test_run_extruder_quickshot_with_eiger(
     fake_read,
     fake_log_setup,
@@ -171,16 +185,18 @@ def test_run_extruder_quickshot_with_eiger(
     mock_quickshot_plan.assert_called_once()
 
 
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sleep")
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.DCID")
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sup")
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sleep")
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.DCID")
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sup")
 @patch(
-    "mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.setup_zebra_for_extruder_with_pump_probe_plan"
+    "mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.setup_zebra_for_extruder_with_pump_probe_plan"
 )
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.setup_logging")
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.bps.rd")
+@patch(
+    "mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.setup_logging"
+)
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.bps.rd")
 def test_run_extruder_pump_probe_with_pilatus(
     fake_read,
     fake_log_setup,
@@ -231,12 +247,12 @@ def test_run_extruder_pump_probe_with_pilatus(
 
 
 @patch(
-    "mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.reset_zebra_when_collection_done_plan"
+    "mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.reset_zebra_when_collection_done_plan"
 )
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.DCID")
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sup")
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.DCID")
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caget")
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sup")
 def test_tidy_up_at_collection_end_plan_with_eiger(
     fake_sup,
     fake_caget,
@@ -260,10 +276,12 @@ def test_tidy_up_at_collection_end_plan_with_eiger(
     fake_sup.eiger.assert_called_once_with("return-to-normal", None)
 
 
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sleep")
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.DCID")
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.disarm_zebra")
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sleep")
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.DCID")
+@patch(
+    "mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.disarm_zebra"
+)
 def test_aborted_plan_with_pilatus(
     mock_disarm, fake_dcid, fake_caput, fake_sleep, RE, zebra
 ):
@@ -274,10 +292,10 @@ def test_aborted_plan_with_pilatus(
     fake_dcid.collection_complete.assert_called_once_with(ANY, aborted=True)
 
 
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.shutil")
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.DCID")
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sleep")
-@patch("mx_bluesky.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.shutil")
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.DCID")
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.sleep")
+@patch("mx_bluesky.beamlines.i24.serial.extruder.i24ssx_Extruder_Collect_py3v2.caput")
 def test_collection_complete_plan_with_eiger(
     fake_caput, fake_sleep, fake_dcid, fake_shutil, dummy_params, RE
 ):

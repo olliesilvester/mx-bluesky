@@ -12,9 +12,11 @@ from dodal.beamlines import i24
 from dodal.devices.i24.pmac import PMAC
 from dodal.devices.oav.oav_detector import OAV
 
-from mx_bluesky.i24.serial.fixed_target import i24ssx_Chip_Manager_py3v1 as manager
-from mx_bluesky.i24.serial.fixed_target.ft_utils import Fiducials
-from mx_bluesky.i24.serial.parameters.constants import OAV1_CAM
+from mx_bluesky.beamlines.i24.serial.fixed_target import (
+    i24ssx_Chip_Manager_py3v1 as manager,
+)
+from mx_bluesky.beamlines.i24.serial.fixed_target.ft_utils import Fiducials
+from mx_bluesky.beamlines.i24.serial.parameters.constants import OAV1_CAM
 
 logger = logging.getLogger("I24ssx.moveonclick")
 

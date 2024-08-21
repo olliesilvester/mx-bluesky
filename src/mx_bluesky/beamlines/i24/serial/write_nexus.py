@@ -8,9 +8,12 @@ from typing import Literal
 
 import requests
 
-from mx_bluesky.i24.serial.fixed_target.ft_utils import ChipType, MappingType
-from mx_bluesky.i24.serial.parameters import ExtruderParameters, FixedTargetParameters
-from mx_bluesky.i24.serial.setup_beamline import Eiger, caget, cagetstring
+from mx_bluesky.beamlines.i24.serial.fixed_target.ft_utils import ChipType, MappingType
+from mx_bluesky.beamlines.i24.serial.parameters import (
+    ExtruderParameters,
+    FixedTargetParameters,
+)
+from mx_bluesky.beamlines.i24.serial.setup_beamline import Eiger, caget, cagetstring
 
 logger = logging.getLogger("I24ssx.nexus_writer")
 

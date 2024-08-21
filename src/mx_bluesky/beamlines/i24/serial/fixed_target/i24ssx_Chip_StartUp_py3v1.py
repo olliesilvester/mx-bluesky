@@ -10,10 +10,13 @@ from pathlib import Path
 
 import numpy as np
 
-from mx_bluesky.i24.serial import log
-from mx_bluesky.i24.serial.fixed_target.ft_utils import ChipType
-from mx_bluesky.i24.serial.parameters import FixedTargetParameters, get_chip_format
-from mx_bluesky.i24.serial.parameters.constants import (
+from mx_bluesky.beamlines.i24.serial import log
+from mx_bluesky.beamlines.i24.serial.fixed_target.ft_utils import ChipType
+from mx_bluesky.beamlines.i24.serial.parameters import (
+    FixedTargetParameters,
+    get_chip_format,
+)
+from mx_bluesky.beamlines.i24.serial.parameters.constants import (
     HEADER_FILES_PATH,
     PARAM_FILE_NAME,
     PARAM_FILE_PATH_FT,

@@ -1,17 +1,21 @@
 from unittest.mock import patch
 
-from mx_bluesky.i24.serial.dcid import get_beam_center, get_beamsize, get_resolution
-from mx_bluesky.i24.serial.setup_beamline import Eiger, Pilatus
+from mx_bluesky.beamlines.i24.serial.dcid import (
+    get_beam_center,
+    get_beamsize,
+    get_resolution,
+)
+from mx_bluesky.beamlines.i24.serial.setup_beamline import Eiger, Pilatus
 
 
-@patch("mx_bluesky.i24.serial.dcid.caget")
+@patch("mx_bluesky.beamlines.i24.serial.dcid.caget")
 def test_beamsize(fake_caget):
     beam_size = get_beamsize()
     assert type(beam_size) is tuple
     assert fake_caget.call_count == 2
 
 
-@patch("mx_bluesky.i24.serial.dcid.caget")
+@patch("mx_bluesky.beamlines.i24.serial.dcid.caget")
 def test_beam_center(fake_caget):
     beam_center = get_beam_center(Eiger())
     assert type(beam_center) is tuple

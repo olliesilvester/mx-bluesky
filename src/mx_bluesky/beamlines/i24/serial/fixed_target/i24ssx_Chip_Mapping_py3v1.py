@@ -10,17 +10,17 @@ import time
 import numpy as np
 from matplotlib import pyplot as plt
 
-from mx_bluesky.i24.serial import log
-from mx_bluesky.i24.serial.fixed_target.ft_utils import ChipType
-from mx_bluesky.i24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1 import (
+from mx_bluesky.beamlines.i24.serial import log
+from mx_bluesky.beamlines.i24.serial.fixed_target.ft_utils import ChipType
+from mx_bluesky.beamlines.i24.serial.fixed_target.i24ssx_Chip_StartUp_py3v1 import (
     check_files,
     get_shot_order,
     get_xy,
     read_parameter_file,
     write_file,
 )
-from mx_bluesky.i24.serial.parameters import get_chip_format
-from mx_bluesky.i24.serial.parameters.constants import PARAM_FILE_PATH_FT
+from mx_bluesky.beamlines.i24.serial.parameters import get_chip_format
+from mx_bluesky.beamlines.i24.serial.parameters.constants import PARAM_FILE_PATH_FT
 
 logger = logging.getLogger("I24ssx.chip_mapping")
 

@@ -10,7 +10,7 @@ from dodal.devices.robot import BartRobot
 from dodal.devices.smargon import Smargon
 from dodal.devices.thawer import Thawer, ThawerStates
 
-from mx_bluesky.i04.callbacks.murko_callback import MurkoCallback
+from mx_bluesky.beamlines.i04.callbacks.murko_callback import MurkoCallback
 
 
 def thaw_and_center(

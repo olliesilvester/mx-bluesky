@@ -1,7 +1,10 @@
 import pytest
 
-from mx_bluesky.i24.serial.fixed_target.ft_utils import ChipType
-from mx_bluesky.i24.serial.parameters import FixedTargetParameters, get_chip_format
+from mx_bluesky.beamlines.i24.serial.fixed_target.ft_utils import ChipType
+from mx_bluesky.beamlines.i24.serial.parameters import (
+    FixedTargetParameters,
+    get_chip_format,
+)
 
 
 @pytest.fixture

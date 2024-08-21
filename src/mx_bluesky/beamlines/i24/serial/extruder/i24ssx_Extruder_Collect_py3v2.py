@@ -27,17 +27,20 @@ from dodal.devices.i24.dual_backlight import DualBacklight
 from dodal.devices.i24.i24_detector_motion import DetectorMotion
 from dodal.devices.zebra import DISCONNECT, SOFT_IN3, Zebra
 
-from mx_bluesky.i24.serial import log
-from mx_bluesky.i24.serial.dcid import DCID
-from mx_bluesky.i24.serial.parameters import ExtruderParameters, SSXType
-from mx_bluesky.i24.serial.parameters.constants import PARAM_FILE_NAME, PARAM_FILE_PATH
-from mx_bluesky.i24.serial.setup_beamline import Pilatus, caget, caput, pv
-from mx_bluesky.i24.serial.setup_beamline import setup_beamline as sup
-from mx_bluesky.i24.serial.setup_beamline.setup_detector import (
+from mx_bluesky.beamlines.i24.serial import log
+from mx_bluesky.beamlines.i24.serial.dcid import DCID
+from mx_bluesky.beamlines.i24.serial.parameters import ExtruderParameters, SSXType
+from mx_bluesky.beamlines.i24.serial.parameters.constants import (
+    PARAM_FILE_NAME,
+    PARAM_FILE_PATH,
+)
+from mx_bluesky.beamlines.i24.serial.setup_beamline import Pilatus, caget, caput, pv
+from mx_bluesky.beamlines.i24.serial.setup_beamline import setup_beamline as sup
+from mx_bluesky.beamlines.i24.serial.setup_beamline.setup_detector import (
     UnknownDetectorType,
     get_detector_type,
 )
-from mx_bluesky.i24.serial.setup_beamline.setup_zebra_plans import (
+from mx_bluesky.beamlines.i24.serial.setup_beamline.setup_zebra_plans import (
     GATE_START,
     TTL_EIGER,
     TTL_PILATUS,
@@ -49,7 +52,7 @@ from mx_bluesky.i24.serial.setup_beamline.setup_zebra_plans import (
     setup_zebra_for_extruder_with_pump_probe_plan,
     setup_zebra_for_quickshot_plan,
 )
-from mx_bluesky.i24.serial.write_nexus import call_nexgen
+from mx_bluesky.beamlines.i24.serial.write_nexus import call_nexgen
 
 usage = "%(prog)s command [options]"
 logger = logging.getLogger("I24ssx.extruder")

@@ -11,7 +11,7 @@ from dodal.devices.zebra import (
     Zebra,
 )
 
-from mx_bluesky.i24.serial.setup_beamline.setup_zebra_plans import (
+from mx_bluesky.beamlines.i24.serial.setup_beamline.setup_zebra_plans import (
     arm_zebra,
     disarm_zebra,
     get_zebra_settings_for_extruder,

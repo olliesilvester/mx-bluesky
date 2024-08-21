@@ -23,16 +23,20 @@ from dodal.devices.i24.dual_backlight import BacklightPositions, DualBacklight
 from dodal.devices.i24.i24_detector_motion import DetectorMotion
 from dodal.devices.i24.pmac import PMAC, EncReset, LaserSettings
 
-from mx_bluesky.i24.serial import log
-from mx_bluesky.i24.serial.fixed_target import i24ssx_Chip_Mapping_py3v1 as mapping
-from mx_bluesky.i24.serial.fixed_target import i24ssx_Chip_StartUp_py3v1 as startup
-from mx_bluesky.i24.serial.fixed_target.ft_utils import (
+from mx_bluesky.beamlines.i24.serial import log
+from mx_bluesky.beamlines.i24.serial.fixed_target import (
+    i24ssx_Chip_Mapping_py3v1 as mapping,
+)
+from mx_bluesky.beamlines.i24.serial.fixed_target import (
+    i24ssx_Chip_StartUp_py3v1 as startup,
+)
+from mx_bluesky.beamlines.i24.serial.fixed_target.ft_utils import (
     ChipType,
     Fiducials,
     MappingType,
 )
-from mx_bluesky.i24.serial.parameters import get_chip_format
-from mx_bluesky.i24.serial.parameters.constants import (
+from mx_bluesky.beamlines.i24.serial.parameters import get_chip_format
+from mx_bluesky.beamlines.i24.serial.parameters.constants import (
     CS_FILES_PATH,
     FULLMAP_PATH,
     LITEMAP_PATH,
@@ -40,8 +44,10 @@ from mx_bluesky.i24.serial.parameters.constants import (
     PARAM_FILE_PATH_FT,
     PVAR_FILE_PATH,
 )
-from mx_bluesky.i24.serial.setup_beamline import Pilatus, caget, caput, pv
-from mx_bluesky.i24.serial.setup_beamline.setup_detector import get_detector_type
+from mx_bluesky.beamlines.i24.serial.setup_beamline import Pilatus, caget, caput, pv
+from mx_bluesky.beamlines.i24.serial.setup_beamline.setup_detector import (
+    get_detector_type,
+)
 
 logger = logging.getLogger("I24ssx.chip_manager")
 

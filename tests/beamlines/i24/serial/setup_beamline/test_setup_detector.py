@@ -5,9 +5,9 @@ from bluesky.run_engine import RunEngine
 from dodal.devices.i24.i24_detector_motion import DetectorMotion
 from ophyd_async.core import set_mock_value
 
-from mx_bluesky.i24.serial.parameters.constants import SSXType
-from mx_bluesky.i24.serial.setup_beamline import Eiger, Pilatus
-from mx_bluesky.i24.serial.setup_beamline.setup_detector import (
+from mx_bluesky.beamlines.i24.serial.parameters.constants import SSXType
+from mx_bluesky.beamlines.i24.serial.setup_beamline import Eiger, Pilatus
+from mx_bluesky.beamlines.i24.serial.setup_beamline.setup_detector import (
     DetRequest,
     _get_requested_detector,
     get_detector_type,
@@ -27,7 +27,7 @@ def test_get_detector_type_finds_pilatus(RE, detector_stage: DetectorMotion):
     assert det_type.name == "pilatus"
 
 
-@patch("mx_bluesky.i24.serial.setup_beamline.setup_detector.caget")
+@patch("mx_bluesky.beamlines.i24.serial.setup_beamline.setup_detector.caget")
 def test_get_requested_detector(fake_caget):
     fake_caget.return_value = "pilatus"
     assert _get_requested_detector("some_pv") == Pilatus.name
@@ -36,15 +36,15 @@ def test_get_requested_detector(fake_caget):
     assert _get_requested_detector("some_pv") == Eiger.name
 
 
-@patch("mx_bluesky.i24.serial.setup_beamline.setup_detector.caget")
+@patch("mx_bluesky.beamlines.i24.serial.setup_beamline.setup_detector.caget")
 def test_get_requested_detector_raises_error_for_invalid_value(fake_caget):
     fake_caget.return_value = "something"
     with pytest.raises(ValueError):
         _get_requested_detector("some_pv")
 
 
-@patch("mx_bluesky.i24.serial.setup_beamline.setup_detector.setup_logging")
-@patch("mx_bluesky.i24.serial.setup_beamline.setup_detector.caget")
+@patch("mx_bluesky.beamlines.i24.serial.setup_beamline.setup_detector.setup_logging")
+@patch("mx_bluesky.beamlines.i24.serial.setup_beamline.setup_detector.caget")
 async def test_setup_detector_stage(
     fake_caget, fake_log, detector_stage: DetectorMotion, RE: RunEngine
 ):

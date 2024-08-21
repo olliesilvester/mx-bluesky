@@ -6,7 +6,7 @@ from dodal.devices.i24.pmac import PMAC
 from dodal.devices.oav.oav_detector import OAV
 from ophyd_async.core import get_mock_put
 
-from mx_bluesky.i24.serial.fixed_target.i24ssx_moveonclick import (
+from mx_bluesky.beamlines.i24.serial.fixed_target.i24ssx_moveonclick import (
     onMouse,
     update_ui,
     zoomcalibrator,
@@ -33,7 +33,9 @@ from mx_bluesky.i24.serial.fixed_target.i24ssx_moveonclick import (
         ),
     ],
 )
-@patch("mx_bluesky.i24.serial.fixed_target.i24ssx_moveonclick._get_beam_centre")
+@patch(
+    "mx_bluesky.beamlines.i24.serial.fixed_target.i24ssx_moveonclick._get_beam_centre"
+)
 def test_onMouse_gets_beam_position_and_sends_correct_str(
     fake_get_beam_pos: MagicMock,
     beam_position: tuple,
@@ -54,8 +56,10 @@ def test_onMouse_gets_beam_position_and_sends_correct_str(
     )
 
 
-@patch("mx_bluesky.i24.serial.fixed_target.i24ssx_moveonclick.cv")
-@patch("mx_bluesky.i24.serial.fixed_target.i24ssx_moveonclick._get_beam_centre")
+@patch("mx_bluesky.beamlines.i24.serial.fixed_target.i24ssx_moveonclick.cv")
+@patch(
+    "mx_bluesky.beamlines.i24.serial.fixed_target.i24ssx_moveonclick._get_beam_centre"
+)
 def test_update_ui_uses_correct_beam_centre_for_ellipse(fake_beam_pos, fake_cv):
     mock_frame = MagicMock()
     mock_oav = MagicMock()
