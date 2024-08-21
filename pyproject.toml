@@ -87,7 +87,7 @@ filterwarnings = [
     "ignore:((.|\n)*)was never iterated.*:RuntimeWarning",
 ]
 # Doctest python code in docs, python code in src docstrings, test functions in tests
-testpaths = "docs src tests"
+testpaths = "docs src tests/unit_tests"
 
 [tool.coverage.run]
 data_file = "/tmp/mx_bluesky.coverage"
