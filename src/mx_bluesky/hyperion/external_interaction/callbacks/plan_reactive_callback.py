@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from logging import Logger
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from bluesky.callbacks import CallbackBase
 

@@ -1,4 +1,5 @@
-from typing import Callable, Generator, Type, TypeVar
+from collections.abc import Callable, Generator
+from typing import TypeVar
 
 from bluesky.plan_stubs import null
 from bluesky.preprocessors import contingency_wrapper
@@ -16,7 +17,7 @@ T = TypeVar("T")
 
 
 def catch_exception_and_warn(
-    exception_to_catch: Type[Exception],
+    exception_to_catch: type[Exception],
     func: Callable[..., Generator[Msg, None, T]],
     *args,
     **kwargs,

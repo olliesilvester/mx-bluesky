@@ -142,7 +142,7 @@ if __name__ == "__main__":
     hyperion_repo.deploy(hyperion_repo.origin.url)
 
     # Get version of dodal that latest hyperion version uses
-    with open(f"{release_area_version}/hyperion/setup.cfg", "r") as setup_file:
+    with open(f"{release_area_version}/hyperion/setup.cfg") as setup_file:
         dodal_url = [
             line
             for line in setup_file

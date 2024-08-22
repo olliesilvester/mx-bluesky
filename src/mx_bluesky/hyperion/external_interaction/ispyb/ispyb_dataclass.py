@@ -1,5 +1,6 @@
+import builtins
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any
 
 import numpy as np
 from pydantic import BaseModel, validator
@@ -14,13 +15,13 @@ GRIDSCAN_ISPYB_PARAM_DEFAULTS = {
 
 class IspybParams(BaseModel):
     visit_path: str
-    position: Optional[np.ndarray]
+    position: np.ndarray | None
     comment: str
-    sample_id: Optional[int] = None
+    sample_id: int | None = None
 
     # Optional from GDA as populated by Ophyd
-    xtal_snapshots_omega_start: Optional[list[str]] = None
-    ispyb_experiment_type: Optional[str] = None
+    xtal_snapshots_omega_start: list[str] | None = None
+    ispyb_experiment_type: str | None = None
 
     class Config:
         arbitrary_types_allowed = True
@@ -35,7 +36,9 @@ class IspybParams(BaseModel):
 
     @validator("position", pre=True)
     def _parse_position(
-        cls, position: list[int | float] | np.ndarray | None, values: Dict[str, Any]
+        cls,
+        position: list[int | float] | np.ndarray | None,
+        values: builtins.dict[str, Any],
     ) -> np.ndarray | None:
         if position is None:
             return None
