@@ -27,7 +27,7 @@ dependencies = [
     "numpy",
     "opencv-python",
     "opentelemetry-distro",
-    "opentelemetry-exporter-jaeger",
+    "opentelemetry-exporter-otlp",
     "pydantic",
     "pyepics",
     "pyzmq",
