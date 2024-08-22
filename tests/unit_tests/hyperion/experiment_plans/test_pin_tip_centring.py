@@ -12,9 +12,11 @@ from dodal.devices.smargon import Smargon
 from ophyd.sim import NullStatus
 from ophyd_async.core import get_mock_put, set_mock_value
 
-from hyperion.device_setup_plans.smargon import move_smargon_warn_on_out_of_range
-from hyperion.exceptions import WarningException
-from hyperion.experiment_plans.pin_tip_centring_plan import (
+from mx_bluesky.hyperion.device_setup_plans.smargon import (
+    move_smargon_warn_on_out_of_range,
+)
+from mx_bluesky.hyperion.exceptions import WarningException
+from mx_bluesky.hyperion.experiment_plans.pin_tip_centring_plan import (
     DEFAULT_STEP_SIZE,
     PinTipCentringComposite,
     move_pin_into_view,

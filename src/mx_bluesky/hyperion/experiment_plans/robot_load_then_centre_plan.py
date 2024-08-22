@@ -34,23 +34,23 @@ from dodal.devices.zocalo import ZocaloResults
 from dodal.plans.motor_util_plans import MoveTooLarge, home_and_reset_wrapper
 from ophyd_async.panda import HDFPanda
 
-from hyperion.device_setup_plans.utils import (
+from mx_bluesky.hyperion.device_setup_plans.utils import (
     start_preparing_data_collection_then_do_plan,
 )
-from hyperion.experiment_plans.grid_detect_then_xray_centre_plan import (
+from mx_bluesky.hyperion.experiment_plans.grid_detect_then_xray_centre_plan import (
     GridDetectThenXRayCentreComposite,
 )
-from hyperion.experiment_plans.pin_centre_then_xray_centre_plan import (
+from mx_bluesky.hyperion.experiment_plans.pin_centre_then_xray_centre_plan import (
     pin_centre_then_xray_centre_plan,
 )
-from hyperion.experiment_plans.set_energy_plan import (
+from mx_bluesky.hyperion.experiment_plans.set_energy_plan import (
     SetEnergyComposite,
     read_energy,
     set_energy_plan,
 )
-from hyperion.log import LOGGER
-from hyperion.parameters.constants import CONST
-from hyperion.parameters.gridscan import RobotLoadThenCentre
+from mx_bluesky.hyperion.log import LOGGER
+from mx_bluesky.hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.parameters.gridscan import RobotLoadThenCentre
 
 
 @dataclasses.dataclass
@@ -91,7 +91,7 @@ class RobotLoadThenCentreComposite:
 
 
 def create_devices(context: BlueskyContext) -> RobotLoadThenCentreComposite:
-    from hyperion.utils.context import device_composite_from_context
+    from mx_bluesky.hyperion.utils.context import device_composite_from_context
 
     return device_composite_from_context(context, RobotLoadThenCentreComposite)
 

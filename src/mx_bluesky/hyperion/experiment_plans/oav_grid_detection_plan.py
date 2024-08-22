@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 import math
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING
 
 import bluesky.plan_stubs as bps
 import numpy as np
@@ -14,13 +14,13 @@ from dodal.devices.oav.pin_image_recognition.utils import NONE_VALUE
 from dodal.devices.oav.utils import PinNotFoundException, wait_for_tip_to_be_found
 from dodal.devices.smargon import Smargon
 
-from hyperion.device_setup_plans.setup_oav import (
+from mx_bluesky.hyperion.device_setup_plans.setup_oav import (
     pre_centring_setup_oav,
 )
-from hyperion.exceptions import catch_exception_and_warn
-from hyperion.log import LOGGER
-from hyperion.parameters.constants import CONST
-from hyperion.utils.context import device_composite_from_context
+from mx_bluesky.hyperion.exceptions import catch_exception_and_warn
+from mx_bluesky.hyperion.log import LOGGER
+from mx_bluesky.hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.utils.context import device_composite_from_context
 
 if TYPE_CHECKING:
     from dodal.devices.oav.oav_parameters import OAVParameters
@@ -42,7 +42,7 @@ def create_devices(context: BlueskyContext) -> OavGridDetectionComposite:
 
 def get_min_and_max_y_of_pin(
     top: np.ndarray, bottom: np.ndarray, full_image_height_px: int
-) -> Tuple[int, int]:
+) -> tuple[int, int]:
     """Gives the minimum and maximum y that would cover the whole pin.
 
     First filters out where no edge was found or the edge covers the full image.
@@ -123,11 +123,14 @@ def grid_detection_plan(
         LOGGER.info(f"OAV Edge detection top: {list(top_edge)}")
         LOGGER.info(f"OAV Edge detection bottom: {list(bottom_edge)}")
 
-        min_y, max_y = get_min_and_max_y_of_pin(
-            top_edge, bottom_edge, full_image_height_px
+        min_y, max_y = (
+            float(n)
+            for n in get_min_and_max_y_of_pin(
+                top_edge, bottom_edge, full_image_height_px
+            )
         )
 
-        grid_height_px = max_y - min_y
+        grid_height_px: float = max_y - min_y
 
         y_steps: int = math.ceil(grid_height_px / box_size_y_pixels)
 

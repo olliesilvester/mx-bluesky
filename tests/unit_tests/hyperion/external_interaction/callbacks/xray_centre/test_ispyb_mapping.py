@@ -2,12 +2,14 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from hyperion.external_interaction.callbacks.xray_centre.ispyb_mapping import (
+from mx_bluesky.hyperion.external_interaction.callbacks.xray_centre.ispyb_mapping import (
     construct_comment_for_gridscan,
 )
-from hyperion.external_interaction.ispyb.data_model import DataCollectionGridInfo
-from hyperion.external_interaction.ispyb.ispyb_dataclass import Orientation
-from hyperion.parameters.gridscan import ThreeDGridScan
+from mx_bluesky.hyperion.external_interaction.ispyb.data_model import (
+    DataCollectionGridInfo,
+)
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_dataclass import Orientation
+from mx_bluesky.hyperion.parameters.gridscan import ThreeDGridScan
 
 from ...conftest import (
     TEST_SAMPLE_ID,

@@ -12,8 +12,8 @@ from dodal.devices.smargon import Smargon
 from dodal.devices.synchrotron import Synchrotron
 from dodal.devices.undulator import Undulator
 
-from hyperion.log import LOGGER
-from hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.log import LOGGER
+from mx_bluesky.hyperion.parameters.constants import CONST
 
 
 def read_hardware_pre_collection(

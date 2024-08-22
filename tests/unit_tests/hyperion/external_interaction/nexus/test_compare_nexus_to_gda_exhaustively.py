@@ -7,7 +7,7 @@ import pytest
 from h5py import Dataset, Datatype, File, Group
 from numpy import dtype
 
-from hyperion.utils.validation import _generate_fake_nexus
+from mx_bluesky.hyperion.utils.validation import _generate_fake_nexus
 
 from ....conftest import extract_metafile
 

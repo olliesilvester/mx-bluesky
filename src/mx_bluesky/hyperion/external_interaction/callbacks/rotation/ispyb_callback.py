@@ -1,31 +1,31 @@
 from __future__ import annotations
 
-from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any, Callable, Optional
+from collections.abc import Callable, Sequence
+from typing import TYPE_CHECKING, Any
 
-from hyperion.external_interaction.callbacks.common.ispyb_mapping import (
+from mx_bluesky.hyperion.external_interaction.callbacks.common.ispyb_mapping import (
     populate_data_collection_group,
     populate_remaining_data_collection_info,
 )
-from hyperion.external_interaction.callbacks.ispyb_callback_base import (
+from mx_bluesky.hyperion.external_interaction.callbacks.ispyb_callback_base import (
     BaseISPyBCallback,
 )
-from hyperion.external_interaction.callbacks.rotation.ispyb_mapping import (
+from mx_bluesky.hyperion.external_interaction.callbacks.rotation.ispyb_mapping import (
     populate_data_collection_info_for_rotation,
 )
-from hyperion.external_interaction.ispyb.data_model import (
+from mx_bluesky.hyperion.external_interaction.ispyb.data_model import (
     DataCollectionInfo,
     DataCollectionPositionInfo,
     ScanDataInfo,
 )
-from hyperion.external_interaction.ispyb.ispyb_store import (
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_store import (
     IspybIds,
     StoreInIspyb,
 )
-from hyperion.log import ISPYB_LOGGER, set_dcgid_tag
-from hyperion.parameters.components import IspybExperimentType
-from hyperion.parameters.constants import CONST
-from hyperion.parameters.rotation import RotationScan
+from mx_bluesky.hyperion.log import ISPYB_LOGGER, set_dcgid_tag
+from mx_bluesky.hyperion.parameters.components import IspybExperimentType
+from mx_bluesky.hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.parameters.rotation import RotationScan
 
 if TYPE_CHECKING:
     from event_model.documents import Event, RunStart, RunStop
@@ -105,7 +105,7 @@ class RotationISPyBCallback(BaseISPyBCallback):
     def populate_info_for_update(
         self,
         event_sourced_data_collection_info: DataCollectionInfo,
-        event_sourced_position_info: Optional[DataCollectionPositionInfo],
+        event_sourced_position_info: DataCollectionPositionInfo | None,
         params,
     ) -> Sequence[ScanDataInfo]:
         assert (

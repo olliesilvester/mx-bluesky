@@ -1,35 +1,35 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, TypeVar
+from collections.abc import Callable, Sequence
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from dodal.beamline_specific_utils.i03 import beam_size_from_aperture
 from dodal.devices.aperturescatterguard import SingleAperturePosition
 from dodal.devices.detector.det_resolution import resolution
 from dodal.devices.synchrotron import SynchrotronMode
 
-from hyperion.external_interaction.callbacks.plan_reactive_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.plan_reactive_callback import (
     PlanReactiveCallback,
 )
-from hyperion.external_interaction.ispyb.data_model import (
+from mx_bluesky.hyperion.external_interaction.ispyb.data_model import (
     DataCollectionInfo,
     DataCollectionPositionInfo,
     ScanDataInfo,
 )
-from hyperion.external_interaction.ispyb.ispyb_store import (
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_store import (
     IspybIds,
     StoreInIspyb,
 )
-from hyperion.external_interaction.ispyb.ispyb_utils import get_ispyb_config
-from hyperion.log import ISPYB_LOGGER, set_dcgid_tag
-from hyperion.parameters.components import DiffractionExperimentWithSample
-from hyperion.parameters.constants import CONST
-from hyperion.utils.utils import convert_eV_to_angstrom
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_utils import get_ispyb_config
+from mx_bluesky.hyperion.log import ISPYB_LOGGER, set_dcgid_tag
+from mx_bluesky.hyperion.parameters.components import DiffractionExperimentWithSample
+from mx_bluesky.hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.utils.utils import convert_eV_to_angstrom
 
 from .logging_callback import format_doc_for_log
 
-D = TypeVar("D")
+D = TypeVar("D", bound=dict)
 if TYPE_CHECKING:
     from event_model.documents import Event, EventDescriptor, RunStart, RunStop
 
@@ -48,7 +48,7 @@ class BaseISPyBCallback(PlanReactiveCallback):
         self._oav_snapshot_event_idx: int = 0
         self.params: DiffractionExperimentWithSample | None = None
         self.ispyb: StoreInIspyb
-        self.descriptors: Dict[str, EventDescriptor] = {}
+        self.descriptors: dict[str, EventDescriptor] = {}
         self.ispyb_config = get_ispyb_config()
         if (
             self.ispyb_config == CONST.SIM.ISPYB_CONFIG
@@ -59,7 +59,7 @@ class BaseISPyBCallback(PlanReactiveCallback):
                 "want to use the real database, please set the ISPYB_CONFIG_PATH "
                 "environment variable."
             )
-        self.uid_to_finalize_on: Optional[str] = None
+        self.uid_to_finalize_on: str | None = None
         self.ispyb_ids: IspybIds = IspybIds()
         self.log = ISPYB_LOGGER
 
@@ -160,7 +160,7 @@ class BaseISPyBCallback(PlanReactiveCallback):
     def populate_info_for_update(
         self,
         event_sourced_data_collection_info: DataCollectionInfo,
-        event_sourced_position_info: Optional[DataCollectionPositionInfo],
+        event_sourced_position_info: DataCollectionPositionInfo | None,
         params: DiffractionExperimentWithSample,
     ) -> Sequence[ScanDataInfo]:
         pass
@@ -199,7 +199,6 @@ class BaseISPyBCallback(PlanReactiveCallback):
             self._append_to_comment(id, comment)
 
     def _tag_doc(self, doc: D) -> D:
-        assert isinstance(doc, dict)
         if self.ispyb_ids:
             doc["ispyb_dcids"] = self.ispyb_ids.data_collection_ids
         return doc

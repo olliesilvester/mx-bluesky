@@ -15,7 +15,7 @@ from dodal.devices.zebra import (
     Zebra,
 )
 
-from hyperion.device_setup_plans.setup_zebra import (
+from mx_bluesky.hyperion.device_setup_plans.setup_zebra import (
     bluesky_retry,
     set_zebra_shutter_to_manual,
     setup_zebra_for_gridscan,

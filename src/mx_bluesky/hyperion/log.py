@@ -2,7 +2,6 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 from os import environ
 from pathlib import Path
-from typing import Optional
 
 from dodal.log import (
     ERROR_LOG_BUFFER_LINES,
@@ -13,12 +12,12 @@ from dodal.log import (
 )
 from dodal.log import LOGGER as dodal_logger
 
-from hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.parameters.constants import CONST
 
 LOGGER = logging.getLogger("Hyperion")
 LOGGER.setLevel("DEBUG")
 LOGGER.parent = dodal_logger
-__logger_handlers: Optional[DodalLogHandlers] = None
+__logger_handlers: DodalLogHandlers | None = None
 
 ISPYB_LOGGER = logging.getLogger("Hyperion ISPyB and Zocalo callbacks")
 ISPYB_LOGGER.setLevel(logging.DEBUG)
@@ -30,8 +29,8 @@ ALL_LOGGERS = [LOGGER, ISPYB_LOGGER, NEXUS_LOGGER]
 
 
 class ExperimentMetadataTagFilter(logging.Filter):
-    dc_group_id: Optional[str] = None
-    run_uid: Optional[str] = None
+    dc_group_id: str | None = None
+    run_uid: str | None = None
 
     def filter(self, record):
         if self.dc_group_id:

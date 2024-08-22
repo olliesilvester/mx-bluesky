@@ -3,15 +3,15 @@ from unittest.mock import MagicMock, patch
 import pytest
 from ispyb.sp.mxacquisition import MXAcquisition
 
-from hyperion.external_interaction.ispyb.data_model import (
+from mx_bluesky.hyperion.external_interaction.ispyb.data_model import (
     DataCollectionGridInfo,
     DataCollectionGroupInfo,
     DataCollectionInfo,
     DataCollectionPositionInfo,
     ScanDataInfo,
 )
-from hyperion.external_interaction.ispyb.ispyb_dataclass import Orientation
-from hyperion.external_interaction.ispyb.ispyb_store import (
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_dataclass import Orientation
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_store import (
     IspybIds,
     StoreInIspyb,
 )

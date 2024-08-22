@@ -1,5 +1,5 @@
+from collections.abc import Callable
 from functools import wraps
-from typing import Callable
 
 import bluesky.plan_stubs as bps
 import bluesky.preprocessors as bpp
@@ -23,7 +23,7 @@ from dodal.devices.zebra import (
     Zebra,
 )
 
-from hyperion.log import LOGGER
+from mx_bluesky.hyperion.log import LOGGER
 
 ZEBRA_STATUS_TIMEOUT = 30
 

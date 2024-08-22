@@ -1,61 +1,60 @@
 from dataclasses import asdict, dataclass
-from typing import Optional
 
-from hyperion.external_interaction.ispyb.ispyb_dataclass import Orientation
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_dataclass import Orientation
 
 
 @dataclass()
 class DataCollectionGroupInfo:
     visit_string: str
     experiment_type: str
-    sample_id: Optional[int]
-    sample_barcode: Optional[str] = None
+    sample_id: int | None
+    sample_barcode: str | None = None
 
 
 @dataclass(kw_only=True)
 class DataCollectionInfo:
-    omega_start: Optional[float] = None
-    data_collection_number: Optional[int] = None
-    xtal_snapshot1: Optional[str] = None
-    xtal_snapshot2: Optional[str] = None
-    xtal_snapshot3: Optional[str] = None
-    xtal_snapshot4: Optional[str] = None
+    omega_start: float | None = None
+    data_collection_number: int | None = None
+    xtal_snapshot1: str | None = None
+    xtal_snapshot2: str | None = None
+    xtal_snapshot3: str | None = None
+    xtal_snapshot4: str | None = None
 
-    n_images: Optional[int] = None
-    axis_range: Optional[float] = None
-    axis_end: Optional[float] = None
-    kappa_start: Optional[float] = None
+    n_images: int | None = None
+    axis_range: float | None = None
+    axis_end: float | None = None
+    kappa_start: float | None = None
 
-    parent_id: Optional[int] = None
-    visit_string: Optional[str] = None
-    sample_id: Optional[int] = None
-    detector_id: Optional[int] = None
-    axis_start: Optional[float] = None
-    focal_spot_size_at_samplex: Optional[float] = None
-    focal_spot_size_at_sampley: Optional[float] = None
-    slitgap_vertical: Optional[float] = None
-    slitgap_horizontal: Optional[float] = None
-    beamsize_at_samplex: Optional[float] = None
-    beamsize_at_sampley: Optional[float] = None
-    transmission: Optional[float] = None
-    comments: Optional[str] = None
-    detector_distance: Optional[float] = None
-    exp_time: Optional[float] = None
-    imgdir: Optional[str] = None
-    file_template: Optional[str] = None
-    imgprefix: Optional[str] = None
-    imgsuffix: Optional[str] = None
-    n_passes: Optional[int] = None
-    overlap: Optional[int] = None
-    flux: Optional[float] = None
-    start_image_number: Optional[int] = None
-    resolution: Optional[float] = None
-    wavelength: Optional[float] = None
-    xbeam: Optional[float] = None
-    ybeam: Optional[float] = None
-    synchrotron_mode: Optional[str] = None
-    undulator_gap1: Optional[float] = None
-    start_time: Optional[str] = None
+    parent_id: int | None = None
+    visit_string: str | None = None
+    sample_id: int | None = None
+    detector_id: int | None = None
+    axis_start: float | None = None
+    focal_spot_size_at_samplex: float | None = None
+    focal_spot_size_at_sampley: float | None = None
+    slitgap_vertical: float | None = None
+    slitgap_horizontal: float | None = None
+    beamsize_at_samplex: float | None = None
+    beamsize_at_sampley: float | None = None
+    transmission: float | None = None
+    comments: str | None = None
+    detector_distance: float | None = None
+    exp_time: float | None = None
+    imgdir: str | None = None
+    file_template: str | None = None
+    imgprefix: str | None = None
+    imgsuffix: str | None = None
+    n_passes: int | None = None
+    overlap: int | None = None
+    flux: float | None = None
+    start_image_number: int | None = None
+    resolution: float | None = None
+    wavelength: float | None = None
+    xbeam: float | None = None
+    ybeam: float | None = None
+    synchrotron_mode: str | None = None
+    undulator_gap1: float | None = None
+    start_time: str | None = None
 
 
 @dataclass
@@ -87,6 +86,6 @@ class DataCollectionGridInfo:
 @dataclass(kw_only=True)
 class ScanDataInfo:
     data_collection_info: DataCollectionInfo
-    data_collection_id: Optional[int] = None
-    data_collection_position_info: Optional[DataCollectionPositionInfo] = None
-    data_collection_grid_info: Optional[DataCollectionGridInfo] = None
+    data_collection_id: int | None = None
+    data_collection_position_info: DataCollectionPositionInfo | None = None
+    data_collection_grid_info: DataCollectionGridInfo | None = None

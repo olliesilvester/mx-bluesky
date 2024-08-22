@@ -8,7 +8,7 @@ from dodal.devices.xbpm_feedback import Pause
 from ophyd.status import Status
 from ophyd_async.core import set_mock_value
 
-from hyperion.device_setup_plans.xbpm_feedback import (
+from mx_bluesky.hyperion.device_setup_plans.xbpm_feedback import (
     transmission_and_xbpm_feedback_for_collection_decorator,
 )
 

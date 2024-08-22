@@ -13,16 +13,19 @@ from dodal.devices.webcam import Webcam
 from ophyd.sim import NullStatus
 from ophyd_async.core import set_mock_value
 
-from hyperion.experiment_plans.robot_load_then_centre_plan import (
+from mx_bluesky.hyperion.experiment_plans.robot_load_then_centre_plan import (
     RobotLoadThenCentreComposite,
     prepare_for_robot_load,
     robot_load_then_centre,
     take_robot_snapshots,
 )
-from hyperion.external_interaction.callbacks.robot_load.ispyb_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.robot_load.ispyb_callback import (
     RobotLoadISPyBCallback,
 )
-from hyperion.parameters.gridscan import PinTipCentreThenXrayCentre, RobotLoadThenCentre
+from mx_bluesky.hyperion.parameters.gridscan import (
+    PinTipCentreThenXrayCentre,
+    RobotLoadThenCentre,
+)
 
 from ...conftest import raw_params_from_file
 
@@ -449,8 +452,8 @@ def test_when_plan_run_then_lower_gonio_moved_before_robot_loads_and_back_after_
         messages = assert_message_and_return_remaining(
             messages,
             lambda msg: msg.command == "set"
-            and msg.obj.name == f"lower_gonio-{axis}"
-            and msg.args == (initial,),
+            and msg.obj.name == f"lower_gonio-{axis}"  # noqa
+            and msg.args == (initial,),  # noqa
         )
 
 

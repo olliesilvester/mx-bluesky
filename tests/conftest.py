@@ -23,6 +23,7 @@ from dodal.common.beamlines.beamline_parameters import (
 from dodal.common.beamlines.beamline_utils import clear_devices
 from dodal.devices.aperturescatterguard import (
     ApertureFiveDimensionalLocation,
+    AperturePosition,
     ApertureScatterguard,
     ApertureScatterguardTolerances,
     SingleAperturePosition,
@@ -47,24 +48,6 @@ from dodal.devices.webcam import Webcam
 from dodal.devices.zebra import Zebra
 from dodal.log import LOGGER as dodal_logger
 from dodal.log import set_up_all_logging_handlers
-from hyperion.experiment_plans.flyscan_xray_centre_plan import (
-    FlyScanXRayCentreComposite,
-)
-from hyperion.experiment_plans.rotation_scan_plan import RotationScanComposite
-from hyperion.external_interaction.callbacks.logging_callback import (
-    VerbosePlanExecutionLoggingCallback,
-)
-from hyperion.external_interaction.config_server import FeatureFlags
-from hyperion.log import (
-    ALL_LOGGERS,
-    ISPYB_LOGGER,
-    LOGGER,
-    NEXUS_LOGGER,
-    _get_logging_dir,
-    do_default_logging_setup,
-)
-from hyperion.parameters.gridscan import GridScanWithEdgeDetect, ThreeDGridScan
-from hyperion.parameters.rotation import MultiRotationScan, RotationScan
 from ophyd.sim import NullStatus
 from ophyd_async.core import Device, DeviceVector, callback_on_mock_put, set_mock_value
 from ophyd_async.core.async_status import AsyncStatus
@@ -73,6 +56,30 @@ from ophyd_async.epics.signal import epics_signal_rw
 from ophyd_async.panda._common_blocks import DatasetTable
 from scanspec.core import Path as ScanPath
 from scanspec.specs import Line
+
+from mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan import (
+    FlyScanXRayCentreComposite,
+)
+from mx_bluesky.hyperion.experiment_plans.rotation_scan_plan import (
+    RotationScanComposite,
+)
+from mx_bluesky.hyperion.external_interaction.callbacks.logging_callback import (
+    VerbosePlanExecutionLoggingCallback,
+)
+from mx_bluesky.hyperion.external_interaction.config_server import FeatureFlags
+from mx_bluesky.hyperion.log import (
+    ALL_LOGGERS,
+    ISPYB_LOGGER,
+    LOGGER,
+    NEXUS_LOGGER,
+    _get_logging_dir,
+    do_default_logging_setup,
+)
+from mx_bluesky.hyperion.parameters.gridscan import (
+    GridScanWithEdgeDetect,
+    ThreeDGridScan,
+)
+from mx_bluesky.hyperion.parameters.rotation import MultiRotationScan, RotationScan
 
 i03.DAQ_CONFIGURATION_PATH = "tests/test_data/test_daq_configuration"
 
@@ -593,7 +600,10 @@ def zocalo(done_status):
 async def panda(RE: RunEngine):
     class MockBlock(Device):
         def __init__(
-            self, prefix: str, name: str = "", attributes: dict[str, Any] = {}
+            self,
+            prefix: str,
+            name: str = "",
+            attributes: dict[str, Any] = {},  # noqa
         ):
             for name, dtype in attributes.items():
                 setattr(self, name, epics_signal_rw(dtype, "", ""))
@@ -755,7 +765,7 @@ class DocumentCapturer:
         doc: tuple[str, dict[str, Any]],
         name: str,
         has_fields: Sequence[str] = [],
-        matches_fields: dict[str, Any] = {},
+        matches_fields: dict[str, Any] = {},  # noqa
     ):
         """Returns True if the given document:
         - has the same name
@@ -773,7 +783,7 @@ class DocumentCapturer:
         docs: list[tuple[str, dict[str, Any]]],
         name: str,
         has_fields: Sequence[str] = [],
-        matches_fields: dict[str, Any] = {},
+        matches_fields: dict[str, Any] = {},  # noqa
     ):
         """Get all the docs from docs which:
         - have the same name
@@ -796,7 +806,7 @@ class DocumentCapturer:
         docs: list[tuple[str, dict[str, Any]]],
         name: str,
         has_fields: Sequence[str] = [],
-        matches_fields: dict[str, Any] = {},
+        matches_fields: dict[str, Any] = {},  # noqa
         does_exist: bool = True,
     ):
         """Assert that a matching doc has been recieved by the sim,
@@ -813,7 +823,7 @@ class DocumentCapturer:
         docs: list[tuple[str, dict[str, Any]]],
         name: str,
         has_fields: Sequence[str] = [],
-        matches_fields: dict[str, Any] = {},
+        matches_fields: dict[str, Any] = {},  # noqa
     ):
         """return all the docs from the list of docs until the first matching one"""
         for i, doc in enumerate(docs):
@@ -826,7 +836,7 @@ class DocumentCapturer:
         docs: list[tuple[str, dict[str, Any]]],
         name: str,
         has_fields: Sequence[str] = [],
-        matches_fields: dict[str, Any] = {},
+        matches_fields: dict[str, Any] = {},  # noqa
     ):
         """return all the docs from the list of docs after the first matching one"""
         for i, doc in enumerate(docs):

@@ -10,7 +10,7 @@ from dodal.devices.backlight import Backlight, BacklightPosition
 from dodal.devices.detector.detector_motion import DetectorMotion
 from dodal.devices.smargon import Smargon
 
-from hyperion.log import LOGGER
+from mx_bluesky.hyperion.log import LOGGER
 
 LOWER_DETECTOR_SHUTTER_AFTER_SCAN = True
 

@@ -5,7 +5,7 @@ from bluesky.simulators import assert_message_and_return_remaining
 from bluesky.utils import Msg
 from dodal.devices.xbpm_feedback import Pause
 
-from hyperion.experiment_plans.set_energy_plan import (
+from mx_bluesky.hyperion.experiment_plans.set_energy_plan import (
     SetEnergyComposite,
     set_energy_plan,
 )

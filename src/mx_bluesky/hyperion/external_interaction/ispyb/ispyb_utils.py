@@ -7,7 +7,7 @@ from ispyb import NoResult
 from ispyb.connector.mysqlsp.main import ISPyBMySQLSPConnector as Connector
 from ispyb.sp.core import Core
 
-from hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.parameters.constants import CONST
 
 VISIT_PATH_REGEX = r".+/([a-zA-Z]{2}\d{4,5}-\d{1,3})(/?$)"
 
@@ -20,8 +20,8 @@ def get_session_id_from_visit(conn: Connector, visit: str):
     try:
         core: Core = conn.core
         return core.retrieve_visit_id(visit)
-    except NoResult:
-        raise NoResult(f"No session ID found in ispyb for visit {visit}")
+    except NoResult as e:
+        raise NoResult(f"No session ID found in ispyb for visit {visit}") from e
 
 
 def get_current_time_string():

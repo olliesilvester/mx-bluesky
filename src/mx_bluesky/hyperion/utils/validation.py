@@ -11,15 +11,17 @@ from dodal.beamlines import i03
 from dodal.devices.oav.oav_parameters import OAVConfigParams
 from ophyd_async.core import set_mock_value
 
-from hyperion.device_setup_plans.read_hardware_for_setup import (
+from mx_bluesky.hyperion.device_setup_plans.read_hardware_for_setup import (
     read_hardware_during_collection,
 )
-from hyperion.experiment_plans.rotation_scan_plan import RotationScanComposite
-from hyperion.external_interaction.callbacks.rotation.nexus_callback import (
+from mx_bluesky.hyperion.experiment_plans.rotation_scan_plan import (
+    RotationScanComposite,
+)
+from mx_bluesky.hyperion.external_interaction.callbacks.rotation.nexus_callback import (
     RotationNexusFileCallback,
 )
-from hyperion.parameters.constants import CONST
-from hyperion.parameters.rotation import RotationScan
+from mx_bluesky.hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.parameters.rotation import RotationScan
 
 DISPLAY_CONFIGURATION = "tests/devices/unit_tests/test_display.configuration"
 ZOOM_LEVELS_XML = "tests/devices/unit_tests/test_jCameraManZoomLevels.xml"

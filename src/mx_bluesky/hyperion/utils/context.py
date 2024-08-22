@@ -1,5 +1,5 @@
 import dataclasses
-from typing import Any, ClassVar, Dict, Protocol, Type, TypeVar, get_type_hints
+from typing import Any, ClassVar, Protocol, TypeVar, get_type_hints
 
 from blueapi.core import BlueskyContext
 from blueapi.core.bluesky_types import Device
@@ -9,8 +9,8 @@ from blueapi.core.bluesky_types import Device
 # https://github.com/DiamondLightSource/hyperion/issues/868
 from dodal.utils import get_beamline_based_on_environment_variable
 
-import hyperion.experiment_plans as hyperion_plans
-from hyperion.log import LOGGER
+import mx_bluesky.hyperion.experiment_plans as hyperion_plans
+from mx_bluesky.hyperion.log import LOGGER
 
 T = TypeVar("T", bound=Device)
 
@@ -18,14 +18,14 @@ T = TypeVar("T", bound=Device)
 class _IsDataclass(Protocol):
     """Protocol followed by any dataclass"""
 
-    __dataclass_fields__: ClassVar[Dict]
+    __dataclass_fields__: ClassVar[dict]
 
 
 DT = TypeVar("DT", bound=_IsDataclass)
 
 
 def find_device_in_context(
-    context: BlueskyContext, name: str, expected_type: Type[T] = Device
+    context: BlueskyContext, name: str, expected_type: type[T] = Device
 ) -> T:
     LOGGER.debug(f"Looking for device {name} of type {expected_type} in context")
 
@@ -44,7 +44,7 @@ def find_device_in_context(
     return device
 
 
-def device_composite_from_context(context: BlueskyContext, dc: Type[DT]) -> DT:
+def device_composite_from_context(context: BlueskyContext, dc: type[DT]) -> DT:
     """
     Initializes all of the devices referenced in a given dataclass from a provided
     context, checking that the types of devices returned by the context are compatible
@@ -57,8 +57,8 @@ def device_composite_from_context(context: BlueskyContext, dc: Type[DT]) -> DT:
         f"Attempting to initialize devices referenced in dataclass {dc} from blueapi context"
     )
 
-    devices: Dict[str, Any] = {}
-    dc_type_hints: Dict[str, Any] = get_type_hints(dc)
+    devices: dict[str, Any] = {}
+    dc_type_hints: dict[str, Any] = get_type_hints(dc)
 
     for field in dataclasses.fields(dc):
         device = find_device_in_context(

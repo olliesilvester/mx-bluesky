@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING
 
 from bluesky.callbacks import CallbackBase
 from dodal.devices.zocalo import ZocaloStartInfo, ZocaloTrigger
 
-from hyperion.external_interaction.exceptions import ISPyBDepositionNotMade
-from hyperion.log import ISPYB_LOGGER
-from hyperion.parameters.constants import CONST
-from hyperion.utils.utils import number_of_frames_from_scan_spec
+from mx_bluesky.hyperion.external_interaction.exceptions import ISPyBDepositionNotMade
+from mx_bluesky.hyperion.log import ISPYB_LOGGER
+from mx_bluesky.hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.utils.utils import number_of_frames_from_scan_spec
 
 if TYPE_CHECKING:
     from event_model.documents import Event, EventDescriptor, RunStart, RunStop
@@ -26,11 +26,11 @@ class ZocaloCallback(CallbackBase):
     """
 
     def _reset_state(self):
-        self.run_uid: Optional[str] = None
-        self.triggering_plan: Optional[str] = None
-        self.zocalo_interactor: Optional[ZocaloTrigger] = None
+        self.run_uid: str | None = None
+        self.triggering_plan: str | None = None
+        self.zocalo_interactor: ZocaloTrigger | None = None
         self.zocalo_info: list[ZocaloStartInfo] = []
-        self.descriptors: Dict[str, EventDescriptor] = {}
+        self.descriptors: dict[str, EventDescriptor] = {}
 
     def __init__(
         self,
@@ -53,7 +53,7 @@ class ZocaloCallback(CallbackBase):
                 isinstance(ispyb_ids := doc.get("ispyb_dcids"), tuple)
                 and len(ispyb_ids) > 0
             ):
-                ids_and_shape = list(zip(ispyb_ids, scan_points))
+                ids_and_shape = list(zip(ispyb_ids, scan_points, strict=False))
                 start_frame = 0
                 self.zocalo_info = []
                 for idx, id_and_shape in enumerate(ids_and_shape):

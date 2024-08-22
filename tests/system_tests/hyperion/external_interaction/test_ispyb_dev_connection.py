@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import os
 import re
+from collections.abc import Callable, Sequence
 from copy import deepcopy
 from decimal import Decimal
-from typing import Any, Callable, Literal, Sequence
+from typing import Any, Literal
 from unittest.mock import MagicMock, patch
 
 import numpy
@@ -15,44 +16,47 @@ from dodal.devices.synchrotron import SynchrotronMode
 from ophyd.sim import NullStatus
 from ophyd_async.core import AsyncStatus, set_mock_value
 
-from hyperion.experiment_plans import oav_grid_detection_plan
-from hyperion.experiment_plans.grid_detect_then_xray_centre_plan import (
+from mx_bluesky.hyperion.experiment_plans import oav_grid_detection_plan
+from mx_bluesky.hyperion.experiment_plans.grid_detect_then_xray_centre_plan import (
     GridDetectThenXRayCentreComposite,
     grid_detect_then_xray_centre,
 )
-from hyperion.experiment_plans.rotation_scan_plan import (
+from mx_bluesky.hyperion.experiment_plans.rotation_scan_plan import (
     RotationScanComposite,
     rotation_scan,
 )
-from hyperion.external_interaction.callbacks.common.ispyb_mapping import (
+from mx_bluesky.hyperion.external_interaction.callbacks.common.ispyb_mapping import (
     populate_data_collection_group,
     populate_remaining_data_collection_info,
 )
-from hyperion.external_interaction.callbacks.rotation.ispyb_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.rotation.ispyb_callback import (
     RotationISPyBCallback,
 )
-from hyperion.external_interaction.callbacks.xray_centre.ispyb_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.xray_centre.ispyb_callback import (
     GridscanISPyBCallback,
 )
-from hyperion.external_interaction.callbacks.xray_centre.ispyb_mapping import (
+from mx_bluesky.hyperion.external_interaction.callbacks.xray_centre.ispyb_mapping import (
     construct_comment_for_gridscan,
     populate_xy_data_collection_info,
     populate_xz_data_collection_info,
 )
-from hyperion.external_interaction.ispyb.data_model import (
+from mx_bluesky.hyperion.external_interaction.ispyb.data_model import (
     DataCollectionGridInfo,
     ScanDataInfo,
 )
-from hyperion.external_interaction.ispyb.ispyb_dataclass import Orientation
-from hyperion.external_interaction.ispyb.ispyb_store import (
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_dataclass import Orientation
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_store import (
     IspybIds,
     StoreInIspyb,
 )
-from hyperion.parameters.components import IspybExperimentType
-from hyperion.parameters.constants import CONST
-from hyperion.parameters.gridscan import GridScanWithEdgeDetect, ThreeDGridScan
-from hyperion.parameters.rotation import RotationScan
-from hyperion.utils.utils import convert_angstrom_to_eV
+from mx_bluesky.hyperion.parameters.components import IspybExperimentType
+from mx_bluesky.hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.parameters.gridscan import (
+    GridScanWithEdgeDetect,
+    ThreeDGridScan,
+)
+from mx_bluesky.hyperion.parameters.rotation import RotationScan
+from mx_bluesky.hyperion.utils.utils import convert_angstrom_to_eV
 
 from ...conftest import fake_read
 from .conftest import raw_params_from_file
@@ -446,9 +450,7 @@ def composite_for_rotation_scan(fake_create_rotation_devices: RotationScanCompos
         fake_create_rotation_devices.dcm.energy_in_kev.user_readback,
         energy_ev / 1000,  # pyright: ignore
     )
-    set_mock_value(
-        fake_create_rotation_devices.undulator.current_gap, 1.12
-    )  # pyright: ignore
+    set_mock_value(fake_create_rotation_devices.undulator.current_gap, 1.12)  # pyright: ignore
     set_mock_value(
         fake_create_rotation_devices.synchrotron.synchrotron_mode,
         SynchrotronMode.USER,

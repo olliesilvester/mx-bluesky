@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 from daq_config_server.client import ConfigServer
 
-from hyperion.external_interaction.config_server import config_server
+from mx_bluesky.hyperion.external_interaction.config_server import config_server
 
 
 @pytest.fixture

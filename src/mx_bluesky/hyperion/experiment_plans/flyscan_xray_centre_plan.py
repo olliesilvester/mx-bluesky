@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 import dataclasses
+from collections.abc import Callable
 from functools import partial
 from pathlib import Path
 from time import time
-from typing import Callable, Protocol
+from typing import Protocol
 
 import bluesky.plan_stubs as bps
 import bluesky.preprocessors as bpp
 import numpy as np
-from attr import dataclass
 from blueapi.core import BlueskyContext, MsgGenerator
 from dodal.devices.aperturescatterguard import (
     AperturePosition,
@@ -35,9 +35,6 @@ from dodal.devices.synchrotron import Synchrotron
 from dodal.devices.undulator import Undulator
 from dodal.devices.xbpm_feedback import XBPMFeedback
 from dodal.devices.zebra import Zebra
-from dodal.devices.zocalo import (
-    get_processing_result,
-)
 from dodal.devices.zocalo.zocalo_results import (
     ZOCALO_READING_PLAN_NAME,
     ZOCALO_STAGE_GROUP,
@@ -48,31 +45,31 @@ from dodal.plans.check_topup import check_topup_and_wait_if_necessary
 from ophyd_async.panda import HDFPanda
 from scanspec.core import AxesPoints, Axis
 
-from hyperion.device_setup_plans.manipulate_sample import move_x_y_z
-from hyperion.device_setup_plans.read_hardware_for_setup import (
+from mx_bluesky.hyperion.device_setup_plans.manipulate_sample import move_x_y_z
+from mx_bluesky.hyperion.device_setup_plans.read_hardware_for_setup import (
     read_hardware_during_collection,
     read_hardware_for_zocalo,
     read_hardware_pre_collection,
 )
-from hyperion.device_setup_plans.setup_panda import (
+from mx_bluesky.hyperion.device_setup_plans.setup_panda import (
     disarm_panda_for_gridscan,
     set_panda_directory,
     setup_panda_for_flyscan,
 )
-from hyperion.device_setup_plans.setup_zebra import (
+from mx_bluesky.hyperion.device_setup_plans.setup_zebra import (
     set_zebra_shutter_to_manual,
     setup_zebra_for_gridscan,
     setup_zebra_for_panda_flyscan,
 )
-from hyperion.device_setup_plans.xbpm_feedback import (
+from mx_bluesky.hyperion.device_setup_plans.xbpm_feedback import (
     transmission_and_xbpm_feedback_for_collection_decorator,
 )
-from hyperion.exceptions import WarningException
-from hyperion.log import LOGGER
-from hyperion.parameters.constants import CONST
-from hyperion.parameters.gridscan import ThreeDGridScan
-from hyperion.tracing import TRACER
-from hyperion.utils.context import device_composite_from_context
+from mx_bluesky.hyperion.exceptions import WarningException
+from mx_bluesky.hyperion.log import LOGGER
+from mx_bluesky.hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.parameters.gridscan import ThreeDGridScan
+from mx_bluesky.hyperion.tracing import TRACER
+from mx_bluesky.hyperion.utils.context import device_composite_from_context
 
 
 class SmargonSpeedException(Exception):
@@ -238,7 +235,7 @@ def run_gridscan(
     fgs_composite: FlyScanXRayCentreComposite,
     parameters: ThreeDGridScan,
     feature_controlled: _FeatureControlled,
-    md={
+    md={  # noqa
         "plan_name": CONST.PLAN.GRIDSCAN_MAIN,
     },
 ):
@@ -388,7 +385,7 @@ def set_aperture_for_bbox_size(
     yield from set_aperture()
 
 
-@dataclass
+@dataclasses.dataclass
 class _FeatureControlled:
     class _ZebraSetup(Protocol):
         def __call__(

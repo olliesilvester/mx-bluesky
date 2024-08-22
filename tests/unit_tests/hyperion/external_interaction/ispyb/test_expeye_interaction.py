@@ -2,8 +2,8 @@ from unittest.mock import ANY, patch
 
 import pytest
 
-from hyperion.external_interaction.exceptions import ISPyBDepositionNotMade
-from hyperion.external_interaction.ispyb.exp_eye_store import (
+from mx_bluesky.hyperion.external_interaction.exceptions import ISPyBDepositionNotMade
+from mx_bluesky.hyperion.external_interaction.ispyb.exp_eye_store import (
     BearerAuth,
     ExpeyeInteraction,
     _get_base_url_and_token,

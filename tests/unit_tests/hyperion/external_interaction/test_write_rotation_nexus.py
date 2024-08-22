@@ -10,17 +10,19 @@ import pytest
 from bluesky.run_engine import RunEngine
 from h5py import Dataset, ExternalLink, Group
 
-from hyperion.device_setup_plans.read_hardware_for_setup import (
+from mx_bluesky.hyperion.device_setup_plans.read_hardware_for_setup import (
     read_hardware_during_collection,
 )
-from hyperion.experiment_plans.rotation_scan_plan import RotationScanComposite
-from hyperion.external_interaction.callbacks.rotation.nexus_callback import (
+from mx_bluesky.hyperion.experiment_plans.rotation_scan_plan import (
+    RotationScanComposite,
+)
+from mx_bluesky.hyperion.external_interaction.callbacks.rotation.nexus_callback import (
     RotationNexusFileCallback,
 )
-from hyperion.external_interaction.nexus.write_nexus import NexusWriter
-from hyperion.log import LOGGER
-from hyperion.parameters.constants import CONST
-from hyperion.parameters.rotation import RotationScan
+from mx_bluesky.hyperion.external_interaction.nexus.write_nexus import NexusWriter
+from mx_bluesky.hyperion.log import LOGGER
+from mx_bluesky.hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.parameters.rotation import RotationScan
 
 from ...conftest import extract_metafile, raw_params_from_file
 

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from abc import ABC
+from collections.abc import Sequence
 from dataclasses import asdict
-from typing import TYPE_CHECKING, Optional, Sequence, Tuple
+from typing import TYPE_CHECKING
 
 import ispyb
 import ispyb.sqlalchemy
@@ -11,18 +11,18 @@ from ispyb.sp.mxacquisition import MXAcquisition
 from ispyb.strictordereddict import StrictOrderedDict
 from pydantic import BaseModel
 
-from hyperion.external_interaction.ispyb.data_model import (
+from mx_bluesky.hyperion.external_interaction.ispyb.data_model import (
     DataCollectionGridInfo,
     DataCollectionGroupInfo,
     DataCollectionInfo,
     ScanDataInfo,
 )
-from hyperion.external_interaction.ispyb.ispyb_utils import (
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_utils import (
     get_current_time_string,
     get_session_id_from_visit,
 )
-from hyperion.log import ISPYB_LOGGER
-from hyperion.tracing import TRACER
+from mx_bluesky.hyperion.log import ISPYB_LOGGER
+from mx_bluesky.hyperion.tracing import TRACER
 
 if TYPE_CHECKING:
     pass
@@ -37,7 +37,7 @@ class IspybIds(BaseModel):
     grid_ids: tuple[int, ...] = ()
 
 
-class StoreInIspyb(ABC):
+class StoreInIspyb:
     def __init__(self, ispyb_config: str) -> None:
         self.ISPYB_CONFIG_PATH: str = ispyb_config
         self._data_collection_group_id: int | None
@@ -73,7 +73,7 @@ class StoreInIspyb(ABC):
     def _begin_or_update_deposition(
         self,
         ispyb_ids,
-        data_collection_group_info: Optional[DataCollectionGroupInfo],
+        data_collection_group_info: DataCollectionGroupInfo | None,
         scan_data_infos,
     ) -> IspybIds:
         with ispyb.open(self.ISPYB_CONFIG_PATH) as conn:
@@ -189,7 +189,7 @@ class StoreInIspyb(ABC):
         self,
         conn: Connector,
         dcg_info: DataCollectionGroupInfo,
-        data_collection_group_id: Optional[int] = None,
+        data_collection_group_id: int | None = None,
     ) -> int:
         mx_acquisition: MXAcquisition = conn.mx_acquisition
 
@@ -211,7 +211,7 @@ class StoreInIspyb(ABC):
 
     def _store_single_scan_data(
         self, conn, scan_data_info, data_collection_id=None
-    ) -> Tuple[int, Optional[int]]:
+    ) -> tuple[int, int | None]:
         data_collection_id = self._store_data_collection_table(
             conn, data_collection_id, scan_data_info.data_collection_info
         )

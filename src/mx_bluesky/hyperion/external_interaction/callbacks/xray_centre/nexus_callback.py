@@ -1,18 +1,18 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING
 
-from hyperion.external_interaction.callbacks.plan_reactive_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.plan_reactive_callback import (
     PlanReactiveCallback,
 )
-from hyperion.external_interaction.nexus.nexus_utils import (
+from mx_bluesky.hyperion.external_interaction.nexus.nexus_utils import (
     create_beam_and_attenuator_parameters,
     vds_type_based_on_bit_depth,
 )
-from hyperion.external_interaction.nexus.write_nexus import NexusWriter
-from hyperion.log import NEXUS_LOGGER
-from hyperion.parameters.constants import CONST
-from hyperion.parameters.gridscan import ThreeDGridScan
+from mx_bluesky.hyperion.external_interaction.nexus.write_nexus import NexusWriter
+from mx_bluesky.hyperion.log import NEXUS_LOGGER
+from mx_bluesky.hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.parameters.gridscan import ThreeDGridScan
 
 if TYPE_CHECKING:
     from event_model.documents import Event, EventDescriptor, RunStart
@@ -40,7 +40,7 @@ class GridscanNexusFileCallback(PlanReactiveCallback):
         self.run_start_uid: str | None = None
         self.nexus_writer_1: NexusWriter | None = None
         self.nexus_writer_2: NexusWriter | None = None
-        self.descriptors: Dict[str, EventDescriptor] = {}
+        self.descriptors: dict[str, EventDescriptor] = {}
         self.log = NEXUS_LOGGER
 
     def activity_gated_start(self, doc: RunStart):

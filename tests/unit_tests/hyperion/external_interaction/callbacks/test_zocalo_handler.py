@@ -3,13 +3,18 @@ from unittest.mock import MagicMock, call, patch
 import pytest
 from dodal.devices.zocalo import ZocaloStartInfo
 
-from hyperion.external_interaction.callbacks.common.callback_util import (
+from mx_bluesky.hyperion.external_interaction.callbacks.common.callback_util import (
     create_gridscan_callbacks,
 )
-from hyperion.external_interaction.callbacks.zocalo_callback import ZocaloCallback
-from hyperion.external_interaction.exceptions import ISPyBDepositionNotMade
-from hyperion.external_interaction.ispyb.ispyb_store import IspybIds, StoreInIspyb
-from hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.external_interaction.callbacks.zocalo_callback import (
+    ZocaloCallback,
+)
+from mx_bluesky.hyperion.external_interaction.exceptions import ISPyBDepositionNotMade
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_store import (
+    IspybIds,
+    StoreInIspyb,
+)
+from mx_bluesky.hyperion.parameters.constants import CONST
 
 from .conftest import TestData
 

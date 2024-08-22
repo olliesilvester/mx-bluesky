@@ -1,5 +1,5 @@
 import uuid
-from typing import Callable, Tuple
+from collections.abc import Callable
 from unittest.mock import MagicMock, patch
 
 import bluesky.plan_stubs as bps
@@ -13,30 +13,30 @@ from dodal.devices.smargon import Smargon
 from ophyd.sim import NullStatus
 from ophyd_async.core import set_mock_value
 
-from hyperion.device_setup_plans.read_hardware_for_setup import (
+from mx_bluesky.hyperion.device_setup_plans.read_hardware_for_setup import (
     read_hardware_during_collection,
     read_hardware_pre_collection,
 )
-from hyperion.device_setup_plans.xbpm_feedback import (
+from mx_bluesky.hyperion.device_setup_plans.xbpm_feedback import (
     transmission_and_xbpm_feedback_for_collection_decorator,
 )
-from hyperion.exceptions import WarningException
-from hyperion.experiment_plans.flyscan_xray_centre_plan import (
+from mx_bluesky.hyperion.exceptions import WarningException
+from mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan import (
     FlyScanXRayCentreComposite,
     flyscan_xray_centre,
 )
-from hyperion.external_interaction.callbacks.common.callback_util import (
+from mx_bluesky.hyperion.external_interaction.callbacks.common.callback_util import (
     create_gridscan_callbacks,
 )
-from hyperion.external_interaction.callbacks.xray_centre.ispyb_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.xray_centre.ispyb_callback import (
     GridscanISPyBCallback,
 )
-from hyperion.external_interaction.callbacks.xray_centre.nexus_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.xray_centre.nexus_callback import (
     GridscanNexusFileCallback,
 )
-from hyperion.external_interaction.ispyb.ispyb_store import IspybIds
-from hyperion.parameters.constants import CONST
-from hyperion.parameters.gridscan import ThreeDGridScan
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_store import IspybIds
+from mx_bluesky.hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.parameters.gridscan import ThreeDGridScan
 
 from ...conftest import default_raw_params
 from ..external_interaction.conftest import (  # noqa
@@ -152,7 +152,7 @@ def test_xbpm_feedback_decorator(
     RE: RunEngine,
     fxc_composite: FlyScanXRayCentreComposite,
     params: ThreeDGridScan,
-    callbacks: Tuple[GridscanNexusFileCallback, GridscanISPyBCallback],
+    callbacks: tuple[GridscanNexusFileCallback, GridscanISPyBCallback],
 ):
     # This test is currently kind of more a unit test since we are faking XBPM feedback
     # with ophyd.sim, but it should continue to pass when we replace it with something
@@ -191,7 +191,7 @@ def test_full_plan_tidies_at_end(
     fxc_composite: FlyScanXRayCentreComposite,
     params: ThreeDGridScan,
     RE: RunEngine,
-    callbacks: Tuple[GridscanNexusFileCallback, GridscanISPyBCallback],
+    callbacks: tuple[GridscanNexusFileCallback, GridscanISPyBCallback],
 ):
     RE(reset_positions(fxc_composite.smargon))
     nexus_cb, ispyb_cb = callbacks
@@ -227,8 +227,10 @@ def test_full_plan_tidies_at_end_when_plan_fails(
     params: ThreeDGridScan,
     RE: RunEngine,
 ):
-    run_gridscan_and_move.side_effect = Exception()
-    with pytest.raises(Exception):
+    class _Exception(Exception): ...
+
+    run_gridscan_and_move.side_effect = _Exception()
+    with pytest.raises(_Exception):
         RE(flyscan_xray_centre(fxc_composite, params))
     set_shutter_to_manual.assert_called_once()
 
@@ -239,9 +241,9 @@ def test_GIVEN_scan_invalid_WHEN_plan_run_THEN_ispyb_entry_made_but_no_zocalo_en
     zocalo_trigger: MagicMock,
     RE: RunEngine,
     fxc_composite: FlyScanXRayCentreComposite,
-    fetch_comment: Callable,
+    fetch_comment: Callable,  # noqa
     params: ThreeDGridScan,
-    callbacks: Tuple[GridscanNexusFileCallback, GridscanISPyBCallback],
+    callbacks: tuple[GridscanNexusFileCallback, GridscanISPyBCallback],
 ):
     _, ispyb_cb = callbacks
     params.storage_directory = "./tmp"
@@ -269,7 +271,7 @@ def test_GIVEN_scan_invalid_WHEN_plan_run_THEN_ispyb_entry_made_but_no_zocalo_en
 def test_complete_xray_centre_plan_with_no_callbacks_falls_back_to_centre(
     RE: RunEngine,
     fxc_composite: FlyScanXRayCentreComposite,
-    zocalo_env: None,
+    zocalo_env: None,  # noqa
     params: ThreeDGridScan,
     callbacks,
     done_status,
@@ -303,7 +305,7 @@ def test_complete_xray_centre_plan_with_no_callbacks_falls_back_to_centre(
 def test_complete_xray_centre_plan_with_callbacks_moves_to_centre(
     RE: RunEngine,
     fxc_composite: FlyScanXRayCentreComposite,
-    zocalo_env: None,
+    zocalo_env: None,  # noqa
     params: ThreeDGridScan,
     callbacks,
     done_status,

@@ -16,8 +16,8 @@ from ophyd_async.panda import (
     seq_table_from_rows,
 )
 
-import hyperion.resources.panda
-from hyperion.log import LOGGER
+import mx_bluesky.hyperion.resources.panda as panda_resource
+from mx_bluesky.hyperion.log import LOGGER
 
 MM_TO_ENCODER_COUNTS = 200000
 GENERAL_TIMEOUT = 60
@@ -153,7 +153,7 @@ def setup_panda_for_flyscan(
     yield from bps.stage(panda, group="panda-config")
 
     with resources.as_file(
-        resources.files(hyperion.resources.panda) / "panda-gridscan.yaml"
+        resources.files(panda_resource) / "panda-gridscan.yaml"
     ) as config_yaml_path:
         yield from load_device(panda, str(config_yaml_path))
 

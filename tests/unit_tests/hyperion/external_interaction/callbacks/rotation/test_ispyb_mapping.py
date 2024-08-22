@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from hyperion.external_interaction.callbacks.rotation.ispyb_mapping import (
+from mx_bluesky.hyperion.external_interaction.callbacks.rotation.ispyb_mapping import (
     populate_data_collection_info_for_rotation,
 )
 

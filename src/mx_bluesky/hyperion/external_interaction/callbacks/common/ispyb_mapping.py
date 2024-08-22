@@ -1,24 +1,23 @@
 from __future__ import annotations
 
 import re
-from typing import Optional
 
 from dodal.devices.detector import DetectorParams
 
-from hyperion.external_interaction.ispyb.data_model import (
+from mx_bluesky.hyperion.external_interaction.ispyb.data_model import (
     DataCollectionGroupInfo,
     DataCollectionInfo,
 )
-from hyperion.external_interaction.ispyb.ispyb_dataclass import IspybParams
-from hyperion.external_interaction.ispyb.ispyb_store import (
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_dataclass import IspybParams
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_store import (
     EIGER_FILE_SUFFIX,
     I03_EIGER_DETECTOR,
 )
-from hyperion.external_interaction.ispyb.ispyb_utils import (
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_utils import (
     VISIT_PATH_REGEX,
     get_current_time_string,
 )
-from hyperion.parameters.components import DiffractionExperimentWithSample
+from mx_bluesky.hyperion.parameters.components import DiffractionExperimentWithSample
 
 
 def populate_data_collection_group(params: DiffractionExperimentWithSample):
@@ -69,7 +68,7 @@ def get_proposal_and_session_from_visit_string(visit_string: str) -> tuple[str, 
     return visit_parts[0], int(visit_parts[1])
 
 
-def get_visit_string_from_path(path: Optional[str]) -> Optional[str]:
+def get_visit_string_from_path(path: str | None) -> str | None:
     match = re.search(VISIT_PATH_REGEX, path) if path else None
     return str(match.group(1)) if match else None
 

@@ -10,7 +10,7 @@ from dodal.devices.oav.pin_image_recognition import PinTipDetection
 from ophyd.signal import Signal
 from ophyd.status import Status
 
-from hyperion.device_setup_plans.setup_oav import (
+from mx_bluesky.hyperion.device_setup_plans.setup_oav import (
     pre_centring_setup_oav,
 )
 

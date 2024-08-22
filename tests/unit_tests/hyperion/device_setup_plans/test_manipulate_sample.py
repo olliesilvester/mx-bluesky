@@ -7,7 +7,9 @@ from dodal.devices.aperturescatterguard import (
     ApertureScatterguard,
 )
 
-from hyperion.device_setup_plans.manipulate_sample import move_aperture_if_required
+from mx_bluesky.hyperion.device_setup_plans.manipulate_sample import (
+    move_aperture_if_required,
+)
 
 
 async def test_move_aperture_goes_to_correct_position(

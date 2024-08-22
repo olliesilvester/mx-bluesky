@@ -14,21 +14,20 @@ from dodal.devices.oav.pin_image_recognition import PinTipDetection
 from dodal.devices.oav.pin_image_recognition.utils import NONE_VALUE, SampleLocation
 from dodal.devices.smargon import Smargon
 
-from hyperion.exceptions import WarningException
-from hyperion.experiment_plans.oav_grid_detection_plan import (
+from mx_bluesky.hyperion.exceptions import WarningException
+from mx_bluesky.hyperion.experiment_plans.oav_grid_detection_plan import (
     OavGridDetectionComposite,
     get_min_and_max_y_of_pin,
     grid_detection_plan,
 )
-from hyperion.external_interaction.callbacks.grid_detection_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.grid_detection_callback import (
     GridDetectionCallback,
 )
-from hyperion.external_interaction.callbacks.xray_centre.ispyb_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.xray_centre.ispyb_callback import (
     GridscanISPyBCallback,
     ispyb_activation_wrapper,
 )
 
-from ...conftest import RunEngineSimulator
 from .conftest import assert_event
 
 

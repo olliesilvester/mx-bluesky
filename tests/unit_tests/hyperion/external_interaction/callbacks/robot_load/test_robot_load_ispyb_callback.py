@@ -9,10 +9,10 @@ from dodal.devices.robot import BartRobot
 from dodal.devices.webcam import Webcam
 from ophyd_async.core import set_mock_value
 
-from hyperion.external_interaction.callbacks.robot_load.ispyb_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.robot_load.ispyb_callback import (
     RobotLoadISPyBCallback,
 )
-from hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.parameters.constants import CONST
 
 VISIT_PATH = "/tmp/cm31105-4"
 
@@ -73,12 +73,14 @@ def test_given_failing_plan_then_exception_detail(
     RE.subscribe(RobotLoadISPyBCallback())
     start_load.return_value = ACTION_ID
 
+    class _Exception(Exception): ...
+
     @bpp.run_decorator(md=metadata)
     def my_plan():
-        raise Exception("BAD")
+        raise _Exception("BAD")
         yield from bps.null()
 
-    with pytest.raises(Exception):
+    with pytest.raises(_Exception):
         RE(my_plan())
 
     start_load.assert_called_once_with("cm31105", 4, SAMPLE_ID, SAMPLE_PUCK, SAMPLE_PIN)

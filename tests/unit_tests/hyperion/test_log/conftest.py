@@ -1,6 +1,6 @@
 from dodal.log import LOGGER
 
-from hyperion.log import ALL_LOGGERS
+from mx_bluesky.hyperion.log import ALL_LOGGERS
 
 from ....conftest import _reset_loggers
 

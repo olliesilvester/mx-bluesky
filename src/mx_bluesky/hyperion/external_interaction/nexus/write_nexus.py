@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import math
 from pathlib import Path
-from typing import Optional
 
 from dodal.devices.zebra import RotationDirection
 from dodal.utils import get_beamline_name
@@ -16,12 +15,12 @@ from nexgen.nxs_write.nxmx_writer import NXmxFileWriter
 from numpy.typing import DTypeLike
 from scanspec.core import AxesPoints
 
-from hyperion.external_interaction.nexus.nexus_utils import (
+from mx_bluesky.hyperion.external_interaction.nexus.nexus_utils import (
     create_detector_parameters,
     create_goniometer_axes,
     get_start_and_predicted_end_time,
 )
-from hyperion.parameters.components import DiffractionExperimentWithSample
+from mx_bluesky.hyperion.parameters.components import DiffractionExperimentWithSample
 
 
 class NexusWriter:
@@ -42,8 +41,8 @@ class NexusWriter:
         meta_data_run_number: int | None = None,
         rotation_direction: RotationDirection = RotationDirection.NEGATIVE,
     ) -> None:
-        self.beam: Optional[Beam] = None
-        self.attenuator: Optional[Attenuator] = None
+        self.beam: Beam | None = None
+        self.attenuator: Attenuator | None = None
         self.scan_points: dict = scan_points
         self.data_shape: tuple[int, int, int] = data_shape
         self.run_number: int = (

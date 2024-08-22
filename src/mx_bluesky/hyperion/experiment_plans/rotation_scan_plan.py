@@ -22,36 +22,36 @@ from dodal.devices.undulator import Undulator
 from dodal.devices.zebra import RotationDirection, Zebra
 from dodal.plans.check_topup import check_topup_and_wait_if_necessary
 
-from hyperion.device_setup_plans.manipulate_sample import (
+from mx_bluesky.hyperion.device_setup_plans.manipulate_sample import (
     begin_sample_environment_setup,
     cleanup_sample_environment,
     move_phi_chi_omega,
     move_x_y_z,
     setup_sample_environment,
 )
-from hyperion.device_setup_plans.read_hardware_for_setup import (
+from mx_bluesky.hyperion.device_setup_plans.read_hardware_for_setup import (
     read_hardware_during_collection,
     read_hardware_for_zocalo,
     read_hardware_pre_collection,
 )
-from hyperion.device_setup_plans.setup_zebra import (
+from mx_bluesky.hyperion.device_setup_plans.setup_zebra import (
     arm_zebra,
     disarm_zebra,
     make_trigger_safe,
     setup_zebra_for_rotation,
 )
-from hyperion.experiment_plans.oav_snapshot_plan import (
+from mx_bluesky.hyperion.experiment_plans.oav_snapshot_plan import (
     OavSnapshotComposite,
     oav_snapshot_plan,
     setup_oav_snapshot_plan,
 )
-from hyperion.log import LOGGER
-from hyperion.parameters.constants import CONST
-from hyperion.parameters.rotation import (
+from mx_bluesky.hyperion.log import LOGGER
+from mx_bluesky.hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.parameters.rotation import (
     MultiRotationScan,
     RotationScan,
 )
-from hyperion.utils.context import device_composite_from_context
+from mx_bluesky.hyperion.utils.context import device_composite_from_context
 
 
 @dataclasses.dataclass

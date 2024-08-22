@@ -1,10 +1,11 @@
 import atexit
 import json
 import threading
+from collections.abc import Callable
 from dataclasses import asdict
 from queue import Queue
 from traceback import format_exception
-from typing import Any, Callable, Optional, Tuple
+from typing import Any
 
 from blueapi.core import BlueskyContext, MsgGenerator
 from bluesky.callbacks.zmq import Publisher
@@ -13,43 +14,47 @@ from flask import Flask, request
 from flask_restful import Api, Resource
 from pydantic.dataclasses import dataclass
 
-from hyperion.exceptions import WarningException
-from hyperion.experiment_plans.experiment_registry import (
+from mx_bluesky.hyperion.exceptions import WarningException
+from mx_bluesky.hyperion.experiment_plans.experiment_registry import (
     PLAN_REGISTRY,
     PlanNotFound,
 )
-from hyperion.external_interaction.callbacks.__main__ import (
+from mx_bluesky.hyperion.external_interaction.callbacks.__main__ import (
     setup_logging as setup_callback_logging,
 )
-from hyperion.external_interaction.callbacks.aperture_change_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.aperture_change_callback import (
     ApertureChangeCallback,
 )
-from hyperion.external_interaction.callbacks.common.callback_util import (
+from mx_bluesky.hyperion.external_interaction.callbacks.common.callback_util import (
     CallbacksFactory,
 )
-from hyperion.external_interaction.callbacks.log_uid_tag_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.log_uid_tag_callback import (
     LogUidTaggingCallback,
 )
-from hyperion.external_interaction.callbacks.logging_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.logging_callback import (
     VerbosePlanExecutionLoggingCallback,
 )
-from hyperion.log import LOGGER, do_default_logging_setup, flush_debug_handler
-from hyperion.parameters.cli import parse_cli_args
-from hyperion.parameters.components import HyperionParameters
-from hyperion.parameters.constants import CONST, Actions, Status
-from hyperion.tracing import TRACER
-from hyperion.utils.context import setup_context
+from mx_bluesky.hyperion.log import (
+    LOGGER,
+    do_default_logging_setup,
+    flush_debug_handler,
+)
+from mx_bluesky.hyperion.parameters.cli import parse_cli_args
+from mx_bluesky.hyperion.parameters.components import HyperionParameters
+from mx_bluesky.hyperion.parameters.constants import CONST, Actions, Status
+from mx_bluesky.hyperion.tracing import TRACER
+from mx_bluesky.hyperion.utils.context import setup_context
 
-VERBOSE_EVENT_LOGGING: Optional[bool] = None
+VERBOSE_EVENT_LOGGING: bool | None = None
 
 
 @dataclass
 class Command:
     action: Actions
-    devices: Optional[Any] = None
-    experiment: Optional[Callable[[Any, Any], MsgGenerator]] = None
-    parameters: Optional[HyperionParameters] = None
-    callbacks: Optional[CallbacksFactory] = None
+    devices: Any | None = None
+    experiment: Callable[[Any, Any], MsgGenerator] | None = None
+    parameters: HyperionParameters | None = None
+    callbacks: CallbacksFactory | None = None
 
 
 @dataclass
@@ -112,7 +117,7 @@ class BlueskyRunner:
         experiment: Callable,
         parameters: HyperionParameters,
         plan_name: str,
-        callbacks: Optional[CallbacksFactory],
+        callbacks: CallbacksFactory | None,
     ) -> StatusAndMessage:
         LOGGER.info(f"Started with parameters: {parameters.json(indent=2)}")
 
@@ -300,7 +305,7 @@ def create_app(
     RE: RunEngine = RunEngine({}),
     skip_startup_connection: bool = False,
     use_external_callbacks: bool = False,
-) -> Tuple[Flask, BlueskyRunner]:
+) -> tuple[Flask, BlueskyRunner]:
     context = setup_context(
         wait_for_connection=not skip_startup_connection,
     )

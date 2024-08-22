@@ -2,7 +2,7 @@ from copy import deepcopy
 
 import numpy as np
 
-from hyperion.external_interaction.ispyb.ispyb_dataclass import (
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_dataclass import (
     GRIDSCAN_ISPYB_PARAM_DEFAULTS,
     IspybParams,
 )

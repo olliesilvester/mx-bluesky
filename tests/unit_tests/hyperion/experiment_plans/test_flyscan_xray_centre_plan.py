@@ -1,7 +1,6 @@
 import random
 import types
 from pathlib import Path
-from typing import Tuple
 from unittest.mock import DEFAULT, MagicMock, call, patch
 
 import bluesky.plan_stubs as bps
@@ -24,12 +23,12 @@ from ophyd.status import Status
 from ophyd_async.core import set_mock_value
 from ophyd_async.panda._table import DatasetTable
 
-from hyperion.device_setup_plans.read_hardware_for_setup import (
+from mx_bluesky.hyperion.device_setup_plans.read_hardware_for_setup import (
     read_hardware_during_collection,
     read_hardware_pre_collection,
 )
-from hyperion.exceptions import WarningException
-from hyperion.experiment_plans.flyscan_xray_centre_plan import (
+from mx_bluesky.hyperion.exceptions import WarningException
+from mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan import (
     FlyScanXRayCentreComposite,
     SmargonSpeedException,
     _get_feature_controlled,
@@ -39,32 +38,32 @@ from hyperion.experiment_plans.flyscan_xray_centre_plan import (
     run_gridscan_and_move,
     wait_for_gridscan_valid,
 )
-from hyperion.external_interaction.callbacks.common.callback_util import (
+from mx_bluesky.hyperion.external_interaction.callbacks.common.callback_util import (
     create_gridscan_callbacks,
 )
-from hyperion.external_interaction.callbacks.logging_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.logging_callback import (
     VerbosePlanExecutionLoggingCallback,
 )
-from hyperion.external_interaction.callbacks.plan_reactive_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.plan_reactive_callback import (
     PlanReactiveCallback,
 )
-from hyperion.external_interaction.callbacks.xray_centre.ispyb_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.xray_centre.ispyb_callback import (
     GridscanISPyBCallback,
     ispyb_activation_wrapper,
 )
-from hyperion.external_interaction.callbacks.xray_centre.nexus_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.xray_centre.nexus_callback import (
     GridscanNexusFileCallback,
 )
-from hyperion.external_interaction.callbacks.zocalo_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.zocalo_callback import (
     ZocaloCallback,
 )
-from hyperion.external_interaction.config_server import FeatureFlags
-from hyperion.external_interaction.ispyb.ispyb_store import (
+from mx_bluesky.hyperion.external_interaction.config_server import FeatureFlags
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_store import (
     IspybIds,
 )
-from hyperion.log import ISPYB_LOGGER
-from hyperion.parameters.constants import CONST
-from hyperion.parameters.gridscan import ThreeDGridScan
+from mx_bluesky.hyperion.log import ISPYB_LOGGER
+from mx_bluesky.hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.parameters.gridscan import ThreeDGridScan
 from tests.conftest import (
     RunEngineSimulator,
     create_dummy_scan_spec,
@@ -84,7 +83,7 @@ from .conftest import (
     run_generic_ispyb_handler_setup,
 )
 
-ReWithSubs = tuple[RunEngine, Tuple[GridscanNexusFileCallback, GridscanISPyBCallback]]
+ReWithSubs = tuple[RunEngine, tuple[GridscanNexusFileCallback, GridscanISPyBCallback]]
 
 
 @pytest.fixture
@@ -135,7 +134,7 @@ def ispyb_plan(test_fgs_params: ThreeDGridScan):
 @pytest.fixture
 def RE_with_subs(
     RE: RunEngine,
-    mock_subscriptions: Tuple[GridscanNexusFileCallback | GridscanISPyBCallback],
+    mock_subscriptions: tuple[GridscanNexusFileCallback | GridscanISPyBCallback],
 ):
     for cb in list(mock_subscriptions):
         RE.subscribe(cb)
@@ -393,7 +392,7 @@ class TestFlyscanXrayCentrePlan:
         fake_fgs_composite: FlyScanXRayCentreComposite,
         RE: RunEngine,
     ):
-        from hyperion.device_setup_plans.manipulate_sample import move_x_y_z
+        from mx_bluesky.hyperion.device_setup_plans.manipulate_sample import move_x_y_z
 
         motor_position = test_fgs_params.FGS_params.grid_position_to_motor_position(
             np.array([1, 2, 3])

@@ -3,9 +3,10 @@ from __future__ import annotations
 import datetime
 import json
 from abc import abstractmethod
+from collections.abc import Sequence
 from enum import StrEnum
 from pathlib import Path
-from typing import Sequence, SupportsInt, TypeVar
+from typing import SupportsInt, TypeVar
 
 from dodal.devices.aperturescatterguard import AperturePositionGDANames
 from dodal.devices.detector import (
@@ -17,11 +18,11 @@ from pydantic import BaseModel, Extra, Field, root_validator, validator
 from scanspec.core import AxesPoints
 from semver import Version
 
-from hyperion.external_interaction.config_server import FeatureFlags
-from hyperion.external_interaction.ispyb.ispyb_dataclass import (
+from mx_bluesky.hyperion.external_interaction.config_server import FeatureFlags
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_dataclass import (
     IspybParams,
 )
-from hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.parameters.constants import CONST
 
 T = TypeVar("T")
 
@@ -134,7 +135,7 @@ class HyperionParameters(BaseModel):
     def from_json(cls, input: str | None, *, allow_extras: bool = False):
         assert input is not None
         if allow_extras:
-            cls.Config.extra = Extra.ignore
+            cls.Config.extra = Extra.ignore  # type: ignore
         params = cls(**json.loads(input))
         cls.Config.extra = Extra.forbid
         return params

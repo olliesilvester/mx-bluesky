@@ -6,7 +6,8 @@
 """
 
 import dataclasses
-from typing import Any, Generator
+from collections.abc import Generator
+from typing import Any
 
 from bluesky import plan_stubs as bps
 from bluesky.utils import Msg
@@ -16,8 +17,8 @@ from dodal.devices.focusing_mirror import FocusingMirrorWithStripes, VFMMirrorVo
 from dodal.devices.undulator_dcm import UndulatorDCM
 from dodal.devices.xbpm_feedback import XBPMFeedback
 
-from hyperion.device_setup_plans import dcm_pitch_roll_mirror_adjuster
-from hyperion.device_setup_plans.xbpm_feedback import (
+from mx_bluesky.hyperion.device_setup_plans import dcm_pitch_roll_mirror_adjuster
+from mx_bluesky.hyperion.device_setup_plans.xbpm_feedback import (
     transmission_and_xbpm_feedback_for_collection_wrapper,
 )
 

@@ -12,11 +12,11 @@ from dodal.devices.detector.det_dim_constants import (
 )
 from dodal.devices.fast_grid_scan import GridAxis, ZebraGridScanParams
 
-from hyperion.external_interaction.nexus.nexus_utils import (
+from mx_bluesky.hyperion.external_interaction.nexus.nexus_utils import (
     create_beam_and_attenuator_parameters,
 )
-from hyperion.external_interaction.nexus.write_nexus import NexusWriter
-from hyperion.parameters.gridscan import ThreeDGridScan
+from mx_bluesky.hyperion.external_interaction.nexus.write_nexus import NexusWriter
+from mx_bluesky.hyperion.parameters.gridscan import ThreeDGridScan
 
 """It's hard to effectively unit test the nexus writing so these are really system tests
 that confirms that we're passing the right sorts of data to nexgen to get a sensible output.

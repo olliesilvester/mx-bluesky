@@ -4,8 +4,10 @@ from time import sleep
 import pytest
 from requests import get
 
-from hyperion.external_interaction.ispyb.exp_eye_store import ExpeyeInteraction
-from hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.external_interaction.ispyb.exp_eye_store import (
+    ExpeyeInteraction,
+)
+from mx_bluesky.hyperion.parameters.constants import CONST
 
 
 @pytest.mark.s03

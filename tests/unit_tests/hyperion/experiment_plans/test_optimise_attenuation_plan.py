@@ -7,8 +7,8 @@ from dodal.beamlines import i03
 from ophyd.status import Status
 from ophyd_async.core import set_mock_value
 
-from hyperion.experiment_plans import optimise_attenuation_plan
-from hyperion.experiment_plans.optimise_attenuation_plan import (
+from mx_bluesky.hyperion.experiment_plans import optimise_attenuation_plan
+from mx_bluesky.hyperion.experiment_plans.optimise_attenuation_plan import (
     AttenuationOptimisationFailedException,
     Direction,
     OptimizeAttenuationComposite,
@@ -20,7 +20,7 @@ from hyperion.experiment_plans.optimise_attenuation_plan import (
     is_deadtime_optimised,
     total_counts_optimisation,
 )
-from hyperion.log import LOGGER
+from mx_bluesky.hyperion.log import LOGGER
 
 
 @pytest.fixture
@@ -57,14 +57,17 @@ def get_good_status():
 
 @pytest.fixture
 def fake_composite_mocked_sets(fake_composite: OptimizeAttenuationComposite):
-    with patch.object(
-        fake_composite.xspress3mini,
-        "stage",
-        MagicMock(return_value=get_good_status()),
-    ), patch.object(
-        fake_composite.sample_shutter,
-        "set",
-        MagicMock(return_value=get_good_status()),
+    with (
+        patch.object(
+            fake_composite.xspress3mini,
+            "stage",
+            MagicMock(return_value=get_good_status()),
+        ),
+        patch.object(
+            fake_composite.sample_shutter,
+            "set",
+            MagicMock(return_value=get_good_status()),
+        ),
     ):
         yield fake_composite
 
@@ -74,7 +77,7 @@ def test_is_deadtime_optimised_returns_true_once_direction_is_flipped_and_deadti
 ):
     deadtime: float = 1
     direction = Direction.POSITIVE
-    for i in range(5):
+    for _ in range(5):
         assert is_deadtime_optimised(deadtime, 0.5, 0.5, 1, Direction.POSITIVE) is False
         direction = calculate_new_direction(direction, deadtime, 0.5)
         deadtime -= 0.1

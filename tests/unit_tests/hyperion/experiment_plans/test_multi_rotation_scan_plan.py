@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import json
 import shutil
+from collections.abc import Callable, Sequence
 from itertools import takewhile
 from math import ceil
-from typing import Any, Callable, Sequence
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import h5py
@@ -16,24 +17,23 @@ from dodal.devices.oav.oav_parameters import OAVParameters
 from dodal.devices.synchrotron import SynchrotronMode
 from ophyd_async.core import set_mock_value
 
-from hyperion.experiment_plans.rotation_scan_plan import (
+from mx_bluesky.hyperion.experiment_plans.rotation_scan_plan import (
     RotationScanComposite,
     calculate_motion_profile,
     multi_rotation_scan,
 )
-from hyperion.external_interaction.callbacks.rotation.ispyb_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.rotation.ispyb_callback import (
     RotationISPyBCallback,
 )
-from hyperion.external_interaction.callbacks.rotation.nexus_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.rotation.nexus_callback import (
     RotationNexusFileCallback,
 )
-from hyperion.external_interaction.ispyb.ispyb_store import StoreInIspyb
-from hyperion.parameters.constants import CONST
-from hyperion.parameters.rotation import MultiRotationScan, RotationScan
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_store import StoreInIspyb
+from mx_bluesky.hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.parameters.rotation import MultiRotationScan, RotationScan
 
-from ...conftest import (
+from ....conftest import (
     DocumentCapturer,
-    RunEngineSimulator,
     extract_metafile,
     fake_read,
     raw_params_from_file,
@@ -235,7 +235,9 @@ def test_full_multi_rotation_plan_nexus_writer_called_correctly(
     nexus_writer_calls = mock_nexus_writer.call_args_list
     first_run_number = test_multi_rotation_params.detector_params.run_number
     for call, rotation_params in zip(
-        nexus_writer_calls, test_multi_rotation_params.single_rotation_scans
+        nexus_writer_calls,
+        test_multi_rotation_params.single_rotation_scans,
+        strict=False,
     ):
         assert call.args[0] == rotation_params
         assert call.kwargs == {
@@ -381,13 +383,14 @@ def test_full_multi_rotation_plan_ispyb_called_correctly(
         oav_parameters_for_rotation,
     )
     ispyb_calls = mock_ispyb_store.call_args_list
-    for instantiation_call, ispyb_store_calls, rotation_params in zip(
+    for instantiation_call, ispyb_store_calls, _ in zip(
         ispyb_calls,
         [  # there should be 4 calls to the IspybStore per run
             mock_ispyb_store.return_value.method_calls[i * 4 : (i + 1) * 4]
             for i in range(len(test_multi_rotation_params.rotation_scans))
         ],
         test_multi_rotation_params.single_rotation_scans,
+        strict=False,
     ):
         assert instantiation_call.args[0] == CONST.SIM.ISPYB_CONFIG
         assert ispyb_store_calls[0][0] == "begin_deposition"
@@ -421,6 +424,7 @@ def test_full_multi_rotation_plan_ispyb_interaction_end_to_end(
             for i in range(len(test_multi_rotation_params.rotation_scans))
         ],
         test_multi_rotation_params.single_rotation_scans,
+        strict=False,
     ):
         first_upsert_data = upsert_calls[0].args[0]
         assert (

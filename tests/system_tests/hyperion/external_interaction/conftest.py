@@ -1,6 +1,7 @@
 import os
+from collections.abc import Callable
 from functools import partial
-from typing import Any, Callable
+from typing import Any
 
 import ispyb.sqlalchemy
 import pytest
@@ -8,9 +9,9 @@ from ispyb.sqlalchemy import DataCollection, DataCollectionGroup, GridInfo, Posi
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from hyperion.external_interaction.ispyb.ispyb_store import StoreInIspyb
-from hyperion.parameters.constants import CONST
-from hyperion.parameters.gridscan import ThreeDGridScan
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_store import StoreInIspyb
+from mx_bluesky.hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.parameters.gridscan import ThreeDGridScan
 
 from ...conftest import raw_params_from_file
 

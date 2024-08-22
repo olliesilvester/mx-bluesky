@@ -1,4 +1,4 @@
-from hyperion.exceptions import WarningException
+from mx_bluesky.hyperion.exceptions import WarningException
 
 
 class ISPyBDepositionNotMade(Exception):

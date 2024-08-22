@@ -12,7 +12,7 @@ from dodal.devices.util.lookup_tables import (
     linear_interpolation_lut,
 )
 
-from hyperion.log import LOGGER
+from mx_bluesky.hyperion.log import LOGGER
 
 MIRROR_VOLTAGE_GROUP = "MIRROR_VOLTAGE_GROUP"
 DCM_GROUP = "DCM_GROUP"
@@ -40,7 +40,7 @@ def _apply_and_wait_for_voltages_to_settle(
 
     required_voltages = sample_data[stripe_key][mirror_key]
     for voltage_channel, required_voltage in zip(
-        mirror_voltages.voltage_channels.values(), required_voltages
+        mirror_voltages.voltage_channels.values(), required_voltages, strict=False
     ):
         LOGGER.debug(
             f"Applying and waiting for voltage {voltage_channel.name} = {required_voltage}"

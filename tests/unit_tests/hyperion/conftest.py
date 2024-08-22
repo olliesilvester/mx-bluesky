@@ -4,7 +4,7 @@ from unittest.mock import patch
 import pytest
 from event_model import Event, EventDescriptor
 
-from hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.parameters.constants import CONST
 
 BANNED_PATHS = [Path("/dls"), Path("/dls_sw")]
 

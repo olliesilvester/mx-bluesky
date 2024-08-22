@@ -18,8 +18,10 @@ from scanspec.core import AxesPoints
 from scanspec.core import Path as ScanPath
 from scanspec.specs import Line
 
-from hyperion.external_interaction.ispyb.ispyb_dataclass import RotationIspybParams
-from hyperion.parameters.components import (
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_dataclass import (
+    RotationIspybParams,
+)
+from mx_bluesky.hyperion.parameters.components import (
     DiffractionExperimentWithSample,
     IspybExperimentType,
     OptionalGonioAngleStarts,
@@ -29,7 +31,7 @@ from hyperion.parameters.components import (
     TemporaryIspybExtras,
     WithScan,
 )
-from hyperion.parameters.constants import CONST, I03Constants
+from mx_bluesky.hyperion.parameters.constants import CONST, I03Constants
 
 
 class RotationScanPerSweep(OptionalGonioAngleStarts, OptionalXyzStarts):
@@ -49,7 +51,7 @@ class RotationExperiment(DiffractionExperimentWithSample):
     )
 
     def _detector_params(self, omega_start_deg: float):
-        self.det_dist_to_beam_converter_path = (
+        self.det_dist_to_beam_converter_path: str = (
             self.det_dist_to_beam_converter_path
             or CONST.PARAM.DETECTOR.BEAM_XY_LUT_PATH
         )
@@ -128,7 +130,7 @@ class MultiRotationScan(RotationExperiment, SplitScan):
         # together they have everything for RotationScan
         return RotationScan(**params)
 
-    @root_validator(pre=False)
+    @root_validator(pre=False)  # type: ignore
     def validate_snapshot_directory(cls, values):
         start_img = 0
         for scan in values["rotation_scans"]:

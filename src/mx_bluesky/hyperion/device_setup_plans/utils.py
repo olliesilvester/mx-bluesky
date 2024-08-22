@@ -1,4 +1,4 @@
-from typing import Generator
+from collections.abc import Generator
 
 from bluesky import plan_stubs as bps
 from bluesky import preprocessors as bpp
@@ -6,7 +6,7 @@ from bluesky.utils import Msg
 from dodal.devices.detector.detector_motion import DetectorMotion, ShutterState
 from dodal.devices.eiger import EigerDetector
 
-from hyperion.device_setup_plans.position_detector import (
+from mx_bluesky.hyperion.device_setup_plans.position_detector import (
     set_detector_z_position,
     set_shutter,
 )

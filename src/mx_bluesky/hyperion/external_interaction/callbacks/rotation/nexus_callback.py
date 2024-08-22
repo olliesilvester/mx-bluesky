@@ -1,18 +1,18 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING
 
-from hyperion.external_interaction.callbacks.plan_reactive_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.plan_reactive_callback import (
     PlanReactiveCallback,
 )
-from hyperion.external_interaction.nexus.nexus_utils import (
+from mx_bluesky.hyperion.external_interaction.nexus.nexus_utils import (
     create_beam_and_attenuator_parameters,
     vds_type_based_on_bit_depth,
 )
-from hyperion.external_interaction.nexus.write_nexus import NexusWriter
-from hyperion.log import NEXUS_LOGGER
-from hyperion.parameters.constants import CONST
-from hyperion.parameters.rotation import RotationScan
+from mx_bluesky.hyperion.external_interaction.nexus.write_nexus import NexusWriter
+from mx_bluesky.hyperion.log import NEXUS_LOGGER
+from mx_bluesky.hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.parameters.rotation import RotationScan
 
 from ..logging_callback import format_doc_for_log
 
@@ -37,7 +37,7 @@ class RotationNexusFileCallback(PlanReactiveCallback):
         super().__init__(NEXUS_LOGGER)
         self.run_uid: str | None = None
         self.writer: NexusWriter | None = None
-        self.descriptors: Dict[str, EventDescriptor] = {}
+        self.descriptors: dict[str, EventDescriptor] = {}
         # used when multiple collections are made in one detector arming event:
         self.full_num_of_images: int | None = None
         self.meta_data_run_number: int | None = None

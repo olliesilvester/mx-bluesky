@@ -1,43 +1,45 @@
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from time import time
-from typing import TYPE_CHECKING, Any, Callable, List, Optional
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from blueapi.core import MsgGenerator
 from bluesky import preprocessors as bpp
 from dodal.devices.zocalo.zocalo_results import ZOCALO_READING_PLAN_NAME
 
-from hyperion.external_interaction.callbacks.common.ispyb_mapping import (
+from mx_bluesky.hyperion.external_interaction.callbacks.common.ispyb_mapping import (
     populate_data_collection_group,
     populate_remaining_data_collection_info,
 )
-from hyperion.external_interaction.callbacks.ispyb_callback_base import (
+from mx_bluesky.hyperion.external_interaction.callbacks.ispyb_callback_base import (
     BaseISPyBCallback,
 )
-from hyperion.external_interaction.callbacks.logging_callback import format_doc_for_log
-from hyperion.external_interaction.callbacks.xray_centre.ispyb_mapping import (
+from mx_bluesky.hyperion.external_interaction.callbacks.logging_callback import (
+    format_doc_for_log,
+)
+from mx_bluesky.hyperion.external_interaction.callbacks.xray_centre.ispyb_mapping import (
     construct_comment_for_gridscan,
     populate_xy_data_collection_info,
     populate_xz_data_collection_info,
 )
-from hyperion.external_interaction.exceptions import ISPyBDepositionNotMade
-from hyperion.external_interaction.ispyb.data_model import (
+from mx_bluesky.hyperion.external_interaction.exceptions import ISPyBDepositionNotMade
+from mx_bluesky.hyperion.external_interaction.ispyb.data_model import (
     DataCollectionGridInfo,
     DataCollectionInfo,
     DataCollectionPositionInfo,
     ScanDataInfo,
 )
-from hyperion.external_interaction.ispyb.ispyb_dataclass import Orientation
-from hyperion.external_interaction.ispyb.ispyb_store import (
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_dataclass import Orientation
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_store import (
     IspybIds,
     StoreInIspyb,
 )
-from hyperion.log import ISPYB_LOGGER, set_dcgid_tag
-from hyperion.parameters.components import DiffractionExperimentWithSample
-from hyperion.parameters.constants import CONST
-from hyperion.parameters.gridscan import (
+from mx_bluesky.hyperion.log import ISPYB_LOGGER, set_dcgid_tag
+from mx_bluesky.hyperion.parameters.components import DiffractionExperimentWithSample
+from mx_bluesky.hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.parameters.gridscan import (
     GridCommon,
 )
 
@@ -143,7 +145,7 @@ class GridscanISPyBCallback(BaseISPyBCallback):
         if self._processing_start_time is not None:
             proc_time = time() - self._processing_start_time
             crystal_summary = f"Zocalo processing took {proc_time:.2f} s. "
-        bboxes: List[np.ndarray] = []
+        bboxes: list[np.ndarray] = []
         ISPYB_LOGGER.info(
             f"Amending comment based on Zocalo reading doc: {format_doc_for_log(doc)}"
         )
@@ -231,7 +233,7 @@ class GridscanISPyBCallback(BaseISPyBCallback):
     def populate_info_for_update(
         self,
         event_sourced_data_collection_info: DataCollectionInfo,
-        event_sourced_position_info: Optional[DataCollectionPositionInfo],
+        event_sourced_position_info: DataCollectionPositionInfo | None,
         params: DiffractionExperimentWithSample,
     ) -> Sequence[ScanDataInfo]:
         assert (

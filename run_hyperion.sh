@@ -34,7 +34,7 @@ for option in "$@"; do
 
         --help|--info|--h)
         
-        #Combine help from here and help from hyperion
+        #Combine help from here and help from mx_bluesky.hyperion
             source .venv/bin/activate
             python -m hyperion --help
             echo "  -b, --beamline=BEAMLINE Overrides the BEAMLINE environment variable with the given beamline"

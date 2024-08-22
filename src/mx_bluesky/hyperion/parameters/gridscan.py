@@ -15,10 +15,10 @@ from pydantic import Field, PrivateAttr
 from scanspec.core import Path as ScanPath
 from scanspec.specs import Line, Static
 
-from hyperion.external_interaction.ispyb.ispyb_dataclass import (
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_dataclass import (
     GridscanIspybParams,
 )
-from hyperion.parameters.components import (
+from mx_bluesky.hyperion.parameters.components import (
     DiffractionExperimentWithSample,
     IspybExperimentType,
     OptionalGonioAngleStarts,
@@ -27,7 +27,7 @@ from hyperion.parameters.components import (
     WithScan,
     XyzStarts,
 )
-from hyperion.parameters.constants import CONST, I03Constants
+from mx_bluesky.hyperion.parameters.constants import CONST, I03Constants
 
 
 class GridCommon(

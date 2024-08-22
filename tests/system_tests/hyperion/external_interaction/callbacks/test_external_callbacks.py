@@ -21,21 +21,21 @@ from dodal.devices.zocalo import ZocaloResults
 from ophyd_async.core import set_mock_value
 from zmq.utils.monitor import recv_monitor_message
 
-from hyperion.experiment_plans.flyscan_xray_centre_plan import (
+from mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan import (
     FlyScanXRayCentreComposite,
     flyscan_xray_centre,
 )
-from hyperion.experiment_plans.rotation_scan_plan import (
+from mx_bluesky.hyperion.experiment_plans.rotation_scan_plan import (
     RotationScanComposite,
     rotation_scan,
 )
-from hyperion.log import LOGGER
-from hyperion.parameters.constants import CONST
-from hyperion.parameters.gridscan import ThreeDGridScan
-from hyperion.parameters.rotation import RotationScan
-from hyperion.utils.utils import convert_angstrom_to_eV
+from mx_bluesky.hyperion.log import LOGGER
+from mx_bluesky.hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.parameters.gridscan import ThreeDGridScan
+from mx_bluesky.hyperion.parameters.rotation import RotationScan
+from mx_bluesky.hyperion.utils.utils import convert_angstrom_to_eV
 
-from ....conftest import fake_read
+from .....conftest import fake_read
 from ..conftest import (  # noqa
     fetch_comment,
     zocalo_env,
@@ -139,12 +139,12 @@ def test_RE_with_external_callbacks_starts_and_stops(
 @pytest.mark.s03
 async def test_external_callbacks_handle_gridscan_ispyb_and_zocalo(
     RE_with_external_callbacks: RunEngine,
-    zocalo_env,
+    zocalo_env,  # noqa
     test_fgs_params: ThreeDGridScan,
     fake_fgs_composite: FlyScanXRayCentreComposite,
     done_status,
     zocalo_device: ZocaloResults,
-    fetch_comment,
+    fetch_comment,  # noqa
 ):
     """This test doesn't actually require S03 to be running, but it does require fake
     zocalo, and a connection to the dev ISPyB database; like S03 tests, it can only run
@@ -192,7 +192,7 @@ async def test_external_callbacks_handle_gridscan_ispyb_and_zocalo(
 def test_remote_callbacks_write_to_dev_ispyb_for_rotation(
     RE_with_external_callbacks: RunEngine,
     test_rotation_params: RotationScan,
-    fetch_comment,
+    fetch_comment,  # noqa
     fetch_datacollection_attribute,
     undulator,
     attenuator,
@@ -227,6 +227,7 @@ def test_remote_callbacks_write_to_dev_ispyb_for_rotation(
         s4_slit_gaps=s4_slit_gaps,
         zebra=fake_create_devices["zebra"],
         robot=robot,
+        oav=fake_create_devices["oav"],
     )
 
     with patch("bluesky.preprocessors.__read_and_stash_a_motor", fake_read):

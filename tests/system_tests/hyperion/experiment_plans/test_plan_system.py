@@ -6,11 +6,11 @@ from dodal.devices.aperturescatterguard import ApertureScatterguard
 from dodal.devices.s4_slit_gaps import S4SlitGaps
 from dodal.devices.undulator import Undulator
 
-from hyperion.device_setup_plans.read_hardware_for_setup import (
+from mx_bluesky.hyperion.device_setup_plans.read_hardware_for_setup import (
     read_hardware_during_collection,
     read_hardware_pre_collection,
 )
-from hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.parameters.constants import CONST
 
 
 @pytest.mark.s03

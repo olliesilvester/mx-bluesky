@@ -1,4 +1,4 @@
-from typing import Dict, Generator
+from collections.abc import Generator
 from unittest.mock import ANY, MagicMock, patch
 
 import bluesky.plan_stubs as bps
@@ -14,17 +14,20 @@ from dodal.devices.oav.oav_detector import OAVConfigParams
 from dodal.devices.oav.oav_parameters import OAVParameters
 from dodal.devices.smargon import Smargon
 
-from hyperion.experiment_plans.grid_detect_then_xray_centre_plan import (
+from mx_bluesky.hyperion.experiment_plans.grid_detect_then_xray_centre_plan import (
     GridDetectThenXRayCentreComposite,
     OavGridDetectionComposite,
     detect_grid_and_do_gridscan,
     grid_detect_then_xray_centre,
 )
-from hyperion.external_interaction.callbacks.xray_centre.ispyb_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.xray_centre.ispyb_callback import (
     ispyb_activation_wrapper,
 )
-from hyperion.parameters.constants import CONST
-from hyperion.parameters.gridscan import GridScanWithEdgeDetect, ThreeDGridScan
+from mx_bluesky.hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.parameters.gridscan import (
+    GridScanWithEdgeDetect,
+    ThreeDGridScan,
+)
 
 from ..conftest import OavGridSnapshotTestEvents
 
@@ -119,7 +122,7 @@ async def test_detect_grid_and_do_gridscan(
     RE: RunEngine,
     smargon: Smargon,
     test_full_grid_scan_params: GridScanWithEdgeDetect,
-    test_config_files: Dict,
+    test_config_files: dict,
 ):
     mock_grid_detection_plan.side_effect = _fake_grid_detection
 
@@ -171,17 +174,20 @@ def test_when_full_grid_scan_run_then_parameters_sent_to_fgs_as_expected(
     grid_detect_devices_with_oav_config_params: GridDetectThenXRayCentreComposite,
     RE: RunEngine,
     test_full_grid_scan_params: GridScanWithEdgeDetect,
-    test_config_files: Dict,
+    test_config_files: dict,
     smargon: Smargon,
 ):
     oav_params = OAVParameters("xrayCentring", test_config_files["oav_config_json"])
 
     mock_grid_detection_plan.side_effect = _fake_grid_detection
 
-    with patch.object(eiger.do_arm, "set", MagicMock()), patch.object(
-        grid_detect_devices_with_oav_config_params.aperture_scatterguard,
-        "set",
-        MagicMock(),
+    with (
+        patch.object(eiger.do_arm, "set", MagicMock()),
+        patch.object(
+            grid_detect_devices_with_oav_config_params.aperture_scatterguard,
+            "set",
+            MagicMock(),
+        ),
     ):
         RE(
             ispyb_activation_wrapper(

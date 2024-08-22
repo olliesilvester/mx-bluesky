@@ -11,7 +11,7 @@ from dodal.common.types import UpdatingDirectoryProvider
 from dodal.devices.fast_grid_scan import PandAGridScanParams
 from ophyd_async.panda import SeqTrigger
 
-from hyperion.device_setup_plans.setup_panda import (
+from mx_bluesky.hyperion.device_setup_plans.setup_panda import (
     MM_TO_ENCODER_COUNTS,
     disarm_panda_for_gridscan,
     set_panda_directory,
@@ -195,16 +195,17 @@ def test_wait_between_setting_table_and_arming_panda(RE: RunEngine):
         assert bps_wait_done
         yield from null()
 
-    with patch(
-        "hyperion.device_setup_plans.setup_panda.arm_panda_for_gridscan",
-        MagicMock(side_effect=assert_set_table_has_been_waited_on),
-    ), patch(
-        "hyperion.device_setup_plans.setup_panda.bps.wait",
-        MagicMock(side_effect=handle_wait),
-    ), patch(
-        "hyperion.device_setup_plans.setup_panda.load_device"
-    ), patch(
-        "hyperion.device_setup_plans.setup_panda.bps.abs_set"
+    with (
+        patch(
+            "hyperion.device_setup_plans.setup_panda.arm_panda_for_gridscan",
+            MagicMock(side_effect=assert_set_table_has_been_waited_on),
+        ),
+        patch(
+            "hyperion.device_setup_plans.setup_panda.bps.wait",
+            MagicMock(side_effect=handle_wait),
+        ),
+        patch("hyperion.device_setup_plans.setup_panda.load_device"),
+        patch("hyperion.device_setup_plans.setup_panda.bps.abs_set"),
     ):
         RE(
             setup_panda_for_flyscan(

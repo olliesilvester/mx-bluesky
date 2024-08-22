@@ -4,12 +4,12 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from hyperion.parameters.gridscan import (
+from mx_bluesky.hyperion.parameters.gridscan import (
     OddYStepsException,
     RobotLoadThenCentre,
     ThreeDGridScan,
 )
-from hyperion.parameters.rotation import RotationScan
+from mx_bluesky.hyperion.parameters.rotation import RotationScan
 
 from ...conftest import raw_params_from_file
 
@@ -44,7 +44,7 @@ def test_minimal_3d_gridscan_params(minimal_3d_gridscan_params):
 def test_cant_do_panda_fgs_with_odd_y_steps(minimal_3d_gridscan_params):
     test_params = ThreeDGridScan(**minimal_3d_gridscan_params)
     with pytest.raises(OddYStepsException):
-        test_params.panda_FGS_params
+        _ = test_params.panda_FGS_params
     assert test_params.FGS_params
 
 

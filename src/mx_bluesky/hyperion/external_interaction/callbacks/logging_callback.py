@@ -2,7 +2,7 @@ import json
 
 from bluesky.callbacks import CallbackBase
 
-from hyperion.log import LOGGER
+from mx_bluesky.hyperion.log import LOGGER
 
 
 class _BestEffortEncoder(json.JSONEncoder):

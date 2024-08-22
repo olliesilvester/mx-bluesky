@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from hyperion.external_interaction.ispyb.data_model import DataCollectionInfo
-from hyperion.log import ISPYB_LOGGER
-from hyperion.parameters.rotation import RotationScan
+from mx_bluesky.hyperion.external_interaction.ispyb.data_model import DataCollectionInfo
+from mx_bluesky.hyperion.log import ISPYB_LOGGER
+from mx_bluesky.hyperion.parameters.rotation import RotationScan
 
 
 def populate_data_collection_info_for_rotation(params: RotationScan):

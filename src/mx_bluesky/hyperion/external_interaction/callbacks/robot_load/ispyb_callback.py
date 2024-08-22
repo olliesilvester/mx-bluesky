@@ -1,22 +1,22 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING
 
 from event_model.documents import EventDescriptor
 
-from hyperion.external_interaction.callbacks.common.ispyb_mapping import (
+from mx_bluesky.hyperion.external_interaction.callbacks.common.ispyb_mapping import (
     get_proposal_and_session_from_visit_string,
     get_visit_string_from_path,
 )
-from hyperion.external_interaction.callbacks.plan_reactive_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.plan_reactive_callback import (
     PlanReactiveCallback,
 )
-from hyperion.external_interaction.ispyb.exp_eye_store import (
+from mx_bluesky.hyperion.external_interaction.ispyb.exp_eye_store import (
     ExpeyeInteraction,
     RobotActionID,
 )
-from hyperion.log import ISPYB_LOGGER
-from hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.log import ISPYB_LOGGER
+from mx_bluesky.hyperion.parameters.constants import CONST
 
 if TYPE_CHECKING:
     from event_model.documents import Event, EventDescriptor, RunStart, RunStop
@@ -26,8 +26,8 @@ class RobotLoadISPyBCallback(PlanReactiveCallback):
     def __init__(self) -> None:
         ISPYB_LOGGER.debug("Initialising ISPyB Robot Load Callback")
         super().__init__(log=ISPYB_LOGGER)
-        self.run_uid: Optional[str] = None
-        self.descriptors: Dict[str, EventDescriptor] = {}
+        self.run_uid: str | None = None
+        self.descriptors: dict[str, EventDescriptor] = {}
         self.action_id: RobotActionID | None = None
         self.expeye = ExpeyeInteraction()
 
@@ -36,7 +36,7 @@ class RobotLoadISPyBCallback(PlanReactiveCallback):
         if doc.get("subplan_name") == CONST.PLAN.ROBOT_LOAD:
             ISPYB_LOGGER.debug(f"ISPyB robot load callback received: {doc}")
             self.run_uid = doc.get("uid")
-            assert isinstance(metadata := doc.get("metadata"), Dict)
+            assert isinstance(metadata := doc.get("metadata"), dict)
             assert isinstance(
                 visit := get_visit_string_from_path(metadata["visit_path"]), str
             )
@@ -52,6 +52,7 @@ class RobotLoadISPyBCallback(PlanReactiveCallback):
 
     def activity_gated_descriptor(self, doc: EventDescriptor) -> EventDescriptor | None:
         self.descriptors[doc["uid"]] = doc
+        return super().activity_gated_descriptor(doc)
 
     def activity_gated_event(self, doc: Event) -> Event | None:
         event_descriptor = self.descriptors.get(doc["descriptor"])

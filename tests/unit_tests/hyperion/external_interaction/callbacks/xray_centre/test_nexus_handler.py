@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 from numpy.typing import DTypeLike
 
-from hyperion.external_interaction.callbacks.xray_centre.nexus_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.xray_centre.nexus_callback import (
     GridscanNexusFileCallback,
 )
 

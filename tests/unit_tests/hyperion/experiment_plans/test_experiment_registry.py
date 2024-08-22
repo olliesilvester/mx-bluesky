@@ -1,9 +1,12 @@
 from inspect import getfullargspec
 
-import hyperion.experiment_plans as plan_module
-from hyperion.experiment_plans import __all__ as exposed_plans
-from hyperion.experiment_plans.experiment_registry import PLAN_REGISTRY, do_nothing
-from hyperion.parameters.components import HyperionParameters
+import mx_bluesky.hyperion.experiment_plans as plan_module
+from mx_bluesky.hyperion.experiment_plans import __all__ as exposed_plans
+from mx_bluesky.hyperion.experiment_plans.experiment_registry import (
+    PLAN_REGISTRY,
+    do_nothing,
+)
+from mx_bluesky.hyperion.parameters.components import HyperionParameters
 
 
 def test_experiment_registry_param_types():

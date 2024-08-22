@@ -4,11 +4,12 @@ import functools
 import json
 import os
 import threading
+from collections.abc import Callable
 from dataclasses import dataclass
 from queue import Queue
 from sys import argv
 from time import sleep
-from typing import Any, Callable, Optional
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import flask
@@ -18,7 +19,7 @@ from dodal.devices.attenuator import Attenuator
 from dodal.devices.zebra import Zebra
 from flask.testing import FlaskClient
 
-from hyperion.__main__ import (
+from mx_bluesky.hyperion.__main__ import (
     Actions,
     BlueskyRunner,
     Status,
@@ -26,12 +27,12 @@ from hyperion.__main__ import (
     create_targets,
     setup_context,
 )
-from hyperion.exceptions import WarningException
-from hyperion.experiment_plans.experiment_registry import PLAN_REGISTRY
-from hyperion.log import LOGGER
-from hyperion.parameters.cli import parse_cli_args
-from hyperion.parameters.gridscan import ThreeDGridScan
-from hyperion.utils.context import device_composite_from_context
+from mx_bluesky.hyperion.exceptions import WarningException
+from mx_bluesky.hyperion.experiment_plans.experiment_registry import PLAN_REGISTRY
+from mx_bluesky.hyperion.log import LOGGER
+from mx_bluesky.hyperion.parameters.cli import parse_cli_args
+from mx_bluesky.hyperion.parameters.gridscan import ThreeDGridScan
+from mx_bluesky.hyperion.utils.context import device_composite_from_context
 
 from ...conftest import raw_params_from_file
 
@@ -66,7 +67,7 @@ class MockRunEngine:
     def __init__(self, test_name):
         self.RE_takes_time = True
         self.aborting_takes_time = False
-        self.error: Optional[Exception] = None
+        self.error: Exception | None = None
         self.test_name = test_name
 
     def __call__(self, *args: Any, **kwds: Any) -> Any:
@@ -183,7 +184,7 @@ def wait_for_run_engine_status(
         else:
             attempts -= 1
             sleep(0.2)
-    assert False, "Run engine still busy"
+    raise AssertionError("Run engine still busy")
 
 
 def check_status_in_response(response_object, expected_result: Status):

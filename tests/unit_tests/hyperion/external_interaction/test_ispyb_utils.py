@@ -2,11 +2,13 @@ import re
 
 import pytest
 
-from hyperion.external_interaction.callbacks.common.ispyb_mapping import (
+from mx_bluesky.hyperion.external_interaction.callbacks.common.ispyb_mapping import (
     get_proposal_and_session_from_visit_string,
     get_visit_string_from_path,
 )
-from hyperion.external_interaction.ispyb.ispyb_utils import get_current_time_string
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_utils import (
+    get_current_time_string,
+)
 
 TIME_FORMAT_REGEX = r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}"
 

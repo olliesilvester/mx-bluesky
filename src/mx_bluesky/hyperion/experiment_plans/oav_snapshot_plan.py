@@ -9,9 +9,9 @@ from dodal.devices.oav.oav_detector import OAV
 from dodal.devices.oav.oav_parameters import OAVParameters
 from dodal.devices.smargon import Smargon
 
-from hyperion.device_setup_plans.setup_oav import setup_general_oav_params
-from hyperion.parameters.components import WithSnapshot
-from hyperion.parameters.constants import DocDescriptorNames
+from mx_bluesky.hyperion.device_setup_plans.setup_oav import setup_general_oav_params
+from mx_bluesky.hyperion.parameters.components import WithSnapshot
+from mx_bluesky.hyperion.parameters.constants import DocDescriptorNames
 
 OAV_SNAPSHOT_SETUP_GROUP = "oav_snapshot_setup"
 OAV_SNAPSHOT_SETUP_SHOT = "oav_snapshot_setup_shot"

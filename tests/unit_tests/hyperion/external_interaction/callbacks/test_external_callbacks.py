@@ -1,19 +1,19 @@
 from __future__ import annotations
 
-from typing import Callable
+from collections.abc import Callable
 from unittest.mock import MagicMock, patch
 
 import pytest
 from bluesky.callbacks.zmq import Proxy, RemoteDispatcher
 from dodal.log import LOGGER as DODAL_LOGGER
 
-from hyperion.external_interaction.callbacks.__main__ import (
+from mx_bluesky.hyperion.external_interaction.callbacks.__main__ import (
     main,
     setup_callbacks,
     setup_logging,
     setup_threads,
 )
-from hyperion.log import ISPYB_LOGGER, NEXUS_LOGGER
+from mx_bluesky.hyperion.log import ISPYB_LOGGER, NEXUS_LOGGER
 
 
 @patch(

@@ -6,27 +6,27 @@ from blueapi.core import BlueskyContext, MsgGenerator
 from dodal.devices.eiger import EigerDetector
 from dodal.devices.oav.oav_parameters import OAV_CONFIG_JSON, OAVParameters
 
-from hyperion.device_setup_plans.utils import (
+from mx_bluesky.hyperion.device_setup_plans.utils import (
     start_preparing_data_collection_then_do_plan,
 )
-from hyperion.experiment_plans.grid_detect_then_xray_centre_plan import (
+from mx_bluesky.hyperion.experiment_plans.grid_detect_then_xray_centre_plan import (
     GridDetectThenXRayCentreComposite,
     detect_grid_and_do_gridscan,
 )
-from hyperion.experiment_plans.pin_tip_centring_plan import (
+from mx_bluesky.hyperion.experiment_plans.pin_tip_centring_plan import (
     PinTipCentringComposite,
     pin_tip_centre_plan,
 )
-from hyperion.external_interaction.callbacks.xray_centre.ispyb_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.xray_centre.ispyb_callback import (
     ispyb_activation_wrapper,
 )
-from hyperion.log import LOGGER
-from hyperion.parameters.constants import CONST
-from hyperion.parameters.gridscan import (
+from mx_bluesky.hyperion.log import LOGGER
+from mx_bluesky.hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.parameters.gridscan import (
     GridScanWithEdgeDetect,
     PinTipCentreThenXrayCentre,
 )
-from hyperion.utils.context import device_composite_from_context
+from mx_bluesky.hyperion.utils.context import device_composite_from_context
 
 
 def create_devices(context: BlueskyContext) -> GridDetectThenXRayCentreComposite:

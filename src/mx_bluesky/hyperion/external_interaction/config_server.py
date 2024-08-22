@@ -1,8 +1,8 @@
 from daq_config_server.client import ConfigServer
 from pydantic import BaseModel
 
-from hyperion.log import LOGGER
-from hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.log import LOGGER
+from mx_bluesky.hyperion.parameters.constants import CONST
 
 _CONFIG_SERVER: ConfigServer | None = None
 

@@ -16,8 +16,8 @@ from ophyd import EpicsSignal
 from ophyd.sim import NullStatus
 from ophyd.status import Status
 
-from hyperion.device_setup_plans import dcm_pitch_roll_mirror_adjuster
-from hyperion.device_setup_plans.dcm_pitch_roll_mirror_adjuster import (
+from mx_bluesky.hyperion.device_setup_plans import dcm_pitch_roll_mirror_adjuster
+from mx_bluesky.hyperion.device_setup_plans.dcm_pitch_roll_mirror_adjuster import (
     adjust_dcm_pitch_roll_vfm_from_lut,
     adjust_mirror_stripe,
 )
@@ -42,6 +42,7 @@ def test_apply_and_wait_for_voltages_to_settle_happy_path(
         for channel, expected_voltage in zip(
             vfm_mirror_voltages.voltage_channels.values(),
             [140, 100, 70, 30, 30, -65, 24, 15],
+            strict=False,
         ):
             channel.set.assert_called_once_with(expected_voltage)  # type: ignore
 
@@ -108,6 +109,7 @@ def test_apply_and_wait_for_voltages_to_settle_timeout(
         for channel, expected_voltage in zip(
             vfm_mirror_voltages.voltage_channels.values(),
             [140, 100, 70, 30, 30, -65, 24, 15],
+            strict=False,
         ):
             channel.set.assert_called_once_with(expected_voltage)  # type: ignore
 

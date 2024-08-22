@@ -1,11 +1,10 @@
 import configparser
-from typing import Dict, Tuple
 
 from requests import patch, post
 from requests.auth import AuthBase
 
-from hyperion.external_interaction.exceptions import ISPyBDepositionNotMade
-from hyperion.external_interaction.ispyb.ispyb_utils import (
+from mx_bluesky.hyperion.external_interaction.exceptions import ISPyBDepositionNotMade
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_utils import (
     get_current_time_string,
     get_ispyb_config,
 )
@@ -22,7 +21,7 @@ class BearerAuth(AuthBase):
         return r
 
 
-def _get_base_url_and_token() -> Tuple[str, str]:
+def _get_base_url_and_token() -> tuple[str, str]:
     config = configparser.ConfigParser()
     conf = get_ispyb_config()
     config.read(conf)
@@ -39,7 +38,7 @@ class ExpeyeInteraction:
         self.base_url = url + "/core"
         self.auth = BearerAuth(token)
 
-    def _send_and_get_response(self, url, data, send_func) -> Dict:
+    def _send_and_get_response(self, url, data, send_func) -> dict:
         response = send_func(url, auth=self.auth, json=data)
         if not response.ok:
             raise ISPyBDepositionNotMade(f"Could not write {data} to {url}: {response}")

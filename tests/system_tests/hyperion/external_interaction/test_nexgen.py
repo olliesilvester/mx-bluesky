@@ -7,15 +7,17 @@ import bluesky.preprocessors as bpp
 import pytest
 from bluesky.run_engine import RunEngine
 
-from hyperion.device_setup_plans.read_hardware_for_setup import (
+from mx_bluesky.hyperion.device_setup_plans.read_hardware_for_setup import (
     read_hardware_during_collection,
 )
-from hyperion.experiment_plans.rotation_scan_plan import RotationScanComposite
-from hyperion.external_interaction.callbacks.rotation.nexus_callback import (
+from mx_bluesky.hyperion.experiment_plans.rotation_scan_plan import (
+    RotationScanComposite,
+)
+from mx_bluesky.hyperion.external_interaction.callbacks.rotation.nexus_callback import (
     RotationNexusFileCallback,
 )
-from hyperion.parameters.constants import CONST
-from hyperion.parameters.rotation import RotationScan
+from mx_bluesky.hyperion.parameters.constants import CONST
+from mx_bluesky.hyperion.parameters.rotation import RotationScan
 
 from ...conftest import extract_metafile, raw_params_from_file
 
@@ -104,7 +106,7 @@ def _check_nexgen_output_passes_imginfo(test_file, reference_file):
     it_actual_lines = iter(stdout.split("\n"))
     i = 0
     try:
-        with open(reference_file, "r") as f:
+        with open(reference_file) as f:
             while True:
                 i += 1
                 expected_line = f.readline().rstrip("\n")

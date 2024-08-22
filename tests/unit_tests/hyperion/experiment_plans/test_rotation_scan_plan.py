@@ -15,21 +15,20 @@ from dodal.devices.synchrotron import SynchrotronMode
 from dodal.devices.zebra import Zebra
 from ophyd_async.core import get_mock_put
 
-from hyperion.experiment_plans.oav_snapshot_plan import (
+from mx_bluesky.hyperion.experiment_plans.oav_snapshot_plan import (
     OAV_SNAPSHOT_GROUP,
     OAV_SNAPSHOT_SETUP_GROUP,
 )
-from hyperion.experiment_plans.rotation_scan_plan import (
+from mx_bluesky.hyperion.experiment_plans.rotation_scan_plan import (
     RotationMotionProfile,
     RotationScanComposite,
     calculate_motion_profile,
     rotation_scan,
     rotation_scan_plan,
 )
-from hyperion.parameters.constants import CONST, DocDescriptorNames
-from hyperion.parameters.rotation import RotationScan
+from mx_bluesky.hyperion.parameters.constants import CONST, DocDescriptorNames
+from mx_bluesky.hyperion.parameters.rotation import RotationScan
 
-from ...conftest import RunEngineSimulator
 from .conftest import fake_read
 
 TEST_OFFSET = 1
@@ -208,8 +207,7 @@ async def test_full_rotation_plan_smargon_settings(
     assert await smargon.z.user_readback.get_value() == params.z_start_um / 1000  # type: ignore
     assert (
         # 4 * snapshots, restore omega, 1 * rotation sweep
-        omega_set.call_count
-        == 4 + 1 + 1
+        omega_set.call_count == 4 + 1 + 1
     )
     # 1 to max vel in outer plan, 1 to max vel in setup_oav_snapshot_plan, 1 set before rotation, 1 restore in cleanup plan
     assert omega_velocity_set.call_count == 4

@@ -6,7 +6,7 @@ import pytest
 from bluesky.run_engine import RunEngine
 from event_model.documents import Event, EventDescriptor, RunStart, RunStop
 
-from hyperion.external_interaction.callbacks.plan_reactive_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.plan_reactive_callback import (
     PlanReactiveCallback,
 )
 

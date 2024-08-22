@@ -3,15 +3,15 @@ from unittest.mock import MagicMock, patch
 import pytest
 from graypy import GELFTCPHandler
 
-from hyperion.external_interaction.callbacks.__main__ import setup_logging
-from hyperion.external_interaction.callbacks.xray_centre.ispyb_callback import (
+from mx_bluesky.hyperion.external_interaction.callbacks.__main__ import setup_logging
+from mx_bluesky.hyperion.external_interaction.callbacks.xray_centre.ispyb_callback import (
     GridscanISPyBCallback,
 )
-from hyperion.external_interaction.ispyb.ispyb_store import (
+from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_store import (
     IspybIds,
     StoreInIspyb,
 )
-from hyperion.log import ISPYB_LOGGER
+from mx_bluesky.hyperion.log import ISPYB_LOGGER
 
 from ..conftest import TestData
 

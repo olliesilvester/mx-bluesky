@@ -6,7 +6,7 @@ from dodal.devices.oav.oav_detector import OAVConfigParams
 from dodal.devices.oav.utils import calculate_x_y_z_of_pixel
 from event_model.documents import Event
 
-from hyperion.log import LOGGER
+from mx_bluesky.hyperion.log import LOGGER
 
 
 class GridParamUpdate(TypedDict):
