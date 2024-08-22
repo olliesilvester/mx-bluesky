@@ -4,8 +4,9 @@ import json
 import logging
 import sys
 import threading
+from collections.abc import Generator, Sequence
 from functools import partial
-from typing import Any, Generator, Sequence
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import bluesky.plan_stubs as bps
@@ -22,7 +23,6 @@ from dodal.common.beamlines.beamline_parameters import (
 from dodal.common.beamlines.beamline_utils import clear_devices
 from dodal.devices.aperturescatterguard import (
     ApertureFiveDimensionalLocation,
-    AperturePosition,
     ApertureScatterguard,
     ApertureScatterguardTolerances,
     SingleAperturePosition,
@@ -47,15 +47,6 @@ from dodal.devices.webcam import Webcam
 from dodal.devices.zebra import Zebra
 from dodal.log import LOGGER as dodal_logger
 from dodal.log import set_up_all_logging_handlers
-from ophyd.sim import NullStatus
-from ophyd_async.core import Device, DeviceVector, callback_on_mock_put, set_mock_value
-from ophyd_async.core.async_status import AsyncStatus
-from ophyd_async.epics.motion.motor import Motor
-from ophyd_async.epics.signal import epics_signal_rw
-from ophyd_async.panda._common_blocks import DatasetTable
-from scanspec.core import Path as ScanPath
-from scanspec.specs import Line
-
 from hyperion.experiment_plans.flyscan_xray_centre_plan import (
     FlyScanXRayCentreComposite,
 )
@@ -74,6 +65,14 @@ from hyperion.log import (
 )
 from hyperion.parameters.gridscan import GridScanWithEdgeDetect, ThreeDGridScan
 from hyperion.parameters.rotation import MultiRotationScan, RotationScan
+from ophyd.sim import NullStatus
+from ophyd_async.core import Device, DeviceVector, callback_on_mock_put, set_mock_value
+from ophyd_async.core.async_status import AsyncStatus
+from ophyd_async.epics.motion.motor import Motor
+from ophyd_async.epics.signal import epics_signal_rw
+from ophyd_async.panda._common_blocks import DatasetTable
+from scanspec.core import Path as ScanPath
+from scanspec.specs import Line
 
 i03.DAQ_CONFIGURATION_PATH = "tests/test_data/test_daq_configuration"
 
@@ -478,12 +477,15 @@ def aperture_scatterguard(RE):
             radius_microns=None,
         ),
     }
-    with patch(
-        "dodal.beamlines.i03.load_positions_from_beamline_parameters",
-        return_value=positions,
-    ), patch(
-        "dodal.beamlines.i03.load_tolerances_from_beamline_params",
-        return_value=ApertureScatterguardTolerances(0.1, 0.1, 0.1, 0.1, 0.1),
+    with (
+        patch(
+            "dodal.beamlines.i03.load_positions_from_beamline_parameters",
+            return_value=positions,
+        ),
+        patch(
+            "dodal.beamlines.i03.load_tolerances_from_beamline_params",
+            return_value=ApertureScatterguardTolerances(0.1, 0.1, 0.1, 0.1, 0.1),
+        ),
     ):
         ap_sg = i03.aperture_scatterguard(fake_with_ophyd_sim=True)
     with (
