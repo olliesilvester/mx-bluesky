@@ -42,7 +42,7 @@ from mx_bluesky.hyperion.parameters.components import IspybExperimentType
 from mx_bluesky.hyperion.parameters.constants import CONST
 from mx_bluesky.hyperion.parameters.rotation import RotationScan
 
-from ....conftest import raw_params_from_file
+from .....conftest import raw_params_from_file
 
 
 @pytest.fixture

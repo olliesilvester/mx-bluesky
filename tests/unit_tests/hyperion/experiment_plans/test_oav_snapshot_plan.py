@@ -19,7 +19,7 @@ from mx_bluesky.hyperion.experiment_plans.oav_snapshot_plan import (
 from mx_bluesky.hyperion.parameters.components import WithSnapshot
 from mx_bluesky.hyperion.parameters.constants import DocDescriptorNames
 
-from ...conftest import raw_params_from_file
+from ....conftest import raw_params_from_file
 
 
 @pytest.fixture

@@ -13,7 +13,7 @@ from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_store import StoreInIs
 from mx_bluesky.hyperion.parameters.constants import CONST
 from mx_bluesky.hyperion.parameters.gridscan import ThreeDGridScan
 
-from ...conftest import raw_params_from_file
+from ....conftest import raw_params_from_file
 
 TEST_RESULT_LARGE = [
     {

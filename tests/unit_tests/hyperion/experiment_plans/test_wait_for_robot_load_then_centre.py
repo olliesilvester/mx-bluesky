@@ -27,7 +27,7 @@ from mx_bluesky.hyperion.parameters.gridscan import (
     RobotLoadThenCentre,
 )
 
-from ...conftest import raw_params_from_file
+from ....conftest import raw_params_from_file
 
 
 @pytest.fixture

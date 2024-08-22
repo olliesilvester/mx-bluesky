@@ -15,7 +15,7 @@ from mx_bluesky.hyperion.experiment_plans.pin_centre_then_xray_centre_plan impor
 from mx_bluesky.hyperion.parameters.constants import CONST
 from mx_bluesky.hyperion.parameters.gridscan import PinTipCentreThenXrayCentre
 
-from ...conftest import raw_params_from_file
+from ....conftest import raw_params_from_file
 
 
 @pytest.fixture

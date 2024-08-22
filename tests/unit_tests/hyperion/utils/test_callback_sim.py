@@ -1,6 +1,6 @@
 import pytest
 
-from ...conftest import DocumentCapturer
+from ....conftest import DocumentCapturer
 
 
 @pytest.fixture

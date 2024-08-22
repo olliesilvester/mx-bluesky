@@ -11,7 +11,7 @@ from mx_bluesky.hyperion.parameters.gridscan import (
 )
 from mx_bluesky.hyperion.parameters.rotation import RotationScan
 
-from ...conftest import raw_params_from_file
+from ....conftest import raw_params_from_file
 
 
 @pytest.fixture

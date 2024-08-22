@@ -69,7 +69,7 @@ from tests.conftest import (
     create_dummy_scan_spec,
 )
 
-from ...system_tests.external_interaction.conftest import (
+from ....system_tests.hyperion.external_interaction.conftest import (
     TEST_RESULT_LARGE,
     TEST_RESULT_MEDIUM,
     TEST_RESULT_SMALL,

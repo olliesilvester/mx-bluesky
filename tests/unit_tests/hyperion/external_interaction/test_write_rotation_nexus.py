@@ -24,7 +24,7 @@ from mx_bluesky.hyperion.log import LOGGER
 from mx_bluesky.hyperion.parameters.constants import CONST
 from mx_bluesky.hyperion.parameters.rotation import RotationScan
 
-from ...conftest import extract_metafile, raw_params_from_file
+from ....conftest import extract_metafile, raw_params_from_file
 
 TEST_EXAMPLE_NEXUS_FILE = Path("ins_8_5.nxs")
 TEST_EXAMPLE_NEXUS_METAFILE_PREFIX = "ins_8_5_meta"

@@ -19,7 +19,7 @@ from mx_bluesky.hyperion.parameters.gridscan import ThreeDGridScan
 from mx_bluesky.hyperion.parameters.rotation import RotationScan
 from mx_bluesky.hyperion.utils.utils import convert_angstrom_to_eV
 
-from ...conftest import raw_params_from_file
+from ....conftest import raw_params_from_file
 
 
 class MockReactiveCallback(PlanReactiveCallback):

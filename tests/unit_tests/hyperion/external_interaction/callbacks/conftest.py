@@ -7,7 +7,7 @@ from mx_bluesky.hyperion.parameters.constants import CONST
 from mx_bluesky.hyperion.parameters.gridscan import ThreeDGridScan
 from tests.conftest import create_dummy_scan_spec
 
-from ....conftest import default_raw_params, raw_params_from_file
+from .....conftest import default_raw_params, raw_params_from_file
 from ...conftest import OavGridSnapshotTestEvents
 
 

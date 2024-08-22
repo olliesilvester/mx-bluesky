@@ -125,6 +125,8 @@ filterwarnings = [
     "error",
     # Ignore deprecation warning from zocalo
     "ignore:((.|\n)*)was never iterated.*:RuntimeWarning",
+    # Ignore deprecation warning from sqlalchemy
+    "ignore::sqlalchemy.exc.MovedIn20Warning",
 ]
 # Doctest python code in docs, python code in src docstrings, test functions in tests
 testpaths = "docs src tests/unit_tests"

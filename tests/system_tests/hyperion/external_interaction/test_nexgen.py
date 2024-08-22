@@ -19,7 +19,7 @@ from mx_bluesky.hyperion.external_interaction.callbacks.rotation.nexus_callback 
 from mx_bluesky.hyperion.parameters.constants import CONST
 from mx_bluesky.hyperion.parameters.rotation import RotationScan
 
-from ...conftest import extract_metafile, raw_params_from_file
+from ....conftest import extract_metafile, raw_params_from_file
 
 DOCKER = environ.get("DOCKER", "docker")
 

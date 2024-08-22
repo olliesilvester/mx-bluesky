@@ -38,7 +38,7 @@ from mx_bluesky.hyperion.external_interaction.ispyb.ispyb_store import IspybIds
 from mx_bluesky.hyperion.parameters.constants import CONST
 from mx_bluesky.hyperion.parameters.gridscan import ThreeDGridScan
 
-from ...conftest import default_raw_params
+from ....conftest import default_raw_params
 from ..external_interaction.conftest import (  # noqa
     fetch_comment,
     zocalo_env,

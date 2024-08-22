@@ -9,7 +9,7 @@ from numpy import dtype
 
 from mx_bluesky.hyperion.utils.validation import _generate_fake_nexus
 
-from ....conftest import extract_metafile
+from .....conftest import extract_metafile
 
 TEST_DATA_DIRECTORY = Path("tests/test_data/nexus_files/rotation")
 TEST_EXAMPLE_NEXUS_FILE = Path("ins_8_5.nxs")
