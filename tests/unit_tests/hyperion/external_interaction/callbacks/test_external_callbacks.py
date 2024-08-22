@@ -62,7 +62,8 @@ def test_setup_logging(parse_callback_cli_args):
     assert len(NEXUS_LOGGER.handlers) == 4
 
 
-def test_setup_threads():
+@patch("zmq.Context")
+def test_setup_threads(_):
     proxy, dispatcher, start_proxy, start_dispatcher = setup_threads()
     assert isinstance(proxy, Proxy)
     assert isinstance(dispatcher, RemoteDispatcher)

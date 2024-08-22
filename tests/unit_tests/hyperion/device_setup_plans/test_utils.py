@@ -4,7 +4,7 @@ import pytest
 from bluesky import plan_stubs as bps
 from bluesky.utils import FailedStatus
 from dodal.beamlines import i03
-from ophyd.sim import NullStatus
+from ophyd.status import Status
 
 from mx_bluesky.hyperion.device_setup_plans.utils import (
     start_preparing_data_collection_then_do_plan,
@@ -56,7 +56,8 @@ def test_given_shutter_open_fails_then_eiger_disarmed_and_correct_exception_retu
     mock_eiger, null_plan, RE
 ):
     detector_motion = MagicMock()
-    status = NullStatus()
+    status = Status()
+    status.set_exception(MyTestException())
     detector_motion.z.set = MagicMock(return_value=status)
 
     with pytest.raises(FailedStatus) as e:
@@ -76,7 +77,8 @@ def test_given_detector_move_fails_then_eiger_disarmed_and_correct_exception_ret
     mock_eiger, null_plan, RE
 ):
     detector_motion = MagicMock()
-    status = NullStatus
+    status = Status()
+    status.set_exception(MyTestException())
     detector_motion.shutter.set = MagicMock(return_value=status)
 
     with pytest.raises(FailedStatus) as e:
