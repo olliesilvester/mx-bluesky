@@ -41,7 +41,7 @@ def test_writers_dont_create_on_init_but_do_on_during_collection_read_event(
     assert nexus_handler.nexus_writer_1 is None
     assert nexus_handler.nexus_writer_2 is None
 
-    nexus_handler.activity_gated_start(TestData.test_gridscan_outer_start_document)
+    nexus_handler.activity_gated_start(TestData.test_gridscan_outer_start_document)  # type: ignore
     nexus_handler.activity_gated_descriptor(
         TestData.test_descriptor_document_during_data_collection
     )

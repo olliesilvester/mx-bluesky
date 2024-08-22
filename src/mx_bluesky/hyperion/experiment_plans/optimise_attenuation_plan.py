@@ -232,7 +232,7 @@ def deadtime_optimisation(
 
     direction = Direction.POSITIVE
     LOGGER.info(f"Target deadtime is {deadtime_threshold}")
-
+    optimised_transmission: float = 0
     for cycle in range(0, max_cycles):
         yield from do_device_optimise_iteration(composite, transmission)
 
@@ -341,7 +341,7 @@ def total_counts_optimisation(
     """
 
     LOGGER.info("Using total count optimisation")
-
+    optimised_transmission: float = 0
     for cycle in range(0, max_cycles):
         LOGGER.info(
             f"Setting transmission to {transmission} for attenuation optimisation cycle {cycle}"
@@ -419,7 +419,7 @@ def optimise_attenuation_plan(
     yield from bps.abs_set(
         composite.xspress3mini.acquire_time, collection_time, wait=True
     )  # Don't necessarily need to wait here
-
+    optimised_transmission: float = 0
     # Do the attenuation optimisation using count threshold
     if optimisation_type == "total_counts":
         LOGGER.info(

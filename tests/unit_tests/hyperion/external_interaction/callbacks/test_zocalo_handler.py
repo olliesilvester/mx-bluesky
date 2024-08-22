@@ -127,9 +127,9 @@ class TestZocaloHandler:
             call(ZocaloStartInfo(2, "test_path", 200, 300, 1)),
         ]
 
-        zocalo_handler.zocalo_interactor.run_start.assert_has_calls(
+        zocalo_handler.zocalo_interactor.run_start.assert_has_calls(  # type: ignore
             expected_start_calls
-        )  # type: ignore
+        )
         assert zocalo_handler.zocalo_interactor.run_start.call_count == len(dc_ids)  # type: ignore
 
         ispyb_cb.stop(td.test_stop_document)

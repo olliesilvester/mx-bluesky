@@ -199,7 +199,7 @@ class TestFlyscanXrayCentrePlan:
                 )
 
         assert exc.value.args[0] is error
-        ispyb_callback.ispyb.end_deposition.assert_called_once_with(
+        ispyb_callback.ispyb.end_deposition.assert_called_once_with(  # type: ignore
             IspybIds(data_collection_group_id=0, data_collection_ids=(0, 0)),
             "fail",
             "Test Exception",

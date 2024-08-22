@@ -3,10 +3,6 @@ from typing import Any, ClassVar, Protocol, TypeVar, get_type_hints
 
 from blueapi.core import BlueskyContext
 from blueapi.core.bluesky_types import Device
-
-# Ideally wouldn't import a 'private' method from dodal - but this will likely go
-# away once we fully use blueapi's plan management components.
-# https://github.com/DiamondLightSource/hyperion/issues/868
 from dodal.utils import get_beamline_based_on_environment_variable
 
 import mx_bluesky.hyperion.experiment_plans as hyperion_plans
@@ -25,7 +21,11 @@ DT = TypeVar("DT", bound=_IsDataclass)
 
 
 def find_device_in_context(
-    context: BlueskyContext, name: str, expected_type: type[T] = Device
+    context: BlueskyContext,
+    name: str,
+    # Typing in here is wrong (see https://github.com/microsoft/pyright/issues/7228#issuecomment-1934500232)
+    # but this whole thing will go away when we do https://github.com/DiamondLightSource/hyperion/issues/868
+    expected_type: type[T] = Device,  # type: ignore
 ) -> T:
     LOGGER.debug(f"Looking for device {name} of type {expected_type} in context")
 

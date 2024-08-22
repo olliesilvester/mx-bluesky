@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from collections.abc import Callable, Sequence
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from dodal.beamline_specific_utils.i03 import beam_size_from_aperture
 from dodal.devices.aperturescatterguard import SingleAperturePosition
@@ -29,7 +29,7 @@ from mx_bluesky.hyperion.utils.utils import convert_eV_to_angstrom
 
 from .logging_callback import format_doc_for_log
 
-D = TypeVar("D", bound=dict)
+D = TypeVar("D")
 if TYPE_CHECKING:
     from event_model.documents import Event, EventDescriptor, RunStart, RunStop
 
@@ -199,6 +199,7 @@ class BaseISPyBCallback(PlanReactiveCallback):
             self._append_to_comment(id, comment)
 
     def _tag_doc(self, doc: D) -> D:
+        assert isinstance(doc, dict)
         if self.ispyb_ids:
             doc["ispyb_dcids"] = self.ispyb_ids.data_collection_ids
-        return doc
+        return cast(D, doc)

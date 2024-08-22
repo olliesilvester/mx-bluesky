@@ -1,3 +1,4 @@
+from typing import Any, Literal
 from unittest.mock import DEFAULT, AsyncMock, MagicMock, patch
 
 import bluesky.preprocessors as bpp
@@ -13,6 +14,8 @@ from dodal.devices.oav.oav_parameters import OAVParameters
 from dodal.devices.oav.pin_image_recognition import PinTipDetection
 from dodal.devices.oav.pin_image_recognition.utils import NONE_VALUE, SampleLocation
 from dodal.devices.smargon import Smargon
+from numpy._typing._array_like import NDArray
+from ophyd_async.core import set_mock_value
 
 from mx_bluesky.hyperion.exceptions import WarningException
 from mx_bluesky.hyperion.experiment_plans.oav_grid_detection_plan import (
@@ -27,12 +30,18 @@ from mx_bluesky.hyperion.external_interaction.callbacks.xray_centre.ispyb_callba
     GridscanISPyBCallback,
     ispyb_activation_wrapper,
 )
+from mx_bluesky.hyperion.parameters.gridscan import ThreeDGridScan
 
 from .conftest import assert_event
 
 
 @pytest.fixture
-def fake_devices(RE, smargon: Smargon, backlight: Backlight, test_config_files):
+def fake_devices(
+    RE: RunEngine,
+    smargon: Smargon,
+    backlight: Backlight,
+    test_config_files: dict[str, str],
+):
     params = OAVConfigParams(
         test_config_files["zoom_params_file"], test_config_files["display_config"]
     )
@@ -87,8 +96,8 @@ def fake_devices(RE, smargon: Smargon, backlight: Backlight, test_config_files):
 @patch("bluesky.plan_stubs.sleep", new=MagicMock())
 def test_grid_detection_plan_runs_and_triggers_snapshots(
     RE: RunEngine,
-    test_config_files,
-    fake_devices,
+    test_config_files: dict[str, str],
+    fake_devices: tuple[OavGridDetectionComposite, MagicMock],
 ):
     params = OAVParameters("loopCentring", test_config_files["oav_config_json"])
     composite, image = fake_devices
@@ -113,13 +122,13 @@ def test_grid_detection_plan_runs_and_triggers_snapshots(
 )
 @patch("bluesky.plan_stubs.sleep", new=MagicMock())
 async def test_grid_detection_plan_gives_warning_error_if_tip_not_found(
-    RE,
-    test_config_files,
+    RE: RunEngine,
+    test_config_files: dict[str, str],
     fake_devices: tuple[OavGridDetectionComposite, MagicMock],
 ):
     composite, _ = fake_devices
 
-    await composite.pin_tip_detection.validity_timeout._backend.put(0.01)
+    set_mock_value(composite.pin_tip_detection.validity_timeout, 0.01)
     composite.pin_tip_detection._get_tip_and_edge_data = AsyncMock(
         return_value=SampleLocation(
             *PinTipDetection.INVALID_POSITION,
@@ -149,9 +158,9 @@ async def test_grid_detection_plan_gives_warning_error_if_tip_not_found(
 )
 @patch("bluesky.plan_stubs.sleep", new=MagicMock())
 def test_given_when_grid_detect_then_start_position_as_expected(
-    fake_devices,
+    fake_devices: tuple[OavGridDetectionComposite, MagicMock],
     RE: RunEngine,
-    test_config_files,
+    test_config_files: dict[str, str],
 ):
     params = OAVParameters("loopCentring", test_config_files["oav_config_json"])
     box_size_um = 0.2
@@ -200,9 +209,9 @@ def test_given_when_grid_detect_then_start_position_as_expected(
     new=MagicMock(),
 )
 def test_when_grid_detection_plan_run_twice_then_values_do_not_persist_in_callback(
-    fake_devices,
+    fake_devices: tuple[OavGridDetectionComposite, MagicMock],
     RE: RunEngine,
-    test_config_files,
+    test_config_files: dict[str, str],
 ):
     params = OAVParameters("loopCentring", test_config_files["oav_config_json"])
 
@@ -229,7 +238,10 @@ def test_when_grid_detection_plan_run_twice_then_values_do_not_persist_in_callba
 )
 @patch("bluesky.plan_stubs.sleep", new=MagicMock())
 def test_when_grid_detection_plan_run_then_ispyb_callback_gets_correct_values(
-    fake_devices, RE: RunEngine, test_config_files, test_fgs_params
+    fake_devices: tuple[OavGridDetectionComposite, MagicMock],
+    RE: RunEngine,
+    test_config_files: dict[str, str],
+    test_fgs_params: ThreeDGridScan,
 ):
     params = OAVParameters("loopCentring", test_config_files["oav_config_json"])
     composite, _ = fake_devices
@@ -292,7 +304,10 @@ def test_when_grid_detection_plan_run_then_ispyb_callback_gets_correct_values(
 )
 @patch("bluesky.plan_stubs.sleep", new=MagicMock())
 def test_when_grid_detection_plan_run_then_grid_detection_callback_gets_correct_values(
-    fake_devices, RE: RunEngine, test_config_files, test_fgs_params
+    fake_devices: tuple[OavGridDetectionComposite, MagicMock],
+    RE: RunEngine,
+    test_config_files: dict[str, str],
+    test_fgs_params: ThreeDGridScan,
 ):
     params = OAVParameters("loopCentring", test_config_files["oav_config_json"])
     composite, _ = fake_devices
@@ -343,15 +358,16 @@ def test_when_grid_detection_plan_run_then_grid_detection_callback_gets_correct_
 @patch("mx_bluesky.hyperion.experiment_plans.oav_grid_detection_plan.LOGGER")
 def test_when_detected_grid_has_odd_y_steps_then_add_a_y_step_and_shift_grid(
     fake_logger: MagicMock,
-    fake_devices,
+    fake_devices: tuple[OavGridDetectionComposite, MagicMock],
     sim_run_engine: RunEngineSimulator,
-    test_config_files,
-    odd,
+    test_config_files: dict[str, str],
+    odd: bool,
 ):
     composite, _ = fake_devices
     params = OAVParameters("loopCentring", test_config_files["oav_config_json"])
     grid_width_microns = 161.2
     box_size_um = 20
+    assert composite.oav.parameters.micronsPerYPixel is not None
     box_size_y_pixels = box_size_um / composite.oav.parameters.micronsPerYPixel
     initial_min_y = 1
 
@@ -416,7 +432,10 @@ def test_when_detected_grid_has_odd_y_steps_then_add_a_y_step_and_shift_grid(
     ],
 )
 def test_given_array_with_valid_top_and_bottom_then_min_and_max_as_expected(
-    top, bottom, expected_min, expected_max
+    top: NDArray[Any],
+    bottom: NDArray[Any],
+    expected_min: Literal[1] | Literal[6],
+    expected_max: Literal[40] | Literal[985] | Literal[1056],
 ):
     min_y, max_y = get_min_and_max_y_of_pin(top, bottom, 100)
     assert min_y == expected_min
@@ -432,7 +451,10 @@ def test_given_array_with_valid_top_and_bottom_then_min_and_max_as_expected(
     ],
 )
 def test_given_array_with_some_invalid_top_and_bottom_sections_then_min_and_max_as_expected(
-    top, bottom, expected_min, expected_max
+    top: NDArray[Any],
+    bottom: NDArray[Any],
+    expected_min: Literal[1] | Literal[6],
+    expected_max: Literal[40] | Literal[985] | Literal[1056],
 ):
     min_y, max_y = get_min_and_max_y_of_pin(top, bottom, 100)
     assert min_y == expected_min
@@ -448,7 +470,10 @@ def test_given_array_with_some_invalid_top_and_bottom_sections_then_min_and_max_
     ],
 )
 def test_given_array_with_all_invalid_top_and_bottom_sections_then_min_and_max_is_full_image(
-    top, bottom, expected_min, expected_max
+    top: NDArray[Any],
+    bottom: NDArray[Any],
+    expected_min: Literal[0],
+    expected_max: Literal[100],
 ):
     min_y, max_y = get_min_and_max_y_of_pin(top, bottom, 100)
     assert min_y == expected_min

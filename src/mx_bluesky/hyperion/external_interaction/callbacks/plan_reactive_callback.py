@@ -69,7 +69,7 @@ class PlanReactiveCallback(CallbackBase):
             "descriptor", self.activity_gated_descriptor, doc
         )
 
-    def event(self, doc: Event) -> Event | None:
+    def event(self, doc: Event) -> Event | None:  # type: ignore
         return self._run_activity_gated("event", self.activity_gated_event, doc)
 
     def stop(self, doc: RunStop) -> RunStop | None:

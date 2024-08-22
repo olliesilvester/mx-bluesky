@@ -66,7 +66,7 @@ async def test_given_the_pin_tip_is_already_in_view_when_get_tip_into_view_then_
 async def test_given_no_tip_found_but_will_be_found_when_get_tip_into_view_then_smargon_moved_positive_and_tip_returned(
     smargon: Smargon, oav: OAV, RE: RunEngine, mock_pin_tip: PinTipDetection
 ):
-    await mock_pin_tip.validity_timeout._backend.put(0.015)
+    set_mock_value(mock_pin_tip.validity_timeout, 0.015)
     set_mock_value(smargon.x.user_readback, 0)
 
     def set_pin_tip_when_x_moved(f, *args, **kwargs):
@@ -94,10 +94,10 @@ async def test_given_no_tip_found_but_will_be_found_when_get_tip_into_view_then_
 async def test_given_tip_at_zero_but_will_be_found_when_get_tip_into_view_then_smargon_moved_negative_and_tip_returned(
     smargon: Smargon, oav: OAV, RE: RunEngine, mock_pin_tip: PinTipDetection
 ):
-    mock_pin_tip._get_tip_and_edge_data.return_value = SampleLocation(
+    mock_pin_tip._get_tip_and_edge_data.return_value = SampleLocation(  # type: ignore
         0, 100, *FAKE_EDGE_ARRAYS
     )
-    await mock_pin_tip.validity_timeout._backend.put(0.15)
+    set_mock_value(mock_pin_tip.validity_timeout, 0.15)
 
     set_mock_value(smargon.x.user_readback, 0)
 
@@ -121,10 +121,10 @@ async def test_given_tip_at_zero_but_will_be_found_when_get_tip_into_view_then_s
 async def test_trigger_and_return_pin_tip_works_for_AD_pin_tip_detection(
     oav: OAV, RE: RunEngine, mock_pin_tip: PinTipDetection
 ):
-    mock_pin_tip._get_tip_and_edge_data.return_value = SampleLocation(
+    mock_pin_tip._get_tip_and_edge_data.return_value = SampleLocation(  # type: ignore
         200, 100, *FAKE_EDGE_ARRAYS
     )
-    await mock_pin_tip.validity_timeout._backend.put(0.15)
+    set_mock_value(mock_pin_tip.validity_timeout, 0.15)
     re_result = RE(trigger_and_return_pin_tip(mock_pin_tip))
     assert re_result.plan_result == (200, 100)  # type: ignore
 
@@ -202,8 +202,8 @@ async def test_pin_tip_starting_near_positive_edge_doesnt_exceed_limit(
 async def test_given_no_tip_found_ever_when_get_tip_into_view_then_smargon_moved_positive_and_exception_thrown(
     smargon: Smargon, oav: OAV, RE: RunEngine, pin_tip: PinTipDetection
 ):
-    await pin_tip.triggered_tip._backend.put(pin_tip.INVALID_POSITION)
-    await pin_tip.validity_timeout._backend.put(0.01)
+    set_mock_value(pin_tip.triggered_tip, pin_tip.INVALID_POSITION)
+    set_mock_value(pin_tip.validity_timeout, 0.01)
 
     set_mock_value(smargon.x.user_readback, 0)
 
@@ -257,8 +257,8 @@ async def test_when_pin_tip_centre_plan_called_then_expected_plans_called(
     mock_setup_oav,
     get_move: MagicMock,
     smargon: Smargon,
-    test_config_files,
-    RE,
+    test_config_files: dict[str, str],
+    RE: RunEngine,
 ):
     set_mock_value(smargon.omega.user_readback, 0)
     mock_oav: OAV = MagicMock(spec=OAV)
@@ -318,8 +318,8 @@ def test_given_pin_tip_detect_using_ophyd_when_pin_tip_centre_plan_called_then_e
     mock_move_into_view,
     get_move: MagicMock,
     smargon: Smargon,
-    test_config_files,
-    RE,
+    test_config_files: dict[str, str],
+    RE: RunEngine,
 ):
     set_mock_value(smargon.omega.user_readback, 0)
     mock_oav: OAV = MagicMock(spec=OAV)

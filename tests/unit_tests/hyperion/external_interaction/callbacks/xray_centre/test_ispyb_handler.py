@@ -66,7 +66,7 @@ class TestXrayCentreIspybHandler:
         )
         ispyb_handler.activity_gated_stop(td.test_run_gridscan_failed_stop_document)
 
-        ispyb_handler.ispyb.end_deposition.assert_called_once_with(
+        ispyb_handler.ispyb.end_deposition.assert_called_once_with(  # type: ignore
             IspybIds(
                 data_collection_group_id=DCG_ID,
                 data_collection_ids=DC_IDS,
@@ -93,7 +93,7 @@ class TestXrayCentreIspybHandler:
         )
         ispyb_handler.activity_gated_stop(td.test_do_fgs_gridscan_stop_document)
 
-        ispyb_handler.ispyb.end_deposition.assert_called_once_with(
+        ispyb_handler.ispyb.end_deposition.assert_called_once_with(  # type: ignore
             IspybIds(
                 data_collection_group_id=DCG_ID,
                 data_collection_ids=DC_IDS,

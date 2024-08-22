@@ -2,7 +2,15 @@ import bluesky.preprocessors as bpp
 import pytest
 from bluesky.run_engine import RunEngine
 from dodal.beamlines import i03
-from dodal.devices.aperturescatterguard import ApertureScatterguard
+from dodal.common.beamlines.beamline_parameters import (
+    BEAMLINE_PARAMETER_PATHS,
+    GDABeamlineParameters,
+)
+from dodal.devices.aperturescatterguard import (
+    ApertureScatterguard,
+    load_positions_from_beamline_parameters,
+    load_tolerances_from_beamline_params,
+)
 from dodal.devices.s4_slit_gaps import S4SlitGaps
 from dodal.devices.undulator import Undulator
 
@@ -15,6 +23,7 @@ from mx_bluesky.hyperion.parameters.constants import CONST
 
 @pytest.mark.s03
 async def test_getting_data_for_ispyb():
+    params = GDABeamlineParameters.from_file(BEAMLINE_PARAMETER_PATHS["i03"])
     undulator = Undulator(
         f"{CONST.SIM.INSERTION_PREFIX}-MO-SERVC-01:", name="undulator"
     )
@@ -24,7 +33,10 @@ async def test_getting_data_for_ispyb():
     flux = i03.flux(fake_with_ophyd_sim=True)
     dcm = i03.dcm(fake_with_ophyd_sim=True)
     aperture_scatterguard = ApertureScatterguard(
-        prefix=f"{CONST.SIM.BEAMLINE}-AL-APSG-04:", name="ao_sg"
+        prefix="BL03S",
+        name="ap_sg",
+        loaded_positions=load_positions_from_beamline_parameters(params),
+        tolerances=load_tolerances_from_beamline_params(params),
     )
     smargon = i03.smargon(fake_with_ophyd_sim=True)
     eiger = i03.eiger(fake_with_ophyd_sim=True)

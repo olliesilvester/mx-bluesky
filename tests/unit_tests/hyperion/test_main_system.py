@@ -132,14 +132,14 @@ TEST_EXPTS = {
 
 
 @pytest.fixture
-def test_env(request):
+def test_env(request: pytest.FixtureRequest):
     mock_run_engine = MockRunEngine(test_name=repr(request))
     mock_context = BlueskyContext()
     real_plans_and_test_exps = dict(
-        {k: mock_dict_values(v) for k, v in PLAN_REGISTRY.items()},
+        {k: mock_dict_values(v) for k, v in PLAN_REGISTRY.items()},  # type: ignore
         **TEST_EXPTS,  # type: ignore
     )
-    mock_context.plan_functions = {
+    mock_context.plan_functions = {  # type: ignore
         k: MagicMock() for k in real_plans_and_test_exps.keys()
     }
 
@@ -460,7 +460,7 @@ def test_when_blueskyrunner_initiated_then_plans_are_setup_and_devices_connected
     autospec=True,
 )
 def test_when_blueskyrunner_initiated_and_skip_flag_is_set_then_setup_called_upon_start(
-    mock_setup, test_fgs_params
+    mock_setup, test_fgs_params: ThreeDGridScan
 ):
     mock_setup = MagicMock()
     with patch.dict(
@@ -534,7 +534,7 @@ def test_log_on_invalid_json_params(test_env: ClientAndRunEngine):
     reason="See https://github.com/DiamondLightSource/hyperion/issues/777"
 )
 def test_warn_exception_during_plan_causes_warning_in_log(
-    caplog, test_env: ClientAndRunEngine
+    caplog: pytest.LogCaptureFixture, test_env: ClientAndRunEngine
 ):
     test_env.client.put(START_ENDPOINT, data=TEST_PARAMS)
     test_env.mock_run_engine.error = WarningException("D'Oh")

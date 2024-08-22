@@ -465,8 +465,6 @@ def test_end_deposition_happy_path(
 def test_store_rotation_scan_failures(
     mock_ispyb_conn, dummy_rotation_ispyb: StoreInIspyb
 ):
-    dummy_rotation_ispyb._data_collection_id = None
-
     ispyb_ids = IspybIds(
         data_collection_group_id=TEST_DATA_COLLECTION_GROUP_ID,
     )

@@ -1,11 +1,12 @@
 from collections.abc import Generator
+from typing import cast
 from unittest.mock import ANY, MagicMock, patch
 
 import bluesky.plan_stubs as bps
 import pytest
-from bluesky import Msg
 from bluesky.run_engine import RunEngine
 from bluesky.simulators import RunEngineSimulator, assert_message_and_return_remaining
+from bluesky.utils import Msg
 from dodal.beamlines import i03
 from dodal.devices.aperturescatterguard import AperturePosition
 from dodal.devices.backlight import BacklightPosition
@@ -60,7 +61,12 @@ def _fake_grid_detection(
 
 
 @pytest.fixture
-def grid_detect_devices(aperture_scatterguard, backlight, detector_motion, smargon):
+def grid_detect_devices(
+    aperture_scatterguard: i03.ApertureScatterguard,
+    backlight: i03.Backlight,
+    detector_motion: i03.DetectorMotion,
+    smargon: Smargon,
+):
     return GridDetectThenXRayCentreComposite(
         aperture_scatterguard=aperture_scatterguard,
         attenuator=MagicMock(),
@@ -85,17 +91,22 @@ def grid_detect_devices(aperture_scatterguard, backlight, detector_motion, smarg
     )
 
 
-def test_full_grid_scan(test_fgs_params, test_config_files):
+def test_full_grid_scan(
+    test_fgs_params: ThreeDGridScan, test_config_files: dict[str, str]
+):
     devices = MagicMock()
     plan = grid_detect_then_xray_centre(
-        devices, test_fgs_params, test_config_files["oav_config_json"]
+        devices,
+        cast(GridScanWithEdgeDetect, test_fgs_params),
+        test_config_files["oav_config_json"],
     )
     assert isinstance(plan, Generator)
 
 
 @pytest.fixture
 def grid_detect_devices_with_oav_config_params(
-    grid_detect_devices: GridDetectThenXRayCentreComposite, test_config_files
+    grid_detect_devices: GridDetectThenXRayCentreComposite,
+    test_config_files: dict[str, str],
 ) -> GridDetectThenXRayCentreComposite:
     grid_detect_devices.oav.parameters = OAVConfigParams(
         test_config_files["zoom_params_file"], test_config_files["display_config"]
@@ -225,7 +236,7 @@ def test_detect_grid_and_do_gridscan_does_not_activate_ispyb_callback(
     grid_detect_devices_with_oav_config_params: GridDetectThenXRayCentreComposite,
     sim_run_engine: RunEngineSimulator,
     test_full_grid_scan_params: GridScanWithEdgeDetect,
-    test_config_files,
+    test_config_files: dict[str, str],
 ):
     mock_grid_detection_plan.return_value = iter([Msg("save_oav_grids")])
     sim_run_engine.add_handler_for_callback_subscribes()
@@ -280,7 +291,7 @@ def test_grid_detect_then_xray_centre_activates_ispyb_callback(
     sim_run_engine: RunEngineSimulator,
     grid_detect_devices_with_oav_config_params: GridDetectThenXRayCentreComposite,
     test_full_grid_scan_params: GridScanWithEdgeDetect,
-    test_config_files,
+    test_config_files: dict[str, str],
 ):
     mock_grid_detection_plan.return_value = iter([Msg("save_oav_grids")])
 

@@ -1,3 +1,5 @@
+import asyncio
+from typing import Literal
 from unittest.mock import MagicMock, patch
 
 import numpy as np
@@ -6,6 +8,7 @@ from bluesky.run_engine import RunEngine
 from dodal.beamlines import i03
 from ophyd.status import Status
 from ophyd_async.core import set_mock_value
+from ophyd_async.core.async_status import AsyncStatus
 
 from mx_bluesky.hyperion.experiment_plans import optimise_attenuation_plan
 from mx_bluesky.hyperion.experiment_plans.optimise_attenuation_plan import (
@@ -87,7 +90,7 @@ def test_is_deadtime_optimised_returns_true_once_direction_is_flipped_and_deadti
 
 
 def test_is_deadtime_is_optimised_logs_warning_when_upper_transmission_limit_is_reached(
-    mock_emit,
+    mock_emit: MagicMock,
 ):
     is_deadtime_optimised(0.5, 0.4, 0.9, 0.9, Direction.POSITIVE)
     latest_record = mock_emit.call_args.args[-1]
@@ -95,7 +98,9 @@ def test_is_deadtime_is_optimised_logs_warning_when_upper_transmission_limit_is_
 
 
 def test_total_counts_calc_new_transmission_raises_warning_on_high_transmission(
-    RE: RunEngine, mock_emit, fake_composite_mocked_sets: OptimizeAttenuationComposite
+    RE: RunEngine,
+    mock_emit: MagicMock,
+    fake_composite_mocked_sets: OptimizeAttenuationComposite,
 ):
     set_mock_value(
         fake_composite_mocked_sets.xspress3mini.dt_corrected_latest_mca[1],
@@ -128,7 +133,10 @@ def test_total_counts_calc_new_transmission_raises_warning_on_high_transmission(
     ],
 )
 def test_calculate_new_direction_gives_correct_value(
-    old_direction, deadtime, deadtime_threshold, new_direction
+    old_direction: Direction | Direction,
+    deadtime: float,
+    deadtime_threshold: float,
+    new_direction: Direction | Direction,
 ):
     assert (
         calculate_new_direction(old_direction, deadtime, deadtime_threshold)
@@ -179,14 +187,14 @@ def test_deadtime_optimisation_calculates_deadtime_correctly(
     ],
 )
 def test_check_parameters_fail_on_out_of_range_parameters(
-    target,
-    upper_limit,
-    lower_limit,
-    default_high_roi,
-    default_low_roi,
-    initial_transmission,
-    upper_transmission,
-    lower_transmission,
+    target: Literal[100] | Literal[50] | Literal[10],
+    upper_limit: Literal[90] | Literal[100],
+    lower_limit: Literal[110] | Literal[20] | Literal[101] | Literal[0],
+    default_high_roi: Literal[1] | Literal[10] | Literal[2],
+    default_low_roi: Literal[0] | Literal[20] | Literal[1],
+    initial_transmission: float,
+    upper_transmission: float | Literal[1] | Literal[0],
+    lower_transmission: float | Literal[0] | Literal[1],
 ):
     with pytest.raises(ValueError):
         check_parameters(
@@ -209,7 +217,11 @@ def test_check_parameters_runs_on_correct_params():
     "total_count, lower_limit, upper_limit",
     [(100, 99, 100), (100, 100, 100), (50, 25, 1000)],
 )
-def test_is_counts_within_target_is_true(total_count, lower_limit, upper_limit):
+def test_is_counts_within_target_is_true(
+    total_count: Literal[100] | Literal[50],
+    lower_limit: Literal[99] | Literal[100] | Literal[25],
+    upper_limit: Literal[100] | Literal[1000],
+):
     assert is_counts_within_target(total_count, lower_limit, upper_limit) is True
 
 
@@ -217,7 +229,11 @@ def test_is_counts_within_target_is_true(total_count, lower_limit, upper_limit):
     "total_count, lower_limit, upper_limit",
     [(100, 101, 101), (0, 1, 2), (1000, 2000, 3000)],
 )
-def test_is_counts_within_target_is_false(total_count, lower_limit, upper_limit):
+def test_is_counts_within_target_is_false(
+    total_count: Literal[100] | Literal[0] | Literal[1000],
+    lower_limit: Literal[101] | Literal[1] | Literal[2000],
+    upper_limit: Literal[101] | Literal[2] | Literal[3000],
+):
     assert is_counts_within_target(total_count, lower_limit, upper_limit) is False
 
 
@@ -246,7 +262,12 @@ def test_total_count_exception_raised_after_max_cycles_reached(
     ],
 )
 def test_deadtime_calc_new_transmission_gets_correct_value(
-    direction, transmission, increment, upper_limit, lower_limit, new_transmission
+    direction: Direction | Direction,
+    transmission: float,
+    increment: Literal[2],
+    upper_limit: float,
+    lower_limit: float,
+    new_transmission: float,
 ):
     assert (
         deadtime_calc_new_transmission(
@@ -290,14 +311,14 @@ def test_total_counts_gets_within_target(
     fake_composite_mocked_sets: OptimizeAttenuationComposite,
 ):
     # For simplicity we just increase the data array each iteration. In reality it's the transmission value that affects the array
-    def update_data(_):
+    def update_data(value):
         nonlocal iteration
         iteration += 1
         set_mock_value(
             fake_composite_mocked_sets.xspress3mini.dt_corrected_latest_mca[1],
             np.array(([50, 50, 50, 50, 50]) * iteration),
         )
-        return get_good_status()
+        return AsyncStatus(asyncio.sleep(0))
 
     fake_composite_mocked_sets.attenuator.set = update_data
     iteration = 0
@@ -338,7 +359,7 @@ def test_optimisation_attenuation_plan_runs_correct_functions(
     mock_check_parameters,
     mock_deadtime_optimisation,
     mock_total_counts_optimisation,
-    optimisation_type,
+    optimisation_type: Literal["total_counts"] | Literal["deadtime"],
     RE: RunEngine,
     fake_composite: OptimizeAttenuationComposite,
 ):
