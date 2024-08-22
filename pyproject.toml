@@ -128,8 +128,10 @@ filterwarnings = [
     "ignore::sqlalchemy.exc.MovedIn20Warning",
     # Ophyd status objects in tests
     "ignore:.*The 'done' and 'success' parameters will be removed.*:DeprecationWarning",
-    # Ignore nondeterministic closing of log before test end
-    "ignore:.*unclosed file <_io.TextIOWrapper name='dodal.log':ResourceWarning",
+    # Ignore nondeterministic closing of log, RE, etc. before test end
+    "ignore:(.*)unclosed file(.*)name='(.*)dodal.log'(.*):ResourceWarning",
+    "ignore:(.*)unclosed <socket(.*):ResourceWarning",
+    "ignore:(.*)unclosed event loop(.*):ResourceWarning",
 ]
 # Doctest python code in docs, python code in src docstrings, test functions in tests
 testpaths = "docs src tests/unit_tests"
