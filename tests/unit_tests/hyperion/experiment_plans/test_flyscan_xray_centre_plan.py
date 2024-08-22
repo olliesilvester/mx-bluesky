@@ -19,6 +19,7 @@ from dodal.devices.detector.det_dim_constants import (
 from dodal.devices.fast_grid_scan import ZebraFastGridScan
 from dodal.devices.synchrotron import SynchrotronMode
 from dodal.devices.zocalo import ZocaloStartInfo
+from ophyd.sim import NullStatus
 from ophyd.status import Status
 from ophyd_async.core import set_mock_value
 from ophyd_async.panda._table import DatasetTable
@@ -305,7 +306,7 @@ class TestFlyscanXrayCentrePlan:
 
     @patch(
         "dodal.devices.aperturescatterguard.ApertureScatterguard._safe_move_within_datacollection_range",
-        return_value=Status(done=True, success=True),
+        return_value=NullStatus(),
     )
     @patch(
         "hyperion.experiment_plans.flyscan_xray_centre_plan.run_gridscan", autospec=True
@@ -421,7 +422,7 @@ class TestFlyscanXrayCentrePlan:
 
     @patch(
         "dodal.devices.aperturescatterguard.ApertureScatterguard._safe_move_within_datacollection_range",
-        return_value=Status(done=True, success=True),
+        return_value=NullStatus(),
     )
     @patch(
         "hyperion.experiment_plans.flyscan_xray_centre_plan.run_gridscan", autospec=True
@@ -465,7 +466,7 @@ class TestFlyscanXrayCentrePlan:
 
     @patch(
         "dodal.devices.aperturescatterguard.ApertureScatterguard.set",
-        return_value=Status(done=True, success=True),
+        return_value=NullStatus(),
     )
     @patch(
         "hyperion.experiment_plans.flyscan_xray_centre_plan.run_gridscan", autospec=True
@@ -511,7 +512,7 @@ class TestFlyscanXrayCentrePlan:
 
     @patch(
         "dodal.devices.aperturescatterguard.ApertureScatterguard.set",
-        return_value=Status(done=True, success=True),
+        return_value=NullStatus(),
     )
     @patch(
         "hyperion.experiment_plans.flyscan_xray_centre_plan.run_gridscan", autospec=True
@@ -860,7 +861,7 @@ class TestFlyscanXrayCentrePlan:
         mock_parent = MagicMock()
         fake_fgs_composite.eiger.disarm_detector = mock_parent.disarm
 
-        fake_fgs_composite.eiger.filewriters_finished = Status(done=True, success=True)  # type: ignore
+        fake_fgs_composite.eiger.filewriters_finished = NullStatus()  # type: ignore
         fake_fgs_composite.eiger.odin.check_odin_state = MagicMock(return_value=True)
         fake_fgs_composite.eiger.odin.file_writer.num_captured.sim_put(1200)  # type: ignore
         fake_fgs_composite.eiger.stage = MagicMock(

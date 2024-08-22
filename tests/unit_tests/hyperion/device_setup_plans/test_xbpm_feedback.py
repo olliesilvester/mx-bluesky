@@ -5,7 +5,7 @@ from bluesky import plan_stubs as bps
 from bluesky.run_engine import RunEngine
 from bluesky.utils import FailedStatus
 from dodal.devices.xbpm_feedback import Pause
-from ophyd.status import Status
+from ophyd.sim import NullStatus
 from ophyd_async.core import set_mock_value
 
 from mx_bluesky.hyperion.device_setup_plans.xbpm_feedback import (
@@ -53,7 +53,7 @@ async def test_given_xbpm_checks_fail_when_plan_run_with_decorator_then_plan_not
         yield from bps.null()
 
     xbpm_feedback.trigger = MagicMock(
-        side_effect=lambda: Status(done=True, success=False)
+        side_effect=lambda: NullStatus(),
     )
 
     RE = RunEngine()
