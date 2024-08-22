@@ -66,5 +66,3 @@
  Beam centre in Y               [mm] = 160.000
  Beam centre in Y            [pixel] = 2133.333
  Overload value                      = 46051
-
-
