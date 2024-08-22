@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Sequence
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from mx_bluesky.hyperion.external_interaction.callbacks.common.ispyb_mapping import (
     populate_data_collection_group,
@@ -82,7 +82,7 @@ class RotationISPyBCallback(BaseISPyBCallback):
             ISPYB_LOGGER.info("Beginning ispyb deposition")
             data_collection_group_info = populate_data_collection_group(self.params)
             data_collection_info = populate_data_collection_info_for_rotation(
-                self.params
+                cast(RotationScan, self.params)
             )
             data_collection_info = populate_remaining_data_collection_info(
                 self.params.comment,

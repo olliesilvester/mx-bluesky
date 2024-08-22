@@ -212,7 +212,8 @@ def run_gridscan_and_move(
     # once we have the results, go to the appropriate position
     LOGGER.info("Moving to centre of mass.")
     with TRACER.start_span("move_to_result"):
-        yield from move_x_y_z(fgs_composite.sample_motors, *xray_centre, wait=True)
+        x, y, z = xray_centre
+        yield from move_x_y_z(fgs_composite.sample_motors, x, y, z, wait=True)
 
     if parameters.FGS_params.set_stub_offsets:
         LOGGER.info("Recentring smargon co-ordinate system to this point.")
