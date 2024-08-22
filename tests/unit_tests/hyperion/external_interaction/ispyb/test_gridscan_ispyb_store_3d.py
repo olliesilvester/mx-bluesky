@@ -281,7 +281,7 @@ def test_store_3d_grid_scan(
 
 
 @patch(
-    "hyperion.external_interaction.callbacks.common.ispyb_mapping.get_current_time_string",
+    "mx_bluesky.hyperion.external_interaction.callbacks.common.ispyb_mapping.get_current_time_string",
     new=MagicMock(return_value=EXPECTED_START_TIME),
 )
 def test_begin_deposition(
@@ -357,7 +357,7 @@ def test_begin_deposition(
 
 
 @patch(
-    "hyperion.external_interaction.callbacks.common.ispyb_mapping.get_current_time_string",
+    "mx_bluesky.hyperion.external_interaction.callbacks.common.ispyb_mapping.get_current_time_string",
     new=MagicMock(return_value=EXPECTED_START_TIME),
 )
 def test_update_deposition(
@@ -543,11 +543,11 @@ def test_update_deposition(
 
 
 @patch(
-    "hyperion.external_interaction.callbacks.common.ispyb_mapping.get_current_time_string",
+    "mx_bluesky.hyperion.external_interaction.callbacks.common.ispyb_mapping.get_current_time_string",
     new=MagicMock(return_value=EXPECTED_START_TIME),
 )
 @patch(
-    "hyperion.external_interaction.ispyb.ispyb_store.get_current_time_string",
+    "mx_bluesky.hyperion.external_interaction.ispyb.ispyb_store.get_current_time_string",
 )
 def test_end_deposition_happy_path(
     get_current_time,

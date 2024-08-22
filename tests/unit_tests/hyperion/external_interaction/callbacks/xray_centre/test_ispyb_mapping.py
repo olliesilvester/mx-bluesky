@@ -65,7 +65,7 @@ def test_ispyb_deposition_rounds_position_to_int(
     ],
 )
 @patch(
-    "hyperion.external_interaction.callbacks.xray_centre.ispyb_mapping.oav_utils.bottom_right_from_top_left",
+    "mx_bluesky.hyperion.external_interaction.callbacks.xray_centre.ispyb_mapping.oav_utils.bottom_right_from_top_left",
     autospec=True,
 )
 def test_ispyb_deposition_rounds_box_size_int(

@@ -216,7 +216,9 @@ def test_full_multi_rotation_plan_docs_emitted(
         )
 
 
-@patch("hyperion.external_interaction.callbacks.rotation.nexus_callback.NexusWriter")
+@patch(
+    "mx_bluesky.hyperion.external_interaction.callbacks.rotation.nexus_callback.NexusWriter"
+)
 def test_full_multi_rotation_plan_nexus_writer_called_correctly(
     mock_nexus_writer: MagicMock,
     RE: RunEngine,
@@ -365,7 +367,9 @@ def test_full_multi_rotation_plan_nexus_files_written_correctly(
             assert tuple(omega_vec) == (1.0 * scan.rotation_direction.multiplier, 0, 0)
 
 
-@patch("hyperion.external_interaction.callbacks.rotation.ispyb_callback.StoreInIspyb")
+@patch(
+    "mx_bluesky.hyperion.external_interaction.callbacks.rotation.ispyb_callback.StoreInIspyb"
+)
 def test_full_multi_rotation_plan_ispyb_called_correctly(
     mock_ispyb_store: MagicMock,
     RE: RunEngine,

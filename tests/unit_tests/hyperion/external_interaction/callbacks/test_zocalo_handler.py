@@ -66,7 +66,7 @@ class TestZocaloHandler:
             )
 
     @patch(
-        "hyperion.external_interaction.callbacks.zocalo_callback.ZocaloTrigger",
+        "mx_bluesky.hyperion.external_interaction.callbacks.zocalo_callback.ZocaloTrigger",
         autospec=True,
     )
     def test_handler_inits_zocalo_trigger_on_right_plan(self, zocalo_trigger):
@@ -82,14 +82,14 @@ class TestZocaloHandler:
         assert zocalo_handler.zocalo_interactor is not None
 
     @patch(
-        "hyperion.external_interaction.callbacks.zocalo_callback.ZocaloTrigger",
+        "mx_bluesky.hyperion.external_interaction.callbacks.zocalo_callback.ZocaloTrigger",
         autospec=True,
     )
     @patch(
-        "hyperion.external_interaction.callbacks.xray_centre.nexus_callback.NexusWriter",
+        "mx_bluesky.hyperion.external_interaction.callbacks.xray_centre.nexus_callback.NexusWriter",
     )
     @patch(
-        "hyperion.external_interaction.callbacks.xray_centre.ispyb_callback.StoreInIspyb",
+        "mx_bluesky.hyperion.external_interaction.callbacks.xray_centre.ispyb_callback.StoreInIspyb",
     )
     def test_execution_of_do_fgs_triggers_zocalo_calls(
         self, ispyb_store: MagicMock, nexus_writer: MagicMock, zocalo_trigger

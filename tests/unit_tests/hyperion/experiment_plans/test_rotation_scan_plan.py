@@ -153,7 +153,10 @@ def test_rotation_scan_calculations(test_rotation_params: RotationScan):
     "dodal.common.beamlines.beamline_utils.active_device_is_same_type",
     lambda a, b: True,
 )
-@patch("hyperion.experiment_plans.rotation_scan_plan.rotation_scan_plan", autospec=True)
+@patch(
+    "mx_bluesky.hyperion.experiment_plans.rotation_scan_plan.rotation_scan_plan",
+    autospec=True,
+)
 def test_rotation_scan(
     plan: MagicMock,
     RE: RunEngine,
@@ -249,7 +252,10 @@ async def test_rotation_plan_smargon_doesnt_move_xyz_if_not_given_in_params(
         get_mock_put(motor.user_setpoint).assert_not_called()  # type: ignore
 
 
-@patch("hyperion.experiment_plans.rotation_scan_plan._cleanup_plan", autospec=True)
+@patch(
+    "mx_bluesky.hyperion.experiment_plans.rotation_scan_plan._cleanup_plan",
+    autospec=True,
+)
 @patch("bluesky.plan_stubs.wait", autospec=True)
 def test_cleanup_happens(
     bps_wait: MagicMock,

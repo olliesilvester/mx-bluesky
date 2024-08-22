@@ -27,7 +27,7 @@ def set_energy_composite(
 
 
 @patch(
-    "hyperion.experiment_plans.set_energy_plan.dcm_pitch_roll_mirror_adjuster.adjust_dcm_pitch_roll_vfm_from_lut",
+    "mx_bluesky.hyperion.experiment_plans.set_energy_plan.dcm_pitch_roll_mirror_adjuster.adjust_dcm_pitch_roll_vfm_from_lut",
     return_value=iter([Msg("adjust_dcm_pitch_roll_vfm_from_lut")]),
 )
 def test_set_energy(

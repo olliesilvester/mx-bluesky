@@ -108,11 +108,11 @@ def grid_detect_devices_with_oav_config_params(
 
 
 @patch(
-    "hyperion.experiment_plans.grid_detect_then_xray_centre_plan.grid_detection_plan",
+    "mx_bluesky.hyperion.experiment_plans.grid_detect_then_xray_centre_plan.grid_detection_plan",
     autospec=True,
 )
 @patch(
-    "hyperion.experiment_plans.grid_detect_then_xray_centre_plan.flyscan_xray_centre",
+    "mx_bluesky.hyperion.experiment_plans.grid_detect_then_xray_centre_plan.flyscan_xray_centre",
     autospec=True,
 )
 async def test_detect_grid_and_do_gridscan(
@@ -160,11 +160,11 @@ async def test_detect_grid_and_do_gridscan(
 
 
 @patch(
-    "hyperion.experiment_plans.grid_detect_then_xray_centre_plan.grid_detection_plan",
+    "mx_bluesky.hyperion.experiment_plans.grid_detect_then_xray_centre_plan.grid_detection_plan",
     autospec=True,
 )
 @patch(
-    "hyperion.experiment_plans.grid_detect_then_xray_centre_plan.flyscan_xray_centre",
+    "mx_bluesky.hyperion.experiment_plans.grid_detect_then_xray_centre_plan.flyscan_xray_centre",
     autospec=True,
 )
 def test_when_full_grid_scan_run_then_parameters_sent_to_fgs_as_expected(
@@ -212,11 +212,11 @@ def test_when_full_grid_scan_run_then_parameters_sent_to_fgs_as_expected(
 
 
 @patch(
-    "hyperion.experiment_plans.grid_detect_then_xray_centre_plan.grid_detection_plan",
+    "mx_bluesky.hyperion.experiment_plans.grid_detect_then_xray_centre_plan.grid_detection_plan",
     autospec=True,
 )
 @patch(
-    "hyperion.experiment_plans.grid_detect_then_xray_centre_plan.flyscan_xray_centre",
+    "mx_bluesky.hyperion.experiment_plans.grid_detect_then_xray_centre_plan.flyscan_xray_centre",
     autospec=True,
 )
 def test_detect_grid_and_do_gridscan_does_not_activate_ispyb_callback(
@@ -267,11 +267,11 @@ def test_detect_grid_and_do_gridscan_does_not_activate_ispyb_callback(
 
 
 @patch(
-    "hyperion.experiment_plans.grid_detect_then_xray_centre_plan.grid_detection_plan",
+    "mx_bluesky.hyperion.experiment_plans.grid_detect_then_xray_centre_plan.grid_detection_plan",
     autospec=True,
 )
 @patch(
-    "hyperion.experiment_plans.grid_detect_then_xray_centre_plan.flyscan_xray_centre",
+    "mx_bluesky.hyperion.experiment_plans.grid_detect_then_xray_centre_plan.flyscan_xray_centre",
     autospec=True,
 )
 def test_grid_detect_then_xray_centre_activates_ispyb_callback(

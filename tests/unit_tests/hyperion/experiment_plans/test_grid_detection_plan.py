@@ -196,7 +196,7 @@ def test_given_when_grid_detect_then_start_position_as_expected(
 )
 @patch("bluesky.plan_stubs.sleep", new=MagicMock())
 @patch(
-    "hyperion.experiment_plans.oav_grid_detection_plan.pre_centring_setup_oav",
+    "mx_bluesky.hyperion.experiment_plans.oav_grid_detection_plan.pre_centring_setup_oav",
     new=MagicMock(),
 )
 def test_when_grid_detection_plan_run_twice_then_values_do_not_persist_in_callback(
@@ -340,7 +340,7 @@ def test_when_grid_detection_plan_run_then_grid_detection_callback_gets_correct_
     lambda a, b: True,
 )
 @patch("bluesky.plan_stubs.sleep", new=MagicMock())
-@patch("hyperion.experiment_plans.oav_grid_detection_plan.LOGGER")
+@patch("mx_bluesky.hyperion.experiment_plans.oav_grid_detection_plan.LOGGER")
 def test_when_detected_grid_has_odd_y_steps_then_add_a_y_step_and_shift_grid(
     fake_logger: MagicMock,
     fake_devices,

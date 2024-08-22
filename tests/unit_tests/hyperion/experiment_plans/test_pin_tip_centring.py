@@ -39,7 +39,10 @@ def mock_pin_tip(pin_tip: PinTipDetection):
     return pin_tip
 
 
-@patch("hyperion.experiment_plans.pin_tip_centring_plan.bps.sleep", new=MagicMock())
+@patch(
+    "mx_bluesky.hyperion.experiment_plans.pin_tip_centring_plan.bps.sleep",
+    new=MagicMock(),
+)
 async def test_given_the_pin_tip_is_already_in_view_when_get_tip_into_view_then_tip_returned_and_smargon_not_moved(
     smargon: Smargon, oav: OAV, RE: RunEngine, mock_pin_tip: PinTipDetection
 ):
@@ -56,7 +59,10 @@ async def test_given_the_pin_tip_is_already_in_view_when_get_tip_into_view_then_
     assert result.plan_result == (100, 200)
 
 
-@patch("hyperion.experiment_plans.pin_tip_centring_plan.bps.sleep", new=MagicMock())
+@patch(
+    "mx_bluesky.hyperion.experiment_plans.pin_tip_centring_plan.bps.sleep",
+    new=MagicMock(),
+)
 async def test_given_no_tip_found_but_will_be_found_when_get_tip_into_view_then_smargon_moved_positive_and_tip_returned(
     smargon: Smargon, oav: OAV, RE: RunEngine, mock_pin_tip: PinTipDetection
 ):
@@ -81,7 +87,10 @@ async def test_given_no_tip_found_but_will_be_found_when_get_tip_into_view_then_
     assert result.plan_result == (100, 200)
 
 
-@patch("hyperion.experiment_plans.pin_tip_centring_plan.bps.sleep", new=MagicMock())
+@patch(
+    "mx_bluesky.hyperion.experiment_plans.pin_tip_centring_plan.bps.sleep",
+    new=MagicMock(),
+)
 async def test_given_tip_at_zero_but_will_be_found_when_get_tip_into_view_then_smargon_moved_negative_and_tip_returned(
     smargon: Smargon, oav: OAV, RE: RunEngine, mock_pin_tip: PinTipDetection
 ):
@@ -131,8 +140,13 @@ def test_trigger_and_return_pin_tip_works_for_ophyd_pin_tip_detection(
     assert re_result.plan_result == (100, 200)  # type: ignore
 
 
-@patch("hyperion.experiment_plans.pin_tip_centring_plan.trigger_and_return_pin_tip")
-@patch("hyperion.experiment_plans.pin_tip_centring_plan.bps.sleep", new=MagicMock())
+@patch(
+    "mx_bluesky.hyperion.experiment_plans.pin_tip_centring_plan.trigger_and_return_pin_tip"
+)
+@patch(
+    "mx_bluesky.hyperion.experiment_plans.pin_tip_centring_plan.bps.sleep",
+    new=MagicMock(),
+)
 async def test_pin_tip_starting_near_negative_edge_doesnt_exceed_limit(
     mock_trigger_and_return_tip: MagicMock,
     smargon: Smargon,
@@ -154,8 +168,13 @@ async def test_pin_tip_starting_near_negative_edge_doesnt_exceed_limit(
     assert await smargon.x.user_readback.get_value() == -2
 
 
-@patch("hyperion.experiment_plans.pin_tip_centring_plan.trigger_and_return_pin_tip")
-@patch("hyperion.experiment_plans.pin_tip_centring_plan.bps.sleep", new=MagicMock())
+@patch(
+    "mx_bluesky.hyperion.experiment_plans.pin_tip_centring_plan.trigger_and_return_pin_tip"
+)
+@patch(
+    "mx_bluesky.hyperion.experiment_plans.pin_tip_centring_plan.bps.sleep",
+    new=MagicMock(),
+)
 async def test_pin_tip_starting_near_positive_edge_doesnt_exceed_limit(
     mock_trigger_and_return_pin_tip: MagicMock,
     smargon: Smargon,
@@ -176,7 +195,10 @@ async def test_pin_tip_starting_near_positive_edge_doesnt_exceed_limit(
     assert await smargon.x.user_readback.get_value() == 2
 
 
-@patch("hyperion.experiment_plans.pin_tip_centring_plan.bps.sleep", new=MagicMock())
+@patch(
+    "mx_bluesky.hyperion.experiment_plans.pin_tip_centring_plan.bps.sleep",
+    new=MagicMock(),
+)
 async def test_given_no_tip_found_ever_when_get_tip_into_view_then_smargon_moved_positive_and_exception_thrown(
     smargon: Smargon, oav: OAV, RE: RunEngine, pin_tip: PinTipDetection
 ):
@@ -206,24 +228,27 @@ def return_pixel(pixel, *args):
 
 
 @patch(
-    "hyperion.experiment_plans.pin_tip_centring_plan.wait_for_tip_to_be_found",
+    "mx_bluesky.hyperion.experiment_plans.pin_tip_centring_plan.wait_for_tip_to_be_found",
     new=partial(return_pixel, (200, 200)),
 )
 @patch(
-    "hyperion.experiment_plans.pin_tip_centring_plan.get_move_required_so_that_beam_is_at_pixel",
+    "mx_bluesky.hyperion.experiment_plans.pin_tip_centring_plan.get_move_required_so_that_beam_is_at_pixel",
     autospec=True,
 )
 @patch(
-    "hyperion.experiment_plans.pin_tip_centring_plan.move_pin_into_view",
+    "mx_bluesky.hyperion.experiment_plans.pin_tip_centring_plan.move_pin_into_view",
     new=partial(return_pixel, (100, 100)),
 )
 @patch(
-    "hyperion.experiment_plans.pin_tip_centring_plan.pre_centring_setup_oav",
+    "mx_bluesky.hyperion.experiment_plans.pin_tip_centring_plan.pre_centring_setup_oav",
     autospec=True,
 )
-@patch("hyperion.experiment_plans.pin_tip_centring_plan.bps.sleep", autospec=True)
 @patch(
-    "hyperion.experiment_plans.pin_tip_centring_plan.move_smargon_warn_on_out_of_range",
+    "mx_bluesky.hyperion.experiment_plans.pin_tip_centring_plan.bps.sleep",
+    autospec=True,
+)
+@patch(
+    "mx_bluesky.hyperion.experiment_plans.pin_tip_centring_plan.move_smargon_warn_on_out_of_range",
     autospec=True,
 )
 async def test_when_pin_tip_centre_plan_called_then_expected_plans_called(
@@ -264,23 +289,26 @@ async def test_when_pin_tip_centre_plan_called_then_expected_plans_called(
 
 
 @patch(
-    "hyperion.experiment_plans.pin_tip_centring_plan.wait_for_tip_to_be_found",
+    "mx_bluesky.hyperion.experiment_plans.pin_tip_centring_plan.wait_for_tip_to_be_found",
     new=partial(return_pixel, (200, 200)),
 )
 @patch(
-    "hyperion.experiment_plans.pin_tip_centring_plan.get_move_required_so_that_beam_is_at_pixel",
+    "mx_bluesky.hyperion.experiment_plans.pin_tip_centring_plan.get_move_required_so_that_beam_is_at_pixel",
     autospec=True,
 )
 @patch(
-    "hyperion.experiment_plans.pin_tip_centring_plan.move_pin_into_view",
+    "mx_bluesky.hyperion.experiment_plans.pin_tip_centring_plan.move_pin_into_view",
 )
 @patch(
-    "hyperion.experiment_plans.pin_tip_centring_plan.pre_centring_setup_oav",
+    "mx_bluesky.hyperion.experiment_plans.pin_tip_centring_plan.pre_centring_setup_oav",
     autospec=True,
 )
-@patch("hyperion.experiment_plans.pin_tip_centring_plan.bps.sleep", autospec=True)
 @patch(
-    "hyperion.experiment_plans.pin_tip_centring_plan.move_smargon_warn_on_out_of_range",
+    "mx_bluesky.hyperion.experiment_plans.pin_tip_centring_plan.bps.sleep",
+    autospec=True,
+)
+@patch(
+    "mx_bluesky.hyperion.experiment_plans.pin_tip_centring_plan.move_smargon_warn_on_out_of_range",
     autospec=True,
 )
 def test_given_pin_tip_detect_using_ophyd_when_pin_tip_centre_plan_called_then_expected_plans_called(

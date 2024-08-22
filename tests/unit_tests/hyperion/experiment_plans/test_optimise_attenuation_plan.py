@@ -137,7 +137,7 @@ def test_calculate_new_direction_gives_correct_value(
 
 
 @patch(
-    "hyperion.experiment_plans.optimise_attenuation_plan.do_device_optimise_iteration",
+    "mx_bluesky.hyperion.experiment_plans.optimise_attenuation_plan.do_device_optimise_iteration",
     autospec=True,
 )
 def test_deadtime_optimisation_calculates_deadtime_correctly(
@@ -149,7 +149,7 @@ def test_deadtime_optimisation_calculates_deadtime_correctly(
     set_mock_value(fake_composite.xspress3mini.channels[1].reset_ticks, 101)
 
     with patch(
-        "hyperion.experiment_plans.optimise_attenuation_plan.is_deadtime_optimised",
+        "mx_bluesky.hyperion.experiment_plans.optimise_attenuation_plan.is_deadtime_optimised",
         autospec=True,
     ) as mock_is_deadtime_optimised:
         RE(
@@ -323,15 +323,15 @@ def test_total_counts_gets_within_target(
     [("total_counts"), ("deadtime")],
 )
 @patch(
-    "hyperion.experiment_plans.optimise_attenuation_plan.total_counts_optimisation",
+    "mx_bluesky.hyperion.experiment_plans.optimise_attenuation_plan.total_counts_optimisation",
     autospec=True,
 )
 @patch(
-    "hyperion.experiment_plans.optimise_attenuation_plan.deadtime_optimisation",
+    "mx_bluesky.hyperion.experiment_plans.optimise_attenuation_plan.deadtime_optimisation",
     autospec=True,
 )
 @patch(
-    "hyperion.experiment_plans.optimise_attenuation_plan.check_parameters",
+    "mx_bluesky.hyperion.experiment_plans.optimise_attenuation_plan.check_parameters",
     autospec=True,
 )
 def test_optimisation_attenuation_plan_runs_correct_functions(

@@ -45,7 +45,7 @@ EXPECTED_DATA_COLLECTION_3D_XZ = EXPECTED_DATA_COLLECTION_3D_XY | {
 
 
 @patch(
-    "hyperion.external_interaction.callbacks.common.ispyb_mapping.get_current_time_string",
+    "mx_bluesky.hyperion.external_interaction.callbacks.common.ispyb_mapping.get_current_time_string",
     new=MagicMock(return_value=EXPECTED_START_TIME),
 )
 class TestXrayCentreISPyBCallback:

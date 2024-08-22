@@ -127,6 +127,8 @@ filterwarnings = [
     "ignore:((.|\n)*)was never iterated.*:RuntimeWarning",
     # Ignore deprecation warning from sqlalchemy
     "ignore::sqlalchemy.exc.MovedIn20Warning",
+    # Ophyd status objects in tests
+    "ignore:.*The 'done' and 'success' parameters will be removed.*:DeprecationWarning",
 ]
 # Doctest python code in docs, python code in src docstrings, test functions in tests
 testpaths = "docs src tests/unit_tests"

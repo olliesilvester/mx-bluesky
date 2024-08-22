@@ -50,7 +50,7 @@ def oav_snapshot_composite(smargon, oav, aperture_scatterguard, backlight):
     )
 
 
-@patch("hyperion.experiment_plans.oav_snapshot_plan.datetime", spec=datetime)
+@patch("mx_bluesky.hyperion.experiment_plans.oav_snapshot_plan.datetime", spec=datetime)
 def test_oav_snapshot_plan_issues_rotations_and_generates_events(
     mock_datetime, oav_snapshot_params, oav_snapshot_composite, sim_run_engine
 ):

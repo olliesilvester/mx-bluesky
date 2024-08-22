@@ -142,14 +142,14 @@ def modified_store_grid_scan_mock(*args, dcids=(0, 0), dcgid=0, **kwargs):
 def mock_subscriptions(test_fgs_params):
     with (
         patch(
-            "hyperion.external_interaction.callbacks.zocalo_callback.ZocaloTrigger",
+            "mx_bluesky.hyperion.external_interaction.callbacks.zocalo_callback.ZocaloTrigger",
             modified_interactor_mock,
         ),
         patch(
-            "hyperion.external_interaction.callbacks.xray_centre.ispyb_callback.StoreInIspyb.append_to_comment"
+            "mx_bluesky.hyperion.external_interaction.callbacks.xray_centre.ispyb_callback.StoreInIspyb.append_to_comment"
         ),
         patch(
-            "hyperion.external_interaction.callbacks.xray_centre.ispyb_callback.StoreInIspyb.begin_deposition",
+            "mx_bluesky.hyperion.external_interaction.callbacks.xray_centre.ispyb_callback.StoreInIspyb.begin_deposition",
             new=MagicMock(
                 return_value=IspybIds(
                     data_collection_ids=(0, 0), data_collection_group_id=0
@@ -157,7 +157,7 @@ def mock_subscriptions(test_fgs_params):
             ),
         ),
         patch(
-            "hyperion.external_interaction.callbacks.xray_centre.ispyb_callback.StoreInIspyb.update_deposition",
+            "mx_bluesky.hyperion.external_interaction.callbacks.xray_centre.ispyb_callback.StoreInIspyb.update_deposition",
             new=MagicMock(
                 return_value=IspybIds(
                     data_collection_ids=(0, 0),

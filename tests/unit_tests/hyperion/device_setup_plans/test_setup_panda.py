@@ -59,7 +59,7 @@ def run_simulating_setup_panda_functions(
     return num_of_sets, num_of_waits
 
 
-@patch("hyperion.device_setup_plans.setup_panda.load_device")
+@patch("mx_bluesky.hyperion.device_setup_plans.setup_panda.load_device")
 def test_setup_panda_performs_correct_plans(mock_load_device, sim_run_engine):
     num_of_sets, num_of_waits = run_simulating_setup_panda_functions(
         "setup", sim_run_engine, mock_load_device
@@ -197,15 +197,15 @@ def test_wait_between_setting_table_and_arming_panda(RE: RunEngine):
 
     with (
         patch(
-            "hyperion.device_setup_plans.setup_panda.arm_panda_for_gridscan",
+            "mx_bluesky.hyperion.device_setup_plans.setup_panda.arm_panda_for_gridscan",
             MagicMock(side_effect=assert_set_table_has_been_waited_on),
         ),
         patch(
-            "hyperion.device_setup_plans.setup_panda.bps.wait",
+            "mx_bluesky.hyperion.device_setup_plans.setup_panda.bps.wait",
             MagicMock(side_effect=handle_wait),
         ),
-        patch("hyperion.device_setup_plans.setup_panda.load_device"),
-        patch("hyperion.device_setup_plans.setup_panda.bps.abs_set"),
+        patch("mx_bluesky.hyperion.device_setup_plans.setup_panda.load_device"),
+        patch("mx_bluesky.hyperion.device_setup_plans.setup_panda.bps.abs_set"),
     ):
         RE(
             setup_panda_for_flyscan(
@@ -229,8 +229,8 @@ def test_disarm_panda_disables_correct_blocks(sim_run_engine):
     assert num_of_waits == 1
 
 
-@patch("hyperion.device_setup_plans.setup_panda.get_directory_provider")
-@patch("hyperion.device_setup_plans.setup_panda.datetime", spec=datetime)
+@patch("mx_bluesky.hyperion.device_setup_plans.setup_panda.get_directory_provider")
+@patch("mx_bluesky.hyperion.device_setup_plans.setup_panda.datetime", spec=datetime)
 def test_set_panda_directory(
     mock_datetime, mock_get_directory_provider: MagicMock, tmp_path, RE
 ):

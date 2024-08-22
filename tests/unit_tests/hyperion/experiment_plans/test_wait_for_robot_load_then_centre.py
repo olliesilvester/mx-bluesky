@@ -69,10 +69,10 @@ def dummy_set_energy_plan(energy, composite):
 
 
 @patch(
-    "hyperion.experiment_plans.robot_load_then_centre_plan.pin_centre_then_xray_centre_plan"
+    "mx_bluesky.hyperion.experiment_plans.robot_load_then_centre_plan.pin_centre_then_xray_centre_plan"
 )
 @patch(
-    "hyperion.experiment_plans.robot_load_then_centre_plan.set_energy_plan",
+    "mx_bluesky.hyperion.experiment_plans.robot_load_then_centre_plan.set_energy_plan",
     MagicMock(return_value=iter([])),
 )
 def test_when_plan_run_then_centring_plan_run_with_expected_parameters(
@@ -94,10 +94,10 @@ def test_when_plan_run_then_centring_plan_run_with_expected_parameters(
 
 
 @patch(
-    "hyperion.experiment_plans.robot_load_then_centre_plan.pin_centre_then_xray_centre_plan"
+    "mx_bluesky.hyperion.experiment_plans.robot_load_then_centre_plan.pin_centre_then_xray_centre_plan"
 )
 @patch(
-    "hyperion.experiment_plans.robot_load_then_centre_plan.set_energy_plan",
+    "mx_bluesky.hyperion.experiment_plans.robot_load_then_centre_plan.set_energy_plan",
     MagicMock(side_effect=dummy_set_energy_plan),
 )
 def test_when_plan_run_with_requested_energy_specified_energy_change_executes(
@@ -122,11 +122,11 @@ def test_when_plan_run_with_requested_energy_specified_energy_change_executes(
 
 
 @patch(
-    "hyperion.experiment_plans.robot_load_then_centre_plan.pin_centre_then_xray_centre_plan",
+    "mx_bluesky.hyperion.experiment_plans.robot_load_then_centre_plan.pin_centre_then_xray_centre_plan",
     MagicMock(),
 )
 @patch(
-    "hyperion.experiment_plans.robot_load_then_centre_plan.set_energy_plan",
+    "mx_bluesky.hyperion.experiment_plans.robot_load_then_centre_plan.set_energy_plan",
     MagicMock(return_value=iter([Msg("set_energy_plan")])),
 )
 def test_robot_load_then_centre_doesnt_set_energy_if_not_specified_and_current_energy_set_on_eiger(
@@ -180,10 +180,10 @@ def run_simulating_smargon_wait(
 
 @pytest.mark.parametrize("total_disabled_reads", [5, 3, 14])
 @patch(
-    "hyperion.experiment_plans.robot_load_then_centre_plan.pin_centre_then_xray_centre_plan"
+    "mx_bluesky.hyperion.experiment_plans.robot_load_then_centre_plan.pin_centre_then_xray_centre_plan"
 )
 @patch(
-    "hyperion.experiment_plans.robot_load_then_centre_plan.set_energy_plan",
+    "mx_bluesky.hyperion.experiment_plans.robot_load_then_centre_plan.set_energy_plan",
     MagicMock(return_value=iter([])),
 )
 def test_given_smargon_disabled_when_plan_run_then_waits_on_smargon(
@@ -213,10 +213,10 @@ def test_given_smargon_disabled_when_plan_run_then_waits_on_smargon(
 
 
 @patch(
-    "hyperion.experiment_plans.robot_load_then_centre_plan.pin_centre_then_xray_centre_plan"
+    "mx_bluesky.hyperion.experiment_plans.robot_load_then_centre_plan.pin_centre_then_xray_centre_plan"
 )
 @patch(
-    "hyperion.experiment_plans.robot_load_then_centre_plan.set_energy_plan",
+    "mx_bluesky.hyperion.experiment_plans.robot_load_then_centre_plan.set_energy_plan",
     MagicMock(return_value=iter([])),
 )
 def test_given_smargon_disabled_for_longer_than_timeout_when_plan_run_then_throws_exception(
@@ -235,10 +235,10 @@ def test_given_smargon_disabled_for_longer_than_timeout_when_plan_run_then_throw
 
 
 @patch(
-    "hyperion.experiment_plans.robot_load_then_centre_plan.pin_centre_then_xray_centre_plan"
+    "mx_bluesky.hyperion.experiment_plans.robot_load_then_centre_plan.pin_centre_then_xray_centre_plan"
 )
 @patch(
-    "hyperion.experiment_plans.robot_load_then_centre_plan.set_energy_plan",
+    "mx_bluesky.hyperion.experiment_plans.robot_load_then_centre_plan.set_energy_plan",
     MagicMock(return_value=iter([])),
 )
 def test_when_plan_run_then_detector_arm_started_before_wait_on_robot_load(
@@ -293,19 +293,19 @@ async def test_when_prepare_for_robot_load_called_then_moves_as_expected(
 
 
 @patch(
-    "hyperion.external_interaction.callbacks.robot_load.ispyb_callback.ExpeyeInteraction.end_load"
+    "mx_bluesky.hyperion.external_interaction.callbacks.robot_load.ispyb_callback.ExpeyeInteraction.end_load"
 )
 @patch(
-    "hyperion.external_interaction.callbacks.robot_load.ispyb_callback.ExpeyeInteraction.update_barcode_and_snapshots"
+    "mx_bluesky.hyperion.external_interaction.callbacks.robot_load.ispyb_callback.ExpeyeInteraction.update_barcode_and_snapshots"
 )
 @patch(
-    "hyperion.external_interaction.callbacks.robot_load.ispyb_callback.ExpeyeInteraction.start_load"
+    "mx_bluesky.hyperion.external_interaction.callbacks.robot_load.ispyb_callback.ExpeyeInteraction.start_load"
 )
 @patch(
-    "hyperion.experiment_plans.robot_load_then_centre_plan.pin_centre_then_xray_centre_plan"
+    "mx_bluesky.hyperion.experiment_plans.robot_load_then_centre_plan.pin_centre_then_xray_centre_plan"
 )
 @patch(
-    "hyperion.experiment_plans.robot_load_then_centre_plan.set_energy_plan",
+    "mx_bluesky.hyperion.experiment_plans.robot_load_then_centre_plan.set_energy_plan",
     MagicMock(return_value=iter([])),
 )
 def test_given_ispyb_callback_attached_when_robot_load_then_centre_plan_called_then_ispyb_deposited(
@@ -335,7 +335,7 @@ def test_given_ispyb_callback_attached_when_robot_load_then_centre_plan_called_t
     end_load.assert_called_once_with(action_id, "success", "OK")
 
 
-@patch("hyperion.experiment_plans.robot_load_then_centre_plan.datetime")
+@patch("mx_bluesky.hyperion.experiment_plans.robot_load_then_centre_plan.datetime")
 async def test_when_take_snapshots_called_then_filename_and_directory_set_and_device_triggered(
     mock_datetime: MagicMock, oav: OAV, webcam: Webcam
 ):
@@ -359,7 +359,7 @@ async def test_when_take_snapshots_called_then_filename_and_directory_set_and_de
 
 
 @patch(
-    "hyperion.experiment_plans.robot_load_then_centre_plan.pin_centre_then_xray_centre_plan",
+    "mx_bluesky.hyperion.experiment_plans.robot_load_then_centre_plan.pin_centre_then_xray_centre_plan",
     MagicMock(),
 )
 def test_given_lower_gonio_moved_when_robot_load_then_lower_gonio_moved_to_home_and_back(
@@ -402,10 +402,10 @@ def test_given_lower_gonio_moved_when_robot_load_then_lower_gonio_moved_to_home_
 
 
 @patch(
-    "hyperion.experiment_plans.robot_load_then_centre_plan.pin_centre_then_xray_centre_plan"
+    "mx_bluesky.hyperion.experiment_plans.robot_load_then_centre_plan.pin_centre_then_xray_centre_plan"
 )
 @patch(
-    "hyperion.experiment_plans.robot_load_then_centre_plan.set_energy_plan",
+    "mx_bluesky.hyperion.experiment_plans.robot_load_then_centre_plan.set_energy_plan",
     MagicMock(return_value=iter([])),
 )
 def test_when_plan_run_then_lower_gonio_moved_before_robot_loads_and_back_after_smargon_enabled(
@@ -458,10 +458,10 @@ def test_when_plan_run_then_lower_gonio_moved_before_robot_loads_and_back_after_
 
 
 @patch(
-    "hyperion.experiment_plans.robot_load_then_centre_plan.pin_centre_then_xray_centre_plan"
+    "mx_bluesky.hyperion.experiment_plans.robot_load_then_centre_plan.pin_centre_then_xray_centre_plan"
 )
 @patch(
-    "hyperion.experiment_plans.robot_load_then_centre_plan.set_energy_plan",
+    "mx_bluesky.hyperion.experiment_plans.robot_load_then_centre_plan.set_energy_plan",
     MagicMock(return_value=iter([])),
 )
 def test_when_plan_run_then_thawing_turned_on_for_expected_time(

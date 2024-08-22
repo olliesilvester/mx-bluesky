@@ -41,11 +41,11 @@ def mock_store_in_ispyb(config, *args, **kwargs) -> StoreInIspyb:
 
 
 @patch(
-    "hyperion.external_interaction.callbacks.common.ispyb_mapping.get_current_time_string",
+    "mx_bluesky.hyperion.external_interaction.callbacks.common.ispyb_mapping.get_current_time_string",
     MagicMock(return_value=td.DUMMY_TIME_STRING),
 )
 @patch(
-    "hyperion.external_interaction.callbacks.xray_centre.ispyb_callback.StoreInIspyb",
+    "mx_bluesky.hyperion.external_interaction.callbacks.xray_centre.ispyb_callback.StoreInIspyb",
     mock_store_in_ispyb,
 )
 class TestXrayCentreIspybHandler:
@@ -159,7 +159,7 @@ class TestXrayCentreIspybHandler:
         assert not hasattr(latest_record, "dc_group_id")
 
     @patch(
-        "hyperion.external_interaction.callbacks.xray_centre.ispyb_callback.time",
+        "mx_bluesky.hyperion.external_interaction.callbacks.xray_centre.ispyb_callback.time",
         side_effect=[2, 100],
     )
     def test_given_fgs_plan_finished_when_zocalo_results_event_then_expected_comment_deposited(

@@ -17,12 +17,12 @@ from mx_bluesky.hyperion.log import ISPYB_LOGGER, NEXUS_LOGGER
 
 
 @patch(
-    "hyperion.external_interaction.callbacks.__main__.parse_callback_dev_mode_arg",
+    "mx_bluesky.hyperion.external_interaction.callbacks.__main__.parse_callback_dev_mode_arg",
     return_value=("DEBUG", True),
 )
-@patch("hyperion.external_interaction.callbacks.__main__.setup_callbacks")
-@patch("hyperion.external_interaction.callbacks.__main__.setup_logging")
-@patch("hyperion.external_interaction.callbacks.__main__.setup_threads")
+@patch("mx_bluesky.hyperion.external_interaction.callbacks.__main__.setup_callbacks")
+@patch("mx_bluesky.hyperion.external_interaction.callbacks.__main__.setup_logging")
+@patch("mx_bluesky.hyperion.external_interaction.callbacks.__main__.setup_threads")
 def test_main_function(
     setup_threads: MagicMock,
     setup_logging: MagicMock,
@@ -46,7 +46,7 @@ def test_setup_callbacks():
 
 @pytest.mark.skip_log_setup
 @patch(
-    "hyperion.external_interaction.callbacks.__main__.parse_callback_dev_mode_arg",
+    "mx_bluesky.hyperion.external_interaction.callbacks.__main__.parse_callback_dev_mode_arg",
     return_value=True,
 )
 def test_setup_logging(parse_callback_cli_args):

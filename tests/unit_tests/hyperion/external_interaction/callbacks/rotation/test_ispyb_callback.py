@@ -59,7 +59,7 @@ def rotation_start_outer_doc_without_snapshots(
 
 
 @patch(
-    "hyperion.external_interaction.callbacks.common.ispyb_mapping.get_current_time_string",
+    "mx_bluesky.hyperion.external_interaction.callbacks.common.ispyb_mapping.get_current_time_string",
     new=MagicMock(return_value=EXPECTED_START_TIME),
 )
 def test_activity_gated_start(
@@ -86,7 +86,7 @@ def test_activity_gated_start(
 
 
 @patch(
-    "hyperion.external_interaction.callbacks.common.ispyb_mapping.get_current_time_string",
+    "mx_bluesky.hyperion.external_interaction.callbacks.common.ispyb_mapping.get_current_time_string",
     new=MagicMock(return_value=EXPECTED_START_TIME),
 )
 def test_activity_gated_start_with_snapshot_parameters(
@@ -118,7 +118,7 @@ def test_activity_gated_start_with_snapshot_parameters(
 
 
 @patch(
-    "hyperion.external_interaction.callbacks.common.ispyb_mapping.get_current_time_string",
+    "mx_bluesky.hyperion.external_interaction.callbacks.common.ispyb_mapping.get_current_time_string",
     new=MagicMock(return_value=EXPECTED_START_TIME),
 )
 def test_hardware_read_events(
@@ -166,7 +166,7 @@ def test_hardware_read_events(
 
 
 @patch(
-    "hyperion.external_interaction.callbacks.common.ispyb_mapping.get_current_time_string",
+    "mx_bluesky.hyperion.external_interaction.callbacks.common.ispyb_mapping.get_current_time_string",
     new=MagicMock(return_value=EXPECTED_START_TIME),
 )
 def test_flux_read_events(
@@ -211,7 +211,7 @@ def test_flux_read_events(
 
 
 @patch(
-    "hyperion.external_interaction.callbacks.common.ispyb_mapping.get_current_time_string",
+    "mx_bluesky.hyperion.external_interaction.callbacks.common.ispyb_mapping.get_current_time_string",
     new=MagicMock(return_value=EXPECTED_START_TIME),
 )
 def test_oav_rotation_snapshot_triggered_event(
@@ -254,7 +254,7 @@ def test_oav_rotation_snapshot_triggered_event(
 
 
 @patch(
-    "hyperion.external_interaction.callbacks.common.ispyb_mapping.get_current_time_string",
+    "mx_bluesky.hyperion.external_interaction.callbacks.common.ispyb_mapping.get_current_time_string",
     new=MagicMock(return_value=EXPECTED_START_TIME),
 )
 def test_activity_gated_stop(mock_ispyb_conn, test_rotation_start_outer_document):
@@ -269,7 +269,7 @@ def test_activity_gated_stop(mock_ispyb_conn, test_rotation_start_outer_document
     mx.upsert_data_collection.reset_mock()
 
     with patch(
-        "hyperion.external_interaction.ispyb.ispyb_store.get_current_time_string",
+        "mx_bluesky.hyperion.external_interaction.ispyb.ispyb_store.get_current_time_string",
         new=MagicMock(return_value=EXPECTED_END_TIME),
     ):
         callback.activity_gated_stop(TestData.test_rotation_stop_main_document)

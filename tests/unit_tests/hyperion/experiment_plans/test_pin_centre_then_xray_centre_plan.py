@@ -37,11 +37,11 @@ def test_when_create_parameters_for_grid_detection_then_parameters_created(
 
 
 @patch(
-    "hyperion.experiment_plans.pin_centre_then_xray_centre_plan.pin_tip_centre_plan",
+    "mx_bluesky.hyperion.experiment_plans.pin_centre_then_xray_centre_plan.pin_tip_centre_plan",
     autospec=True,
 )
 @patch(
-    "hyperion.experiment_plans.pin_centre_then_xray_centre_plan.detect_grid_and_do_gridscan",
+    "mx_bluesky.hyperion.experiment_plans.pin_centre_then_xray_centre_plan.detect_grid_and_do_gridscan",
     autospec=True,
 )
 def test_when_pin_centre_xray_centre_called_then_plan_runs_correctly(
@@ -62,14 +62,14 @@ def test_when_pin_centre_xray_centre_called_then_plan_runs_correctly(
 
 
 @patch(
-    "hyperion.experiment_plans.grid_detect_then_xray_centre_plan.GridDetectionCallback",
+    "mx_bluesky.hyperion.experiment_plans.grid_detect_then_xray_centre_plan.GridDetectionCallback",
 )
 @patch(
-    "hyperion.experiment_plans.pin_centre_then_xray_centre_plan.pin_tip_centre_plan",
+    "mx_bluesky.hyperion.experiment_plans.pin_centre_then_xray_centre_plan.pin_tip_centre_plan",
     autospec=True,
 )
 @patch(
-    "hyperion.experiment_plans.grid_detect_then_xray_centre_plan.grid_detection_plan",
+    "mx_bluesky.hyperion.experiment_plans.grid_detect_then_xray_centre_plan.grid_detection_plan",
     autospec=True,
 )
 def test_when_pin_centre_xray_centre_called_then_detector_positioned(
@@ -150,11 +150,11 @@ def test_when_pin_centre_xray_centre_called_then_detector_positioned(
 
 
 @patch(
-    "hyperion.experiment_plans.pin_centre_then_xray_centre_plan.pin_tip_centre_plan",
+    "mx_bluesky.hyperion.experiment_plans.pin_centre_then_xray_centre_plan.pin_tip_centre_plan",
     autospec=True,
 )
 @patch(
-    "hyperion.experiment_plans.pin_centre_then_xray_centre_plan.detect_grid_and_do_gridscan",
+    "mx_bluesky.hyperion.experiment_plans.pin_centre_then_xray_centre_plan.detect_grid_and_do_gridscan",
     autospec=True,
 )
 def test_pin_centre_then_xray_centre_plan_activates_ispyb_callback_before_pin_tip_centre_plan(

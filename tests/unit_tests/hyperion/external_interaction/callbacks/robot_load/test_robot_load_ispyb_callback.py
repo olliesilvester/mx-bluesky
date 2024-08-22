@@ -36,10 +36,10 @@ metadata = {
 
 
 @patch(
-    "hyperion.external_interaction.callbacks.robot_load.ispyb_callback.ExpeyeInteraction.end_load"
+    "mx_bluesky.hyperion.external_interaction.callbacks.robot_load.ispyb_callback.ExpeyeInteraction.end_load"
 )
 @patch(
-    "hyperion.external_interaction.callbacks.robot_load.ispyb_callback.ExpeyeInteraction.start_load"
+    "mx_bluesky.hyperion.external_interaction.callbacks.robot_load.ispyb_callback.ExpeyeInteraction.start_load"
 )
 def test_given_start_doc_with_expected_data_then_data_put_in_ispyb(
     start_load: MagicMock,
@@ -60,10 +60,10 @@ def test_given_start_doc_with_expected_data_then_data_put_in_ispyb(
 
 
 @patch(
-    "hyperion.external_interaction.callbacks.robot_load.ispyb_callback.ExpeyeInteraction.end_load"
+    "mx_bluesky.hyperion.external_interaction.callbacks.robot_load.ispyb_callback.ExpeyeInteraction.end_load"
 )
 @patch(
-    "hyperion.external_interaction.callbacks.robot_load.ispyb_callback.ExpeyeInteraction.start_load"
+    "mx_bluesky.hyperion.external_interaction.callbacks.robot_load.ispyb_callback.ExpeyeInteraction.start_load"
 )
 def test_given_failing_plan_then_exception_detail(
     start_load: MagicMock,
@@ -88,7 +88,7 @@ def test_given_failing_plan_then_exception_detail(
 
 
 @patch(
-    "hyperion.external_interaction.callbacks.robot_load.ispyb_callback.ExpeyeInteraction.end_load"
+    "mx_bluesky.hyperion.external_interaction.callbacks.robot_load.ispyb_callback.ExpeyeInteraction.end_load"
 )
 def test_given_end_called_but_no_start_then_exception_raised(end_load):
     callback = RobotLoadISPyBCallback()
@@ -99,13 +99,13 @@ def test_given_end_called_but_no_start_then_exception_raised(end_load):
 
 
 @patch(
-    "hyperion.external_interaction.callbacks.robot_load.ispyb_callback.ExpeyeInteraction.end_load"
+    "mx_bluesky.hyperion.external_interaction.callbacks.robot_load.ispyb_callback.ExpeyeInteraction.end_load"
 )
 @patch(
-    "hyperion.external_interaction.callbacks.robot_load.ispyb_callback.ExpeyeInteraction.start_load"
+    "mx_bluesky.hyperion.external_interaction.callbacks.robot_load.ispyb_callback.ExpeyeInteraction.start_load"
 )
 @patch(
-    "hyperion.external_interaction.callbacks.robot_load.ispyb_callback.ExpeyeInteraction.update_barcode_and_snapshots"
+    "mx_bluesky.hyperion.external_interaction.callbacks.robot_load.ispyb_callback.ExpeyeInteraction.update_barcode_and_snapshots"
 )
 def test_given_plan_reads_barcode_then_data_put_in_ispyb(
     update_barcode_and_snapshots: MagicMock,

@@ -145,10 +145,13 @@ def test_env(request):
 
     with (
         patch.dict(
-            "hyperion.__main__.PLAN_REGISTRY",
+            "mx_bluesky.hyperion.__main__.PLAN_REGISTRY",
             real_plans_and_test_exps,
         ),
-        patch("hyperion.__main__.setup_context", MagicMock(return_value=mock_context)),
+        patch(
+            "mx_bluesky.hyperion.__main__.setup_context",
+            MagicMock(return_value=mock_context),
+        ),
     ):
         app, runner = create_app({"TESTING": True}, mock_run_engine, True)  # type: ignore
 
@@ -157,7 +160,7 @@ def test_env(request):
     with (
         app.test_client() as client,
         patch.dict(
-            "hyperion.__main__.PLAN_REGISTRY",
+            "mx_bluesky.hyperion.__main__.PLAN_REGISTRY",
             real_plans_and_test_exps,
         ),
     ):
@@ -331,9 +334,9 @@ def test_cli_args_parse(arg_list, parsed_arg_values):
     assert test_args.use_external_callbacks == parsed_arg_values[3]
 
 
-@patch("hyperion.__main__.do_default_logging_setup")
-@patch("hyperion.__main__.Publisher")
-@patch("hyperion.__main__.setup_context")
+@patch("mx_bluesky.hyperion.__main__.do_default_logging_setup")
+@patch("mx_bluesky.hyperion.__main__.Publisher")
+@patch("mx_bluesky.hyperion.__main__.setup_context")
 @patch("dodal.log.GELFTCPHandler.emit")
 @patch("dodal.log.TimedRotatingFileHandler.emit")
 @pytest.mark.parametrize(["arg_list", "parsed_arg_values"], test_argument_combinations)
@@ -372,8 +375,10 @@ def test_blueskyrunner_uses_cli_args_correctly_for_callbacks(
 
     with (
         flask.Flask(__name__).test_request_context() as flask_context,
-        patch("hyperion.__main__.Command", MockCommand),
-        patch.dict("hyperion.__main__.PLAN_REGISTRY", TEST_REGISTRY, clear=True),
+        patch("mx_bluesky.hyperion.__main__.Command", MockCommand),
+        patch.dict(
+            "mx_bluesky.hyperion.__main__.PLAN_REGISTRY", TEST_REGISTRY, clear=True
+        ),
     ):
         flask_context.request.data = b"{}"  # type: ignore
         argv[1:] = arg_list
@@ -427,7 +432,7 @@ def test_when_blueskyrunner_initiated_then_plans_are_setup_and_devices_connected
         return device_composite_from_context(context, FakeComposite)
 
     with patch.dict(
-        "hyperion.__main__.PLAN_REGISTRY",
+        "mx_bluesky.hyperion.__main__.PLAN_REGISTRY",
         {
             "flyscan_xray_centre": {
                 "setup": fake_create_devices,
@@ -451,14 +456,15 @@ def test_when_blueskyrunner_initiated_then_plans_are_setup_and_devices_connected
 
 
 @patch(
-    "hyperion.experiment_plans.flyscan_xray_centre_plan.create_devices", autospec=True
+    "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.create_devices",
+    autospec=True,
 )
 def test_when_blueskyrunner_initiated_and_skip_flag_is_set_then_setup_called_upon_start(
     mock_setup, test_fgs_params
 ):
     mock_setup = MagicMock()
     with patch.dict(
-        "hyperion.__main__.PLAN_REGISTRY",
+        "mx_bluesky.hyperion.__main__.PLAN_REGISTRY",
         {
             "flyscan_xray_centre": {
                 "setup": mock_setup,
@@ -479,7 +485,7 @@ def test_when_blueskyrunner_initiated_and_skip_flag_is_set_then_setup_called_upo
 def test_when_blueskyrunner_initiated_and_skip_flag_is_not_set_then_all_plans_setup():
     mock_setup = MagicMock()
     with patch.dict(
-        "hyperion.__main__.PLAN_REGISTRY",
+        "mx_bluesky.hyperion.__main__.PLAN_REGISTRY",
         {
             "flyscan_xray_centre": {
                 "setup": mock_setup,

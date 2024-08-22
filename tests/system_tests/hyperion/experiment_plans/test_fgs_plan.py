@@ -56,7 +56,7 @@ def params():
 @pytest.fixture()
 def callbacks(params):
     with patch(
-        "hyperion.external_interaction.callbacks.xray_centre.nexus_callback.NexusWriter"
+        "mx_bluesky.hyperion.external_interaction.callbacks.xray_centre.nexus_callback.NexusWriter"
     ):
         _, ispyb_cb = create_gridscan_callbacks()
         ispyb_cb.ispyb_config = CONST.SIM.DEV_ISPYB_DATABASE_CFG
@@ -175,11 +175,11 @@ def test_xbpm_feedback_decorator(
 @patch("bluesky.plan_stubs.kickoff", autospec=True)
 @patch("bluesky.plan_stubs.complete", autospec=True)
 @patch(
-    "hyperion.experiment_plans.flyscan_xray_centre_plan.run_gridscan_and_move",
+    "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.run_gridscan_and_move",
     autospec=True,
 )
 @patch(
-    "hyperion.experiment_plans.flyscan_xray_centre_plan.set_zebra_shutter_to_manual",
+    "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.set_zebra_shutter_to_manual",
     autospec=True,
 )
 def test_full_plan_tidies_at_end(
@@ -210,11 +210,11 @@ def test_full_plan_tidies_at_end(
 @patch("bluesky.plan_stubs.kickoff", autospec=True)
 @patch("bluesky.plan_stubs.complete", autospec=True)
 @patch(
-    "hyperion.experiment_plans.flyscan_xray_centre_plan.run_gridscan_and_move",
+    "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.run_gridscan_and_move",
     autospec=True,
 )
 @patch(
-    "hyperion.experiment_plans.flyscan_xray_centre_plan.set_zebra_shutter_to_manual",
+    "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.set_zebra_shutter_to_manual",
     autospec=True,
 )
 def test_full_plan_tidies_at_end_when_plan_fails(
@@ -235,7 +235,9 @@ def test_full_plan_tidies_at_end_when_plan_fails(
     set_shutter_to_manual.assert_called_once()
 
 
-@patch("hyperion.external_interaction.callbacks.zocalo_callback.ZocaloTrigger")
+@patch(
+    "mx_bluesky.hyperion.external_interaction.callbacks.zocalo_callback.ZocaloTrigger"
+)
 @pytest.mark.s03
 def test_GIVEN_scan_invalid_WHEN_plan_run_THEN_ispyb_entry_made_but_no_zocalo_entry(
     zocalo_trigger: MagicMock,

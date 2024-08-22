@@ -152,7 +152,7 @@ def _custom_msg(command_name: str):
 
 
 @patch(
-    "hyperion.external_interaction.callbacks.xray_centre.ispyb_callback.StoreInIspyb",
+    "mx_bluesky.hyperion.external_interaction.callbacks.xray_centre.ispyb_callback.StoreInIspyb",
     modified_store_grid_scan_mock,
 )
 class TestFlyscanXrayCentrePlan:
@@ -309,10 +309,12 @@ class TestFlyscanXrayCentrePlan:
         return_value=NullStatus(),
     )
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.run_gridscan", autospec=True
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.run_gridscan",
+        autospec=True,
     )
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.move_x_y_z", autospec=True
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.move_x_y_z",
+        autospec=True,
     )
     def test_results_adjusted_and_passed_to_move_xyz(
         self,
@@ -425,13 +427,15 @@ class TestFlyscanXrayCentrePlan:
         return_value=NullStatus(),
     )
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.run_gridscan", autospec=True
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.run_gridscan",
+        autospec=True,
     )
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.move_x_y_z", autospec=True
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.move_x_y_z",
+        autospec=True,
     )
     @patch(
-        "hyperion.external_interaction.callbacks.zocalo_callback.ZocaloTrigger",
+        "mx_bluesky.hyperion.external_interaction.callbacks.zocalo_callback.ZocaloTrigger",
         modified_interactor_mock,
     )
     def test_individual_plans_triggered_once_and_only_once_in_composite_run(
@@ -469,10 +473,12 @@ class TestFlyscanXrayCentrePlan:
         return_value=NullStatus(),
     )
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.run_gridscan", autospec=True
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.run_gridscan",
+        autospec=True,
     )
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.move_x_y_z", autospec=True
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.move_x_y_z",
+        autospec=True,
     )
     async def test_when_gridscan_finished_then_smargon_stub_offsets_are_set_and_dev_shm_disabled(
         self,
@@ -515,10 +521,12 @@ class TestFlyscanXrayCentrePlan:
         return_value=NullStatus(),
     )
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.run_gridscan", autospec=True
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.run_gridscan",
+        autospec=True,
     )
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.move_x_y_z", autospec=True
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.move_x_y_z",
+        autospec=True,
     )
     def test_when_gridscan_succeeds_ispyb_comment_appended_to(
         self,
@@ -558,7 +566,7 @@ class TestFlyscanXrayCentrePlan:
         assert "Crystal 1: Strength 999999" in append_zocalo_call
 
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.check_topup_and_wait_if_necessary",
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.check_topup_and_wait_if_necessary",
     )
     def test_waits_for_motion_program(
         self,
@@ -607,10 +615,12 @@ class TestFlyscanXrayCentrePlan:
         clear_device("zebra_fast_grid_scan")
 
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.run_gridscan", autospec=True
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.run_gridscan",
+        autospec=True,
     )
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.move_x_y_z", autospec=True
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.move_x_y_z",
+        autospec=True,
     )
     def test_when_gridscan_fails_ispyb_comment_appended_to(
         self,
@@ -648,14 +658,20 @@ class TestFlyscanXrayCentrePlan:
         assert "Zocalo found no crystals in this gridscan" in append_zocalo_call
 
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.bps.complete", autospec=True
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.bps.complete",
+        autospec=True,
     )
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.bps.kickoff", autospec=True
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.bps.kickoff",
+        autospec=True,
     )
-    @patch("hyperion.experiment_plans.flyscan_xray_centre_plan.bps.mv", autospec=True)
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.move_x_y_z", autospec=True
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.bps.mv",
+        autospec=True,
+    )
+    @patch(
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.move_x_y_z",
+        autospec=True,
     )
     def test_GIVEN_no_results_from_zocalo_WHEN_communicator_wait_for_results_called_THEN_fallback_centre_used(
         self,
@@ -710,10 +726,12 @@ class TestFlyscanXrayCentrePlan:
         assert np.all(move_xyz.call_args[0][1:] == initial_x_y_z)
 
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.run_gridscan", autospec=True
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.run_gridscan",
+        autospec=True,
     )
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.move_x_y_z", autospec=True
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.move_x_y_z",
+        autospec=True,
     )
     async def test_given_gridscan_fails_to_centre_then_stub_offsets_not_set(
         self,
@@ -747,10 +765,12 @@ class TestFlyscanXrayCentrePlan:
         )
 
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.run_gridscan", autospec=True
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.run_gridscan",
+        autospec=True,
     )
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.move_x_y_z", autospec=True
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.move_x_y_z",
+        autospec=True,
     )
     async def test_given_setting_stub_offsets_disabled_then_stub_offsets_not_set(
         self,
@@ -792,7 +812,8 @@ class TestFlyscanXrayCentrePlan:
         )
 
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.bps.sleep", autospec=True
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.bps.sleep",
+        autospec=True,
     )
     def test_GIVEN_scan_already_valid_THEN_wait_for_GRIDSCAN_returns_immediately(
         self, patch_sleep: MagicMock, RE: RunEngine
@@ -807,7 +828,8 @@ class TestFlyscanXrayCentrePlan:
         patch_sleep.assert_not_called()
 
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.bps.sleep", autospec=True
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.bps.sleep",
+        autospec=True,
     )
     def test_GIVEN_scan_not_valid_THEN_wait_for_GRIDSCAN_raises_and_sleeps_called(
         self, patch_sleep: MagicMock, RE: RunEngine
@@ -823,21 +845,27 @@ class TestFlyscanXrayCentrePlan:
         patch_sleep.assert_called()
 
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.bps.abs_set", autospec=True
-    )
-    @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.bps.kickoff", autospec=True
-    )
-    @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.bps.complete", autospec=True
-    )
-    @patch("hyperion.experiment_plans.flyscan_xray_centre_plan.bps.mv", autospec=True)
-    @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.wait_for_gridscan_valid",
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.bps.abs_set",
         autospec=True,
     )
     @patch(
-        "hyperion.external_interaction.nexus.write_nexus.NexusWriter",
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.bps.kickoff",
+        autospec=True,
+    )
+    @patch(
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.bps.complete",
+        autospec=True,
+    )
+    @patch(
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.bps.mv",
+        autospec=True,
+    )
+    @patch(
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.wait_for_gridscan_valid",
+        autospec=True,
+    )
+    @patch(
+        "mx_bluesky.hyperion.external_interaction.nexus.write_nexus.NexusWriter",
         autospec=True,
         spec_set=True,
     )
@@ -871,11 +899,11 @@ class TestFlyscanXrayCentrePlan:
 
         with (
             patch(
-                "hyperion.external_interaction.callbacks.xray_centre.nexus_callback.NexusWriter.create_nexus_file",
+                "mx_bluesky.hyperion.external_interaction.callbacks.xray_centre.nexus_callback.NexusWriter.create_nexus_file",
                 autospec=True,
             ),
             patch(
-                "hyperion.external_interaction.callbacks.zocalo_callback.ZocaloTrigger",
+                "mx_bluesky.hyperion.external_interaction.callbacks.zocalo_callback.ZocaloTrigger",
                 lambda _: modified_interactor_mock(mock_parent.run_end),
             ),
         ):
@@ -890,19 +918,19 @@ class TestFlyscanXrayCentrePlan:
         mock_parent.assert_has_calls([call.disarm(), call.run_end(0), call.run_end(0)])
 
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.set_panda_directory",
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.set_panda_directory",
         side_effect=_custom_msg("set_panda_directory"),
     )
     @patch(
-        "hyperion.device_setup_plans.setup_panda.arm_panda_for_gridscan",
+        "mx_bluesky.hyperion.device_setup_plans.setup_panda.arm_panda_for_gridscan",
         new=MagicMock(side_effect=_custom_msg("arm_panda")),
     )
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.disarm_panda_for_gridscan",
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.disarm_panda_for_gridscan",
         new=MagicMock(side_effect=_custom_msg("disarm_panda")),
     )
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.run_gridscan",
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.run_gridscan",
         new=MagicMock(side_effect=_custom_msg("do_gridscan")),
     )
     def test_flyscan_xray_centre_sets_directory_stages_arms_disarms_unstages_the_panda(
@@ -945,12 +973,17 @@ class TestFlyscanXrayCentrePlan:
             msgs, lambda msg: msg.command == "unstage" and msg.obj.name == "panda"
         )
 
-    @patch("hyperion.experiment_plans.flyscan_xray_centre_plan.bps.wait", autospec=True)
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.bps.complete", autospec=True
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.bps.wait",
+        autospec=True,
     )
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.bps.kickoff", autospec=True
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.bps.complete",
+        autospec=True,
+    )
+    @patch(
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.bps.kickoff",
+        autospec=True,
     )
     def test_fgs_arms_eiger_without_grid_detect(
         self,
@@ -975,11 +1008,16 @@ class TestFlyscanXrayCentrePlan:
         fake_fgs_composite.eiger.unstage.assert_called_once()
 
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.bps.kickoff", autospec=True
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.bps.kickoff",
+        autospec=True,
     )
-    @patch("hyperion.experiment_plans.flyscan_xray_centre_plan.bps.wait", autospec=True)
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.bps.complete", autospec=True
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.bps.wait",
+        autospec=True,
+    )
+    @patch(
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.bps.complete",
+        autospec=True,
     )
     def test_when_grid_scan_fails_then_detector_disarmed_and_correct_exception_returned(
         self,
@@ -1023,13 +1061,15 @@ class TestFlyscanXrayCentrePlan:
         fake_fgs_composite.eiger.disarm_detector.assert_called()
 
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.bps.kickoff", autospec=True
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.bps.kickoff",
+        autospec=True,
     )
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.bps.complete", autospec=True
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.bps.complete",
+        autospec=True,
     )
     @patch(
-        "hyperion.external_interaction.callbacks.zocalo_callback.ZocaloTrigger",
+        "mx_bluesky.hyperion.external_interaction.callbacks.zocalo_callback.ZocaloTrigger",
         autospec=True,
     )
     def test_kickoff_and_complete_gridscan_triggers_zocalo(
@@ -1094,7 +1134,7 @@ class TestFlyscanXrayCentrePlan:
         assert mock_zocalo_trigger.run_end.mock_calls == [call(id_1), call(id_2)]
 
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.check_topup_and_wait_if_necessary",
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.check_topup_and_wait_if_necessary",
         new=MagicMock(side_effect=lambda *_, **__: iter([Msg("check_topup")])),
     )
     def test_read_hardware_during_collection_occurs_after_eiger_arm(
@@ -1136,7 +1176,7 @@ class TestFlyscanXrayCentrePlan:
         )
 
     @patch(
-        "hyperion.experiment_plans.flyscan_xray_centre_plan.kickoff_and_complete_gridscan",
+        "mx_bluesky.hyperion.experiment_plans.flyscan_xray_centre_plan.kickoff_and_complete_gridscan",
     )
     def test_if_smargon_speed_over_limit_then_log_error(
         self,

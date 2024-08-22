@@ -139,7 +139,7 @@ def activated_mocked_cbs():
 
 
 @patch(
-    "hyperion.external_interaction.callbacks.rotation.ispyb_callback.StoreInIspyb",
+    "mx_bluesky.hyperion.external_interaction.callbacks.rotation.ispyb_callback.StoreInIspyb",
     autospec=True,
 )
 def test_nexus_handler_gets_documents_in_mock_plan(
@@ -161,7 +161,7 @@ def test_nexus_handler_gets_documents_in_mock_plan(
 
 
 @patch(
-    "hyperion.external_interaction.callbacks.rotation.nexus_callback.NexusWriter",
+    "mx_bluesky.hyperion.external_interaction.callbacks.rotation.nexus_callback.NexusWriter",
     autospec=True,
 )
 def test_nexus_handler_only_writes_once(
@@ -200,15 +200,15 @@ def test_nexus_handler_triggers_write_file_when_told(
 
 
 @patch(
-    "hyperion.external_interaction.callbacks.rotation.nexus_callback.NexusWriter",
+    "mx_bluesky.hyperion.external_interaction.callbacks.rotation.nexus_callback.NexusWriter",
     autospec=True,
 )
 @patch(
-    "hyperion.external_interaction.callbacks.zocalo_callback.ZocaloTrigger",
+    "mx_bluesky.hyperion.external_interaction.callbacks.zocalo_callback.ZocaloTrigger",
     autospec=True,
 )
 @patch(
-    "hyperion.external_interaction.callbacks.rotation.ispyb_callback.StoreInIspyb",
+    "mx_bluesky.hyperion.external_interaction.callbacks.rotation.ispyb_callback.StoreInIspyb",
     autospec=True,
 )
 def test_zocalo_start_and_end_not_triggered_if_ispyb_ids_not_present(
@@ -231,14 +231,16 @@ def test_zocalo_start_and_end_not_triggered_if_ispyb_ids_not_present(
 
 
 @patch(
-    "hyperion.external_interaction.callbacks.rotation.nexus_callback.NexusWriter",
+    "mx_bluesky.hyperion.external_interaction.callbacks.rotation.nexus_callback.NexusWriter",
     autospec=True,
 )
 @patch(
-    "hyperion.external_interaction.callbacks.zocalo_callback.ZocaloTrigger",
+    "mx_bluesky.hyperion.external_interaction.callbacks.zocalo_callback.ZocaloTrigger",
     autospec=True,
 )
-@patch("hyperion.external_interaction.callbacks.rotation.ispyb_callback.StoreInIspyb")
+@patch(
+    "mx_bluesky.hyperion.external_interaction.callbacks.rotation.ispyb_callback.StoreInIspyb"
+)
 def test_ispyb_starts_on_opening_and_zocalo_on_main_so_ispyb_triggered_before_zocalo(
     ispyb_store,
     zocalo_trigger,
@@ -281,7 +283,7 @@ def test_ispyb_starts_on_opening_and_zocalo_on_main_so_ispyb_triggered_before_zo
 
 
 @patch(
-    "hyperion.external_interaction.callbacks.zocalo_callback.ZocaloTrigger",
+    "mx_bluesky.hyperion.external_interaction.callbacks.zocalo_callback.ZocaloTrigger",
     autospec=True,
 )
 def test_ispyb_handler_grabs_uid_from_main_plan_and_not_first_start_doc(
@@ -312,7 +314,7 @@ def test_ispyb_handler_grabs_uid_from_main_plan_and_not_first_start_doc(
         assert ispyb_callback.uid_to_finalize_on is not None
 
     with patch(
-        "hyperion.external_interaction.callbacks.rotation.ispyb_callback.StoreInIspyb",
+        "mx_bluesky.hyperion.external_interaction.callbacks.rotation.ispyb_callback.StoreInIspyb",
         autospec=True,
     ):
         RE(
@@ -323,7 +325,7 @@ def test_ispyb_handler_grabs_uid_from_main_plan_and_not_first_start_doc(
 
 
 @patch(
-    "hyperion.external_interaction.callbacks.rotation.ispyb_callback.StoreInIspyb",
+    "mx_bluesky.hyperion.external_interaction.callbacks.rotation.ispyb_callback.StoreInIspyb",
     autospec=True,
 )
 def test_ispyb_reuses_dcgid_on_same_sampleID(
@@ -390,7 +392,7 @@ n_images_store_id = [
 
 @pytest.mark.parametrize("n_images,store_id", n_images_store_id)
 @patch(
-    "hyperion.external_interaction.callbacks.rotation.ispyb_callback.StoreInIspyb",
+    "mx_bluesky.hyperion.external_interaction.callbacks.rotation.ispyb_callback.StoreInIspyb",
     new=MagicMock(),
 )
 def test_ispyb_handler_stores_sampleid_for_full_collection_not_screening(

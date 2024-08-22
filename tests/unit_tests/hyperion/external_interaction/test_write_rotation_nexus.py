@@ -126,7 +126,7 @@ def test_rotation_scan_nexus_output_compared_to_existing_full_compare(
     RE = RunEngine({})
 
     with patch(
-        "hyperion.external_interaction.nexus.write_nexus.get_start_and_predicted_end_time",
+        "mx_bluesky.hyperion.external_interaction.nexus.write_nexus.get_start_and_predicted_end_time",
         return_value=("test_time", "test_time"),
     ):
         RE(
@@ -242,7 +242,7 @@ def test_rotation_scan_nexus_output_compared_to_existing_file(
     RE = RunEngine({})
 
     with patch(
-        "hyperion.external_interaction.nexus.write_nexus.get_start_and_predicted_end_time",
+        "mx_bluesky.hyperion.external_interaction.nexus.write_nexus.get_start_and_predicted_end_time",
         return_value=("test_time", "test_time"),
     ):
         RE(
@@ -343,7 +343,7 @@ def test_rotation_scan_nexus_output_compared_to_existing_file(
     "bit_depth,expected_type",
     [(8, np.uint8), (16, np.uint16), (32, np.uint32), (100, np.uint16)],
 )
-@patch("hyperion.external_interaction.nexus.write_nexus.NXmxFileWriter")
+@patch("mx_bluesky.hyperion.external_interaction.nexus.write_nexus.NXmxFileWriter")
 def test_given_detector_bit_depth_changes_then_vds_datatype_as_expected(
     mock_nexus_writer,
     test_params: RotationScan,
@@ -358,7 +358,7 @@ def test_given_detector_bit_depth_changes_then_vds_datatype_as_expected(
     RE = RunEngine({})
 
     with patch(
-        "hyperion.external_interaction.nexus.write_nexus.get_start_and_predicted_end_time",
+        "mx_bluesky.hyperion.external_interaction.nexus.write_nexus.get_start_and_predicted_end_time",
         return_value=("test_time", "test_time"),
     ):
         RE(
