@@ -34,8 +34,8 @@ jobs:
           git add setup.cfg
       - name: Commit changes
         run: |
-          git config --global user.name "GitHub Workflow"
-          git config --global user.email "robert.tuck@diamond.ac.uk"
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git commit -m ${{steps.pin_versions.outputs.COMMIT_MESSAGE}}
           git tag ${{inputs.tagName}}
           git push origin ${{inputs.tagName}}
