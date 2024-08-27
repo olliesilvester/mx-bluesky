@@ -23,12 +23,13 @@ dependencies = [
     "ispyb",
     "jupyterlab",
     "matplotlib",
-    "nexgen",
+    "nexgen>0.8.3",
     "numpy",
     "opencv-python",
     "opentelemetry-distro",
     "opentelemetry-exporter-otlp",
-    "pydantic",
+    "opentelemetry-exporter-jaeger",
+    "pydantic<2.0",
     "pyepics",
     "pyzmq",
     "requests",
@@ -51,7 +52,7 @@ dependencies = [
 dynamic = ["version"]
 license.file = "LICENSE"
 readme = "README.rst"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 
 [project.optional-dependencies]
 dev = [
@@ -84,6 +85,8 @@ dev = [
     "tox",
     "types-mock",
     "types-requests",
+    "build",
+    "pyright_diff_quality_plugin @ git+https://github.com/DiamondLightSource/pyright_diff_quality_plugin.git"
 ]
 
 [project.scripts]
@@ -193,3 +196,4 @@ lint.extend-ignore = [
 
 [tool.mypy]
 plugins = ["pydantic.mypy"]
+ignore_missing_imports = ["true"]
