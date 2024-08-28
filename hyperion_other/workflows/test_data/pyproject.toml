@@ -1,0 +1,148 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools_scm[toml]>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mx-bluesky"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+description = "Bluesky tools for MX Beamlines at DLS"
+dependencies = [
+    #
+    # If a constraint is not set here or if the dependency is pinned to a hash
+    # it will be auto-pinned to the latest release version by the pre-release workflow   
+    #
+    "annotated-types",
+    "caproto",
+    "fastapi",
+    "flask-restful",
+    "semver",
+    #
+    # These dependencies may be issued as pre-release versions and should have a pin constraint
+    # as by default pip-install will not upgrade to a pre-release.
+    # 
+    "blueapi == 0.4.5a1",
+    "dls-dodal @ git+https://github.com/DiamondLightSource/dodal.git",
+]
+
+dynamic = ["version"]
+license.file = "LICENSE"
+readme = "README.rst"
+requires-python = ">=3.10"
+
+[project.scripts]
+mx-bluesky = "mx_bluesky.__main__:main"
+run_extruder = "mx_bluesky.beamlines.i24.serial.run_serial:run_extruder"
+run_fixed_target = "mx_bluesky.beamlines.i24.serial.run_serial:run_fixed_target"
+hyperion = "mx_bluesky.hyperion.__main__:main"
+hyperion-callbacks = "mx_bluesky.hyperion.external_interaction.callbacks.__main__:main"
+hyperion-generate-test-nexus = "mx_bluesky.hyperion.utils.validation:generate_test_nexus"
+hyperion-populate-test-and-meta-files = "mx_bluesky.hyperion.utils.validation:copy_test_meta_data_files"
+
+[project.urls]
+GitHub = "https://github.com/DiamondLightSource/mx-bluesky"
+
+[[project.authors]] # Further authors may be added by duplicating this section
+email = "dominic.oram@diamond.ac.uk"
+name = "Dominic Oram"
+
+
+[tool.setuptools_scm]
+version_file = "src/mx_bluesky/_version.py"
+
+[tool.pyright]
+reportMissingImports = false # Ignore missing stubs in imported modules
+
+[tool.pytest.ini_options]
+# Run pytest with all our checkers, and don't spam us with massive tracebacks on error
+asyncio_mode = "auto"
+markers = [
+    "s03: marks tests as requiring the s03 simulator running (deselect with '-m \"not s03\"')",
+    "dlstbx: marks tests as requiring dlstbx (deselect with '-m \"not dlstbx\"')",
+    "skip_log_setup: marks tests so that loggers are not setup before the test.",
+]
+addopts = """
+    --tb=native -vv --doctest-modules --doctest-glob="*.rst"
+    """
+# https://iscinumpy.gitlab.io/post/bound-version-constraints/#watch-for-warnings
+filterwarnings = [
+    "error",
+    # Ignore deprecation warning from zocalo (https://github.com/DiamondLightSource/python-zocalo/issues/256)
+    "ignore::DeprecationWarning:zocalo",
+    "ignore::DeprecationWarning:pkg_resources",
+    # Ignore incorrect errors  from bluesky (remove when https://github.com/bluesky/bluesky/issues/1797 is released)
+    "ignore:((.|\n)*)was never iterated.*:RuntimeWarning",
+    # Ignore deprecation warning from sqlalchemy
+    "ignore::sqlalchemy.exc.MovedIn20Warning",
+    # Ignore deprecation warning from setuptools_dso (remove when https://github.com/epics-base/setuptools_dso/issues/36 is released)
+    "ignore::DeprecationWarning:wheel",
+    # Ophyd status objects in tests
+    "ignore:.*The 'done' and 'success' parameters will be removed.*:DeprecationWarning",
+    # Ignore nondeterministic closing of log, RE, etc. before test end
+    "ignore:(.*)unclosed file(.*)name='(.*)dodal.log'(.*):ResourceWarning",
+    "ignore:(.*)unclosed <socket(.*):ResourceWarning",
+    "ignore:(.*)unclosed event loop(.*):ResourceWarning",
+]
+# Doctest python code in docs, python code in src docstrings, test functions in tests
+testpaths = "docs src tests/unit_tests"
+
+[tool.coverage.run]
+data_file = "/tmp/mx_bluesky.coverage"
+
+[tool.coverage.paths]
+# Tests are run from installed location, map back to the src directory
+source = ["src", "**/site-packages/"]
+
+# tox must currently be configured via an embedded ini string
+# See: https://github.com/tox-dev/tox/issues/999
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+skipsdist=True
+
+[testenv:{pre-commit,type-checking,tests,docs}]
+# Don't create a virtualenv for the command, requires tox-direct plugin
+direct = True
+passenv = *
+allowlist_externals =
+    pytest
+    pre-commit
+    pyright
+    sphinx-build
+    sphinx-autobuild
+commands =
+    pre-commit: pre-commit run --all-files --show-diff-on-failure {posargs}
+    type-checking: pyright src tests {posargs}
+    tests: pytest --cov=mx_bluesky --cov-report term --cov-report xml:cov.xml {posargs}
+    docs: sphinx-{posargs:build -EW --keep-going} -T docs build/html
+"""
+
+[tool.ruff]
+src = ["src", "tests"]
+line-length = 88
+lint.select = [
+    "B",   # flake8-bugbear - https://docs.astral.sh/ruff/rules/#flake8-bugbear-b
+    "C4",  # flake8-comprehensions - https://docs.astral.sh/ruff/rules/#flake8-comprehensions-c4
+    "E",   # pycodestyle errors - https://docs.astral.sh/ruff/rules/#error-e
+    "F",   # pyflakes rules - https://docs.astral.sh/ruff/rules/#pyflakes-f
+    "W",   # pycodestyle warnings - https://docs.astral.sh/ruff/rules/#warning-w
+    "I",   # isort - https://docs.astral.sh/ruff/rules/#isort-i
+    "UP",  # pyupgrade - https://docs.astral.sh/ruff/rules/#pyupgrade-up
+    "SLF", # self - https://docs.astral.sh/ruff/settings/#lintflake8-self
+]
+lint.extend-ignore = [
+    "E501", # Line too long
+    "B008", # Allow inject("device")
+]
+[tool.ruff.lint.per-file-ignores]
+# By default, private member access is allowed in tests
+# See https://github.com/DiamondLightSource/python-copier-template/issues/154
+# Remove this line to forbid private member access in tests
+"tests/**/*" = ["SLF001", "B023"]
+
+[tool.mypy]
+plugins = ["pydantic.mypy"]
