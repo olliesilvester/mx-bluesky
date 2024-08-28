@@ -77,7 +77,7 @@ def fetch_pin_versions() -> dict[str, str]:
 
 def run_pip_freeze():
     process = subprocess.run(
-        [PIP, "list --format=freeze"],
+        [PIP, "freeze"],
         capture_output=True,
         encoding=locale.getpreferredencoding(),
     )
