@@ -49,7 +49,7 @@ def test_given_plan_raises_when_exception_raised_then_eiger_disarmed_and_correct
 
 @pytest.fixture()
 def null_plan():
-    return bps.null()
+    yield from bps.null()
 
 
 def test_given_shutter_open_fails_then_eiger_disarmed_and_correct_exception_returned(

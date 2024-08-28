@@ -35,6 +35,7 @@ dependencies = [
     "scanspec",
     "scipy",
     "semver",
+    "matplotlib",
     #
     # These dependencies may be issued as pre-release versions and should have a pin constraint
     # as by default pip-install will not upgrade to a pre-release.
@@ -51,22 +52,18 @@ dependencies = [
 dynamic = ["version"]
 license.file = "LICENSE"
 readme = "README.rst"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 
 [project.optional-dependencies]
 dev = [
-    "black",
     "black",
     "build",
     "copier",
     "diff-cover",
     "GitPython",
     "ipython",
-    "matplotlib",
-    "mockito",
     "mypy",
     "myst-parser",
-    "ophyd-async",
     "pipdeptree",
     "pre-commit",
     "pydata-sphinx-theme>=0.12",
